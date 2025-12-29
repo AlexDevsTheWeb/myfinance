@@ -1,16 +1,24 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getEnvVar } from "../utils/variables.utils";
 
-// TODO: Replace with your actual Firebase config from the Firebase Console
+const apiKey = getEnvVar('VITE_FIREBASE_API_KEY');
+const authDomain = getEnvVar('VITE_FIREBASE_AUTH_DOMAIN');
+const projectId = getEnvVar('VITE_FIREBASE_PROJECT_ID');
+const storageBucket = getEnvVar('VITE_FIREBASE_STORAGE_BUCKET');
+const messagingSenderId = getEnvVar('VITE_FIREBASE_MESSAGING_SENDER_ID');
+const appId = getEnvVar('VITE_FIREBASE_APP_ID');
+const measurementId = getEnvVar('VITE_FIREBASE_MEASUREMENT_ID');
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAkAtLCmbhHT167wT0uykIAJ0n9PzEYdNM",
-  authDomain: "myfinancetracker-b257e.firebaseapp.com",
-  projectId: "myfinancetracker-b257e",
-  storageBucket: "myfinancetracker-b257e.firebasestorage.app",
-  messagingSenderId: "321545124180",
-  appId: "1:321545124180:web:3e18728a082d58d27630c1",
-  measurementId: "G-RJGV0M21CZ"
+  apiKey,
+  authDomain,
+  projectId,
+  storageBucket,
+  messagingSenderId,
+  appId,
+  measurementId
 };
 
 const app = initializeApp(firebaseConfig);

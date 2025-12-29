@@ -1,73 +1,40 @@
-# React + TypeScript + Vite
+# YAFT - Yey another finance tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+YAFT is a modern, premium web application designed to help you track your personal finances with ease and style. It features a sleek dark-mode interface with glassmorphism aesthetics and provides powerful tools to stay on top of your budget.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Dynamic Dashboard**: Get an immediate overview of your current balance, monthly income, and monthly expenses through beautiful charts and recap cards.
+- **Transaction Tracking**: Easily record every income and expense. You can edit or delete them at any time if you make a mistake.
+- **Full Category Customization**: Completely manage your own category system. Add, rename, or delete categories and sub-items for both income and expenses to match your spending habits.
+- **Recurring Transactions**: Set up monthly items once (like Netflix, rent, or your salary) and let the app handle the rest. YAFT automatically generates these transactions for you.
+- **Installment Support**: Recurring items can have an optional end date, perfect for tracking loans or split payments that eventually stop.
+- **Cloud Sync & Auth**: Securely log in with your account. All your data is automatically synced to the cloud, so you never lose your financial history.
+- **Premium UI**: Experience a state-of-the-art interface built with modern web principles, smooth animations, and a responsive design.
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React (Vite)
+- **Styling**: Material UI (MUI) with custom glassmorphism theme
+- **State Management**: Zustand (with persistence)
+- **Backend & Auth**: Firebase Auth & Firestore
+- **Date Handling**: Day.js
 
-## Expanding the ESLint configuration
+## 🏁 Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Run the development server**:
+   ```bash
+   npm run dev
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+3. **Configure Firebase**:
+   Ensure you have a `.env` file with your Firebase credentials (refer to `src/lib/firebase.ts` for the required keys).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📄 License
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+This project is for personal use. All rights reserved.
