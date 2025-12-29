@@ -1,23 +1,23 @@
 import { Google as GoogleIcon } from '@mui/icons-material';
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithRedirect } from 'firebase/auth';
 import React from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { auth, googleProvider } from '../lib/firebase';
 import { useAuthStore } from '../store/useAuthStore';
+import { getEnvVar } from '../utils/variables.utils';
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
 
+  const appTitle = getEnvVar('VITE_REACT_APP_TITLE');
   if (user) {
     return <Navigate to="/dashboard" />;
   }
 
   const handleLogin = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      navigate('/dashboard');
+      await signInWithRedirect(auth, googleProvider);
     } catch (error) {
       console.error('Error logging in:', error);
     }
@@ -34,7 +34,7 @@ const LoginPage: React.FC = () => {
       <Container maxWidth="xs">
         <Paper elevation={24} sx={{ p: 4, textAlign: 'center', borderRadius: 4, background: 'rgba(30, 41, 59, 0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, color: '#6366f1' }}>
-            MyFinance
+            {appTitle}
           </Typography>
           <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
             Track your finances with ease and precision.

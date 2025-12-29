@@ -8,16 +8,37 @@ interface UserDoc {
   categories: Category[];
   incomeCategories: Category[];
   recurringTransactions: RecurringTransaction[];
+  balanceStartDate: string;
 }
 
 export const userDocConverter: FirestoreDataConverter<UserDoc> = {
   toFirestore: (userDoc: UserDoc): DocumentData => {
     return {
-      transactions: userDoc.transactions,
+      transactions: userDoc.transactions.map(t => ({
+        id: t.id,
+        date: t.date,
+        description: t.description,
+        category: t.category,
+        subcategory: t.subcategory,
+        amount: t.amount,
+        type: t.type,
+        recurringLinkId: t.recurringLinkId ?? null,
+      })),
       initialBalance: userDoc.initialBalance,
       categories: userDoc.categories,
       incomeCategories: userDoc.incomeCategories,
-      recurringTransactions: userDoc.recurringTransactions,
+      recurringTransactions: userDoc.recurringTransactions.map(r => ({
+        id: r.id,
+        description: r.description,
+        category: r.category,
+        subcategory: r.subcategory,
+        amount: r.amount,
+        type: r.type,
+        dayOfMonth: r.dayOfMonth,
+        startDate: r.startDate,
+        endDate: r.endDate ?? null,
+      })),
+      balanceStartDate: userDoc.balanceStartDate || '2026-01-01',
     };
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): UserDoc => {
@@ -59,12 +80,15 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       endDate: r.endDate,
     })) : [];
 
+    const balanceStartDate: string = data.balanceStartDate || '2026-01-01';
+
     return {
       transactions,
       initialBalance,
       categories,
       incomeCategories,
       recurringTransactions,
+      balanceStartDate,
     };
   }
 };

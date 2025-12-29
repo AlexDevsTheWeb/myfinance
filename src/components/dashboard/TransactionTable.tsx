@@ -1,20 +1,37 @@
-import { Delete, Edit } from '@mui/icons-material';
-import { Box, Chip, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
+import { Delete, Edit, OpenInNew } from '@mui/icons-material';
+import { Box, Button, Chip, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 
 interface TransactionTableProps {
   onEdit: (transaction: Transaction) => void;
+  limit?: number;
+  customData?: Transaction[];
 }
 
-const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit }) => {
-  const { transactions, deleteTransaction } = useFinanceStore();
+const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit, limit, customData }) => {
+  const { transactions: storeTransactions, deleteTransaction } = useFinanceStore();
+  const navigate = useNavigate();
+
+  const transactions = [...(customData || storeTransactions)].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+  const displayedTransactions = limit ? transactions.slice(0, limit) : transactions;
 
   return (
     <Paper sx={{ mt: 4, borderRadius: 4, overflow: 'hidden', background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>Recent Transactions</Typography>
+        {limit && (
+          <Button
+            size="small"
+            onClick={() => navigate('/transactions')}
+            sx={{ fontWeight: 600, textTransform: 'none' }}
+            endIcon={<OpenInNew sx={{ fontSize: '1rem !important' }} />}
+          >
+            See all
+          </Button>
+        )}
       </Box>
       <TableContainer>
         <Table>
@@ -36,7 +53,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit }) => {
                 </TableCell>
               </TableRow>
             ) : (
-              transactions.map((t) => (
+              displayedTransactions.map((t) => (
                 <TableRow key={t.id} sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { background: 'rgba(255,255,255,0.01)' } }}>
                   <TableCell>{dayjs(t.date).format('DD MMM YYYY')}</TableCell>
                   <TableCell sx={{ fontWeight: 500 }}>{t.description}</TableCell>
@@ -76,6 +93,24 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit }) => {
           </TableBody>
         </Table>
       </TableContainer>
+      {limit && transactions.length > limit && (
+        <Box sx={{ p: 2, textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+          <Typography
+            variant="button"
+            component="a"
+            href="/transactions"
+            sx={{
+              color: 'primary.main',
+              textDecoration: 'none',
+              fontWeight: 700,
+              cursor: 'pointer',
+              '&:hover': { textDecoration: 'underline' }
+            }}
+          >
+            Show All Transactions
+          </Typography>
+        </Box>
+      )}
     </Paper>
   );
 };

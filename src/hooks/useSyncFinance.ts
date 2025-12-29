@@ -14,6 +14,7 @@ export const useSyncFinance = () => {
     categories, setCategories,
     incomeCategories, setIncomeCategories,
     recurringTransactions, setRecurringTransactions,
+    balanceStartDate, setBalanceStartDate,
   } = useFinanceStore();
 
   // Load data from Firestore on user change
@@ -30,11 +31,12 @@ export const useSyncFinance = () => {
         if (data.categories) setCategories(data.categories);
         if (data.incomeCategories) setIncomeCategories(data.incomeCategories);
         if (data.recurringTransactions) setRecurringTransactions(data.recurringTransactions);
+        if (data.balanceStartDate) setBalanceStartDate(data.balanceStartDate);
       }
     });
 
     return () => unsub();
-  }, [user, setTransactions, setInitialBalance, setCategories, setIncomeCategories, setRecurringTransactions]);
+  }, [user, setTransactions, setInitialBalance, setCategories, setIncomeCategories, setRecurringTransactions, setBalanceStartDate]);
 
   // Materialize recurring transactions
   useEffect(() => {
@@ -113,9 +115,10 @@ export const useSyncFinance = () => {
         categories,
         incomeCategories,
         recurringTransactions,
+        balanceStartDate,
       }, { merge: true });
     };
 
     saveData();
-  }, [user, transactions, initialBalance, categories, incomeCategories, recurringTransactions]);
+  }, [user, transactions, initialBalance, categories, incomeCategories, recurringTransactions, balanceStartDate]);
 };

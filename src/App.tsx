@@ -8,6 +8,8 @@ import { auth } from './lib/firebase';
 import ConfigPage from './pages/ConfigPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
+import SalaryPage from './pages/SalaryPage';
+import TransactionsPage from './pages/TransactionsPage';
 import { useAuthStore } from './store/useAuthStore';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -52,6 +54,16 @@ function App() {
         <Route path="/config" element={
           <ProtectedRoute>
             <ConfigPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/transactions" element={
+          <ProtectedRoute>
+            <TransactionsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/salary" element={
+          <ProtectedRoute>
+            <SalaryPage />
           </ProtectedRoute>
         } />
       </Routes>

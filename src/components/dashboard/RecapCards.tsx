@@ -1,12 +1,15 @@
 import { Box, Grid, Paper, Typography } from '@mui/material';
+import dayjs from 'dayjs';
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import React from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 
 const RecapCards: React.FC = () => {
-  const { transactions, initialBalance } = useFinanceStore();
+  const { transactions, initialBalance, balanceStartDate } = useFinanceStore();
 
-  const totalIncome = transactions
+  const filteredTransactions = transactions.filter(t => dayjs(t.date).isAfter(dayjs(balanceStartDate).subtract(1, 'day')));
+
+  const totalIncome = filteredTransactions
     .filter((t) => t.type === 'income')
     .reduce((acc, t) => acc + t.amount, 0);
 

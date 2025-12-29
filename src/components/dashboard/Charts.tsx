@@ -8,18 +8,19 @@ import { useFinanceStore } from '../../store/useFinanceStore';
 const Charts: React.FC = () => {
   const { transactions } = useFinanceStore();
 
-  // Process data for the chart (group by date)
+  // Process data for the chart (group by full date string to include year)
   const groupedData = transactions.reduce((acc: any, t) => {
-    const date = dayjs(t.date).format('MMM DD');
-    if (!acc[date]) {
-      acc[date] = { date, income: 0, expense: 0 };
+    const dateKey = t.date; // already YYYY-MM-DD
+    const displayDate = dayjs(t.date).format('MMM DD YYYY');
+    if (!acc[dateKey]) {
+      acc[dateKey] = { dateKey, displayDate, income: 0, expense: 0 };
     }
-    if (t.type === 'income') acc[date].income += t.amount;
-    else acc[date].expense += t.amount;
+    if (t.type === 'income') acc[dateKey].income += t.amount;
+    else acc[dateKey].expense += t.amount;
     return acc;
   }, {});
 
-  const data = Object.values(groupedData).sort((a: any, b: any) => dayjs(a.date).unix() - dayjs(b.date).unix());
+  const data = Object.values(groupedData).sort((a: any, b: any) => a.dateKey.localeCompare(b.dateKey));
 
   return (
     <Paper sx={{ p: 4, borderRadius: 4, mt: 4, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
@@ -40,7 +41,7 @@ const Charts: React.FC = () => {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="date" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
+            <XAxis dataKey="displayDate" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
             <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: number) => `€${v}`} />
             <Tooltip
               contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}

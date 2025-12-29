@@ -19,7 +19,9 @@ const ConfigPage: React.FC = () => {
     recurringTransactions,
     addRecurring,
     updateRecurring,
-    deleteRecurring
+    deleteRecurring,
+    balanceStartDate,
+    setBalanceStartDate
   } = useFinanceStore();
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -233,6 +235,28 @@ const ConfigPage: React.FC = () => {
 
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, md: 6 }}>
+          <Paper sx={{ p: 4, borderRadius: 4, mb: 4, height: '100%' }}>
+            <Typography variant="h6" gutterBottom>Balance Calculation Start Date</Typography>
+            <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
+              Transactions before this date will not be counted towards the "Current Balance" and "Total Income/Expenses" on the dashboard.
+            </Typography>
+            <TextField
+              type="date"
+              fullWidth
+              value={balanceStartDate}
+              onChange={(e) => setBalanceStartDate(e.target.value)}
+              variant="outlined"
+              slotProps={{ inputLabel: { shrink: true } }}
+            />
+          </Paper>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          {/* Empty space or other config items */}
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={4} sx={{ mt: 2 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           {renderCategoryList(categories, 'expense')}
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
@@ -267,7 +291,7 @@ const ConfigPage: React.FC = () => {
                     onChange={(e) => setRecurringForm({ ...recurringForm, category: e.target.value, subcategory: '' })}
                     SelectProps={{ native: false }}
                   >
-                    {currentCategories.map((cat) => (
+                    {(currentCategories || []).map((cat) => (
                       <MenuItem key={cat.name} value={cat.name}>{cat.name}</MenuItem>
                     ))}
                   </TextField>
@@ -282,7 +306,7 @@ const ConfigPage: React.FC = () => {
                     disabled={!recurringForm.category}
                     SelectProps={{ native: false }}
                   >
-                    {selectedCategoryObj?.subcategories.map((sub) => (
+                    {(selectedCategoryObj?.subcategories || []).map((sub) => (
                       <MenuItem key={sub} value={sub}>{sub}</MenuItem>
                     ))}
                   </TextField>

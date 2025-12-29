@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -35,6 +36,7 @@ interface FinanceState {
   incomeCategories: Category[];
   transactions: Transaction[];
   recurringTransactions: RecurringTransaction[];
+  balanceStartDate: string; // YYYY-MM-DD
   setInitialBalance: (balance: number) => void;
   addTransaction: (transaction: Transaction) => void;
   updateTransaction: (transaction: Transaction) => void;
@@ -43,6 +45,7 @@ interface FinanceState {
   setIncomeCategories: (categories: Category[]) => void;
   setTransactions: (transactions: Transaction[]) => void;
   setRecurringTransactions: (recurring: RecurringTransaction[]) => void;
+  setBalanceStartDate: (date: string) => void;
   // Category actions
   addCategory: (type: 'income' | 'expense', name: string) => void;
   renameCategory: (type: 'income' | 'expense', oldName: string, newName: string) => void;
@@ -80,18 +83,28 @@ export const useFinanceStore = create<FinanceState>()(
       ],
       transactions: [],
       recurringTransactions: [],
+      balanceStartDate: '2026-01-01',
       setInitialBalance: (balance) => set({ initialBalance: balance }),
-      addTransaction: (transaction) => set((state) => ({ transactions: [transaction, ...state.transactions] })),
-      updateTransaction: (transaction) => set((state) => ({
-        transactions: state.transactions.map((t) => (t.id === transaction.id ? transaction : t)),
-      })),
+      addTransaction: (transaction) => set((state) => {
+        const sorted = [transaction, ...state.transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+        return { transactions: sorted };
+      }),
+      updateTransaction: (transaction) => set((state) => {
+        const sorted = state.transactions
+          .map((t) => (t.id === transaction.id ? transaction : t))
+          .sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+        return { transactions: sorted };
+      }),
       deleteTransaction: (id) => set((state) => ({
         transactions: state.transactions.filter((t) => t.id !== id),
       })),
       setCategories: (categories) => set({ categories }),
       setIncomeCategories: (categories) => set({ incomeCategories: categories }),
-      setTransactions: (transactions) => set({ transactions }),
+      setTransactions: (transactions) => set({
+        transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix())
+      }),
       setRecurringTransactions: (recurring) => set({ recurringTransactions: recurring }),
+      setBalanceStartDate: (date) => set({ balanceStartDate: date }),
 
       addCategory: (type, name) => set((state) => {
         const key = type === 'income' ? 'incomeCategories' : 'categories';

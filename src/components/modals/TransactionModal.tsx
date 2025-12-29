@@ -104,7 +104,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value, subcategory: '' })}
               >
-                {currentCategories.map((cat) => (
+                {(currentCategories || []).map((cat) => (
                   <MenuItem key={cat.name} value={cat.name}>{cat.name}</MenuItem>
                 ))}
               </TextField>
@@ -118,7 +118,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
                 onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
                 disabled={!formData.category}
               >
-                {selectedCategoryObj?.subcategories.map((sub) => (
+                {(selectedCategoryObj?.subcategories || []).map((sub) => (
                   <MenuItem key={sub} value={sub}>{sub}</MenuItem>
                 ))}
               </TextField>
