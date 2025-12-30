@@ -5,6 +5,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'; // Th
 import Layout from './components/layout/Layout';
 import { useSyncFinance } from './hooks/useSyncFinance';
 import { auth } from './lib/firebase';
+import AnalysisPage from './pages/AnalysisPage';
 import ConfigPage from './pages/ConfigPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
@@ -64,6 +65,11 @@ function App() {
         <Route path="/salary" element={
           <ProtectedRoute>
             <SalaryPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/analysis" element={
+          <ProtectedRoute>
+            <AnalysisPage />
           </ProtectedRoute>
         } />
       </Routes>

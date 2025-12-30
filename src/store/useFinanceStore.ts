@@ -7,6 +7,13 @@ export interface Category {
   subcategories: string[];
 }
 
+export interface Account {
+  id: string;
+  name: string;
+  initialBalance: number;
+  isDefault: boolean;
+}
+
 export interface Transaction {
   id: string;
   date: string;
@@ -15,7 +22,8 @@ export interface Transaction {
   subcategory: string;
   amount: number;
   type: 'income' | 'expense';
-  recurringLinkId?: string; // Links this instance to a recurring template
+  accountId: string; // Refers to Account.id
+  recurringLinkId?: string;
 }
 
 export interface RecurringTransaction {
@@ -26,6 +34,7 @@ export interface RecurringTransaction {
   amount: number;
   type: 'income' | 'expense';
   dayOfMonth: number;
+  accountId: string; // Refers to Account.id
   startDate: string; // YYYY-MM-DD
   endDate?: string; // YYYY-MM-DD (optional)
 }
@@ -54,16 +63,26 @@ interface FinanceState {
   addSubcategory: (type: 'income' | 'expense', categoryName: string, subName: string) => void;
   renameSubcategory: (type: 'income' | 'expense', categoryName: string, oldName: string, newName: string) => void;
   deleteSubcategory: (type: 'income' | 'expense', categoryName: string, subName: string) => void;
+  deleteSubcategoryAndRemap: (type: 'income' | 'expense', categoryName: string, subToDelete: string, remapToSub: string) => void;
+  moveSubcategory: (type: 'income' | 'expense', subName: string, fromCategory: string, toCategory: string) => void;
   // Recurring actions
   addRecurring: (recurring: RecurringTransaction) => void;
   updateRecurring: (recurring: RecurringTransaction) => void;
   deleteRecurring: (id: string) => void;
+  // Account actions
+  addAccount: (account: Account) => void;
+  updateAccount: (account: Account) => void;
+  deleteAccount: (id: string) => void;
+  setDefaultAccount: (id: string) => void;
 }
 
 export const useFinanceStore = create<FinanceState>()(
   persist(
     (set) => ({
-      initialBalance: 18325, // Initial from Google Sheet
+      initialBalance: 0, // No longer used as primary source, sum of accounts instead
+      accounts: [
+        { id: 'default-main', name: 'Conto Principale', initialBalance: 18325, isDefault: true }
+      ],
       categories: [
         { name: 'Debiti', subcategories: ['Carte di credito', 'Prestiti studio', 'Altri prestiti', 'Imposte'] },
         { name: 'Divertimento', subcategories: ['Libri', 'Concerti', 'Partite', 'Hobby', 'Film', 'Musica', 'Attività all\'aperto', 'Fotografia', 'Sport', 'Golf', 'Teatro', 'TV'] },
@@ -113,13 +132,24 @@ export const useFinanceStore = create<FinanceState>()(
 
       renameCategory: (type, oldName, newName) => set((state) => {
         const key = type === 'income' ? 'incomeCategories' : 'categories';
+        // Also update all transactions and recurring templates
+        const updatedTransactions = state.transactions.map(t =>
+          t.type === type && t.category === oldName ? { ...t, category: newName } : t
+        );
+        const updatedRecurring = state.recurringTransactions.map(r =>
+          r.type === type && r.category === oldName ? { ...r, category: newName } : r
+        );
         return {
-          [key]: state[key].map(c => c.name === oldName ? { ...c, name: newName } : c)
+          [key]: state[key].map(c => c.name === oldName ? { ...c, name: newName } : c),
+          transactions: updatedTransactions,
+          recurringTransactions: updatedRecurring
         };
       }),
 
       deleteCategory: (type, name) => set((state) => {
         const key = type === 'income' ? 'incomeCategories' : 'categories';
+        const cat = state[key].find(c => c.name === name);
+        if (cat && cat.subcategories.length > 0) return state; // Safety check
         return {
           [key]: state[key].filter(c => c.name !== name)
         };
@@ -134,11 +164,20 @@ export const useFinanceStore = create<FinanceState>()(
 
       renameSubcategory: (type, categoryName, oldName, newName) => set((state) => {
         const key = type === 'income' ? 'incomeCategories' : 'categories';
+        // Also update all transactions and recurring templates
+        const updatedTransactions = state.transactions.map(t =>
+          t.type === type && t.category === categoryName && t.subcategory === oldName ? { ...t, subcategory: newName } : t
+        );
+        const updatedRecurring = state.recurringTransactions.map(r =>
+          r.type === type && r.category === categoryName && r.subcategory === oldName ? { ...r, subcategory: newName } : r
+        );
         return {
           [key]: state[key].map(c => c.name === categoryName ? {
             ...c,
             subcategories: c.subcategories.map(s => s === oldName ? newName : s)
-          } : c)
+          } : c),
+          transactions: updatedTransactions,
+          recurringTransactions: updatedRecurring
         };
       }),
 
@@ -152,12 +191,88 @@ export const useFinanceStore = create<FinanceState>()(
         };
       }),
 
+      deleteSubcategoryAndRemap: (type, categoryName, subToDelete, remapToSub) => set((state) => {
+        const key = type === 'income' ? 'incomeCategories' : 'categories';
+
+        // 1. Update transactions
+        const updatedTransactions = state.transactions.map(t =>
+          (t.type === type && t.category === categoryName && t.subcategory === subToDelete)
+            ? { ...t, subcategory: remapToSub }
+            : t
+        );
+
+        // 2. Update recurring
+        const updatedRecurring = state.recurringTransactions.map(r =>
+          (r.type === type && r.category === categoryName && r.subcategory === subToDelete)
+            ? { ...r, subcategory: remapToSub }
+            : r
+        );
+
+        // 3. Remove subcategory
+        const updatedCategories = state[key].map(c =>
+          c.name === categoryName ? { ...c, subcategories: c.subcategories.filter(s => s !== subToDelete) } : c
+        );
+
+        return {
+          [key]: updatedCategories,
+          transactions: updatedTransactions,
+          recurringTransactions: updatedRecurring
+        };
+      }),
+
+      moveSubcategory: (type, subName, fromCategory, toCategory) => set((state) => {
+        if (fromCategory === toCategory) return state;
+        const key = type === 'income' ? 'incomeCategories' : 'categories';
+
+        // Remove from source, add to target
+        const updatedCategories = state[key].map(cat => {
+          if (cat.name === fromCategory) {
+            return { ...cat, subcategories: cat.subcategories.filter(s => s !== subName) };
+          }
+          if (cat.name === toCategory) {
+            return { ...cat, subcategories: [...cat.subcategories, subName] };
+          }
+          return cat;
+        });
+
+        // Update all related transactions
+        const updatedTransactions = state.transactions.map(t =>
+          (t.type === type && t.category === fromCategory && t.subcategory === subName)
+            ? { ...t, category: toCategory }
+            : t
+        );
+
+        // Update all related recurring templates
+        const updatedRecurring = state.recurringTransactions.map(r =>
+          (r.type === type && r.category === fromCategory && r.subcategory === subName)
+            ? { ...r, category: toCategory }
+            : r
+        );
+
+        return {
+          [key]: updatedCategories,
+          transactions: updatedTransactions,
+          recurringTransactions: updatedRecurring
+        };
+      }),
+
       addRecurring: (recurring) => set((state) => ({ recurringTransactions: [...state.recurringTransactions, recurring] })),
       updateRecurring: (recurring) => set((state) => ({
         recurringTransactions: state.recurringTransactions.map(r => r.id === recurring.id ? recurring : r)
       })),
       deleteRecurring: (id) => set((state) => ({
         recurringTransactions: state.recurringTransactions.filter(r => r.id !== id)
+      })),
+
+      addAccount: (account) => set((state) => ({ accounts: [...state.accounts, account] })),
+      updateAccount: (account) => set((state) => ({
+        accounts: state.accounts.map(a => a.id === account.id ? account : a)
+      })),
+      deleteAccount: (id) => set((state) => ({
+        accounts: state.accounts.filter(a => a.id !== id)
+      })),
+      setDefaultAccount: (id) => set((state) => ({
+        accounts: state.accounts.map(a => ({ ...a, isDefault: a.id === id }))
       })),
     }),
     {

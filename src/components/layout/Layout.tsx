@@ -1,4 +1,4 @@
-import { ChevronRight, Dashboard as DashboardIcon, Home, ExitToApp as LogoutIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
+import { BarChart as BarChartIcon, ChevronRight, Dashboard as DashboardIcon, Home, ExitToApp as LogoutIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
 import { AppBar, Box, Breadcrumbs, Button, Container, IconButton, Link as MuiLink, Toolbar, Typography } from '@mui/material';
 import { signOut } from 'firebase/auth';
 import React from 'react';
@@ -26,6 +26,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     'transactions': 'Transactions',
     'config': 'Config',
     'salary': 'Salary Analysis',
+    'analysis': 'Detailed Analysis',
   };
 
   return (
@@ -42,6 +43,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </Button>
               <Button color="inherit" component={Link} to="/salary" startIcon={<TrendingUp />}>
                 Salary
+              </Button>
+              <Button color="inherit" component={Link} to="/analysis" startIcon={<BarChartIcon />}>
+                Analysis
               </Button>
               <Button color="inherit" component={Link} to="/config" startIcon={<SettingsIcon />}>
                 Config

@@ -1,6 +1,6 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { Transaction } from '../../store/useFinanceStore';
 import { useFinanceStore } from '../../store/useFinanceStore';
 
@@ -12,7 +12,7 @@ interface TransactionModalProps {
 }
 
 const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type, transaction }) => {
-  const { categories, incomeCategories, addTransaction, updateTransaction } = useFinanceStore();
+  const { categories, incomeCategories, addTransaction, updateTransaction, transactions } = useFinanceStore();
 
   const currentCategories = type === 'income' ? incomeCategories : categories;
 
@@ -23,6 +23,27 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
     subcategory: '',
     amount: '',
   });
+
+  // Unique descriptions for suggestions based on current type
+  const descriptionOptions = useMemo(() => {
+    const unique = new Set(
+      transactions
+        .filter(t => t.type === type)
+        .map(t => t.description)
+    );
+    return Array.from(unique).sort((a, b) => a.localeCompare(b));
+  }, [transactions, type]);
+
+  // Flat list of subcategories with their parent category
+  const subcategoryOptions = useMemo(() => {
+    const options: { subcategory: string; category: string }[] = [];
+    currentCategories.forEach((cat) => {
+      cat.subcategories.forEach((sub) => {
+        options.push({ subcategory: sub, category: cat.name });
+      });
+    });
+    return options.sort((a, b) => a.subcategory.localeCompare(b.subcategory));
+  }, [currentCategories]);
 
   // Reset or populate form data when the modal opens or transaction changes
   useEffect(() => {
@@ -67,7 +88,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
     onClose();
   };
 
-  const selectedCategoryObj = currentCategories.find(c => c.name === formData.category);
+  const selectedOption = subcategoryOptions.find(
+    (opt) => opt.subcategory === formData.subcategory && opt.category === formData.category
+  ) || null;
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 4, backgroundImage: 'none', background: '#1e293b' } }}>
@@ -88,40 +111,75 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <TextField
+              <Autocomplete
                 fullWidth
-                label="Description"
-                placeholder="e.g. Salary, Rent, Grocery"
+                freeSolo
+                options={descriptionOptions}
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onInputChange={(_, newInputValue) => {
+                  setFormData({ ...formData, description: newInputValue });
+                }}
+                onChange={(_, newValue) => {
+                  if (newValue && typeof newValue === 'string') {
+                    // Try to find the most recent transaction with this description to auto-fill category/subcategory
+                    const matchingTx = [...transactions]
+                      .filter(t => t.type === type && t.description === newValue)
+                      .sort((a, b) => b.date.localeCompare(a.date))[0];
+
+                    if (matchingTx) {
+                      setFormData({
+                        ...formData,
+                        description: newValue,
+                        category: matchingTx.category,
+                        subcategory: matchingTx.subcategory,
+                      });
+                    }
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Description"
+                    placeholder="e.g. Salary, Rent, Grocery"
+                  />
+                )}
               />
             </Grid>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{ xs: 7 }}>
+              <Autocomplete
+                options={subcategoryOptions}
+                getOptionLabel={(option) => option.subcategory}
+                value={selectedOption}
+                onChange={(_, newValue) => {
+                  if (newValue) {
+                    setFormData({ ...formData, subcategory: newValue.subcategory, category: newValue.category });
+                  } else {
+                    setFormData({ ...formData, subcategory: '', category: '' });
+                  }
+                }}
+                groupBy={(option) => option.category}
+                renderInput={(params) => (
+                  <TextField {...params} label="Search Subcategory" placeholder="Type to search..." />
+                )}
+                renderOption={(props, option) => {
+                  const { key, ...rest } = props as any;
+                  return (
+                    <Box component="li" key={key} {...rest} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                      <Typography variant="body1">{option.subcategory}</Typography>
+                      <Typography variant="caption" sx={{ opacity: 0.5 }}>{option.category}</Typography>
+                    </Box>
+                  );
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 5 }}>
               <TextField
                 fullWidth
-                select
                 label="Category"
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value, subcategory: '' })}
-              >
-                {(currentCategories || []).map((cat) => (
-                  <MenuItem key={cat.name} value={cat.name}>{cat.name}</MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid size={{ xs: 6 }}>
-              <TextField
-                fullWidth
-                select
-                label="Subcategory"
-                value={formData.subcategory}
-                onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
-                disabled={!formData.category}
-              >
-                {(selectedCategoryObj?.subcategories || []).map((sub) => (
-                  <MenuItem key={sub} value={sub}>{sub}</MenuItem>
-                ))}
-              </TextField>
+                InputProps={{ readOnly: true }}
+                sx={{ '& .MuiInputBase-input.Mui-readOnly': { opacity: 0.7 } }}
+              />
             </Grid>
             <Grid size={{ xs: 12 }}>
               <TextField
