@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions } from 'firebase/firestore';
-import { type Account, type Category, type RecurringTransaction, type Transaction } from '../store/useFinanceStore';
+import { type Account, type AppModules, type CarMileageRecord, type Category, type RecurringTransaction, type TireChangeRecord, type TireSettings, type Transaction } from '../store/useFinanceStore';
 
 interface UserDoc {
   transactions: Transaction[];
@@ -9,6 +10,11 @@ interface UserDoc {
   incomeCategories: Category[];
   accounts: Account[];
   recurringTransactions: RecurringTransaction[];
+  carMileage: CarMileageRecord[];
+  carInitialMileage: number;
+  tireSettings: TireSettings;
+  tireChanges: TireChangeRecord[];
+  enabledModules: AppModules;
   balanceStartDate: string;
 }
 
@@ -26,7 +32,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
         accountId: t.accountId,
         recurringLinkId: t.recurringLinkId ?? null,
       })),
-      initialBalance: userDoc.initialBalance,
+      initialBalance: userDoc.initialBalance || 0,
       categories: userDoc.categories,
       incomeCategories: userDoc.incomeCategories,
       accounts: userDoc.accounts,
@@ -42,6 +48,11 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
         startDate: r.startDate,
         endDate: r.endDate ?? null,
       })),
+      carMileage: userDoc.carMileage,
+      carInitialMileage: userDoc.carInitialMileage || 0,
+      tireSettings: userDoc.tireSettings || { summerModel: '', winterModel: '', initialTireType: 'summer' },
+      tireChanges: userDoc.tireChanges || [],
+      enabledModules: userDoc.enabledModules,
       balanceStartDate: userDoc.balanceStartDate || '2026-01-01',
     };
   },
@@ -93,6 +104,33 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       endDate: r.endDate,
     })) : [];
 
+    const carMileage: CarMileageRecord[] = Array.isArray(data.carMileage) ? data.carMileage.map((m: any) => ({
+      id: m.id ?? '',
+      year: typeof m.year === 'number' ? m.year : data.year,
+      month: typeof m.month === 'number' ? m.month : data.month,
+      reading: typeof m.reading === 'number' ? m.reading : 0,
+    })) : [];
+
+    const carInitialMileage: number = typeof data.carInitialMileage === 'number' ? data.carInitialMileage : 0;
+
+    const tireSettings: TireSettings = {
+      summerModel: data.tireSettings?.summerModel ?? '',
+      winterModel: data.tireSettings?.winterModel ?? '',
+      initialTireType: data.tireSettings?.initialTireType === 'winter' ? 'winter' : 'summer',
+    };
+
+    const tireChanges: TireChangeRecord[] = Array.isArray(data.tireChanges) ? data.tireChanges.map((t: any) => ({
+      id: t.id ?? '',
+      date: t.date ?? dayjs().format('YYYY-MM-DD'),
+      type: t.type === 'summer' || t.type === 'winter' ? t.type : 'summer',
+      odometer: typeof t.odometer === 'number' ? t.odometer : 0,
+    })) : [];
+
+    const enabledModules: AppModules = {
+      financeTracker: data.enabledModules?.financeTracker ?? true,
+      carManagement: !!data.enabledModules?.carManagement,
+    };
+
     const balanceStartDate: string = data.balanceStartDate || '2026-01-01';
 
     return {
@@ -102,6 +140,11 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       incomeCategories,
       accounts,
       recurringTransactions,
+      carMileage,
+      carInitialMileage,
+      tireSettings,
+      tireChanges,
+      enabledModules,
       balanceStartDate,
     };
   }

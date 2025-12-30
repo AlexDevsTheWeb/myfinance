@@ -1,14 +1,7 @@
-import { type User } from 'firebase/auth';
 import { create } from 'zustand';
+import type { IAuthState } from '../types/auth.types';
 
-interface AuthState {
-  user: User | null;
-  loading: boolean;
-  setUser: (user: User | null) => void;
-  setLoading: (loading: boolean) => void;
-}
-
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<IAuthState>((set) => ({
   user: null,
   loading: true,
   setUser: (user) => set({ user }),

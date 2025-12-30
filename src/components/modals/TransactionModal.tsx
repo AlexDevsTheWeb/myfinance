@@ -47,7 +47,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
         });
       }
     }
-  }, [open, transaction]);
+  }, [open, transaction, accounts]);
 
   const handleSubmit = () => {
     if (transaction) {

@@ -14,7 +14,13 @@ export const useSyncFinance = () => {
     categories, setCategories,
     incomeCategories, setIncomeCategories,
     recurringTransactions, setRecurringTransactions,
+    carMileage, setCarMileage,
+    carInitialMileage, setCarInitialMileage,
+    tireSettings, setTireSettings,
+    tireChanges, setTireChanges,
     balanceStartDate, setBalanceStartDate,
+    initialBalance, setInitialBalance,
+    enabledModules, setEnabledModules,
   } = useFinanceStore();
 
   // Load data from Firestore on user change
@@ -31,12 +37,18 @@ export const useSyncFinance = () => {
         if (data.categories) setCategories(data.categories);
         if (data.incomeCategories) setIncomeCategories(data.incomeCategories);
         if (data.recurringTransactions) setRecurringTransactions(data.recurringTransactions);
+        if (data.carMileage) setCarMileage(data.carMileage);
+        if (typeof data.carInitialMileage === 'number') setCarInitialMileage(data.carInitialMileage);
+        if (data.tireSettings) setTireSettings(data.tireSettings);
+        if (data.tireChanges) setTireChanges(data.tireChanges);
         if (data.balanceStartDate) setBalanceStartDate(data.balanceStartDate);
+        if (typeof data.initialBalance === 'number') setInitialBalance(data.initialBalance);
+        if (data.enabledModules) setEnabledModules(data.enabledModules);
       }
     });
 
     return () => unsub();
-  }, [user, setTransactions, setAccounts, setCategories, setIncomeCategories, setRecurringTransactions, setBalanceStartDate]);
+  }, [user, setTransactions, setAccounts, setCategories, setIncomeCategories, setRecurringTransactions, setCarMileage, setCarInitialMileage, setTireSettings, setTireChanges, setBalanceStartDate, setInitialBalance, setEnabledModules]);
 
   // Materialize recurring transactions
   useEffect(() => {
@@ -116,10 +128,16 @@ export const useSyncFinance = () => {
         categories,
         incomeCategories,
         recurringTransactions,
+        carMileage,
+        carInitialMileage,
+        tireSettings,
+        tireChanges,
         balanceStartDate,
+        initialBalance,
+        enabledModules,
       }, { merge: true });
     };
 
     saveData();
-  }, [user, transactions, accounts, categories, incomeCategories, recurringTransactions, balanceStartDate]);
+  }, [user, transactions, accounts, categories, incomeCategories, recurringTransactions, carMileage, carInitialMileage, tireSettings, tireChanges, balanceStartDate, initialBalance, enabledModules]);
 };

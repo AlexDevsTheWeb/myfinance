@@ -6,6 +6,7 @@ import Layout from './components/layout/Layout';
 import { useSyncFinance } from './hooks/useSyncFinance';
 import { auth } from './lib/firebase';
 import AnalysisPage from './pages/AnalysisPage';
+import CarPage from './pages/CarPage';
 import ConfigPage from './pages/ConfigPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
@@ -76,6 +77,11 @@ function App() {
         <Route path="/analysis" element={
           <ProtectedRoute>
             <AnalysisPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/car" element={
+          <ProtectedRoute>
+            <CarPage />
           </ProtectedRoute>
         } />
       </Routes>

@@ -1,19 +1,13 @@
 import { DndContext, type DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
-import { AccountBalance, Add as AddIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Repeat, TrendingDown, TrendingUp } from '@mui/icons-material';
-import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { AccountBalance, Add as AddIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Repeat, TrendingDown, TrendingUp, ViewQuilt } from '@mui/icons-material';
+import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Switch, Tab, Tabs, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import TransactionForm from '../components/forms/TransactionForm';
 import { useFinanceStore } from '../store/useFinanceStore';
+import type { ITabPanelProps } from '../types/props.types';
 
-// Custom TabPanel Component
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
+function TabPanel(props: ITabPanelProps) {
   const { children, value, index, ...other } = props;
   return (
     <div
@@ -32,7 +26,6 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-// Draggable Subcategory Item
 const DraggableSubcategory: React.FC<{ sub: string; catName: string; type: 'income' | 'expense'; onRename: () => void; onDelete: () => void }> = ({ sub, catName, type, onRename, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `${type}-${catName}-${sub}`,
@@ -146,7 +139,9 @@ const ConfigPage: React.FC = () => {
     updateRecurring,
     deleteRecurring,
     balanceStartDate,
-    setBalanceStartDate
+    setBalanceStartDate,
+    enabledModules,
+    toggleModule
   } = useFinanceStore();
 
   const [tabValue, setTabValue] = React.useState(0);
@@ -421,6 +416,7 @@ const ConfigPage: React.FC = () => {
               }
             }}
           >
+            <Tab icon={<ViewQuilt sx={{ mr: 1 }} />} iconPosition="start" label="Moduli attivi" />
             <Tab icon={<AccountBalance sx={{ mr: 1 }} />} iconPosition="start" label="Balance" />
             <Tab icon={<Repeat sx={{ mr: 1 }} />} iconPosition="start" label="Recurring" />
             <Tab icon={<TrendingDown sx={{ mr: 1 }} />} iconPosition="start" label="Expenses" />
@@ -429,6 +425,35 @@ const ConfigPage: React.FC = () => {
         </Box>
 
         <TabPanel value={tabValue} index={0}>
+          <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', maxWidth: 600 }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Moduli Applicativi</Typography>
+            <Typography variant="body2" sx={{ mb: 3, opacity: 0.7 }}>
+              Abilita o disabilita le macro funzionalità dell'applicazione. Alcuni moduli sono sempre attivi per garantire il funzionamento base.
+            </Typography>
+            <List>
+              <ListItem sx={{ px: 0 }}>
+                <ListItemText
+                  primary={<Typography sx={{ fontWeight: 600 }}>Finance Tracker</Typography>}
+                  secondary="Gestione entrate, uscite e transazioni ricorrenti"
+                />
+                <Switch checked={true} disabled />
+              </ListItem>
+              <ListItem sx={{ px: 0 }}>
+                <ListItemText
+                  primary={<Typography sx={{ fontWeight: 600 }}>Gestione Auto</Typography>}
+                  secondary="Monitoraggio consumi, manutenzione e scadenze veicolo"
+                />
+                <Switch
+                  checked={enabledModules.carManagement}
+                  onChange={() => toggleModule('carManagement')}
+                  color="primary"
+                />
+              </ListItem>
+            </List>
+          </Paper>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={1}>
           <Grid container spacing={4}>
             <Grid size={{ xs: 12, md: 8 }}>
               <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -493,7 +518,7 @@ const ConfigPage: React.FC = () => {
           </Grid>
         </TabPanel>
 
-        <TabPanel value={tabValue} index={1}>
+        <TabPanel value={tabValue} index={2}>
           <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h5" sx={{ fontWeight: 800 }}>Recurring Templates</Typography>
@@ -538,11 +563,11 @@ const ConfigPage: React.FC = () => {
           </Paper>
         </TabPanel>
 
-        <TabPanel value={tabValue} index={2}>
+        <TabPanel value={tabValue} index={3}>
           {renderExplodedList(sortedExpenses, 'expense')}
         </TabPanel>
 
-        <TabPanel value={tabValue} index={3}>
+        <TabPanel value={tabValue} index={4}>
           {renderExplodedList(sortedIncome, 'income')}
         </TabPanel>
 

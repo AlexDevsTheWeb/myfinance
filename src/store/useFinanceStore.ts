@@ -39,6 +39,31 @@ export interface RecurringTransaction {
   endDate?: string; // YYYY-MM-DD (optional)
 }
 
+export interface AppModules {
+  financeTracker: boolean;
+  carManagement: boolean;
+}
+
+export interface CarMileageRecord {
+  id: string;
+  year: number;
+  month: number;
+  reading: number;
+}
+
+export interface TireChangeRecord {
+  id: string;
+  date: string; // YYYY-MM-DD
+  type: 'summer' | 'winter';
+  odometer: number;
+}
+
+export interface TireSettings {
+  summerModel: string;
+  winterModel: string;
+  initialTireType: 'summer' | 'winter';
+}
+
 interface FinanceState {
   initialBalance: number;
   categories: Category[];
@@ -46,6 +71,11 @@ interface FinanceState {
   accounts: Account[];
   transactions: Transaction[];
   recurringTransactions: RecurringTransaction[];
+  carMileage: CarMileageRecord[];
+  carInitialMileage: number;
+  tireSettings: TireSettings;
+  tireChanges: TireChangeRecord[];
+  enabledModules: AppModules;
   balanceStartDate: string; // YYYY-MM-DD
   setInitialBalance: (balance: number) => void;
   addTransaction: (transaction: Transaction) => void;
@@ -56,6 +86,9 @@ interface FinanceState {
   setTransactions: (transactions: Transaction[]) => void;
   setAccounts: (accounts: Account[]) => void;
   setRecurringTransactions: (recurring: RecurringTransaction[]) => void;
+  setCarMileage: (mileage: CarMileageRecord[]) => void;
+  setEnabledModules: (modules: AppModules) => void;
+  toggleModule: (module: keyof AppModules) => void;
   setBalanceStartDate: (date: string) => void;
   // Category actions
   addCategory: (type: 'income' | 'expense', name: string) => void;
@@ -77,6 +110,16 @@ interface FinanceState {
   updateAccount: (account: Account) => void;
   deleteAccount: (id: string) => void;
   setDefaultAccount: (id: string) => void;
+  // Car Mileage actions
+  addCarMileage: (record: CarMileageRecord) => void;
+  updateCarMileage: (record: CarMileageRecord) => void;
+  deleteCarMileage: (id: string) => void;
+  setCarInitialMileage: (value: number) => void;
+  setTireSettings: (settings: TireSettings) => void;
+  addTireChange: (record: TireChangeRecord) => void;
+  updateTireChange: (record: TireChangeRecord) => void;
+  deleteTireChange: (id: string) => void;
+  setTireChanges: (records: TireChangeRecord[]) => void;
 }
 
 export const useFinanceStore = create<FinanceState>()(
@@ -105,6 +148,14 @@ export const useFinanceStore = create<FinanceState>()(
       ],
       transactions: [],
       recurringTransactions: [],
+      carMileage: [],
+      carInitialMileage: 0,
+      tireSettings: { summerModel: '', winterModel: '', initialTireType: 'summer' },
+      tireChanges: [],
+      enabledModules: {
+        financeTracker: true,
+        carManagement: false,
+      },
       balanceStartDate: '2026-01-01',
       setInitialBalance: (balance) => set({ initialBalance: balance }),
       addTransaction: (transaction) => set((state) => {
@@ -127,6 +178,14 @@ export const useFinanceStore = create<FinanceState>()(
       }),
       setAccounts: (accounts) => set({ accounts }),
       setRecurringTransactions: (recurring) => set({ recurringTransactions: recurring }),
+      setCarMileage: (mileage) => set({ carMileage: mileage }),
+      setEnabledModules: (modules) => set({ enabledModules: modules }),
+      toggleModule: (module) => set((state) => ({
+        enabledModules: {
+          ...state.enabledModules,
+          [module]: !state.enabledModules[module],
+        }
+      })),
       setBalanceStartDate: (date) => set({ balanceStartDate: date }),
 
       // Internal migration helper
@@ -296,6 +355,23 @@ export const useFinanceStore = create<FinanceState>()(
       setDefaultAccount: (id) => set((state) => ({
         accounts: state.accounts.map(a => ({ ...a, isDefault: a.id === id }))
       })),
+      addCarMileage: (record) => set((state) => ({ carMileage: [...state.carMileage, record] })),
+      updateCarMileage: (record) => set((state) => ({
+        carMileage: state.carMileage.map(m => m.id === record.id ? record : m)
+      })),
+      deleteCarMileage: (id) => set((state) => ({
+        carMileage: state.carMileage.filter(m => m.id !== id)
+      })),
+      setCarInitialMileage: (value) => set({ carInitialMileage: value }),
+      setTireSettings: (settings) => set({ tireSettings: settings }),
+      addTireChange: (record) => set((state) => ({ tireChanges: [...state.tireChanges, record] })),
+      updateTireChange: (record) => set((state) => ({
+        tireChanges: state.tireChanges.map(t => t.id === record.id ? record : t)
+      })),
+      deleteTireChange: (id) => set((state) => ({
+        tireChanges: state.tireChanges.filter(t => t.id !== id)
+      })),
+      setTireChanges: (records) => set({ tireChanges: records }),
     }),
     {
       name: 'finance-storage',
