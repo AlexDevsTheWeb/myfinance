@@ -3,6 +3,7 @@ import { AccountBalance, Add as AddIcon, Delete as DeleteIcon, DragIndicator as 
 import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Tab, Tabs, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
+import TransactionForm from '../components/forms/TransactionForm';
 import { useFinanceStore } from '../store/useFinanceStore';
 
 // Custom TabPanel Component
@@ -124,8 +125,6 @@ const DroppableCategory: React.FC<{ cat: any; type: 'income' | 'expense'; childr
 
 const ConfigPage: React.FC = () => {
   const {
-    initialBalance,
-    setInitialBalance,
     categories,
     incomeCategories,
     addCategory,
@@ -133,8 +132,15 @@ const ConfigPage: React.FC = () => {
     deleteCategory,
     addSubcategory,
     renameSubcategory,
+    deleteSubcategory,
     deleteSubcategoryAndRemap,
     moveSubcategory,
+    accounts,
+    transactions,
+    addAccount,
+    updateAccount,
+    deleteAccount,
+    setDefaultAccount,
     recurringTransactions,
     addRecurring,
     updateRecurring,
@@ -147,14 +153,16 @@ const ConfigPage: React.FC = () => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogConfig, setDialogConfig] = useState<{
-    type: 'category' | 'subcategory' | 'recurring';
+    type: 'category' | 'subcategory' | 'recurring' | 'account';
     mode: 'add' | 'rename' | 'edit';
     financeType: 'income' | 'expense';
     categoryName?: string;
     oldValue?: string;
     recurringId?: string;
+    accountId?: string;
   } | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [accountInitialBalance, setAccountInitialBalance] = useState('0');
 
   // Remap Deletion State
   const [remapDialogOpen, setRemapDialogOpen] = useState(false);
@@ -174,7 +182,8 @@ const ConfigPage: React.FC = () => {
     dayOfMonth: 1,
     startDate: dayjs().format('YYYY-MM-DD'),
     endDate: '',
-    type: 'expense' as 'income' | 'expense'
+    type: 'expense' as 'income' | 'expense',
+    accountId: ''
   });
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -195,7 +204,8 @@ const ConfigPage: React.FC = () => {
             dayOfMonth: rec.dayOfMonth,
             startDate: rec.startDate,
             endDate: rec.endDate || '',
-            type: rec.type
+            type: rec.type,
+            accountId: rec.accountId
           });
         }
       } else {
@@ -207,8 +217,20 @@ const ConfigPage: React.FC = () => {
           dayOfMonth: 1,
           startDate: dayjs().format('YYYY-MM-DD'),
           endDate: '',
-          type: config.financeType
+          type: config.financeType,
+          accountId: accounts.find(a => a.isDefault)?.id || accounts[0]?.id || ''
         });
+      }
+    } else if (config?.type === 'account') {
+      if (config.mode === 'edit') {
+        const acc = accounts.find(a => a.id === config.accountId);
+        if (acc) {
+          setInputValue(acc.name);
+          setAccountInitialBalance(acc.initialBalance.toString());
+        }
+      } else {
+        setInputValue('');
+        setAccountInitialBalance('0');
       }
     } else {
       setInputValue(config?.oldValue || '');
@@ -253,13 +275,26 @@ const ConfigPage: React.FC = () => {
         dayOfMonth: Number(recurringForm.dayOfMonth),
         startDate: recurringForm.startDate,
         endDate: recurringForm.endDate || undefined,
-        type: recurringForm.type
+        type: recurringForm.type,
+        accountId: recurringForm.accountId
       };
 
       if (dialogConfig.mode === 'add') {
         addRecurring(data);
       } else {
         updateRecurring(data);
+      }
+    } else if (dialogConfig.type === 'account') {
+      const data = {
+        id: dialogConfig.accountId || crypto.randomUUID(),
+        name: inputValue.trim(),
+        initialBalance: Number(accountInitialBalance),
+        isDefault: dialogConfig.mode === 'add' ? (accounts.length === 0) : (accounts.find(a => a.id === dialogConfig.accountId)?.isDefault || false)
+      };
+      if (dialogConfig.mode === 'add') {
+        addAccount(data);
+      } else {
+        updateAccount(data);
       }
     } else if (inputValue.trim()) {
       const { type, mode, financeType, categoryName, oldValue } = dialogConfig;
@@ -336,7 +371,18 @@ const ConfigPage: React.FC = () => {
                   catName={cat.name}
                   type={type}
                   onRename={() => handleOpenDialog({ type: 'subcategory', mode: 'rename', financeType: type, categoryName: cat.name, oldValue: sub })}
-                  onDelete={() => handleOpenRemapDialog(type, cat.name, sub)}
+                  onDelete={() => {
+                    const hasTransactions = transactions.some(t => t.type === type && t.category === cat.name && t.subcategory === sub);
+                    const hasRecurring = recurringTransactions.some(r => r.type === type && r.category === cat.name && r.subcategory === sub);
+
+                    if (hasTransactions || hasRecurring) {
+                      handleOpenRemapDialog(type, cat.name, sub);
+                    } else {
+                      if (window.confirm(`Delete item "${sub}"?`)) {
+                        deleteSubcategory(type, cat.name, sub);
+                      }
+                    }
+                  }}
                 />
               ))}
             </DroppableCategory>
@@ -345,9 +391,6 @@ const ConfigPage: React.FC = () => {
       </Grid>
     </Box>
   );
-
-  const currentCategories = recurringForm.type === 'income' ? incomeCategories : categories;
-  const selectedCategoryObj = currentCategories.find(c => c.name === recurringForm.category);
 
   // For remap selection
   const remapCategoryObj = remapConfig ? (remapConfig.type === 'income' ? incomeCategories : categories).find(c => c.name === remapConfig.categoryName) : null;
@@ -387,21 +430,52 @@ const ConfigPage: React.FC = () => {
 
         <TabPanel value={tabValue} index={0}>
           <Grid container spacing={4}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, height: '100%', background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>Initial Balance (Saldo Iniziale)</Typography>
-                <TextField
-                  fullWidth
-                  type="number"
-                  value={initialBalance}
-                  onChange={(e) => setInitialBalance(Number(e.target.value))}
-                  slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }}
-                  variant="filled"
-                />
+            <Grid size={{ xs: 12, md: 8 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>Manage Accounts</Typography>
+                  <Button startIcon={<AddIcon />} variant="outlined" size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'add' })}>
+                    Add Account
+                  </Button>
+                </Box>
+                <List>
+                  {accounts.map((acc) => (
+                    <ListItem
+                      key={acc.id}
+                      sx={{
+                        background: 'rgba(255,255,255,0.02)',
+                        mb: 1,
+                        borderRadius: 3,
+                        border: acc.isDefault ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.05)'
+                      }}
+                    >
+                      <ListItemText
+                        primary={
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography sx={{ fontWeight: 700 }}>{acc.name}</Typography>
+                            {acc.isDefault && <Typography variant="caption" sx={{ background: '#6366f1', px: 1, borderRadius: 1 }}>DEFAULT</Typography>}
+                          </Box>
+                        }
+                        secondary={`Initial Balance: € ${acc.initialBalance.toLocaleString('it-IT')}`}
+                      />
+                      <ListItemSecondaryAction>
+                        {!acc.isDefault && (
+                          <Button size="small" variant="text" onClick={() => setDefaultAccount(acc.id)} sx={{ mr: 1, fontSize: '0.7rem' }}>Set Default</Button>
+                        )}
+                        <IconButton size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'edit', accountId: acc.id })}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" color="error" disabled={accounts.length <= 1} onClick={() => { if (window.confirm(`Delete account "${acc.name}"?`)) deleteAccount(acc.id); }}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                </List>
               </Paper>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, height: '100%', background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>Calculation Start Date</Typography>
                 <TextField
                   type="date"
@@ -411,6 +485,9 @@ const ConfigPage: React.FC = () => {
                   variant="filled"
                   slotProps={{ inputLabel: { shrink: true } }}
                 />
+                <Alert severity="info" sx={{ mt: 2, '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
+                  The current total balance is calculated using the initial balance of each account plus all transactions since this date.
+                </Alert>
               </Paper>
             </Grid>
           </Grid>
@@ -473,7 +550,7 @@ const ConfigPage: React.FC = () => {
         <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth={dialogConfig?.type === 'recurring' ? 'sm' : 'xs'} PaperProps={{ sx: { background: '#1e293b', borderRadius: 4 } }}>
           <DialogTitle sx={{ fontWeight: 800 }}>
             {dialogConfig?.mode === 'add' ? 'Add New ' : dialogConfig?.mode === 'edit' ? 'Edit ' : 'Rename '}
-            {dialogConfig?.type === 'category' ? 'Category' : dialogConfig?.type === 'recurring' ? 'Recurring Template' : 'Item'}
+            {dialogConfig?.type === 'category' ? 'Category' : dialogConfig?.type === 'recurring' ? 'Recurring Template' : dialogConfig?.type === 'account' ? 'Account' : 'Item'}
           </DialogTitle>
           <DialogContent>
             {dialogConfig?.type === 'subcategory' && dialogConfig.mode === 'rename' && (
@@ -485,50 +562,19 @@ const ConfigPage: React.FC = () => {
 
             <Box sx={{ mt: 1 }}>
               {dialogConfig?.type === 'recurring' ? (
+                <TransactionForm
+                  type={recurringForm.type}
+                  formData={recurringForm}
+                  setFormData={(data) => setRecurringForm(data)}
+                  isRecurring={true}
+                />
+              ) : dialogConfig?.type === 'account' ? (
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12 }}>
-                    <TextField fullWidth label="Description" variant="filled" value={recurringForm.description} onChange={e => setRecurringForm({ ...recurringForm, description: e.target.value })} />
+                    <TextField autoFocus fullWidth label="Account Name" variant="filled" value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField fullWidth label="Amount" type="number" variant="filled" value={recurringForm.amount} onChange={e => setRecurringForm({ ...recurringForm, amount: e.target.value })} />
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField fullWidth label="Day of Month" type="number" variant="filled" value={recurringForm.dayOfMonth} onChange={e => setRecurringForm({ ...recurringForm, dayOfMonth: Number(e.target.value) })} inputProps={{ min: 1, max: 31 }} />
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField
-                      fullWidth
-                      select
-                      label="Category"
-                      variant="filled"
-                      value={recurringForm.category}
-                      onChange={(e) => setRecurringForm({ ...recurringForm, category: e.target.value, subcategory: '' })}
-                    >
-                      {(currentCategories || []).map((cat) => (
-                        <MenuItem key={cat.name} value={cat.name}>{cat.name}</MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField
-                      fullWidth
-                      select
-                      label="Subcategory"
-                      variant="filled"
-                      value={recurringForm.subcategory}
-                      onChange={(e) => setRecurringForm({ ...recurringForm, subcategory: e.target.value })}
-                      disabled={!recurringForm.category}
-                    >
-                      {(selectedCategoryObj?.subcategories || []).map((sub) => (
-                        <MenuItem key={sub} value={sub}>{sub}</MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField fullWidth label="Start Date" type="date" variant="filled" value={recurringForm.startDate} onChange={e => setRecurringForm({ ...recurringForm, startDate: e.target.value })} slotProps={{ inputLabel: { shrink: true } }} />
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <TextField fullWidth label="End Date (Optional)" type="date" variant="filled" value={recurringForm.endDate} onChange={e => setRecurringForm({ ...recurringForm, endDate: e.target.value })} slotProps={{ inputLabel: { shrink: true } }} />
+                  <Grid size={{ xs: 12 }}>
+                    <TextField fullWidth label="Initial Balance" type="number" variant="filled" value={accountInitialBalance} onChange={(e) => setAccountInitialBalance(e.target.value)} slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }} />
                   </Grid>
                 </Grid>
               ) : (
@@ -545,7 +591,7 @@ const ConfigPage: React.FC = () => {
           </DialogContent>
           <DialogActions sx={{ p: 3 }}>
             <Button onClick={handleCloseDialog} color="inherit">Cancel</Button>
-            <Button onClick={handleConfirm} variant="contained" disabled={dialogConfig?.type === 'recurring' ? (!recurringForm.description || !recurringForm.amount || !recurringForm.category) : !inputValue.trim()}>
+            <Button onClick={handleConfirm} variant="contained" disabled={dialogConfig?.type === 'recurring' ? (!recurringForm.description || !recurringForm.amount || !recurringForm.category || !recurringForm.accountId) : dialogConfig?.type === 'account' ? !inputValue.trim() : !inputValue.trim()}>
               Save Changes
             </Button>
           </DialogActions>

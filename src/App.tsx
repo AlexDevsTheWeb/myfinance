@@ -12,6 +12,7 @@ import LoginPage from './pages/LoginPage';
 import SalaryPage from './pages/SalaryPage';
 import TransactionsPage from './pages/TransactionsPage';
 import { useAuthStore } from './store/useAuthStore';
+import { useFinanceStore } from './store/useFinanceStore';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuthStore();
@@ -33,7 +34,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   const { setUser, setLoading } = useAuthStore();
+  const { _migrateToMultiAccount } = useFinanceStore();
   useSyncFinance();
+
+  useEffect(() => {
+    _migrateToMultiAccount();
+  }, [_migrateToMultiAccount]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {

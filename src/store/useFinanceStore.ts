@@ -43,6 +43,7 @@ interface FinanceState {
   initialBalance: number;
   categories: Category[];
   incomeCategories: Category[];
+  accounts: Account[];
   transactions: Transaction[];
   recurringTransactions: RecurringTransaction[];
   balanceStartDate: string; // YYYY-MM-DD
@@ -53,6 +54,7 @@ interface FinanceState {
   setCategories: (categories: Category[]) => void;
   setIncomeCategories: (categories: Category[]) => void;
   setTransactions: (transactions: Transaction[]) => void;
+  setAccounts: (accounts: Account[]) => void;
   setRecurringTransactions: (recurring: RecurringTransaction[]) => void;
   setBalanceStartDate: (date: string) => void;
   // Category actions
@@ -69,6 +71,7 @@ interface FinanceState {
   addRecurring: (recurring: RecurringTransaction) => void;
   updateRecurring: (recurring: RecurringTransaction) => void;
   deleteRecurring: (id: string) => void;
+  _migrateToMultiAccount: () => void;
   // Account actions
   addAccount: (account: Account) => void;
   updateAccount: (account: Account) => void;
@@ -122,8 +125,27 @@ export const useFinanceStore = create<FinanceState>()(
       setTransactions: (transactions) => set({
         transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix())
       }),
+      setAccounts: (accounts) => set({ accounts }),
       setRecurringTransactions: (recurring) => set({ recurringTransactions: recurring }),
       setBalanceStartDate: (date) => set({ balanceStartDate: date }),
+
+      // Internal migration helper
+      _migrateToMultiAccount: () => set((state) => {
+        const defaultAccount = state.accounts.find(a => a.isDefault) || state.accounts[0];
+        if (!defaultAccount) return state;
+
+        const updatedTransactions = state.transactions.map(t =>
+          t.accountId ? t : { ...t, accountId: defaultAccount.id }
+        );
+        const updatedRecurring = state.recurringTransactions.map(r =>
+          r.accountId ? r : { ...r, accountId: defaultAccount.id }
+        );
+
+        return {
+          transactions: updatedTransactions,
+          recurringTransactions: updatedRecurring
+        };
+      }),
 
       addCategory: (type, name) => set((state) => {
         const key = type === 'income' ? 'incomeCategories' : 'categories';

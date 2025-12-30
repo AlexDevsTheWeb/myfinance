@@ -5,7 +5,7 @@ import React from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 
 const RecapCards: React.FC = () => {
-  const { transactions, initialBalance, balanceStartDate } = useFinanceStore();
+  const { transactions, accounts, balanceStartDate } = useFinanceStore();
 
   const filteredTransactions = transactions.filter(t => dayjs(t.date).isAfter(dayjs(balanceStartDate).subtract(1, 'day')));
 
@@ -17,7 +17,8 @@ const RecapCards: React.FC = () => {
     .filter((t) => t.type === 'expense')
     .reduce((acc, t) => acc + t.amount, 0);
 
-  const currentBalance = initialBalance + totalIncome - totalExpenses;
+  const totalAccountsInitialBalance = accounts.reduce((sum, acc) => sum + acc.initialBalance, 0);
+  const currentBalance = totalAccountsInitialBalance + totalIncome - totalExpenses;
 
   const cardData = [
     {

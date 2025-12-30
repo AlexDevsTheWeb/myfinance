@@ -10,7 +10,7 @@ export const useSyncFinance = () => {
   const { user } = useAuthStore();
   const {
     transactions, setTransactions,
-    initialBalance, setInitialBalance,
+    accounts, setAccounts,
     categories, setCategories,
     incomeCategories, setIncomeCategories,
     recurringTransactions, setRecurringTransactions,
@@ -27,7 +27,7 @@ export const useSyncFinance = () => {
       if (doc.exists()) {
         const data = doc.data();
         if (data.transactions) setTransactions(data.transactions);
-        if (data.initialBalance !== undefined) setInitialBalance(data.initialBalance);
+        if (data.accounts) setAccounts(data.accounts);
         if (data.categories) setCategories(data.categories);
         if (data.incomeCategories) setIncomeCategories(data.incomeCategories);
         if (data.recurringTransactions) setRecurringTransactions(data.recurringTransactions);
@@ -36,7 +36,7 @@ export const useSyncFinance = () => {
     });
 
     return () => unsub();
-  }, [user, setTransactions, setInitialBalance, setCategories, setIncomeCategories, setRecurringTransactions, setBalanceStartDate]);
+  }, [user, setTransactions, setAccounts, setCategories, setIncomeCategories, setRecurringTransactions, setBalanceStartDate]);
 
   // Materialize recurring transactions
   useEffect(() => {
@@ -87,6 +87,7 @@ export const useSyncFinance = () => {
             subcategory: rec.subcategory,
             amount: rec.amount,
             type: rec.type,
+            accountId: rec.accountId,
             recurringLinkId: rec.id,
           });
           updated = true;
@@ -111,7 +112,7 @@ export const useSyncFinance = () => {
       const docRef = doc(db, 'users', user.uid).withConverter(userDocConverter);
       await setDoc(docRef, {
         transactions,
-        initialBalance,
+        accounts,
         categories,
         incomeCategories,
         recurringTransactions,
@@ -120,5 +121,5 @@ export const useSyncFinance = () => {
     };
 
     saveData();
-  }, [user, transactions, initialBalance, categories, incomeCategories, recurringTransactions, balanceStartDate]);
+  }, [user, transactions, accounts, categories, incomeCategories, recurringTransactions, balanceStartDate]);
 };
