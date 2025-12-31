@@ -2,10 +2,9 @@ import { BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event
 import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, Menu, MenuItem, Link as MuiLink, Toolbar, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/it';
-import { signOut } from 'firebase/auth';
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { auth } from '../../lib/firebase';
+import { useLogout } from '../../hooks/useLogout';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { getEnvVar } from '../../utils/variables.utils';
@@ -28,10 +27,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const handleOpenUser = (event: React.MouseEvent<HTMLElement>) => setAnchorElUser(event.currentTarget);
   const handleCloseUser = () => setAnchorElUser(null);
 
-  const handleLogout = async () => {
+  const logout = useLogout();
+
+  const handleLogout = () => {
     handleCloseUser();
-    await signOut(auth);
-    navigate('/');
+    logout();
   };
 
   const appTitle = getEnvVar('VITE_REACT_APP_TITLE');
