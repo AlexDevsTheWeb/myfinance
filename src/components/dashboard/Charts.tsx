@@ -8,19 +8,50 @@ import { useFinanceStore } from '../../store/useFinanceStore';
 const Charts: React.FC = () => {
   const { transactions } = useFinanceStore();
 
-  // Process data for the chart (group by full date string to include year)
-  const groupedData = transactions.reduce((acc: any, t) => {
-    const dateKey = t.date; // already YYYY-MM-DD
-    const displayDate = dayjs(t.date).format('MMM DD YYYY');
-    if (!acc[dateKey]) {
-      acc[dateKey] = { dateKey, displayDate, income: 0, expense: 0 };
-    }
-    if (t.type === 'income') acc[dateKey].income += t.amount;
-    else acc[dateKey].expense += t.amount;
-    return acc;
-  }, {});
+  const currentYear = dayjs().year();
+  const emptyYear: Record<string, any> = {};
 
-  const data = Object.values(groupedData).sort((a: any, b: any) => a.dateKey.localeCompare(b.dateKey));
+  for (let i = 0; i < 12; i++) {
+    const monthDate = dayjs().year(currentYear).month(i).startOf('month');
+    const dateKey = monthDate.format('YYYY-MM'); // Chiave univoca per ordinamento
+    const displayDate = monthDate.format('MMM YYYY');
+
+    emptyYear[dateKey] = {
+      dateKey,
+      displayDate,
+      income: 0,
+      expense: 0
+    };
+  }
+  const groupedData = transactions
+    .filter(t => dayjs(t.date).year() === currentYear)
+    .reduce((acc, t) => {
+      const dateKey = dayjs(t.date).format('YYYY-MM');
+      if (acc[dateKey]) {
+        if (t.type === 'income') acc[dateKey].income += t.amount;
+        else acc[dateKey].expense += t.amount;
+      }
+      return acc;
+    }, { ...emptyYear }); // Partiamo dallo scheletro vuoto
+
+  const data = Object.values(groupedData).sort((a: any, b: any) =>
+    a.dateKey.localeCompare(b.dateKey)
+  );
+
+  // TODO: vechio codice
+  // const groupedData = transactions.filter(t => dayjs(t.date).year() === dayjs().year()).reduce((acc: any, t) => {
+  //   const dateKey = t.date;
+  //   const displayDate = dayjs(t.date).format('MM YYYY');
+  //   if (!acc[dateKey]) {
+  //     acc[dateKey] = { dateKey, displayDate, income: 0, expense: 0 };
+  //   }
+  //   if (t.type === 'income') acc[dateKey].income += t.amount;
+  //   else acc[dateKey].expense += t.amount;
+  //   return acc;
+  // }, {});
+
+  // const data = Object.values(groupedData).sort((a: any, b: any) => a.dateKey.localeCompare(b.dateKey));
+  // TODO: vechio codice
 
   return (
     <Paper sx={{ p: 4, borderRadius: 4, mt: 4, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>

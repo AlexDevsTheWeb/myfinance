@@ -63,7 +63,7 @@ const DashboardPage: React.FC = () => {
 
       <Charts />
 
-      <TransactionTable onEdit={handleEditTransaction} limit={10} />
+      <TransactionTable onEdit={handleEditTransaction} />
 
       <Box sx={{ position: 'fixed', bottom: 32, right: 32, display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Zoom in={true} style={{ transitionDelay: '300ms' }}>

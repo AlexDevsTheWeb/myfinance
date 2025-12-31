@@ -15,13 +15,18 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit, limit, cust
   const { transactions: storeTransactions, deleteTransaction } = useFinanceStore();
   const navigate = useNavigate();
 
-  const transactions = [...(customData || storeTransactions)].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+  const currentMonth = dayjs().month();
+  const currentYear = dayjs().year();
+
+  const transactions = [...(customData || storeTransactions)]
+    .filter(t => dayjs(t.date).month() === currentMonth && dayjs(t.date).year() === currentYear)
+    .sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
   const displayedTransactions = limit ? transactions.slice(0, limit) : transactions;
 
   return (
-    <Paper sx={{ mt: 4, borderRadius: 4, overflow: 'hidden', background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-      <Box sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>Recent Transactions</Typography>
+    <Paper sx={{ mt: 4, borderRadius: 1, overflow: 'hidden', background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+      <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>{`Transactions: ${dayjs().month(currentMonth).format('MMMM').toUpperCase()}`}</Typography>
         {limit && (
           <Button
             size="small"
