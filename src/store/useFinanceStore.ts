@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export interface Category {
   name: string;

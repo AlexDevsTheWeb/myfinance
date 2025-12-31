@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions } from 'firebase/firestore';
 import { type Account, type AppModules, type CarMileageRecord, type Category, type RecurringTransaction, type TireChangeRecord, type TireSettings, type Transaction } from '../store/useFinanceStore';
 
-interface UserDoc {
+export interface UserDoc {
   transactions: Transaction[];
   initialBalance: number;
   categories: Category[];

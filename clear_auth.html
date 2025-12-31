@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Firebase Auth</title>
+</head>
+<body>
+    <h1>Clearing Firebase Auth State...</h1>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkAtLCmbhHT167wT0uykIAJ0n9PzEYdNM",
+            authDomain: "myfinancetracker-b257e.firebaseapp.com",
+            projectId: "myfinancetracker-b257e"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        signOut(auth).then(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.body.innerHTML = '<h1>Auth cleared! Close this tab and try again.</h1>';
+        });
+    </script>
+</body>
+</html>
