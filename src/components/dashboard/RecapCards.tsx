@@ -50,8 +50,8 @@ const RecapCards: React.FC = () => {
         <Grid size={{ xs: 12, md: 4 }} key={card.title}>
           <Paper
             sx={{
-              p: 3,
-              borderRadius: 4,
+              p: 2,
+              borderRadius: 1,
               background: card.bg,
               border: `1px solid ${card.color}`,
               display: 'flex',
@@ -63,10 +63,10 @@ const RecapCards: React.FC = () => {
               {card.icon}
             </Box>
             <Box>
-              <Typography variant="subtitle2" sx={{ opacity: 0.8, color: card.color, fontWeight: 600 }}>
+              <Typography variant="subtitle2" sx={{ color: card.color }}>
                 {card.title}
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 800 }}>
+              <Typography variant="h4">
                 € {card.amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
               </Typography>
             </Box>

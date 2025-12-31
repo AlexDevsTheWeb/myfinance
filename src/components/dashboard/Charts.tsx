@@ -54,7 +54,7 @@ const Charts: React.FC = () => {
   // TODO: vechio codice
 
   return (
-    <Paper sx={{ p: 4, borderRadius: 4, mt: 4, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+    <Paper sx={{ mt: 4 }}>
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
         Cash Flow Trend
       </Typography>

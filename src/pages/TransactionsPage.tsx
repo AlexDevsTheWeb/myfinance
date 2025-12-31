@@ -222,7 +222,7 @@ const TransactionsPage: React.FC = () => {
           {/* Overriding the store usage in TransactionTable via local filtration */}
           {/* For simplicity, let's keep it as is and I might need to make TransactionTable more generic if I want to pass filtered data */}
           {/* Actually, let's update TransactionTable to accept data as prop optionally */}
-          <TransactionTable onEdit={handleEditTransaction} customData={filteredTransactions} />
+          <TransactionTable onEdit={handleEditTransaction} customData={filteredTransactions} limit={'no'} />
         </Box>
 
         <TransactionModal

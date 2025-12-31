@@ -7,7 +7,7 @@ import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 
 interface TransactionTableProps {
   onEdit: (transaction: Transaction) => void;
-  limit?: number;
+  limit?: string | number;
   customData?: Transaction[];
 }
 
@@ -18,25 +18,30 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit, limit, cust
   const currentMonth = dayjs().month();
   const currentYear = dayjs().year();
 
-  const transactions = [...(customData || storeTransactions)]
-    .filter(t => dayjs(t.date).month() === currentMonth && dayjs(t.date).year() === currentYear)
+  const filteredTransactions = limit && typeof limit === 'string'
+    ? [...(customData || storeTransactions)]
+    : ([...(customData || storeTransactions)]
+      .filter(t => dayjs(t.date).month() === currentMonth && dayjs(t.date).year() === currentYear))
+    ;
+  const transactions = filteredTransactions
     .sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-  const displayedTransactions = limit ? transactions.slice(0, limit) : transactions;
+  const displayedTransactions = limit && typeof limit === 'string' ? transactions : transactions;
 
   return (
-    <Paper sx={{ mt: 4, borderRadius: 1, overflow: 'hidden', background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+    <Paper sx={{ mt: 4 }}>
+
       <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>{`Transactions: ${dayjs().month(currentMonth).format('MMMM').toUpperCase()}`}</Typography>
-        {limit && (
+        <Typography variant="h6">{`Transactions: ${dayjs().month(currentMonth).format('MMMM').toUpperCase()}`}</Typography>
+
+        {!limit &&
           <Button
-            size="small"
+            size='small'
             onClick={() => navigate('/transactions')}
             sx={{ fontWeight: 600, textTransform: 'none' }}
             endIcon={<OpenInNew sx={{ fontSize: '1rem !important' }} />}
           >
-            See all
-          </Button>
-        )}
+            Show All Transactions
+          </Button>}
       </Box>
       <TableContainer>
         <Table>
@@ -98,7 +103,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit, limit, cust
           </TableBody>
         </Table>
       </TableContainer>
-      {limit && transactions.length > limit && (
+
+      {!limit &&
         <Box sx={{ p: 2, textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
           <Typography
             variant="button"
@@ -115,7 +121,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit, limit, cust
             Show All Transactions
           </Typography>
         </Box>
-      )}
+      }
     </Paper>
   );
 };
