@@ -123,7 +123,7 @@ interface FinanceState {
 }
 
 export const useFinanceStore = create<FinanceState>()(
-  persist(
+  persist<FinanceState>(
     (set) => ({
       initialBalance: 0, // No longer used as primary source, sum of accounts instead
       accounts: [
