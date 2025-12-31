@@ -16,9 +16,9 @@ import { useAuthStore } from './store/useAuthStore';
 import { useFinanceStore } from './store/useFinanceStore';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuthStore();
+  const { user, loading, isLoggingOut } = useAuthStore();
 
-  if (loading) {
+  if (loading || isLoggingOut) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0f172a' }}>
         <CircularProgress />
