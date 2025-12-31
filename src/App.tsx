@@ -5,10 +5,15 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'; // Th
 import Layout from './components/layout/Layout';
 import { useSyncFinance } from './hooks/useSyncFinance';
 import { auth } from './lib/firebase';
+import AnalysisPage from './pages/AnalysisPage';
+import CarPage from './pages/CarPage';
 import ConfigPage from './pages/ConfigPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
+import SalaryPage from './pages/SalaryPage';
+import TransactionsPage from './pages/TransactionsPage';
 import { useAuthStore } from './store/useAuthStore';
+import { useFinanceStore } from './store/useFinanceStore';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuthStore();
@@ -30,7 +35,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   const { setUser, setLoading } = useAuthStore();
+  const { _migrateToMultiAccount } = useFinanceStore();
   useSyncFinance();
+
+  useEffect(() => {
+    _migrateToMultiAccount();
+  }, [_migrateToMultiAccount]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
@@ -52,6 +62,26 @@ function App() {
         <Route path="/config" element={
           <ProtectedRoute>
             <ConfigPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/transactions" element={
+          <ProtectedRoute>
+            <TransactionsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/salary" element={
+          <ProtectedRoute>
+            <SalaryPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/analysis" element={
+          <ProtectedRoute>
+            <AnalysisPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/car" element={
+          <ProtectedRoute>
+            <CarPage />
           </ProtectedRoute>
         } />
       </Routes>

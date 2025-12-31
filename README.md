@@ -1,4 +1,4 @@
-# YAFT - Yey another finance tracker
+# YAFT - Yet another finance tracker
 
 YAFT is a modern, premium web application designed to help you track your personal finances with ease and style. It features a sleek dark-mode interface with glassmorphism aesthetics and provides powerful tools to stay on top of your budget.
 

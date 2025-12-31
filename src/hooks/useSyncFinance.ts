@@ -10,10 +10,17 @@ export const useSyncFinance = () => {
   const { user } = useAuthStore();
   const {
     transactions, setTransactions,
-    initialBalance, setInitialBalance,
+    accounts, setAccounts,
     categories, setCategories,
     incomeCategories, setIncomeCategories,
     recurringTransactions, setRecurringTransactions,
+    carMileage, setCarMileage,
+    carInitialMileage, setCarInitialMileage,
+    tireSettings, setTireSettings,
+    tireChanges, setTireChanges,
+    balanceStartDate, setBalanceStartDate,
+    initialBalance, setInitialBalance,
+    enabledModules, setEnabledModules,
   } = useFinanceStore();
 
   // Load data from Firestore on user change
@@ -26,15 +33,22 @@ export const useSyncFinance = () => {
       if (doc.exists()) {
         const data = doc.data();
         if (data.transactions) setTransactions(data.transactions);
-        if (data.initialBalance !== undefined) setInitialBalance(data.initialBalance);
+        if (data.accounts) setAccounts(data.accounts);
         if (data.categories) setCategories(data.categories);
         if (data.incomeCategories) setIncomeCategories(data.incomeCategories);
         if (data.recurringTransactions) setRecurringTransactions(data.recurringTransactions);
+        if (data.carMileage) setCarMileage(data.carMileage);
+        if (typeof data.carInitialMileage === 'number') setCarInitialMileage(data.carInitialMileage);
+        if (data.tireSettings) setTireSettings(data.tireSettings);
+        if (data.tireChanges) setTireChanges(data.tireChanges);
+        if (data.balanceStartDate) setBalanceStartDate(data.balanceStartDate);
+        if (typeof data.initialBalance === 'number') setInitialBalance(data.initialBalance);
+        if (data.enabledModules) setEnabledModules(data.enabledModules);
       }
     });
 
     return () => unsub();
-  }, [user, setTransactions, setInitialBalance, setCategories, setIncomeCategories, setRecurringTransactions]);
+  }, [user, setTransactions, setAccounts, setCategories, setIncomeCategories, setRecurringTransactions, setCarMileage, setCarInitialMileage, setTireSettings, setTireChanges, setBalanceStartDate, setInitialBalance, setEnabledModules]);
 
   // Materialize recurring transactions
   useEffect(() => {
@@ -85,6 +99,7 @@ export const useSyncFinance = () => {
             subcategory: rec.subcategory,
             amount: rec.amount,
             type: rec.type,
+            accountId: rec.accountId,
             recurringLinkId: rec.id,
           });
           updated = true;
@@ -109,13 +124,20 @@ export const useSyncFinance = () => {
       const docRef = doc(db, 'users', user.uid).withConverter(userDocConverter);
       await setDoc(docRef, {
         transactions,
-        initialBalance,
+        accounts,
         categories,
         incomeCategories,
         recurringTransactions,
+        carMileage,
+        carInitialMileage,
+        tireSettings,
+        tireChanges,
+        balanceStartDate,
+        initialBalance,
+        enabledModules,
       }, { merge: true });
     };
 
     saveData();
-  }, [user, transactions, initialBalance, categories, incomeCategories, recurringTransactions]);
+  }, [user, transactions, accounts, categories, incomeCategories, recurringTransactions, carMileage, carInitialMileage, tireSettings, tireChanges, balanceStartDate, initialBalance, enabledModules]);
 };
