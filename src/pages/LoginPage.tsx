@@ -1,6 +1,6 @@
 import { Google as GoogleIcon } from '@mui/icons-material';
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
-import { signInWithRedirect } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { auth, googleProvider } from '../lib/firebase';
@@ -17,7 +17,7 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      await signInWithRedirect(auth, googleProvider);
+      await signInWithPopup(auth, googleProvider);
     } catch (error) {
       console.error('Error logging in:', error);
     }
