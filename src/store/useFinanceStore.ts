@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface Category {
   name: string;
@@ -122,7 +123,7 @@ interface FinanceState {
 }
 
 export const useFinanceStore = create<FinanceState>()(
-  persist(
+  persist<FinanceState>(
     (set) => ({
       initialBalance: 0, // No longer used as primary source, sum of accounts instead
       accounts: [
