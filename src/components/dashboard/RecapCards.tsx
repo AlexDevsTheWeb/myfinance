@@ -36,17 +36,9 @@ const RecapCards: React.FC = () => {
     });
   }, [transactions, accounts, balanceStartDate]);
 
-  const totals = React.useMemo(() => ({
-    income: accountsDetail.reduce((sum, acc) => sum + acc.periodIncome, 0),
-    expenses: accountsDetail.reduce((sum, acc) => sum + acc.periodExpense, 0),
-    balance: accountsDetail.reduce((sum, acc) => sum + acc.currentBalance, 0),
-  }), [accountsDetail]);
 
-  const mainCards = [
-    { title: 'Current Balance', amount: totals.balance, icon: <Wallet />, color: '#6366f1' },
-    { title: 'Total Income', amount: totals.income, icon: <TrendingUp />, color: '#10b981' },
-    { title: 'Total Expenses', amount: totals.expenses, icon: <TrendingDown />, color: '#ef4444' },
-  ];
+
+
   const totalIncome = accountsDetail.reduce((sum, acc) => sum + acc.periodIncome, 0);
   const totalExpenses = accountsDetail.reduce((sum, acc) => sum + acc.periodExpense, 0);
   const currentBalance = accountsDetail.reduce((sum, acc) => sum + acc.currentBalance, 0);

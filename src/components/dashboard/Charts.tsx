@@ -7,8 +7,6 @@ import { useFinanceStore } from '../../store/useFinanceStore';
 
 const Charts: React.FC = () => {
   const { transactions } = useFinanceStore();
-
-  const currentYear = dayjs().year() - 1;
   const emptyYear: Record<string, any> = {};
 
   for (let i = 11; i >= 0; i--) {
