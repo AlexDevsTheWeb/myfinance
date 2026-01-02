@@ -31,7 +31,10 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit, limit, cust
     <Paper sx={{ mt: 4 }}>
 
       <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6">{`Transactions: ${dayjs().month(currentMonth).format('MMMM').toUpperCase()}`}</Typography>
+        <Typography variant="h6">{
+          limit ? 'Transactions' : `Transactions: ${dayjs().month(currentMonth).format('MMMM').toUpperCase()}`
+        }
+        </Typography>
 
         {!limit &&
           <Button

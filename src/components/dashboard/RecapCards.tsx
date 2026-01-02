@@ -3,22 +3,54 @@ import dayjs from 'dayjs';
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import React from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
+import AccountCard from './AccountCard.component';
 
 const RecapCards: React.FC = () => {
   const { transactions, accounts, balanceStartDate } = useFinanceStore();
+  const [accountDetails, setAccountDetails] = React.useState<boolean>(false);
+  const accountsDetail = React.useMemo(() => {
+    const startDateStr = dayjs(balanceStartDate).format('YYYY-MM-DD');
 
-  const filteredTransactions = transactions.filter(t => dayjs(t.date).isAfter(dayjs(balanceStartDate).subtract(1, 'day')));
+    return accounts.map(acc => {
+      const periodTransactions = transactions
+        .filter(t => t.accountId === acc.id && dayjs(t.date).format('YYYY-MM-DD') >= startDateStr)
+        .sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());
 
-  const totalIncome = filteredTransactions
-    .filter((t) => t.type === 'income')
-    .reduce((acc, t) => acc + t.amount, 0);
+      const income = periodTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+      const expense = periodTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
 
-  const totalExpenses = transactions
-    .filter((t) => t.type === 'expense')
-    .reduce((acc, t) => acc + t.amount, 0);
+      // Creazione history per lo Sparkline (Saldo progressivo)
+      let runningBalance = acc.initialBalance;
+      const history = [{ date: startDateStr, amount: runningBalance }, ...periodTransactions.map(t => {
+        runningBalance += (t.type === 'income' ? t.amount : -t.amount);
+        return { date: t.date, amount: runningBalance };
+      })];
 
-  const totalAccountsInitialBalance = accounts.reduce((sum, acc) => sum + acc.initialBalance, 0);
-  const currentBalance = totalAccountsInitialBalance + totalIncome - totalExpenses;
+      return {
+        ...acc,
+        currentBalance: acc.initialBalance + income - expense,
+        periodIncome: income,
+        periodExpense: expense,
+        history
+      };
+    });
+  }, [transactions, accounts, balanceStartDate]);
+
+  const totals = React.useMemo(() => ({
+    income: accountsDetail.reduce((sum, acc) => sum + acc.periodIncome, 0),
+    expenses: accountsDetail.reduce((sum, acc) => sum + acc.periodExpense, 0),
+    balance: accountsDetail.reduce((sum, acc) => sum + acc.currentBalance, 0),
+  }), [accountsDetail]);
+
+  const mainCards = [
+    { title: 'Current Balance', amount: totals.balance, icon: <Wallet />, color: '#6366f1' },
+    { title: 'Total Income', amount: totals.income, icon: <TrendingUp />, color: '#10b981' },
+    { title: 'Total Expenses', amount: totals.expenses, icon: <TrendingDown />, color: '#ef4444' },
+  ];
+  const totalIncome = accountsDetail.reduce((sum, acc) => sum + acc.periodIncome, 0);
+  const totalExpenses = accountsDetail.reduce((sum, acc) => sum + acc.periodExpense, 0);
+  const currentBalance = accountsDetail.reduce((sum, acc) => sum + acc.currentBalance, 0);
+
 
   const cardData = [
     {
@@ -46,9 +78,11 @@ const RecapCards: React.FC = () => {
 
   return (
     <Grid container spacing={3}>
+
       {cardData.map((card) => (
         <Grid size={{ xs: 12, md: 4 }} key={card.title}>
           <Paper
+            onClick={() => card.title === 'Current Balance' && setAccountDetails(!accountDetails)}
             sx={{
               p: 2,
               borderRadius: 1,
@@ -57,6 +91,7 @@ const RecapCards: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 2,
+              cursor: card.title === 'Current Balance' ? 'pointer' : 'default',
             }}
           >
             <Box sx={{ p: 1.5, borderRadius: 3, background: card.color, color: '#fff', display: 'flex' }}>
@@ -73,6 +108,96 @@ const RecapCards: React.FC = () => {
           </Paper>
         </Grid>
       ))}
+
+      {accountDetails && (
+        <Box sx={{ mt: 1, width: '100%' }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Accounts Detail</Typography>
+          <Grid container spacing={2}>
+            {accountsDetail.map(acc => (
+              <Grid size={{ xs: 12, sm: 6 }} key={acc.id}>
+                <AccountCard
+                  name={acc.name}
+                  currentBalance={acc.currentBalance}
+                  initialBalance={acc.initialBalance}
+                  history={acc.history}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
+
+      {/* {accountDetails && (
+        <Box sx={{ width: '100%', mt: 4 }}>
+          <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, letterSpacing: 0.5 }}>
+            Accounts Detail
+          </Typography>
+          <Grid container spacing={3}>
+            {accountsDetail.map((acc) => {
+              const isPositive = acc.currentBalance >= acc.initialBalance;
+
+              return (
+                <Grid size={{ xs: 12, sm: 6 }} key={acc.id}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      borderRadius: 2,
+                      bgcolor: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      transition: 'transform 0.2s, border-color 0.2s',
+                      '&:hover': {
+                        borderColor: 'rgba(99, 102, 241, 0.5)',
+                        transform: 'translateY(-4px)',
+                        bgcolor: 'rgba(255, 255, 255, 0.05)',
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>
+                        {acc.name}
+                      </Typography>
+                      <Wallet size={20} color="#6366f1" style={{ opacity: 0.8 }} />
+                    </Box>
+
+                    <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                      € {acc.currentBalance.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pt: 2, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                      <Box>
+                        <Typography variant="caption" sx={{ display: 'block', opacity: 0.5, textTransform: 'uppercase', fontSize: '0.65rem', fontWeight: 700 }}>
+                          Initial Balance
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          € {acc.initialBalance.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ ml: 'auto', textAlign: 'right' }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            px: 1,
+                            py: 0.5,
+                            borderRadius: 1,
+                            fontWeight: 700,
+                            bgcolor: isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                            color: isPositive ? '#10b981' : '#ef4444'
+                          }}
+                        >
+                          {isPositive ? '+' : ''}
+                          {((acc.currentBalance - acc.initialBalance)).toLocaleString('it-IT', { minimumFractionDigits: 2 })} €
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Paper>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </Box>
+      )} */}
     </Grid>
   );
 };

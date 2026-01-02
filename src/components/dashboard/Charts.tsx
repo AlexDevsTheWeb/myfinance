@@ -8,12 +8,12 @@ import { useFinanceStore } from '../../store/useFinanceStore';
 const Charts: React.FC = () => {
   const { transactions } = useFinanceStore();
 
-  const currentYear = dayjs().year();
+  const currentYear = dayjs().year() - 1;
   const emptyYear: Record<string, any> = {};
 
-  for (let i = 0; i < 12; i++) {
-    const monthDate = dayjs().year(currentYear).month(i).startOf('month');
-    const dateKey = monthDate.format('YYYY-MM'); // Chiave univoca per ordinamento
+  for (let i = 11; i >= 0; i--) {
+    const monthDate = dayjs().subtract(i, 'month').startOf('month');
+    const dateKey = monthDate.format('YYYY-MM');
     const displayDate = monthDate.format('MMM YYYY');
 
     emptyYear[dateKey] = {
@@ -23,8 +23,11 @@ const Charts: React.FC = () => {
       expense: 0
     };
   }
+
+  const startDate = dayjs().subtract(11, 'month').startOf('month');
+
   const groupedData = transactions
-    .filter(t => dayjs(t.date).year() === currentYear)
+    .filter(t => dayjs(t.date).isAfter(startDate) || dayjs(t.date).isSame(startDate, 'month'))
     .reduce((acc, t) => {
       const dateKey = dayjs(t.date).format('YYYY-MM');
       if (acc[dateKey]) {
@@ -32,26 +35,12 @@ const Charts: React.FC = () => {
         else acc[dateKey].expense += t.amount;
       }
       return acc;
-    }, { ...emptyYear }); // Partiamo dallo scheletro vuoto
+    }, { ...emptyYear });
 
   const data = Object.values(groupedData).sort((a: any, b: any) =>
     a.dateKey.localeCompare(b.dateKey)
   );
 
-  // TODO: vechio codice
-  // const groupedData = transactions.filter(t => dayjs(t.date).year() === dayjs().year()).reduce((acc: any, t) => {
-  //   const dateKey = t.date;
-  //   const displayDate = dayjs(t.date).format('MM YYYY');
-  //   if (!acc[dateKey]) {
-  //     acc[dateKey] = { dateKey, displayDate, income: 0, expense: 0 };
-  //   }
-  //   if (t.type === 'income') acc[dateKey].income += t.amount;
-  //   else acc[dateKey].expense += t.amount;
-  //   return acc;
-  // }, {});
-
-  // const data = Object.values(groupedData).sort((a: any, b: any) => a.dateKey.localeCompare(b.dateKey));
-  // TODO: vechio codice
 
   return (
     <Paper sx={{ mt: 4 }}>
