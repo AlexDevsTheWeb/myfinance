@@ -104,135 +104,139 @@ const SalaryPage: React.FC = () => {
       <Grid container spacing={4}>
         {/* Monthly Trend Chart */}
         <Grid size={{ xs: 12 }}>
-          <Card sx={{ borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <BarChartIcon /> Monthly Salary Trend
-              </Typography>
-              <Box sx={{ height: 350, mt: 2 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trendChartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis
-                      dataKey="monthName"
-                      stroke="rgba(255,255,255,0.5)"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <YAxis
-                      stroke="rgba(255,255,255,0.5)"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => `€${value}`}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: '#1e293b',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                      }}
-                      itemStyle={{ color: '#fff' }}
-                      formatter={(value: number, name: any, props: any) => {
-                        const year = name;
-                        const details = props.payload[`${year}_details`];
-                        return [
-                          <Box key={year}>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>€ {value.toLocaleString()}</Typography>
-                            <Typography variant="caption" sx={{ opacity: 0.7, display: 'block' }}>{details}</Typography>
-                          </Box>,
-                          `Year ${year}`
-                        ];
-                      }}
-                    />
-                    <Legend iconType="circle" />
-                    {availableYears.map((year, index) => (
-                      <Line
-                        key={year}
-                        type="monotone"
-                        dataKey={year}
-                        name={year.toString()}
-                        stroke={COLORS[index % COLORS.length]}
-                        strokeWidth={3}
-                        dot={{ r: 4, strokeWidth: 2, fill: '#1e293b' }}
-                        activeDot={{ r: 6, strokeWidth: 0 }}
+          <Paper>
+            <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <BarChartIcon /> Monthly Salary Trend
+                </Typography>
+                <Box sx={{ height: 350, mt: 2 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={trendChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                      <XAxis
+                        dataKey="monthName"
+                        stroke="rgba(255,255,255,0.5)"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
                       />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
-              </Box>
-            </CardContent>
-          </Card>
+                      <YAxis
+                        stroke="rgba(255,255,255,0.5)"
+                        fontSize={12}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(value) => `€${value}`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          background: '#1e293b',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                        }}
+                        itemStyle={{ color: '#fff' }}
+                        formatter={(value: number, name: any, props: any) => {
+                          const year = name;
+                          const details = props.payload[`${year}_details`];
+                          return [
+                            <Box key={year}>
+                              <Typography variant="body2" sx={{ fontWeight: 700 }}>€ {value.toLocaleString()}</Typography>
+                              <Typography variant="caption" sx={{ opacity: 0.7, display: 'block' }}>{details}</Typography>
+                            </Box>,
+                            `Year ${year}`
+                          ];
+                        }}
+                      />
+                      <Legend iconType="circle" />
+                      {availableYears.map((year, index) => (
+                        <Line
+                          key={year}
+                          type="monotone"
+                          dataKey={year}
+                          name={year.toString()}
+                          stroke={COLORS[index % COLORS.length]}
+                          strokeWidth={3}
+                          dot={{ r: 4, strokeWidth: 2, fill: '#1e293b' }}
+                          activeDot={{ r: 6, strokeWidth: 0 }}
+                        />
+                      ))}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Box>
+              </CardContent>
+            </Card>
+          </Paper>
         </Grid>
 
         {/* YoY Comparison Table */}
         <Grid size={{ xs: 12 }}>
-          <Card sx={{ borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>Year over Year Comparison</Typography>
-              <TableContainer component={Paper} sx={{ background: 'transparent', boxShadow: 'none' }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Month</TableCell>
-                      {availableYears.map(year => (
-                        <TableCell key={year} align="right" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{year}</TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {yoyData.map((row) => (
-                      <TableRow key={row.month} sx={{ '&:hover': { background: 'rgba(255,255,255,0.02)' } }}>
-                        <TableCell sx={{ fontWeight: 600, verticalAlign: 'top', pt: 2 }}>{row.month}</TableCell>
-                        {availableYears.map((year, yIdx) => {
-                          const amount = row.yearValues[year] || 0;
-                          const nextYear = availableYears[yIdx + 1];
-                          const prevAmount = nextYear ? (row.yearValues[nextYear] || 0) : 0;
-
-                          const hasPrev = nextYear && prevAmount > 0;
-                          const diff = hasPrev ? ((amount - prevAmount) / prevAmount) * 100 : 0;
-                          const absDiff = amount - prevAmount;
-                          const isIncrease = amount >= prevAmount;
-
-                          return (
-                            <TableCell key={year} align="right" sx={{ verticalAlign: 'top' }}>
-                              <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                                € {amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                              </Typography>
-
-                              {hasPrev && (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', mt: 1, gap: 0.5 }}>
-                                  <Chip
-                                    size="small"
-                                    icon={isIncrease ? <ArrowUpward sx={{ fontSize: '0.7rem !important' }} /> : <ArrowDownward sx={{ fontSize: '0.7rem !important' }} />}
-                                    label={`${isIncrease ? '+' : ''}${diff.toFixed(1)}%`}
-                                    color={isIncrease ? 'success' : 'error'}
-                                    variant="outlined"
-                                    sx={{
-                                      height: 20,
-                                      fontSize: '0.7rem',
-                                      fontWeight: 700,
-                                      '& .MuiChip-label': { px: 1 },
-                                      '& .MuiChip-icon': { ml: 0.5, mr: -0.5 }
-                                    }}
-                                  />
-                                  <Typography variant="caption" sx={{ fontWeight: 600, color: isIncrease ? 'success.main' : 'error.main', opacity: 0.8, fontSize: '0.65rem' }}>
-                                    {absDiff >= 0 ? '+' : ''}€ {absDiff.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                                  </Typography>
-                                </Box>
-                              )}
-                            </TableCell>
-                          );
-                        })}
+          <Paper>
+            <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>Year over Year Comparison</Typography>
+                <TableContainer component={Paper} sx={{ background: 'transparent', boxShadow: 'none' }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Month</TableCell>
+                        {availableYears.map(year => (
+                          <TableCell key={year} align="right" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{year}</TableCell>
+                        ))}
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
+                    </TableHead>
+                    <TableBody>
+                      {yoyData.map((row) => (
+                        <TableRow key={row.month} sx={{ '&:hover': { background: 'rgba(255,255,255,0.02)' } }}>
+                          <TableCell sx={{ fontWeight: 600, verticalAlign: 'top', pt: 2 }}>{row.month}</TableCell>
+                          {availableYears.map((year, yIdx) => {
+                            const amount = row.yearValues[year] || 0;
+                            const nextYear = availableYears[yIdx + 1];
+                            const prevAmount = nextYear ? (row.yearValues[nextYear] || 0) : 0;
+
+                            const hasPrev = nextYear && prevAmount > 0;
+                            const diff = hasPrev ? ((amount - prevAmount) / prevAmount) * 100 : 0;
+                            const absDiff = amount - prevAmount;
+                            const isIncrease = amount >= prevAmount;
+
+                            return (
+                              <TableCell key={year} align="right" sx={{ verticalAlign: 'top' }}>
+                                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                                  € {amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                                </Typography>
+
+                                {hasPrev && (
+                                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', mt: 1, gap: 0.5 }}>
+                                    <Chip
+                                      size="small"
+                                      icon={isIncrease ? <ArrowUpward sx={{ fontSize: '0.7rem !important' }} /> : <ArrowDownward sx={{ fontSize: '0.7rem !important' }} />}
+                                      label={`${isIncrease ? '+' : ''}${diff.toFixed(1)}%`}
+                                      color={isIncrease ? 'success' : 'error'}
+                                      variant="outlined"
+                                      sx={{
+                                        height: 20,
+                                        fontSize: '0.7rem',
+                                        fontWeight: 700,
+                                        '& .MuiChip-label': { px: 1 },
+                                        '& .MuiChip-icon': { ml: 0.5, mr: -0.5 }
+                                      }}
+                                    />
+                                    <Typography variant="caption" sx={{ fontWeight: 600, color: isIncrease ? 'success.main' : 'error.main', opacity: 0.8, fontSize: '0.65rem' }}>
+                                      {absDiff >= 0 ? '+' : ''}€ {absDiff.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </TableCell>
+                            );
+                          })}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </CardContent>
+            </Card>
+          </Paper>
         </Grid>
       </Grid>
     </Box>

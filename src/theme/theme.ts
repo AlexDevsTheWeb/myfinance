@@ -43,9 +43,51 @@ export const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundImage: 'none',
+          borderRadius: 4, // Corrisponde a borderRadius: 1 (4px default)
+          overflow: 'hidden',
+          background: 'rgba(30, 41, 59, 0.5)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
         },
       },
     },
+    MuiTypography: {
+      variants: [
+      {
+          props: { variant: 'h4' },
+          style: {
+            fontSize:'1.575rem',
+            fontWeight: 800,
+            letterSpacing: '0.05em',
+            lineHeight: 1.2,
+            
+          },
+        },
+        {
+          props: { variant: 'h6' },
+          style: {
+            fontWeight: 700,
+            letterSpacing: '0.05em',
+            lineHeight: 1.2,
+            padding: '10px',
+          },
+        },
+        {
+          props: { variant: 'button' },
+          style: {
+            fontWeight: 600,
+            textTransform: 'none',
+          }
+        },
+        {
+          props: { variant: 'subtitle2' },
+          style: {
+            fontSize: '0.875rem',
+            opacity: 0.8,
+            fontWeight: 600
+          }
+        }
+      ]
+    }
   },
 });
