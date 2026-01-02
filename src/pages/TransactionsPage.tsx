@@ -105,6 +105,7 @@ const TransactionsPage: React.FC = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
+
       <Box sx={{ pb: 6 }}>
         <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <Box>
@@ -121,7 +122,7 @@ const TransactionsPage: React.FC = () => {
           </Button>
         </Box>
 
-        <Card sx={{ mb: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+        <Card sx={{ mb: 4, borderRadius: 0, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
           <CardContent>
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, md: 4 }}>
@@ -217,12 +218,8 @@ const TransactionsPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* We use a slightly modified version of the table or just wrap it */}
         <Box sx={{ mt: 2 }}>
-          {/* Overriding the store usage in TransactionTable via local filtration */}
-          {/* For simplicity, let's keep it as is and I might need to make TransactionTable more generic if I want to pass filtered data */}
-          {/* Actually, let's update TransactionTable to accept data as prop optionally */}
-          <TransactionTable onEdit={handleEditTransaction} customData={filteredTransactions} />
+          <TransactionTable onEdit={handleEditTransaction} customData={filteredTransactions} limit={'no'} />
         </Box>
 
         <TransactionModal

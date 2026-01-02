@@ -7,23 +7,41 @@ import { useFinanceStore } from '../../store/useFinanceStore';
 
 const Charts: React.FC = () => {
   const { transactions } = useFinanceStore();
+  const emptyYear: Record<string, any> = {};
 
-  // Process data for the chart (group by full date string to include year)
-  const groupedData = transactions.reduce((acc: any, t) => {
-    const dateKey = t.date; // already YYYY-MM-DD
-    const displayDate = dayjs(t.date).format('MMM DD YYYY');
-    if (!acc[dateKey]) {
-      acc[dateKey] = { dateKey, displayDate, income: 0, expense: 0 };
-    }
-    if (t.type === 'income') acc[dateKey].income += t.amount;
-    else acc[dateKey].expense += t.amount;
-    return acc;
-  }, {});
+  for (let i = 11; i >= 0; i--) {
+    const monthDate = dayjs().subtract(i, 'month').startOf('month');
+    const dateKey = monthDate.format('YYYY-MM');
+    const displayDate = monthDate.format('MMM YYYY');
 
-  const data = Object.values(groupedData).sort((a: any, b: any) => a.dateKey.localeCompare(b.dateKey));
+    emptyYear[dateKey] = {
+      dateKey,
+      displayDate,
+      income: 0,
+      expense: 0
+    };
+  }
+
+  const startDate = dayjs().subtract(11, 'month').startOf('month');
+
+  const groupedData = transactions
+    .filter(t => dayjs(t.date).isAfter(startDate) || dayjs(t.date).isSame(startDate, 'month'))
+    .reduce((acc, t) => {
+      const dateKey = dayjs(t.date).format('YYYY-MM');
+      if (acc[dateKey]) {
+        if (t.type === 'income') acc[dateKey].income += t.amount;
+        else acc[dateKey].expense += t.amount;
+      }
+      return acc;
+    }, { ...emptyYear });
+
+  const data = Object.values(groupedData).sort((a: any, b: any) =>
+    a.dateKey.localeCompare(b.dateKey)
+  );
+
 
   return (
-    <Paper sx={{ p: 4, borderRadius: 4, mt: 4, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+    <Paper sx={{ mt: 4 }}>
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
         Cash Flow Trend
       </Typography>

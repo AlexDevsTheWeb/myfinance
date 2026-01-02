@@ -24,8 +24,8 @@ const AnalysisPage: React.FC = () => {
   }, [transactions]);
 
   return (
-    <Box sx={{ pb: 6 }}>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+    <Box sx={{ pb: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
             <Summarize sx={{ fontSize: 40, color: 'primary.main' }} />
