@@ -127,7 +127,7 @@ export const useFinanceStore = create<FinanceState>()(
     (set) => ({
       initialBalance: 0, // No longer used as primary source, sum of accounts instead
       accounts: [
-        { id: 'default-main', name: 'Conto Principale', initialBalance: 18325, isDefault: true }
+        { id: 'default-main', name: 'Conto Principale', initialBalance: 0, isDefault: true }
       ],
       categories: [
         { name: 'Debiti', subcategories: ['Carte di credito', 'Prestiti studio', 'Altri prestiti', 'Imposte'] },
