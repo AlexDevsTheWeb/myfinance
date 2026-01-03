@@ -50,18 +50,20 @@ const getDefaultUserConfig = (): UserDoc => {
 export const useSyncFinance = () => {
   const { user } = useAuthStore();
   const {
-    transactions, setTransactions,
-    accounts, setAccounts,
-    categories, setCategories,
-    incomeCategories, setIncomeCategories,
-    recurringTransactions, setRecurringTransactions,
-    carMileage, setCarMileage,
-    carInitialMileage, setCarInitialMileage,
-    tireSettings, setTireSettings,
-    tireChanges, setTireChanges,
-    balanceStartDate, setBalanceStartDate,
-    initialBalance, setInitialBalance,
-    enabledModules, setEnabledModules,
+    transactions,
+    accounts,
+    categories,
+    incomeCategories,
+    recurringTransactions,
+    carMileage,
+    carInitialMileage,
+    tireSettings,
+    tireChanges,
+    balanceStartDate,
+    initialBalance,
+    enabledModules,
+    setTransactions, // Keep for materialize effect
+    setAll,
   } = useFinanceStore();
 
   const isInitializing = useRef(false);
@@ -86,19 +88,7 @@ export const useSyncFinance = () => {
           console.log('SyncFinance: New user detected, initializing...');
           const defaultConfig = getDefaultUserConfig();
           await setDoc(docRef, defaultConfig);
-
-          setTransactions(defaultConfig.transactions);
-          setAccounts(defaultConfig.accounts);
-          setCategories(defaultConfig.categories);
-          setIncomeCategories(defaultConfig.incomeCategories);
-          setRecurringTransactions(defaultConfig.recurringTransactions);
-          setCarMileage(defaultConfig.carMileage);
-          setCarInitialMileage(defaultConfig.carInitialMileage);
-          setTireSettings(defaultConfig.tireSettings);
-          setTireChanges(defaultConfig.tireChanges);
-          setBalanceStartDate(defaultConfig.balanceStartDate);
-          setInitialBalance(defaultConfig.initialBalance);
-          setEnabledModules(defaultConfig.enabledModules);
+          setAll(defaultConfig);
         }
       } catch (error) {
         console.error('Error initializing user:', error);
@@ -112,24 +102,13 @@ export const useSyncFinance = () => {
     const unsub = onSnapshot(docRef, (doc) => {
       if (doc.exists() && !isInitializing.current) {
         const data = doc.data();
-        if (data.transactions) setTransactions(data.transactions);
-        if (data.accounts) setAccounts(data.accounts);
-        if (data.categories) setCategories(data.categories);
-        if (data.incomeCategories) setIncomeCategories(data.incomeCategories);
-        if (data.recurringTransactions) setRecurringTransactions(data.recurringTransactions);
-        if (data.carMileage) setCarMileage(data.carMileage);
-        if (typeof data.carInitialMileage === 'number') setCarInitialMileage(data.carInitialMileage);
-        if (data.tireSettings) setTireSettings(data.tireSettings);
-        if (data.tireChanges) setTireChanges(data.tireChanges);
-        if (data.balanceStartDate) setBalanceStartDate(data.balanceStartDate);
-        if (typeof data.initialBalance === 'number') setInitialBalance(data.initialBalance);
-        if (data.enabledModules) setEnabledModules(data.enabledModules);
+        setAll(data);
       }
     });
 
     return () => unsub();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, setAll]);
 
   // Materialize recurring transactions
   useEffect(() => {
@@ -141,7 +120,10 @@ export const useSyncFinance = () => {
 
     recurringTransactions.forEach((rec) => {
       const start = dayjs(rec.startDate);
-      let current = start;
+      const balanceStart = dayjs(balanceStartDate);
+
+      // Start materializing from the later of the item's start date or the global balance start date
+      let current = start.isAfter(balanceStart) ? start : balanceStart;
 
       // Iterate through months from start date until now
       while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
