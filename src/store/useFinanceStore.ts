@@ -120,6 +120,7 @@ interface FinanceState {
   updateTireChange: (record: TireChangeRecord) => void;
   deleteTireChange: (id: string) => void;
   setTireChanges: (records: TireChangeRecord[]) => void;
+  setAll: (data: Partial<FinanceState>) => void;
 }
 
 export const useFinanceStore = create<FinanceState>()(
@@ -337,7 +338,56 @@ export const useFinanceStore = create<FinanceState>()(
         };
       }),
 
-      addRecurring: (recurring) => set((state) => ({ recurringTransactions: [...state.recurringTransactions, recurring] })),
+      addRecurring: (recurring) => set((state) => {
+        const newTransactions = [];
+        const now = dayjs();
+        const start = dayjs(recurring.startDate);
+        const balanceStart = dayjs(state.balanceStartDate);
+        let current = start.isAfter(balanceStart) ? start : balanceStart;
+
+        while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
+          let targetDate = current.date(recurring.dayOfMonth);
+
+          if (targetDate.month() !== current.month()) {
+            targetDate = current.endOf('month');
+          }
+
+          if (targetDate.isAfter(now, 'day')) break;
+
+          if (recurring.endDate && targetDate.isAfter(dayjs(recurring.endDate), 'day')) break;
+
+          if (targetDate.isBefore(start, 'day')) {
+            current = current.add(1, 'month');
+            continue;
+          }
+
+          const dateStr = targetDate.format('YYYY-MM-DD');
+
+          const exists = state.transactions.some(t => t.recurringLinkId === recurring.id && t.date === dateStr);
+
+          if (!exists) {
+            newTransactions.push({
+              id: crypto.randomUUID(),
+              date: dateStr,
+              description: recurring.description,
+              category: recurring.category,
+              subcategory: recurring.subcategory,
+              amount: recurring.amount,
+              type: recurring.type,
+              accountId: recurring.accountId,
+              recurringLinkId: recurring.id,
+            });
+          }
+          current = current.add(1, 'month');
+        }
+
+        const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+
+        return {
+          recurringTransactions: [...state.recurringTransactions, recurring].sort((a, b) => a.description.localeCompare(b.description)),
+          transactions: allTransactions,
+        };
+      }),
       updateRecurring: (recurring) => set((state) => ({
         recurringTransactions: state.recurringTransactions.map(r => r.id === recurring.id ? recurring : r)
       })),
@@ -372,6 +422,7 @@ export const useFinanceStore = create<FinanceState>()(
         tireChanges: state.tireChanges.filter(t => t.id !== id)
       })),
       setTireChanges: (records) => set({ tireChanges: records }),
+      setAll: (data) => set(data),
     }),
     {
       name: 'finance-storage',
