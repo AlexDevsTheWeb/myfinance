@@ -50,18 +50,20 @@ const getDefaultUserConfig = (): UserDoc => {
 export const useSyncFinance = () => {
   const { user } = useAuthStore();
   const {
-    transactions, setTransactions,
-    accounts, setAccounts,
-    categories, setCategories,
-    incomeCategories, setIncomeCategories,
-    recurringTransactions, setRecurringTransactions,
-    carMileage, setCarMileage,
-    carInitialMileage, setCarInitialMileage,
-    tireSettings, setTireSettings,
-    tireChanges, setTireChanges,
-    balanceStartDate, setBalanceStartDate,
-    initialBalance, setInitialBalance,
-    enabledModules, setEnabledModules,
+    transactions,
+    accounts,
+    categories,
+    incomeCategories,
+    recurringTransactions,
+    carMileage,
+    carInitialMileage,
+    tireSettings,
+    tireChanges,
+    balanceStartDate,
+    initialBalance,
+    enabledModules,
+    setTransactions, // Keep for materialize effect
+    setAll,
   } = useFinanceStore();
 
   const isInitializing = useRef(false);
@@ -86,19 +88,7 @@ export const useSyncFinance = () => {
           console.log('SyncFinance: New user detected, initializing...');
           const defaultConfig = getDefaultUserConfig();
           await setDoc(docRef, defaultConfig);
-
-          setTransactions(defaultConfig.transactions);
-          setAccounts(defaultConfig.accounts);
-          setCategories(defaultConfig.categories);
-          setIncomeCategories(defaultConfig.incomeCategories);
-          setRecurringTransactions(defaultConfig.recurringTransactions);
-          setCarMileage(defaultConfig.carMileage);
-          setCarInitialMileage(defaultConfig.carInitialMileage);
-          setTireSettings(defaultConfig.tireSettings);
-          setTireChanges(defaultConfig.tireChanges);
-          setBalanceStartDate(defaultConfig.balanceStartDate);
-          setInitialBalance(defaultConfig.initialBalance);
-          setEnabledModules(defaultConfig.enabledModules);
+          setAll(defaultConfig);
         }
       } catch (error) {
         console.error('Error initializing user:', error);
@@ -110,115 +100,16 @@ export const useSyncFinance = () => {
     initializeUser();
 
     const unsub = onSnapshot(docRef, (doc) => {
+      if (doc.metadata.hasPendingWrites) {
+        console.log('SyncFinance: Ignoring local write');
+        return;
+      }
       if (doc.exists() && !isInitializing.current) {
         const data = doc.data();
-        if (data.transactions) setTransactions(data.transactions);
-        if (data.accounts) setAccounts(data.accounts);
-        if (data.categories) setCategories(data.categories);
-        if (data.incomeCategories) setIncomeCategories(data.incomeCategories);
-        if (data.recurringTransactions) setRecurringTransactions(data.recurringTransactions);
-        if (data.carMileage) setCarMileage(data.carMileage);
-        if (typeof data.carInitialMileage === 'number') setCarInitialMileage(data.carInitialMileage);
-        if (data.tireSettings) setTireSettings(data.tireSettings);
-        if (data.tireChanges) setTireChanges(data.tireChanges);
-        if (data.balanceStartDate) setBalanceStartDate(data.balanceStartDate);
-        if (typeof data.initialBalance === 'number') setInitialBalance(data.initialBalance);
-        if (data.enabledModules) setEnabledModules(data.enabledModules);
+        setAll(data);
       }
     });
 
     return () => unsub();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  // Materialize recurring transactions
-  useEffect(() => {
-    if (!user || recurringTransactions.length === 0) return;
-
-    const now = dayjs();
-    let updated = false;
-    const newTransactions = [...transactions];
-
-    recurringTransactions.forEach((rec) => {
-      const start = dayjs(rec.startDate);
-      let current = start;
-
-      // Iterate through months from start date until now
-      while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
-        // The transaction happens on rec.dayOfMonth
-        // We need to adjust 'current' to that day of the month
-        let targetDate = current.date(rec.dayOfMonth);
-
-        // Handle cases where the month has fewer days (e.g. 31st of Feb -> 28th)
-        if (targetDate.month() !== current.month()) {
-          targetDate = current.endOf('month');
-        }
-
-        // If targetDate is after 'now', we stop for this recurring item
-        if (targetDate.isAfter(now, 'day')) break;
-
-        // If targetDate is after the endDate, we stop for this recurring item
-        if (rec.endDate && targetDate.isAfter(dayjs(rec.endDate), 'day')) break;
-
-        // If targetDate is before the startDate, we skip (shouldn't happen with our loop but good for safety)
-        if (targetDate.isBefore(start, 'day')) {
-          current = current.add(1, 'month');
-          continue;
-        }
-
-        const dateStr = targetDate.format('YYYY-MM-DD');
-
-        // Check if this instance already exists
-        const exists = transactions.some(t => t.recurringLinkId === rec.id && t.date === dateStr);
-
-        if (!exists) {
-          newTransactions.push({
-            id: crypto.randomUUID(),
-            date: dateStr,
-            description: rec.description,
-            category: rec.category,
-            subcategory: rec.subcategory,
-            amount: rec.amount,
-            type: rec.type,
-            accountId: rec.accountId,
-            recurringLinkId: rec.id,
-          });
-          updated = true;
-        }
-
-        current = current.add(1, 'month');
-      }
-    });
-
-    if (updated) {
-      // Sort transactions by date (descending) before saving
-      newTransactions.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-      setTransactions(newTransactions);
-    }
-  }, [user, recurringTransactions, transactions, setTransactions]);
-
-  // Save data to Firestore on local change
-  useEffect(() => {
-    if (!user) return;
-
-    const saveData = async () => {
-      const docRef = doc(db, 'users', user.uid).withConverter(userDocConverter);
-      await setDoc(docRef, {
-        transactions,
-        accounts,
-        categories,
-        incomeCategories,
-        recurringTransactions,
-        carMileage,
-        carInitialMileage,
-        tireSettings,
-        tireChanges,
-        balanceStartDate,
-        initialBalance,
-        enabledModules,
-      }, { merge: true });
-    };
-
-    saveData();
-  }, [user, transactions, accounts, categories, incomeCategories, recurringTransactions, carMileage, carInitialMileage, tireSettings, tireChanges, balanceStartDate, initialBalance, enabledModules]);
+  }, [user, setAll]);
 };

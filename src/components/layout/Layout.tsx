@@ -1,5 +1,5 @@
-import { BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event as DateIcon, AccountBalance as FinanceIcon, Home, KeyboardArrowDown, ExitToApp as LogoutIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
-import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, Menu, MenuItem, Link as MuiLink, Toolbar, Typography } from '@mui/material';
+import { BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event as DateIcon, AccountBalance as FinanceIcon, Home, KeyboardArrowDown, ExitToApp as LogoutIcon, Menu as MenuIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
+import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery, useTheme } from '@mui/material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/it';
 import React, { useState } from 'react';
@@ -12,14 +12,23 @@ import { getEnvVar } from '../../utils/variables.utils';
 // Set dayjs to Italian
 dayjs.locale('it');
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const drawerWidth = 240;
+
+const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDescription?: string }> = ({ children, pageTitle, pageDescription }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
   const { enabledModules } = useFinanceStore();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorElFinance, setAnchorElFinance] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   const handleOpenFinance = (event: React.MouseEvent<HTMLElement>) => setAnchorElFinance(event.currentTarget);
   const handleCloseFinance = () => setAnchorElFinance(null);
@@ -46,10 +55,59 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     'car': 'Gestione Auto',
   };
 
+  const drawer = (
+    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+      <Typography variant="h6" sx={{ my: 2, color: '#6366f1', fontWeight: 800 }}>
+        {appTitle}
+      </Typography>
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+      <List>
+        <ListItemButton component={Link} to="/dashboard">
+          <ListItemIcon><Home sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+          <ListItemText primary="Dashboard" sx={{ color: 'white' }} />
+        </ListItemButton>
+        <ListItemButton onClick={() => { navigate('/salary'); }}>
+          <ListItemIcon><TrendingUp sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+          <ListItemText primary="Salary Analysis" sx={{ color: 'white' }} />
+        </ListItemButton>
+        <ListItemButton onClick={() => { navigate('/analysis'); }}>
+          <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+          <ListItemText primary="Detailed Analysis" sx={{ color: 'white' }} />
+        </ListItemButton>
+        {enabledModules?.carManagement && (
+          <ListItemButton component={Link} to="/car">
+            <ListItemIcon><CarIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+            <ListItemText primary="Auto" sx={{ color: 'white' }} />
+          </ListItemButton>
+        )}
+        <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+        <ListItemButton onClick={() => { navigate('/config'); }}>
+          <ListItemIcon><SettingsIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+          <ListItemText primary="Impostazioni" sx={{ color: 'white' }} />
+        </ListItemButton>
+        <ListItemButton onClick={handleLogout}>
+          <ListItemIcon><LogoutIcon sx={{ color: '#ef4444' }} /></ListItemIcon>
+          <ListItemText primary="Logout" sx={{ color: '#ef4444' }} />
+        </ListItemButton>
+      </List>
+    </Box>
+  );
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
       <AppBar position="sticky" elevation={0} sx={{ background: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
           <Typography
             variant="h6"
             component={Link}
@@ -68,7 +126,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             {appTitle}
           </Typography>
 
-          {user && (
+          {user && !isMobile && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {/* Finance Dropdown */}
               <Button
@@ -158,6 +216,27 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           )}
         </Toolbar>
       </AppBar>
+      <Box
+        component="nav"
+        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+        aria-label="mailbox folders"
+      >
+        <SwipeableDrawer
+          variant="temporary"
+          open={mobileOpen}
+          onOpen={handleDrawerToggle}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          sx={{
+            display: { xs: 'block', md: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, background: '#0f172a', borderRight: '1px solid rgba(255,255,255,0.1)' },
+          }}
+        >
+          {drawer}
+        </SwipeableDrawer>
+      </Box>
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
         {user && pathnames.length > 0 && (
           <Breadcrumbs
@@ -208,6 +287,18 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               );
             })}
           </Breadcrumbs>
+        )}
+        {pageTitle && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
+              {pageTitle}
+            </Typography>
+            {pageDescription && (
+              <Typography variant="body1" sx={{ opacity: 0.6 }}>
+                {pageDescription}
+              </Typography>
+            )}
+          </Box>
         )}
         {children}
       </Container>
