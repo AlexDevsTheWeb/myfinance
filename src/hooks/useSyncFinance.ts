@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, runTransaction } from 'firebase/firestore';
 import { useEffect, useRef } from 'react';
 import { type UserDoc, userDocConverter } from '../lib/converters';
 import { db } from '../lib/firebase';
@@ -49,22 +49,7 @@ const getDefaultUserConfig = (): UserDoc => {
 
 export const useSyncFinance = () => {
   const { user } = useAuthStore();
-  const {
-    transactions,
-    accounts,
-    categories,
-    incomeCategories,
-    recurringTransactions,
-    carMileage,
-    carInitialMileage,
-    tireSettings,
-    tireChanges,
-    balanceStartDate,
-    initialBalance,
-    enabledModules,
-    setTransactions, // Keep for materialize effect
-    setAll,
-  } = useFinanceStore();
+  const { setAll } = useFinanceStore();
 
   const isInitializing = useRef(false);
 
@@ -82,16 +67,19 @@ export const useSyncFinance = () => {
     const initializeUser = async () => {
       isInitializing.current = true;
       try {
-        const docSnap = await getDoc(docRef);
-
-        if (!docSnap.exists()) {
-          console.log('SyncFinance: New user detected, initializing...');
-          const defaultConfig = getDefaultUserConfig();
-          await setDoc(docRef, defaultConfig);
-          setAll(defaultConfig);
-        }
+        await runTransaction(db, async (transaction) => {
+          const remoteDoc = await transaction.get(docRef);
+          if (!remoteDoc.exists()) {
+            console.log(
+              'SyncFinance: New user detected, initializing with transaction...'
+            );
+            const defaultConfig = getDefaultUserConfig();
+            transaction.set(docRef, defaultConfig);
+            setAll(defaultConfig); // Set local state immediately
+          }
+        });
       } catch (error) {
-        console.error('Error initializing user:', error);
+        console.error('Error in new user transaction:', error);
       } finally {
         isInitializing.current = false;
       }
