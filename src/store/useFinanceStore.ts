@@ -27,6 +27,9 @@ export interface Transaction {
   type: 'income' | 'expense';
   accountId: string; // Refers to Account.id
   recurringLinkId?: string;
+  consumption?: number; // kWh or smc
+  readingDateStart?: string; // YYYY-MM-DD
+  readingDateEnd?: string; // YYYY-MM-DD
 }
 
 export interface RecurringTransaction {
@@ -39,12 +42,14 @@ export interface RecurringTransaction {
   dayOfMonth: number;
   accountId: string; // Refers to Account.id
   startDate: string; // YYYY-MM-DD
-  endDate?: string; // YYYY-MM-DD (optional)
+  endDate?: string | null; // YYYY-MM-DD (optional)
+  frequency?: 'monthly' | 'yearly';
 }
 
 export interface AppModules {
   financeTracker: boolean;
   carManagement: boolean;
+  utilityTracker: boolean;
 }
 
 export interface CarMileageRecord {
@@ -159,6 +164,7 @@ export const useFinanceStore = create<FinanceState>()(
       enabledModules: {
         financeTracker: true,
         carManagement: false,
+        utilityTracker: false,
       },
       balanceStartDate: '2026-01-01',
       setInitialBalance: (balance) => {
@@ -338,7 +344,7 @@ export const useFinanceStore = create<FinanceState>()(
           const updatedCategories = state[key].map(c => c.name === oldName ? { ...c, name: newName } : c);
 
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { 
+          updateDoc(docRef, {
             [key]: updatedCategories,
             transactions: updatedTransactions,
             recurringTransactions: updatedRecurring
@@ -533,15 +539,24 @@ export const useFinanceStore = create<FinanceState>()(
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
+        const payload = { ...recurring };
+        if (!payload.endDate) {
+          delete payload.endDate;
+        }
+
         set((state) => {
           const newTransactions = [];
           const now = dayjs();
-          const start = dayjs(recurring.startDate);
+          const start = dayjs(payload.startDate);
           const balanceStart = dayjs(state.balanceStartDate);
           let current = start.isAfter(balanceStart) ? start : balanceStart;
 
+          let safetyCounter = 0;
+
           while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
-            let targetDate = current.date(recurring.dayOfMonth);
+            if (safetyCounter++ > 1000) break;
+
+            let targetDate = current.date(payload.dayOfMonth);
 
             if (targetDate.month() !== current.month()) {
               targetDate = current.endOf('month');
@@ -549,35 +564,43 @@ export const useFinanceStore = create<FinanceState>()(
 
             if (targetDate.isAfter(now, 'day')) break;
 
-            if (recurring.endDate && targetDate.isAfter(dayjs(recurring.endDate), 'day')) break;
+            if (payload.endDate && targetDate.isAfter(dayjs(payload.endDate), 'day')) break;
 
-            if (targetDate.isBefore(start, 'day')) {
-              current = current.add(1, 'month');
+            if (targetDate.isBefore(start, 'day') || targetDate.isBefore(balanceStart, 'day')) {
+              if (payload.frequency === 'yearly') {
+                current = current.add(1, 'year');
+              } else {
+                current = current.add(1, 'month');
+              }
               continue;
             }
 
             const dateStr = targetDate.format('YYYY-MM-DD');
 
-            const exists = state.transactions.some(t => t.recurringLinkId === recurring.id && t.date === dateStr);
+            const exists = state.transactions.some(t => t.recurringLinkId === payload.id && t.date === dateStr);
 
             if (!exists) {
               newTransactions.push({
                 id: crypto.randomUUID(),
                 date: dateStr,
-                description: recurring.description,
-                category: recurring.category,
-                subcategory: recurring.subcategory,
-                amount: recurring.amount,
-                type: recurring.type,
-                accountId: recurring.accountId,
-                recurringLinkId: recurring.id,
+                description: payload.description,
+                category: payload.category,
+                subcategory: payload.subcategory,
+                amount: payload.amount,
+                type: payload.type,
+                accountId: payload.accountId,
+                recurringLinkId: payload.id,
               });
             }
-            current = current.add(1, 'month');
+            if (payload.frequency === 'yearly') {
+              current = current.add(1, 'year');
+            } else {
+              current = current.add(1, 'month');
+            }
           }
 
           const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-          const newRecurring = [...state.recurringTransactions, recurring].sort((a, b) => a.description.localeCompare(b.description));
+          const newRecurring = [...state.recurringTransactions, payload].sort((a, b) => a.description.localeCompare(b.description));
 
           const docRef = doc(db, 'users', userId);
           updateDoc(docRef, {
@@ -595,8 +618,13 @@ export const useFinanceStore = create<FinanceState>()(
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
+        const payload = { ...recurring };
+        if (!payload.endDate) {
+          delete payload.endDate;
+        }
+
         set((state) => {
-          const updatedRecurring = state.recurringTransactions.map(r => r.id === recurring.id ? recurring : r);
+          const updatedRecurring = state.recurringTransactions.map(r => r.id === payload.id ? payload : r);
           const docRef = doc(db, 'users', userId);
           updateDoc(docRef, { recurringTransactions: updatedRecurring });
           return { recurringTransactions: updatedRecurring };
