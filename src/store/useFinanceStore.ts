@@ -1,6 +1,9 @@
 import dayjs from 'dayjs';
+import { arrayRemove, arrayUnion, doc, updateDoc } from 'firebase/firestore';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { db } from '../lib/firebase';
+import { useAuthStore } from './useAuthStore';
 
 export interface Category {
   name: string;
@@ -158,36 +161,126 @@ export const useFinanceStore = create<FinanceState>()(
         carManagement: false,
       },
       balanceStartDate: '2026-01-01',
-      setInitialBalance: (balance) => set({ initialBalance: balance }),
-      addTransaction: (transaction) => set((state) => {
-        const sorted = [transaction, ...state.transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-        return { transactions: sorted };
-      }),
-      updateTransaction: (transaction) => set((state) => {
-        const sorted = state.transactions
-          .map((t) => (t.id === transaction.id ? transaction : t))
-          .sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-        return { transactions: sorted };
-      }),
-      deleteTransaction: (id) => set((state) => ({
-        transactions: state.transactions.filter((t) => t.id !== id),
-      })),
-      setCategories: (categories) => set({ categories }),
-      setIncomeCategories: (categories) => set({ incomeCategories: categories }),
-      setTransactions: (transactions) => set({
-        transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix())
-      }),
-      setAccounts: (accounts) => set({ accounts }),
-      setRecurringTransactions: (recurring) => set({ recurringTransactions: recurring }),
-      setCarMileage: (mileage) => set({ carMileage: mileage }),
-      setEnabledModules: (modules) => set({ enabledModules: modules }),
-      toggleModule: (module) => set((state) => ({
-        enabledModules: {
-          ...state.enabledModules,
-          [module]: !state.enabledModules[module],
-        }
-      })),
-      setBalanceStartDate: (date) => set({ balanceStartDate: date }),
+      setInitialBalance: (balance) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { initialBalance: balance });
+        set({ initialBalance: balance });
+      },
+      addTransaction: (transaction) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { transactions: arrayUnion(transaction) });
+
+        set((state) => {
+          const sorted = [transaction, ...state.transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+          return { transactions: sorted };
+        });
+      },
+      updateTransaction: (transaction) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          const newTransactions = state.transactions.map((t) => (t.id === transaction.id ? transaction : t));
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { transactions: newTransactions });
+
+          const sorted = newTransactions.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+          return { transactions: sorted };
+        });
+      },
+      deleteTransaction: (id) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          const transactionToDelete = state.transactions.find((t) => t.id === id);
+          if (!transactionToDelete) return state;
+
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { transactions: arrayRemove(transactionToDelete) });
+
+          return {
+            transactions: state.transactions.filter((t) => t.id !== id),
+          };
+        });
+      },
+      setCategories: (categories) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { categories });
+        set({ categories });
+      },
+      setIncomeCategories: (categories) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { incomeCategories: categories });
+        set({ incomeCategories: categories });
+      },
+      setTransactions: (transactions) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { transactions });
+
+        set({
+          transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix())
+        });
+      },
+      setAccounts: (accounts) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { accounts });
+        set({ accounts });
+      },
+      setRecurringTransactions: (recurring) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { recurringTransactions: recurring });
+        set({ recurringTransactions: recurring });
+      },
+      setCarMileage: (mileage) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { carMileage: mileage });
+        set({ carMileage: mileage });
+      },
+      setEnabledModules: (modules) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { enabledModules: modules });
+        set({ enabledModules: modules });
+      },
+      toggleModule: (module) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          const newModules = {
+            ...state.enabledModules,
+            [module]: !state.enabledModules[module],
+          };
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { enabledModules: newModules });
+          return { enabledModules: newModules };
+        });
+      },
+      setBalanceStartDate: (date) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { balanceStartDate: date });
+        set({ balanceStartDate: date });
+      },
 
       // Internal migration helper
       _migrateToMultiAccount: () => set((state) => {
@@ -201,227 +294,438 @@ export const useFinanceStore = create<FinanceState>()(
           r.accountId ? r : { ...r, accountId: defaultAccount.id }
         );
 
-        return {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return state;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, {
           transactions: updatedTransactions,
           recurringTransactions: updatedRecurring
-        };
-      }),
-
-      addCategory: (type, name) => set((state) => {
-        const key = type === 'income' ? 'incomeCategories' : 'categories';
-        return { [key]: [...state[key], { name, subcategories: [] }] };
-      }),
-
-      renameCategory: (type, oldName, newName) => set((state) => {
-        const key = type === 'income' ? 'incomeCategories' : 'categories';
-        // Also update all transactions and recurring templates
-        const updatedTransactions = state.transactions.map(t =>
-          t.type === type && t.category === oldName ? { ...t, category: newName } : t
-        );
-        const updatedRecurring = state.recurringTransactions.map(r =>
-          r.type === type && r.category === oldName ? { ...r, category: newName } : r
-        );
-        return {
-          [key]: state[key].map(c => c.name === oldName ? { ...c, name: newName } : c),
-          transactions: updatedTransactions,
-          recurringTransactions: updatedRecurring
-        };
-      }),
-
-      deleteCategory: (type, name) => set((state) => {
-        const key = type === 'income' ? 'incomeCategories' : 'categories';
-        const cat = state[key].find(c => c.name === name);
-        if (cat && cat.subcategories.length > 0) return state; // Safety check
-        return {
-          [key]: state[key].filter(c => c.name !== name)
-        };
-      }),
-
-      addSubcategory: (type, categoryName, subName) => set((state) => {
-        const key = type === 'income' ? 'incomeCategories' : 'categories';
-        return {
-          [key]: state[key].map(c => c.name === categoryName ? { ...c, subcategories: [...c.subcategories, subName] } : c)
-        };
-      }),
-
-      renameSubcategory: (type, categoryName, oldName, newName) => set((state) => {
-        const key = type === 'income' ? 'incomeCategories' : 'categories';
-        // Also update all transactions and recurring templates
-        const updatedTransactions = state.transactions.map(t =>
-          t.type === type && t.category === categoryName && t.subcategory === oldName ? { ...t, subcategory: newName } : t
-        );
-        const updatedRecurring = state.recurringTransactions.map(r =>
-          r.type === type && r.category === categoryName && r.subcategory === oldName ? { ...r, subcategory: newName } : r
-        );
-        return {
-          [key]: state[key].map(c => c.name === categoryName ? {
-            ...c,
-            subcategories: c.subcategories.map(s => s === oldName ? newName : s)
-          } : c),
-          transactions: updatedTransactions,
-          recurringTransactions: updatedRecurring
-        };
-      }),
-
-      deleteSubcategory: (type, categoryName, subName) => set((state) => {
-        const key = type === 'income' ? 'incomeCategories' : 'categories';
-        return {
-          [key]: state[key].map(c => c.name === categoryName ? {
-            ...c,
-            subcategories: c.subcategories.filter(s => s !== subName)
-          } : c)
-        };
-      }),
-
-      deleteSubcategoryAndRemap: (type, categoryName, subToDelete, remapToSub) => set((state) => {
-        const key = type === 'income' ? 'incomeCategories' : 'categories';
-
-        // 1. Update transactions
-        const updatedTransactions = state.transactions.map(t =>
-          (t.type === type && t.category === categoryName && t.subcategory === subToDelete)
-            ? { ...t, subcategory: remapToSub }
-            : t
-        );
-
-        // 2. Update recurring
-        const updatedRecurring = state.recurringTransactions.map(r =>
-          (r.type === type && r.category === categoryName && r.subcategory === subToDelete)
-            ? { ...r, subcategory: remapToSub }
-            : r
-        );
-
-        // 3. Remove subcategory
-        const updatedCategories = state[key].map(c =>
-          c.name === categoryName ? { ...c, subcategories: c.subcategories.filter(s => s !== subToDelete) } : c
-        );
-
-        return {
-          [key]: updatedCategories,
-          transactions: updatedTransactions,
-          recurringTransactions: updatedRecurring
-        };
-      }),
-
-      moveSubcategory: (type, subName, fromCategory, toCategory) => set((state) => {
-        if (fromCategory === toCategory) return state;
-        const key = type === 'income' ? 'incomeCategories' : 'categories';
-
-        // Remove from source, add to target
-        const updatedCategories = state[key].map(cat => {
-          if (cat.name === fromCategory) {
-            return { ...cat, subcategories: cat.subcategories.filter(s => s !== subName) };
-          }
-          if (cat.name === toCategory) {
-            return { ...cat, subcategories: [...cat.subcategories, subName] };
-          }
-          return cat;
         });
 
-        // Update all related transactions
-        const updatedTransactions = state.transactions.map(t =>
-          (t.type === type && t.category === fromCategory && t.subcategory === subName)
-            ? { ...t, category: toCategory }
-            : t
-        );
-
-        // Update all related recurring templates
-        const updatedRecurring = state.recurringTransactions.map(r =>
-          (r.type === type && r.category === fromCategory && r.subcategory === subName)
-            ? { ...r, category: toCategory }
-            : r
-        );
 
         return {
-          [key]: updatedCategories,
           transactions: updatedTransactions,
           recurringTransactions: updatedRecurring
         };
       }),
 
-      addRecurring: (recurring) => set((state) => {
-        const newTransactions = [];
-        const now = dayjs();
-        const start = dayjs(recurring.startDate);
-        const balanceStart = dayjs(state.balanceStartDate);
-        let current = start.isAfter(balanceStart) ? start : balanceStart;
+      addCategory: (type, name) => {
+        const newCategory = { name, subcategories: [] };
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const key = type === 'income' ? 'incomeCategories' : 'categories';
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { [key]: arrayUnion(newCategory) });
 
-        while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
-          let targetDate = current.date(recurring.dayOfMonth);
+        set((state) => {
+          return { [key]: [...state[key], newCategory] };
+        });
+      },
 
-          if (targetDate.month() !== current.month()) {
-            targetDate = current.endOf('month');
-          }
+      renameCategory: (type, oldName, newName) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
 
-          if (targetDate.isAfter(now, 'day')) break;
+        set((state) => {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          // Also update all transactions and recurring templates
+          const updatedTransactions = state.transactions.map(t =>
+            t.type === type && t.category === oldName ? { ...t, category: newName } : t
+          );
+          const updatedRecurring = state.recurringTransactions.map(r =>
+            r.type === type && r.category === oldName ? { ...r, category: newName } : r
+          );
+          const updatedCategories = state[key].map(c => c.name === oldName ? { ...c, name: newName } : c);
 
-          if (recurring.endDate && targetDate.isAfter(dayjs(recurring.endDate), 'day')) break;
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { 
+            [key]: updatedCategories,
+            transactions: updatedTransactions,
+            recurringTransactions: updatedRecurring
+          });
 
-          if (targetDate.isBefore(start, 'day')) {
+          return {
+            [key]: updatedCategories,
+            transactions: updatedTransactions,
+            recurringTransactions: updatedRecurring
+          };
+        });
+      },
+
+      deleteCategory: (type, name) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const cat = state[key].find(c => c.name === name);
+          if (cat && cat.subcategories.length > 0) return state; // Safety check
+
+          const updatedCategories = state[key].filter(c => c.name !== name);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { [key]: updatedCategories });
+
+          return {
+            [key]: updatedCategories
+          };
+        });
+      },
+
+      addSubcategory: (type, categoryName, subName) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const updatedCategories = state[key].map(c => c.name === categoryName ? { ...c, subcategories: [...c.subcategories, subName] } : c);
+
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { [key]: updatedCategories });
+
+          return {
+            [key]: updatedCategories
+          };
+        });
+      },
+
+      renameSubcategory: (type, categoryName, oldName, newName) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          // Also update all transactions and recurring templates
+          const updatedTransactions = state.transactions.map(t =>
+            t.type === type && t.category === categoryName && t.subcategory === oldName ? { ...t, subcategory: newName } : t
+          );
+          const updatedRecurring = state.recurringTransactions.map(r =>
+            r.type === type && r.category === categoryName && r.subcategory === oldName ? { ...r, subcategory: newName } : r
+          );
+          const updatedCategories = state[key].map(c => c.name === categoryName ? {
+            ...c,
+            subcategories: c.subcategories.map(s => s === oldName ? newName : s)
+          } : c);
+
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, {
+            [key]: updatedCategories,
+            transactions: updatedTransactions,
+            recurringTransactions: updatedRecurring
+          });
+
+          return {
+            [key]: updatedCategories,
+            transactions: updatedTransactions,
+            recurringTransactions: updatedRecurring
+          };
+        });
+      },
+
+      deleteSubcategory: (type, categoryName, subName) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const updatedCategories = state[key].map(c => c.name === categoryName ? {
+            ...c,
+            subcategories: c.subcategories.filter(s => s !== subName)
+          } : c);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { [key]: updatedCategories });
+
+          return {
+            [key]: updatedCategories
+          };
+        });
+      },
+
+      deleteSubcategoryAndRemap: (type, categoryName, subToDelete, remapToSub) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+
+          // 1. Update transactions
+          const updatedTransactions = state.transactions.map(t =>
+            (t.type === type && t.category === categoryName && t.subcategory === subToDelete)
+              ? { ...t, subcategory: remapToSub }
+              : t
+          );
+
+          // 2. Update recurring
+          const updatedRecurring = state.recurringTransactions.map(r =>
+            (r.type === type && r.category === categoryName && r.subcategory === subToDelete)
+              ? { ...r, subcategory: remapToSub }
+              : r
+          );
+
+          // 3. Remove subcategory
+          const updatedCategories = state[key].map(c =>
+            c.name === categoryName ? { ...c, subcategories: c.subcategories.filter(s => s !== subToDelete) } : c
+          );
+
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, {
+            [key]: updatedCategories,
+            transactions: updatedTransactions,
+            recurringTransactions: updatedRecurring
+          });
+
+          return {
+            [key]: updatedCategories,
+            transactions: updatedTransactions,
+            recurringTransactions: updatedRecurring
+          };
+        });
+      },
+
+      moveSubcategory: (type, subName, fromCategory, toCategory) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          if (fromCategory === toCategory) return state;
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+
+          // Remove from source, add to target
+          const updatedCategories = state[key].map(cat => {
+            if (cat.name === fromCategory) {
+              return { ...cat, subcategories: cat.subcategories.filter(s => s !== subName) };
+            }
+            if (cat.name === toCategory) {
+              return { ...cat, subcategories: [...cat.subcategories, subName] };
+            }
+            return cat;
+          });
+
+          // Update all related transactions
+          const updatedTransactions = state.transactions.map(t =>
+            (t.type === type && t.category === fromCategory && t.subcategory === subName)
+              ? { ...t, category: toCategory }
+              : t
+          );
+
+          // Update all related recurring templates
+          const updatedRecurring = state.recurringTransactions.map(r =>
+            (r.type === type && r.category === fromCategory && r.subcategory === subName)
+              ? { ...r, category: toCategory }
+              : r
+          );
+
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, {
+            [key]: updatedCategories,
+            transactions: updatedTransactions,
+            recurringTransactions: updatedRecurring
+          });
+
+          return {
+            [key]: updatedCategories,
+            transactions: updatedTransactions,
+            recurringTransactions: updatedRecurring
+          };
+        });
+      },
+
+      addRecurring: (recurring) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set((state) => {
+          const newTransactions = [];
+          const now = dayjs();
+          const start = dayjs(recurring.startDate);
+          const balanceStart = dayjs(state.balanceStartDate);
+          let current = start.isAfter(balanceStart) ? start : balanceStart;
+
+          while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
+            let targetDate = current.date(recurring.dayOfMonth);
+
+            if (targetDate.month() !== current.month()) {
+              targetDate = current.endOf('month');
+            }
+
+            if (targetDate.isAfter(now, 'day')) break;
+
+            if (recurring.endDate && targetDate.isAfter(dayjs(recurring.endDate), 'day')) break;
+
+            if (targetDate.isBefore(start, 'day')) {
+              current = current.add(1, 'month');
+              continue;
+            }
+
+            const dateStr = targetDate.format('YYYY-MM-DD');
+
+            const exists = state.transactions.some(t => t.recurringLinkId === recurring.id && t.date === dateStr);
+
+            if (!exists) {
+              newTransactions.push({
+                id: crypto.randomUUID(),
+                date: dateStr,
+                description: recurring.description,
+                category: recurring.category,
+                subcategory: recurring.subcategory,
+                amount: recurring.amount,
+                type: recurring.type,
+                accountId: recurring.accountId,
+                recurringLinkId: recurring.id,
+              });
+            }
             current = current.add(1, 'month');
-            continue;
           }
 
-          const dateStr = targetDate.format('YYYY-MM-DD');
+          const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+          const newRecurring = [...state.recurringTransactions, recurring].sort((a, b) => a.description.localeCompare(b.description));
 
-          const exists = state.transactions.some(t => t.recurringLinkId === recurring.id && t.date === dateStr);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, {
+            transactions: allTransactions,
+            recurringTransactions: newRecurring
+          });
 
-          if (!exists) {
-            newTransactions.push({
-              id: crypto.randomUUID(),
-              date: dateStr,
-              description: recurring.description,
-              category: recurring.category,
-              subcategory: recurring.subcategory,
-              amount: recurring.amount,
-              type: recurring.type,
-              accountId: recurring.accountId,
-              recurringLinkId: recurring.id,
-            });
-          }
-          current = current.add(1, 'month');
-        }
+          return {
+            recurringTransactions: newRecurring,
+            transactions: allTransactions,
+          };
+        });
+      },
+      updateRecurring: (recurring) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
 
-        const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+        set((state) => {
+          const updatedRecurring = state.recurringTransactions.map(r => r.id === recurring.id ? recurring : r);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { recurringTransactions: updatedRecurring });
+          return { recurringTransactions: updatedRecurring };
+        });
+      },
+      deleteRecurring: (id) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
 
-        return {
-          recurringTransactions: [...state.recurringTransactions, recurring].sort((a, b) => a.description.localeCompare(b.description)),
-          transactions: allTransactions,
-        };
-      }),
-      updateRecurring: (recurring) => set((state) => ({
-        recurringTransactions: state.recurringTransactions.map(r => r.id === recurring.id ? recurring : r)
-      })),
-      deleteRecurring: (id) => set((state) => ({
-        recurringTransactions: state.recurringTransactions.filter(r => r.id !== id)
-      })),
+        set((state) => {
+          const updatedRecurring = state.recurringTransactions.filter(r => r.id !== id);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { recurringTransactions: updatedRecurring });
+          return { recurringTransactions: updatedRecurring };
+        });
+      },
 
-      addAccount: (account) => set((state) => ({ accounts: [...state.accounts, account] })),
-      updateAccount: (account) => set((state) => ({
-        accounts: state.accounts.map(a => a.id === account.id ? account : a)
-      })),
-      deleteAccount: (id) => set((state) => ({
-        accounts: state.accounts.filter(a => a.id !== id)
-      })),
-      setDefaultAccount: (id) => set((state) => ({
-        accounts: state.accounts.map(a => ({ ...a, isDefault: a.id === id }))
-      })),
-      addCarMileage: (record) => set((state) => ({ carMileage: [...state.carMileage, record] })),
-      updateCarMileage: (record) => set((state) => ({
-        carMileage: state.carMileage.map(m => m.id === record.id ? record : m)
-      })),
-      deleteCarMileage: (id) => set((state) => ({
-        carMileage: state.carMileage.filter(m => m.id !== id)
-      })),
-      setCarInitialMileage: (value) => set({ carInitialMileage: value }),
-      setTireSettings: (settings) => set({ tireSettings: settings }),
-      addTireChange: (record) => set((state) => ({ tireChanges: [...state.tireChanges, record] })),
-      updateTireChange: (record) => set((state) => ({
-        tireChanges: state.tireChanges.map(t => t.id === record.id ? record : t)
-      })),
-      deleteTireChange: (id) => set((state) => ({
-        tireChanges: state.tireChanges.filter(t => t.id !== id)
-      })),
-      setTireChanges: (records) => set({ tireChanges: records }),
+      addAccount: (account) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { accounts: arrayUnion(account) });
+        set((state) => ({ accounts: [...state.accounts, account] }));
+      },
+      updateAccount: (account) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        set((state) => {
+          const updatedAccounts = state.accounts.map(a => a.id === account.id ? account : a);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { accounts: updatedAccounts });
+          return { accounts: updatedAccounts };
+        });
+      },
+      deleteAccount: (id) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        set((state) => {
+          const updatedAccounts = state.accounts.filter(a => a.id !== id);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { accounts: updatedAccounts });
+          return { accounts: updatedAccounts };
+        });
+      },
+      setDefaultAccount: (id) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        set((state) => {
+          const updatedAccounts = state.accounts.map(a => ({ ...a, isDefault: a.id === id }));
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { accounts: updatedAccounts });
+          return { accounts: updatedAccounts };
+        });
+      },
+      addCarMileage: (record) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { carMileage: arrayUnion(record) });
+        set((state) => ({ carMileage: [...state.carMileage, record] }));
+      },
+      updateCarMileage: (record) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        set((state) => {
+          const updatedMileage = state.carMileage.map(m => m.id === record.id ? record : m);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { carMileage: updatedMileage });
+          return { carMileage: updatedMileage };
+        });
+      },
+      deleteCarMileage: (id) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        set((state) => {
+          const updatedMileage = state.carMileage.filter(m => m.id !== id);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { carMileage: updatedMileage });
+          return { carMileage: updatedMileage };
+        });
+      },
+      setCarInitialMileage: (value) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { carInitialMileage: value });
+        set({ carInitialMileage: value });
+      },
+      setTireSettings: (settings) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { tireSettings: settings });
+        set({ tireSettings: settings });
+      },
+      addTireChange: (record) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { tireChanges: arrayUnion(record) });
+        set((state) => ({ tireChanges: [...state.tireChanges, record] }));
+      },
+      updateTireChange: (record) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        set((state) => {
+          const updatedChanges = state.tireChanges.map(t => t.id === record.id ? record : t);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { tireChanges: updatedChanges });
+          return { tireChanges: updatedChanges };
+        });
+      },
+      deleteTireChange: (id) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        set((state) => {
+          const updatedChanges = state.tireChanges.filter(t => t.id !== id);
+          const docRef = doc(db, 'users', userId);
+          updateDoc(docRef, { tireChanges: updatedChanges });
+          return { tireChanges: updatedChanges };
+        });
+      },
+      setTireChanges: (records) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+        const docRef = doc(db, 'users', userId);
+        updateDoc(docRef, { tireChanges: records });
+        set({ tireChanges: records });
+      },
       setAll: (data) => set(data),
     }),
     {

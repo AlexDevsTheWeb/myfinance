@@ -5,6 +5,12 @@ import React, { useMemo } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useFinanceStore } from '../store/useFinanceStore';
 
+interface MonthlySalaryData {
+  monthName: string;
+  [key: number]: number; // For year keys
+  [key: string]: string | number; // For year_details keys, and also covers monthName
+}
+
 const SalaryPage: React.FC = () => {
   const { transactions } = useFinanceStore();
 
@@ -33,7 +39,7 @@ const SalaryPage: React.FC = () => {
     }));
 
     return months.map(m => {
-      const row: any = { monthName: m.monthName };
+      const row: MonthlySalaryData = { monthName: m.monthName };
       availableYears.forEach(year => {
         const monthEntries = salaryData.filter(d => d.year === year && d.month === m.month);
         const total = monthEntries.reduce((sum, d) => sum + d.amount, 0);
@@ -136,9 +142,9 @@ const SalaryPage: React.FC = () => {
                           boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                         }}
                         itemStyle={{ color: '#fff' }}
-                        formatter={(value: number, name: any, props: any) => {
+                        formatter={(value: number, name: number, props: { payload?: { payload: MonthlySalaryData }[] }) => {
                           const year = name;
-                          const details = props.payload[`${year}_details`];
+                          const details = props.payload?.[0]?.payload?.[`${year}_details`];
                           return [
                             <Box key={year}>
                               <Typography variant="body2" sx={{ fontWeight: 700 }}>€ {value.toLocaleString()}</Typography>
