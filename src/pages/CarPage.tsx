@@ -59,7 +59,7 @@ const CarPage: React.FC = () => {
   const availableYears = useMemo(() => {
     const mileageYears = carMileage.map(m => m.year);
     const fuelYears = transactions
-      .filter(t => t.type === 'expense' && (t.category === 'Trasporti' || t.category === 'Transport') && fuelCategories.includes(t.subcategory))
+      .filter(t => t.type === 'expense' && (t.category === 'Trasporti' || t.category === 'Transport') && fuelCategories.some(fuelWord => t.subcategory.includes(fuelWord)))
       .map(t => dayjs(t.date).year());
 
     const years = Array.from(new Set([...mileageYears, ...fuelYears]));
@@ -146,7 +146,7 @@ const CarPage: React.FC = () => {
     const fuelTransactions = transactions.filter(t =>
       t.type === 'expense' &&
       (t.category === 'Trasporti' || t.category === 'Transport') &&
-      fuelCategories.includes(t.subcategory)
+      fuelCategories.some(fuelWord => t.subcategory.includes(fuelWord))
     );
 
     const expensesByMonth: Record<string, number> = {};

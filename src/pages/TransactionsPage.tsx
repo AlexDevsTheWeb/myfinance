@@ -21,6 +21,8 @@ const TransactionsPage: React.FC = () => {
   const [category, setCategory] = useState<string>('all');
   const [subcategory, setSubcategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('date-desc');
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 20;
 
   const allCategories = useMemo(() => {
     const unique = new Set([...categories.map(c => c.name), ...incomeCategories.map(c => c.name)]);
@@ -88,6 +90,10 @@ const TransactionsPage: React.FC = () => {
     return result;
   }, [transactions, search, startDate, endDate, category, subcategory, sortBy]);
 
+  const paginatedTransactions = useMemo(() => {
+    return filteredTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [filteredTransactions, page, rowsPerPage]);
+
   const handleEditTransaction = (transaction: Transaction) => {
     setTransactionToEdit(transaction);
     setModalType(transaction.type);
@@ -101,6 +107,7 @@ const TransactionsPage: React.FC = () => {
     setCategory('all');
     setSubcategory('all');
     setSortBy('date-desc');
+    setPage(0);
   };
 
   return (
@@ -219,7 +226,15 @@ const TransactionsPage: React.FC = () => {
         </Card>
 
         <Box sx={{ mt: 2 }}>
-          <TransactionTable onEdit={handleEditTransaction} customData={filteredTransactions} limit={'no'} />
+          <TransactionTable 
+            onEdit={handleEditTransaction} 
+            customData={paginatedTransactions} 
+            limit={'no'} 
+            count={filteredTransactions.length}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={(event, newPage) => setPage(newPage)}
+          />
         </Box>
 
         <TransactionModal

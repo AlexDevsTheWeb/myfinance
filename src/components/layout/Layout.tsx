@@ -1,4 +1,4 @@
-import { BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event as DateIcon, AccountBalance as FinanceIcon, Home, KeyboardArrowDown, ExitToApp as LogoutIcon, Menu as MenuIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
+import { BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event as DateIcon, Bolt as ElecIcon, AccountBalance as FinanceIcon, Home, KeyboardArrowDown, ExitToApp as LogoutIcon, Menu as MenuIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
 import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery, useTheme } from '@mui/material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/it';
@@ -53,6 +53,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
     'salary': 'Salary Analysis',
     'analysis': 'Detailed Analysis',
     'car': 'Gestione Auto',
+    'utilities': 'Utenze',
   };
 
   const drawer = (
@@ -78,6 +79,12 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
           <ListItemButton component={Link} to="/car">
             <ListItemIcon><CarIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
             <ListItemText primary="Auto" sx={{ color: 'white' }} />
+          </ListItemButton>
+        )}
+        {enabledModules?.utilityTracker && (
+          <ListItemButton component={Link} to="/utilities">
+            <ListItemIcon><ElecIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+            <ListItemText primary="Utenze" sx={{ color: 'white' }} />
           </ListItemButton>
         )}
         <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
@@ -164,6 +171,17 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                   sx={{ borderRadius: 2, px: 2 }}
                 >
                   Auto
+                </Button>
+              )}
+              {enabledModules?.utilityTracker && (
+                <Button
+                  color="inherit"
+                  component={Link}
+                  to="/utilities"
+                  startIcon={<ElecIcon />}
+                  sx={{ borderRadius: 2, px: 2 }}
+                >
+                  Utenze
                 </Button>
               )}
 

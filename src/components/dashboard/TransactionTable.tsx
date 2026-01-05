@@ -1,5 +1,5 @@
 import { Delete, Edit, OpenInNew } from '@mui/icons-material';
-import { Box, Button, Chip, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Chip, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Tooltip, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,36 +7,53 @@ import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 
 interface TransactionTableProps {
   onEdit: (transaction: Transaction) => void;
-  limit?: string | number;
+  limit?: string | number; // Kept for backward compatibility on dashboard
   customData?: Transaction[];
+  // Pagination props
+  count?: number;
+  page?: number;
+  rowsPerPage?: number;
+  onPageChange?: (event: unknown, newPage: number) => void;
 }
 
-const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit, limit, customData }) => {
+const TransactionTable: React.FC<TransactionTableProps> = ({ 
+  onEdit, 
+  limit, 
+  customData,
+  count,
+  page,
+  rowsPerPage,
+  onPageChange
+}) => {
   const { transactions: storeTransactions, deleteTransaction } = useFinanceStore();
   const navigate = useNavigate();
 
-  const currentMonth = dayjs().month();
-  const currentYear = dayjs().year();
+  // Logic for dashboard view (limit is a number)
+  const getDashboardTransactions = () => {
+    const currentMonth = dayjs().month();
+    const currentYear = dayjs().year();
+    return storeTransactions
+      .filter(t => dayjs(t.date).month() === currentMonth && dayjs(t.date).year() === currentYear)
+      .sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix())
+      .slice(0, Number(limit));
+  }
 
-  const filteredTransactions = limit && typeof limit === 'string'
-    ? [...(customData || storeTransactions)]
-    : ([...(customData || storeTransactions)]
-      .filter(t => dayjs(t.date).month() === currentMonth && dayjs(t.date).year() === currentYear))
-    ;
-  const transactions = filteredTransactions
-    .sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-  const displayedTransactions = limit && typeof limit === 'string' ? transactions : transactions;
+  // On TransactionsPage, customData is provided and already filtered/sorted.
+  // On Dashboard, limit is a number, and customData is undefined.
+  const displayedTransactions = customData 
+    ? customData 
+    : getDashboardTransactions();
+
+  const isPaginated = onPageChange !== undefined && page !== undefined && rowsPerPage !== undefined && count !== undefined;
 
   return (
     <Paper sx={{ mt: 4 }}>
-
       <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6">{
-          limit ? 'Transactions' : `Transactions: ${dayjs().month(currentMonth).format('MMMM').toUpperCase()}`
-        }
+        <Typography variant="h6">
+          {limit ? 'Recent Transactions' : 'Transactions'}
         </Typography>
 
-        {!limit &&
+        {limit &&
           <Button
             size='small'
             onClick={() => navigate('/transactions')}
@@ -59,10 +76,10 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit, limit, cust
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.length === 0 ? (
+            {displayedTransactions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'rgba(255,255,255,0.3)' }}>
-                  No transactions yet. Add your first one!
+                  No transactions for this period.
                 </TableCell>
               </TableRow>
             ) : (
@@ -107,24 +124,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({ onEdit, limit, cust
         </Table>
       </TableContainer>
 
-      {!limit &&
-        <Box sx={{ p: 2, textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-          <Typography
-            variant="button"
-            component="a"
-            href="/transactions"
-            sx={{
-              color: 'primary.main',
-              textDecoration: 'none',
-              fontWeight: 700,
-              cursor: 'pointer',
-              '&:hover': { textDecoration: 'underline' }
-            }}
-          >
-            Show All Transactions
-          </Typography>
-        </Box>
-      }
+      {isPaginated && (
+        <TablePagination
+            component="div"
+            count={count}
+            page={page}
+            onPageChange={onPageChange}
+            rowsPerPage={rowsPerPage}
+            rowsPerPageOptions={[20]}
+        />
+      )}
     </Paper>
   );
 };

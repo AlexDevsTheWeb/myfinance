@@ -15,6 +15,10 @@ interface TransactionFormProps {
     dayOfMonth?: number;
     startDate?: string;
     endDate?: string;
+    frequency?: 'monthly' | 'yearly';
+    consumption?: number | string;
+    readingDateStart?: string;
+    readingDateEnd?: string;
   };
   setFormData: (data: any) => void;
   isRecurring?: boolean;
@@ -118,15 +122,32 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
 
         {isRecurring && (
           <Grid size={{ xs: 12 }}>
-            <TextField
-              fullWidth
-              label="Day of Month"
-              type="number"
-              variant="filled"
-              value={formData.dayOfMonth || 1}
-              onChange={(e) => setFormData({ ...formData, dayOfMonth: Number(e.target.value) })}
-              inputProps={{ min: 1, max: 31 }}
-            />
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  fullWidth
+                  label="Day of Month"
+                  type="number"
+                  variant="filled"
+                  value={formData.dayOfMonth || 1}
+                  onChange={(e) => setFormData({ ...formData, dayOfMonth: Number(e.target.value) })}
+                  inputProps={{ min: 1, max: 31 }}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  fullWidth
+                  select
+                  label="Frequency"
+                  variant="filled"
+                  value={formData.frequency || 'monthly'}
+                  onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
+                >
+                  <MenuItem value="monthly">Monthly</MenuItem>
+                  <MenuItem value="yearly">Yearly</MenuItem>
+                </TextField>
+              </Grid>
+            </Grid>
           </Grid>
         )}
 
@@ -212,8 +233,49 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
             </Grid>
           </>
         )}
+
+        {!isRecurring && formData.category === 'Bollette' && (formData.subcategory === 'Elettricità' || formData.subcategory === 'Gas') && (
+          <>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="subtitle2" sx={{ opacity: 0.7, mb: 1, mt: 1, fontWeight: 700 }}>Dettagli Utenza (Opzionale)</Typography>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                fullWidth
+                label={formData.subcategory === 'Elettricità' ? 'Consumo (kWh)' : 'Consumo (smc)'}
+                type="number"
+                variant="filled"
+                value={formData.consumption || ''}
+                onChange={(e) => setFormData({ ...formData, consumption: e.target.value })}
+                slotProps={{ input: { endAdornment: <Typography sx={{ ml: 1, opacity: 0.5, fontSize: '0.8rem' }}>{formData.subcategory === 'Elettricità' ? 'kWh' : 'smc'}</Typography> } }}
+              />
+            </Grid>
+            <Grid size={{ xs: 6, sm: 4 }}>
+              <TextField
+                fullWidth
+                label="Periodo Dal"
+                type="date"
+                variant="filled"
+                value={formData.readingDateStart || ''}
+                onChange={e => setFormData({ ...formData, readingDateStart: e.target.value })}
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
+            <Grid size={{ xs: 6, sm: 4 }}>
+              <TextField
+                fullWidth
+                label="Periodo Al"
+                type="date"
+                variant="filled"
+                value={formData.readingDateEnd || ''}
+                onChange={e => setFormData({ ...formData, readingDateEnd: e.target.value })}
+                slotProps={{ inputLabel: { shrink: true } }}
+              />
+            </Grid>
+          </>
+        )}
       </Grid>
-    </Box>
+    </Box >
   );
 };
 

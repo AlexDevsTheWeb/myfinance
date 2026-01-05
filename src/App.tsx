@@ -12,6 +12,7 @@ import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import SalaryPage from './pages/SalaryPage';
 import TransactionsPage from './pages/TransactionsPage';
+import UtilitiesPage from './pages/UtilitiesPage';
 import { useAuthStore } from './store/useAuthStore';
 import { useFinanceStore } from './store/useFinanceStore';
 
@@ -82,6 +83,11 @@ function App() {
         <Route path="/car" element={
           <ProtectedRoute>
             <CarPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/utilities" element={
+          <ProtectedRoute>
+            <UtilitiesPage />
           </ProtectedRoute>
         } />
       </Routes>
