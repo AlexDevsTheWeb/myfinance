@@ -129,6 +129,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
     const enabledModules: AppModules = {
       financeTracker: data.enabledModules?.financeTracker ?? true,
       carManagement: !!data.enabledModules?.carManagement,
+      utilityTracker: !!data.enabledModules?.utilityTracker,
     };
 
     const balanceStartDate: string = data.balanceStartDate || '2026-01-01';
