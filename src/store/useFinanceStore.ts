@@ -27,6 +27,9 @@ export interface Transaction {
   type: 'income' | 'expense';
   accountId: string; // Refers to Account.id
   recurringLinkId?: string;
+  consumption?: number; // kWh or smc
+  readingDateStart?: string; // YYYY-MM-DD
+  readingDateEnd?: string; // YYYY-MM-DD
 }
 
 export interface RecurringTransaction {
@@ -46,6 +49,7 @@ export interface RecurringTransaction {
 export interface AppModules {
   financeTracker: boolean;
   carManagement: boolean;
+  utilityTracker: boolean;
 }
 
 export interface CarMileageRecord {
@@ -160,6 +164,7 @@ export const useFinanceStore = create<FinanceState>()(
       enabledModules: {
         financeTracker: true,
         carManagement: false,
+        utilityTracker: false,
       },
       balanceStartDate: '2026-01-01',
       setInitialBalance: (balance) => {

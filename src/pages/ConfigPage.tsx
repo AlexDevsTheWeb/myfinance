@@ -453,6 +453,17 @@ const ConfigPage: React.FC = () => {
                   color="primary"
                 />
               </ListItem>
+              <ListItem sx={{ px: 0 }}>
+                <ListItemText
+                  primary={<Typography sx={{ fontWeight: 600 }}>Utenze (Luce & Gas)</Typography>}
+                  secondary="Monitoraggio consumi e costi energetici"
+                />
+                <Switch
+                  checked={enabledModules.utilityTracker}
+                  onChange={() => toggleModule('utilityTracker')}
+                  color="primary"
+                />
+              </ListItem>
             </List>
           </Paper>
         </TabPanel>

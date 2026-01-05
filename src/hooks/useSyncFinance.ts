@@ -42,6 +42,7 @@ const getDefaultUserConfig = (): UserDoc => {
     enabledModules: {
       financeTracker: true,
       carManagement: false,
+      utilityTracker: false,
     },
     balanceStartDate: firstDayOfMonth,
   };
