@@ -26,7 +26,7 @@ const UtilitiesPage: React.FC = () => {
 
   const currentYear = dayjs().year();
 
-  const getStats = (subcategory: 'Elettricità' | 'Gas', unit: string) => {
+  const getStats = (subcategory: 'Elettricità' | 'Gas', _unit: string) => {
     const relevantTransactions = transactions
       .filter(t => t.type === 'expense' && t.category === 'Bollette' && t.subcategory === subcategory)
       .sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());

@@ -233,7 +233,7 @@ const TransactionsPage: React.FC = () => {
             count={filteredTransactions.length}
             page={page}
             rowsPerPage={rowsPerPage}
-            onPageChange={(event, newPage) => setPage(newPage)}
+            onPageChange={(_, newPage) => setPage(newPage)}
           />
         </Box>
 
