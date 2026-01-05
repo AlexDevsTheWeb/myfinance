@@ -112,3 +112,4 @@ export const useSyncFinance = () => {
 
     return () => unsub();
   }, [user, setAll]);
+};
