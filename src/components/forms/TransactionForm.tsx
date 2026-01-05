@@ -15,6 +15,7 @@ interface TransactionFormProps {
     dayOfMonth?: number;
     startDate?: string;
     endDate?: string;
+    frequency?: 'monthly' | 'yearly';
   };
   setFormData: (data: any) => void;
   isRecurring?: boolean;
@@ -118,15 +119,32 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
 
         {isRecurring && (
           <Grid size={{ xs: 12 }}>
-            <TextField
-              fullWidth
-              label="Day of Month"
-              type="number"
-              variant="filled"
-              value={formData.dayOfMonth || 1}
-              onChange={(e) => setFormData({ ...formData, dayOfMonth: Number(e.target.value) })}
-              inputProps={{ min: 1, max: 31 }}
-            />
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  fullWidth
+                  label="Day of Month"
+                  type="number"
+                  variant="filled"
+                  value={formData.dayOfMonth || 1}
+                  onChange={(e) => setFormData({ ...formData, dayOfMonth: Number(e.target.value) })}
+                  inputProps={{ min: 1, max: 31 }}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  fullWidth
+                  select
+                  label="Frequency"
+                  variant="filled"
+                  value={formData.frequency || 'monthly'}
+                  onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
+                >
+                  <MenuItem value="monthly">Monthly</MenuItem>
+                  <MenuItem value="yearly">Yearly</MenuItem>
+                </TextField>
+              </Grid>
+            </Grid>
           </Grid>
         )}
 

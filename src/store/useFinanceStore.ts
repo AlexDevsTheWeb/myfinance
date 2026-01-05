@@ -40,6 +40,7 @@ export interface RecurringTransaction {
   accountId: string; // Refers to Account.id
   startDate: string; // YYYY-MM-DD
   endDate?: string | null; // YYYY-MM-DD (optional)
+  frequency?: 'monthly' | 'yearly';
 }
 
 export interface AppModules {
@@ -338,7 +339,7 @@ export const useFinanceStore = create<FinanceState>()(
           const updatedCategories = state[key].map(c => c.name === oldName ? { ...c, name: newName } : c);
 
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { 
+          updateDoc(docRef, {
             [key]: updatedCategories,
             transactions: updatedTransactions,
             recurringTransactions: updatedRecurring
@@ -545,7 +546,11 @@ export const useFinanceStore = create<FinanceState>()(
           const balanceStart = dayjs(state.balanceStartDate);
           let current = start.isAfter(balanceStart) ? start : balanceStart;
 
+          let safetyCounter = 0;
+
           while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
+            if (safetyCounter++ > 1000) break;
+
             let targetDate = current.date(payload.dayOfMonth);
 
             if (targetDate.month() !== current.month()) {
@@ -556,8 +561,12 @@ export const useFinanceStore = create<FinanceState>()(
 
             if (payload.endDate && targetDate.isAfter(dayjs(payload.endDate), 'day')) break;
 
-            if (targetDate.isBefore(start, 'day')) {
-              current = current.add(1, 'month');
+            if (targetDate.isBefore(start, 'day') || targetDate.isBefore(balanceStart, 'day')) {
+              if (payload.frequency === 'yearly') {
+                current = current.add(1, 'year');
+              } else {
+                current = current.add(1, 'month');
+              }
               continue;
             }
 
@@ -578,7 +587,11 @@ export const useFinanceStore = create<FinanceState>()(
                 recurringLinkId: payload.id,
               });
             }
-            current = current.add(1, 'month');
+            if (payload.frequency === 'yearly') {
+              current = current.add(1, 'year');
+            } else {
+              current = current.add(1, 'month');
+            }
           }
 
           const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
