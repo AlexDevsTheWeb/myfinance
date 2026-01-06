@@ -34,7 +34,7 @@ const UtilitiesPage: React.FC = () => {
     return distinctYears.sort((a, b) => b - a);
   }, [transactions]);
 
-  const getStats = (subcategory: 'Elettricità' | 'Gas', _unit: string) => {
+  const getStats = (subcategory: 'Elettricità' | 'Gas') => {
     const relevantTransactions = transactions
       .filter(t => t.type === 'expense' && t.category === 'Bollette' && t.subcategory === subcategory)
       .sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());
@@ -79,10 +79,35 @@ const UtilitiesPage: React.FC = () => {
     };
   };
 
-  const elecStats = useMemo(() => getStats('Elettricità', 'kWh'), [transactions, selectedYear]);
-  const gasStats = useMemo(() => getStats('Gas', 'smc'), [transactions, selectedYear]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const elecStats = useMemo(() => getStats('Elettricità'), [transactions, selectedYear]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const gasStats = useMemo(() => getStats('Gas'), [transactions, selectedYear]);
 
-  const renderDashboard = (stats: any, title: string, unit: string, color: string, icon: React.ReactNode) => (
+  interface Stats {
+    totalCost: number;
+    totalConsumption: number;
+    avgMonthlyCost: number;
+    avgUnitCost: number;
+    chartData: Array<{
+      date: string;
+      year: number;
+      unitCost: number;
+      consumption: number;
+      amount: number;
+      period: string;
+    }>;
+    history: Array<{
+      id: string;
+      date: string;
+      readingDateStart?: string;
+      readingDateEnd?: string;
+      amount: number;
+      consumption?: number;
+    }>;
+  }
+
+  const renderDashboard = (stats: Stats, title: string, unit: string, color: string, icon: React.ReactNode) => (
     <Grid container spacing={4}>
       <Grid size={{ xs: 12, md: 3 }}>
         <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, height: '100%', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -168,7 +193,7 @@ const UtilitiesPage: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {stats.history.map((row: any) => (
+                {stats.history.map((row: Stats['history'][number]) => (
                   <TableRow key={row.id}>
                     <TableCell>{dayjs(row.date).format('DD/MM/YYYY')}</TableCell>
                     <TableCell>{row.readingDateStart ? `${dayjs(row.readingDateStart).format('DD/MM/YY')} - ${dayjs(row.readingDateEnd).format('DD/MM/YY')}` : '-'}</TableCell>
