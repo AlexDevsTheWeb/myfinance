@@ -3,6 +3,7 @@ import { Box, Card, CardContent, Grid, Paper, Tab, Table, TableBody, TableCell, 
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { YearSelector } from '../components/common/YearSelector.component';
 import { useFinanceStore } from '../store/useFinanceStore';
 
 interface TabPanelProps {
@@ -23,22 +24,32 @@ function TabPanel(props: TabPanelProps) {
 const UtilitiesPage: React.FC = () => {
   const { transactions } = useFinanceStore();
   const [tabValue, setTabValue] = useState(0);
+  const [selectedYear, setSelectedYear] = useState(dayjs().year());
 
-  const currentYear = dayjs().year();
+  const availableYears = useMemo(() => {
+    const utilityTransactions = transactions.filter(t => t.type === 'expense' && t.category === 'Bollette');
+    const years = utilityTransactions.map(t => dayjs(t.date).year());
+    const distinctYears = Array.from(new Set(years));
+    if (!distinctYears.includes(dayjs().year())) distinctYears.push(dayjs().year());
+    return distinctYears.sort((a, b) => b - a);
+  }, [transactions]);
 
-  const getStats = (subcategory: 'Elettricità' | 'Gas', _unit: string) => {
+  const getStats = (subcategory: 'Elettricità' | 'Gas') => {
     const relevantTransactions = transactions
       .filter(t => t.type === 'expense' && t.category === 'Bollette' && t.subcategory === subcategory)
       .sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());
 
-    const yearlyTransactions = relevantTransactions.filter(t => dayjs(t.date).year() === currentYear);
+    const yearlyTransactions = relevantTransactions.filter(t => dayjs(t.date).year() === selectedYear);
 
     const totalCost = yearlyTransactions.reduce((acc, t) => acc + t.amount, 0);
     const totalConsumption = yearlyTransactions.reduce((acc, t) => acc + (t.consumption || 0), 0);
 
     // Average Monthly (Simple avg based on months passed so far)
-    const currentMonth = dayjs().month() + 1;
-    const avgMonthlyCost = totalCost / currentMonth;
+    let monthsPassed = 12;
+    if (selectedYear === dayjs().year()) {
+      monthsPassed = dayjs().month() + 1;
+    }
+    const avgMonthlyCost = totalCost / monthsPassed;
 
     // Unit Cost Calculation (Avg of all transactions with consumption data in current year)
     const txWithConsumption = yearlyTransactions.filter(t => t.consumption && t.consumption > 0);
@@ -49,13 +60,14 @@ const UtilitiesPage: React.FC = () => {
     // Chart Data
     const chartData = relevantTransactions.map(t => ({
       date: dayjs(t.date).format('DD/MM/YYYY'),
+      year: dayjs(t.date).year(),
       unitCost: t.consumption ? parseFloat((t.amount / t.consumption).toFixed(3)) : 0,
       consumption: t.consumption || 0,
       amount: t.amount,
       period: t.readingDateStart && t.readingDateEnd
         ? `${dayjs(t.readingDateStart).format('DD/MM')} - ${dayjs(t.readingDateEnd).format('DD/MM')}`
         : 'N/A'
-    })).filter(d => d.consumption > 0).slice(-12); // Last 12 entries
+    })).filter(d => d.consumption > 0 && d.year === selectedYear);
 
     return {
       totalCost,
@@ -63,24 +75,49 @@ const UtilitiesPage: React.FC = () => {
       avgMonthlyCost,
       avgUnitCost,
       chartData,
-      history: relevantTransactions.reverse()
+      history: relevantTransactions.filter(t => dayjs(t.date).year() === selectedYear).reverse()
     };
   };
 
-  const elecStats = useMemo(() => getStats('Elettricità', 'kWh'), [transactions, currentYear]);
-  const gasStats = useMemo(() => getStats('Gas', 'smc'), [transactions, currentYear]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const elecStats = useMemo(() => getStats('Elettricità'), [transactions, selectedYear]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const gasStats = useMemo(() => getStats('Gas'), [transactions, selectedYear]);
 
-  const renderDashboard = (stats: any, title: string, unit: string, color: string, icon: React.ReactNode) => (
+  interface Stats {
+    totalCost: number;
+    totalConsumption: number;
+    avgMonthlyCost: number;
+    avgUnitCost: number;
+    chartData: Array<{
+      date: string;
+      year: number;
+      unitCost: number;
+      consumption: number;
+      amount: number;
+      period: string;
+    }>;
+    history: Array<{
+      id: string;
+      date: string;
+      readingDateStart?: string;
+      readingDateEnd?: string;
+      amount: number;
+      consumption?: number;
+    }>;
+  }
+
+  const renderDashboard = (stats: Stats, title: string, unit: string, color: string, icon: React.ReactNode) => (
     <Grid container spacing={4}>
       <Grid size={{ xs: 12, md: 3 }}>
         <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, height: '100%', border: '1px solid rgba(255,255,255,0.05)' }}>
           <CardContent sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               {icon}
-              <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', ml: 1 }}>Totale {title} ({currentYear})</Typography>
+              <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', ml: 1 }}>Totale {title} ({selectedYear})</Typography>
             </Box>
             <Typography variant="h4" sx={{ fontWeight: 900, color }}>{stats.totalCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
-            <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Costo totale anno corrente</Typography>
+            <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Costo totale anno {selectedYear}</Typography>
           </CardContent>
         </Card>
       </Grid>
@@ -103,7 +140,7 @@ const UtilitiesPage: React.FC = () => {
               <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Consumo Totale</Typography>
             </Box>
             <Typography variant="h4" sx={{ fontWeight: 900 }}>{stats.totalConsumption.toLocaleString('it-IT')} <small style={{ fontSize: '1rem', opacity: 0.7 }}>{unit}</small></Typography>
-            <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Consumo cumulativo {currentYear}</Typography>
+            <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Consumo cumulativo {selectedYear}</Typography>
           </CardContent>
         </Card>
       </Grid>
@@ -156,7 +193,7 @@ const UtilitiesPage: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {stats.history.map((row: any) => (
+                {stats.history.map((row: Stats['history'][number]) => (
                   <TableRow key={row.id}>
                     <TableCell>{dayjs(row.date).format('DD/MM/YYYY')}</TableCell>
                     <TableCell>{row.readingDateStart ? `${dayjs(row.readingDateStart).format('DD/MM/YY')} - ${dayjs(row.readingDateEnd).format('DD/MM/YY')}` : '-'}</TableCell>
@@ -182,9 +219,16 @@ const UtilitiesPage: React.FC = () => {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, mb: 4 }}>
-        Utenze e Consumi Energetici
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
+          Utenze e Consumi Energetici
+        </Typography>
+        <YearSelector
+          availableYears={availableYears}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+        />
+      </Box>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
         <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} textColor="inherit" indicatorColor="primary">
