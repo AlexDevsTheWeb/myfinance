@@ -3,6 +3,7 @@ import { Box, Button, Card, CardContent, Collapse, FormControlLabel, Grid, IconB
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { YearSelector } from '../components/common/YearSelector.component';
 import { useFinanceStore, type CarMileageRecord, type TireChangeRecord } from '../store/useFinanceStore';
 
 const months = [
@@ -274,19 +275,11 @@ const CarPage: React.FC = () => {
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {tabValue !== 1 && ( // Hide year filter only on Tires tab if preferred, but usually keep it
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {availableYears.map(y => (
-                <Button
-                  key={y}
-                  variant={selectedYearFilter === y ? "contained" : "outlined"}
-                  size="small"
-                  onClick={() => setSelectedYearFilter(y)}
-                  sx={{ borderRadius: 2, minWidth: 80 }}
-                >
-                  {y}
-                </Button>
-              ))}
-            </Box>
+            <YearSelector
+              availableYears={availableYears}
+              selectedYear={selectedYearFilter}
+              onYearChange={setSelectedYearFilter}
+            />
           )}
           <IconButton onClick={() => setShowSettings(!showSettings)} color={showSettings ? "primary" : "default"}>
             <SettingsIcon />
