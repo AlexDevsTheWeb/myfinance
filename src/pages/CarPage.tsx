@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Delete as DeleteIcon, Edit as EditIcon, LocalGasStation as FuelIcon, Settings as SettingsIcon, Speed as SpeedIcon, DriveEta as TireIcon, TrendingUp as TrendingUpIcon } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, Collapse, FormControlLabel, Grid, IconButton, MenuItem, Paper, Radio, RadioGroup, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
@@ -296,7 +297,7 @@ const CarPage: React.FC = () => {
       </Box>
 
       <Collapse in={showSettings}>
-        <Paper sx={{ p: 3, mb: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <Paper sx={{ p: 3, mb: 4, background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Impostazioni Veicolo</Typography>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <TextField
@@ -482,7 +483,7 @@ const CarPage: React.FC = () => {
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
                   <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, display: 'block', mb: 1 }}>Gomme al ritiro dell'auto</Typography>
-                  <RadioGroup row value={tireModelEdit.initialType} onChange={(e) => setTireModelEdit({ ...tireModelEdit, initialType: e.target.value as any })}>
+                  <RadioGroup row value={tireModelEdit.initialType} onChange={(e) => setTireModelEdit({ ...tireModelEdit, initialType: e.target.value as 'summer' | 'winter' })}>
                     <FormControlLabel value="summer" control={<Radio size="small" />} label="Estive" />
                     <FormControlLabel value="winter" control={<Radio size="small" />} label="Invernali" />
                   </RadioGroup>
