@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DndContext, type DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
 import { AccountBalance, Add as AddIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Repeat, TrendingDown, TrendingUp, ViewQuilt } from '@mui/icons-material';
 import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Switch, Tab, Tabs, TextField, Typography } from '@mui/material';
@@ -272,7 +273,7 @@ const ConfigPage: React.FC = () => {
         subcategory: recurringForm.subcategory,
         dayOfMonth: Number(recurringForm.dayOfMonth),
         startDate: recurringForm.startDate,
-        endDate: recurringForm.endDate || undefined,
+        endDate: recurringForm.endDate || '',
         type: recurringForm.type,
         accountId: recurringForm.accountId,
         frequency: recurringForm.frequency

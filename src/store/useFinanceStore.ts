@@ -625,9 +625,75 @@ export const useFinanceStore = create<FinanceState>()(
 
         set((state) => {
           const updatedRecurring = state.recurringTransactions.map(r => r.id === payload.id ? payload : r);
+
+          // Generate missing transactions
+          const newTransactions = [];
+          const now = dayjs();
+          const start = dayjs(payload.startDate);
+          const balanceStart = dayjs(state.balanceStartDate);
+          let current = start.isAfter(balanceStart) ? start : balanceStart;
+
+          let safetyCounter = 0;
+
+          while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
+            if (safetyCounter++ > 1000) break;
+
+            let targetDate = current.date(payload.dayOfMonth);
+
+            if (targetDate.month() !== current.month()) {
+              targetDate = current.endOf('month');
+            }
+
+            if (targetDate.isAfter(now, 'day')) break;
+
+            if (payload.endDate && targetDate.isAfter(dayjs(payload.endDate), 'day')) break;
+
+            if (targetDate.isBefore(start, 'day') || targetDate.isBefore(balanceStart, 'day')) {
+              if (payload.frequency === 'yearly') {
+                current = current.add(1, 'year');
+              } else {
+                current = current.add(1, 'month');
+              }
+              continue;
+            }
+
+            const dateStr = targetDate.format('YYYY-MM-DD');
+
+            // Find ALL transactions for this recurring event, not just in the current state
+            const exists = state.transactions.some(t => t.recurringLinkId === payload.id && t.date === dateStr);
+
+            if (!exists) {
+              newTransactions.push({
+                id: crypto.randomUUID(),
+                date: dateStr,
+                description: payload.description,
+                category: payload.category,
+                subcategory: payload.subcategory,
+                amount: payload.amount,
+                type: payload.type,
+                accountId: payload.accountId,
+                recurringLinkId: payload.id,
+              });
+            }
+            if (payload.frequency === 'yearly') {
+              current = current.add(1, 'year');
+            } else {
+              current = current.add(1, 'month');
+            }
+          }
+
+          const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { recurringTransactions: updatedRecurring });
-          return { recurringTransactions: updatedRecurring };
+          updateDoc(docRef, { 
+            recurringTransactions: updatedRecurring,
+            transactions: allTransactions
+          });
+
+          return { 
+            recurringTransactions: updatedRecurring,
+            transactions: allTransactions
+          };
         });
       },
       deleteRecurring: (id) => {
