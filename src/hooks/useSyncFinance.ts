@@ -71,9 +71,9 @@ export const useSyncFinance = () => {
         await runTransaction(db, async (transaction) => {
           const remoteDoc = await transaction.get(docRef);
           if (!remoteDoc.exists()) {
-            console.log(
-              'SyncFinance: New user detected, initializing with transaction...'
-            );
+            // console.log(
+            //   'SyncFinance: New user detected, initializing with transaction...'
+            // );
             const defaultConfig = getDefaultUserConfig();
             transaction.set(docRef, defaultConfig);
             setAll(defaultConfig); // Set local state immediately
@@ -90,7 +90,7 @@ export const useSyncFinance = () => {
 
     const unsub = onSnapshot(docRef, (doc) => {
       if (doc.metadata.hasPendingWrites) {
-        console.log('SyncFinance: Ignoring local write');
+        // console.log('SyncFinance: Ignoring local write');
         return;
       }
       if (doc.exists() && !isInitializing.current) {

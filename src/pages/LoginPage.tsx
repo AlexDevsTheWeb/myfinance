@@ -19,7 +19,7 @@ const LoginPage: React.FC = () => {
       if (isRegistering) {
         // REGISTRAZIONE
         await createUserWithEmailAndPassword(auth, email, password);
-        console.log("Account creato con successo!");
+        // console.log("Account creato con successo!");
       } else {
         // LOGIN
         await signInWithEmailAndPassword(auth, email, password);
