@@ -22,6 +22,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
     subcategory: '',
     amount: '',
     accountId: '',
+    consumption: '',
+    readingDateStart: '',
+    readingDateEnd: '',
   });
 
   // Reset or populate form data when the modal opens or transaction changes
@@ -35,6 +38,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
           subcategory: transaction.subcategory,
           amount: transaction.amount.toString(),
           accountId: transaction.accountId,
+          consumption: transaction.consumption?.toString() || '',
+          readingDateStart: transaction.readingDateStart || '',
+          readingDateEnd: transaction.readingDateEnd || '',
         });
       } else {
         setFormData({
@@ -44,6 +50,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
           subcategory: '',
           amount: '',
           accountId: accounts.find(a => a.isDefault)?.id || accounts[0]?.id || '',
+          consumption: '',
+          readingDateStart: '',
+          readingDateEnd: '',
         });
       }
     }
@@ -57,6 +66,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
         amount: Number(formData.amount),
         type,
         accountId: formData.accountId,
+        consumption: formData.consumption !== '' ? Number(formData.consumption) : undefined,
+        readingDateStart: formData.readingDateStart || undefined,
+        readingDateEnd: formData.readingDateEnd || undefined,
       });
     } else {
       const newTransaction: Transaction = {
@@ -65,6 +77,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
         amount: Number(formData.amount),
         type,
         accountId: formData.accountId,
+        consumption: formData.consumption !== '' ? Number(formData.consumption) : undefined,
+        readingDateStart: formData.readingDateStart || undefined,
+        readingDateEnd: formData.readingDateEnd || undefined,
       };
       addTransaction(newTransaction);
     }

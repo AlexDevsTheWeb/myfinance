@@ -31,6 +31,9 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
         type: t.type,
         accountId: t.accountId,
         recurringLinkId: t.recurringLinkId ?? null,
+        consumption: t.consumption ?? null,
+        readingDateStart: t.readingDateStart ?? null,
+        readingDateEnd: t.readingDateEnd ?? null,
       })),
       initialBalance: userDoc.initialBalance || 0,
       categories: userDoc.categories,
@@ -47,6 +50,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
         dayOfMonth: r.dayOfMonth,
         startDate: r.startDate,
         endDate: r.endDate ?? null,
+        frequency: r.frequency || 'monthly',
       })),
       carMileage: userDoc.carMileage,
       carInitialMileage: userDoc.carInitialMileage || 0,
@@ -70,6 +74,9 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       type: t.type === 'income' || t.type === 'expense' ? t.type : 'expense',
       accountId: t.accountId ?? 'default-main',
       recurringLinkId: t.recurringLinkId,
+      consumption: typeof t.consumption === 'number' ? t.consumption : (typeof t.consumption === 'string' && t.consumption !== '' ? Number(t.consumption) : undefined),
+      readingDateStart: t.readingDateStart,
+      readingDateEnd: t.readingDateEnd,
     })) : [];
 
     const initialBalance: number = typeof data.initialBalance === 'number' ? data.initialBalance : 0;
