@@ -85,6 +85,7 @@ interface FinanceState {
   tireChanges: TireChangeRecord[];
   enabledModules: AppModules;
   balanceStartDate: string; // YYYY-MM-DD
+  deletedRecurringInstances: { recurringLinkId: string; date: string }[];
   setInitialBalance: (balance: number) => void;
   addTransaction: (transaction: Transaction) => void;
   updateTransaction: (transaction: Transaction) => void;
@@ -203,6 +204,7 @@ export const useFinanceStore = create<FinanceState>()(
         utilityTracker: false,
       },
       balanceStartDate: '2026-01-01',
+      deletedRecurringInstances: [],
 
       setInitialBalance: (balance) => {
         const userId = useAuthStore.getState().user?.uid;
@@ -245,12 +247,28 @@ export const useFinanceStore = create<FinanceState>()(
         if (!userId) return;
 
         set((state) => {
+          const tToDelete = state.transactions.find((t) => t.id === id);
           const newTransactions = state.transactions.filter((t) => t.id !== id);
           const sanitizedTransactions = newTransactions.map(sanitizeTransaction);
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { transactions: sanitizedTransactions });
 
-          return { transactions: newTransactions };
+          let newDeletedInstances = state.deletedRecurringInstances;
+          if (tToDelete?.recurringLinkId) {
+            newDeletedInstances = [...state.deletedRecurringInstances, {
+              recurringLinkId: tToDelete.recurringLinkId,
+              date: tToDelete.date
+            }];
+          }
+
+          updateDoc(docRef, {
+            transactions: sanitizedTransactions,
+            deletedRecurringInstances: newDeletedInstances
+          });
+
+          return {
+            transactions: newTransactions,
+            deletedRecurringInstances: newDeletedInstances
+          };
         });
       },
 
@@ -621,9 +639,27 @@ export const useFinanceStore = create<FinanceState>()(
               }
 
               const dateStr = targetDate.format('YYYY-MM-DD');
-              const exists = state.transactions.some(t => t.recurringLinkId === payload.id && t.date === dateStr);
 
-              if (!exists) {
+              // SMARTER CHECK:
+              // 1. Check if it was explicitly deleted within the same period
+              const isDeleted = state.deletedRecurringInstances.some((d: { recurringLinkId: string; date: string }) => {
+                if (d.recurringLinkId !== payload.id) return false;
+                if (payload.frequency === 'yearly') {
+                  return dayjs(d.date).year() === targetDate.year();
+                }
+                return dayjs(d.date).isSame(targetDate, 'month');
+              });
+
+              // 2. Check if a transaction for this link already exists in the same period (month/year)
+              const existsInPeriod = state.transactions.some(t => {
+                if (t.recurringLinkId !== payload.id) return false;
+                if (payload.frequency === 'yearly') {
+                  return dayjs(t.date).year() === targetDate.year();
+                }
+                return dayjs(t.date).isSame(targetDate, 'month');
+              });
+
+              if (!isDeleted && !existsInPeriod) {
                 newTransactions.push({
                   id: crypto.randomUUID(),
                   date: dateStr,

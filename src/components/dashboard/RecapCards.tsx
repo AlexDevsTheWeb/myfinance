@@ -43,6 +43,16 @@ const RecapCards: React.FC = () => {
   const totalExpenses = accountsDetail.reduce((sum, acc) => sum + acc.periodExpense, 0);
   const currentBalance = accountsDetail.reduce((sum, acc) => sum + acc.currentBalance, 0);
 
+  const monthlyStats = React.useMemo(() => {
+    const monthlyTransactions = transactions.filter(t => dayjs(t.date).isSame(dayjs(), 'month'));
+
+    const income = monthlyTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expense = monthlyTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const delta = income - expense;
+
+    return { income, expense, delta };
+  }, [transactions]);
+
 
   const cardData = [
     {
@@ -65,6 +75,24 @@ const RecapCards: React.FC = () => {
       icon: <TrendingDown size={24} />,
       color: '#ef4444',
       bg: 'rgba(239, 68, 68, 0.1)',
+    },
+  ];
+
+  const monthlyCardData = [
+    {
+      title: 'Income (Month)',
+      amount: monthlyStats.income,
+      color: '#10b981',
+    },
+    {
+      title: 'Expenses (Month)',
+      amount: monthlyStats.expense,
+      color: '#ef4444',
+    },
+    {
+      title: 'Net Delta (Month)',
+      amount: monthlyStats.delta,
+      color: monthlyStats.delta >= 0 ? '#10b981' : '#ef4444',
     },
   ];
 
@@ -97,6 +125,29 @@ const RecapCards: React.FC = () => {
                 € {card.amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
               </Typography>
             </Box>
+          </Paper>
+        </Grid>
+      ))}
+
+      {monthlyCardData.map((card) => (
+        <Grid size={{ xs: 12, md: 4 }} key={card.title}>
+          <Paper
+            sx={{
+              p: 2,
+              borderRadius: 1,
+              background: 'rgba(30, 41, 59, 0.4)',
+              border: '1px solid rgba(255,255,255,0.05)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}>
+              {card.title}
+            </Typography>
+            <Typography variant="h5" sx={{ color: card.color, fontWeight: 800 }}>
+              € {card.amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+            </Typography>
           </Paper>
         </Grid>
       ))}
