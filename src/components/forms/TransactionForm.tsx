@@ -65,7 +65,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
               type="date"
               variant="filled"
               value={formData.date || dayjs().format('YYYY-MM-DD')}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              onChange={(e: any) => setFormData({ ...formData, date: e.target.value })}
               slotProps={{ inputLabel: { shrink: true } }}
             />
           </Grid>
@@ -116,7 +116,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
             type="number"
             variant="filled"
             value={formData.amount}
-            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+            onChange={(e: any) => setFormData({ ...formData, amount: e.target.value })}
             slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }}
           />
         </Grid>
@@ -131,7 +131,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                   type="number"
                   variant="filled"
                   value={formData.dayOfMonth || 1}
-                  onChange={(e) => setFormData({ ...formData, dayOfMonth: Number(e.target.value) })}
+                  onChange={(e: any) => setFormData({ ...formData, dayOfMonth: Number(e.target.value) })}
                   inputProps={{ min: 1, max: 31 }}
                 />
               </Grid>
@@ -142,7 +142,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                   label="Frequency"
                   variant="filled"
                   value={formData.frequency || 'monthly'}
-                  onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
+                  onChange={(e: any) => setFormData({ ...formData, frequency: e.target.value })}
                 >
                   <MenuItem value="monthly">Monthly</MenuItem>
                   <MenuItem value="yearly">Yearly</MenuItem>
@@ -198,7 +198,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
             label="Account"
             variant="filled"
             value={formData.accountId}
-            onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
+            onChange={(e: any) => setFormData({ ...formData, accountId: e.target.value })}
           >
             {accounts.map((acc) => (
               <MenuItem key={acc.id} value={acc.id}>
@@ -217,7 +217,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                 type="date"
                 variant="filled"
                 value={formData.startDate || dayjs().format('YYYY-MM-DD')}
-                onChange={e => setFormData({ ...formData, startDate: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, startDate: e.target.value })}
                 slotProps={{ inputLabel: { shrink: true } }}
               />
             </Grid>
@@ -228,7 +228,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                 type="date"
                 variant="filled"
                 value={formData.endDate || ''}
-                onChange={e => setFormData({ ...formData, endDate: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, endDate: e.target.value })}
                 slotProps={{ inputLabel: { shrink: true } }}
               />
             </Grid>
@@ -247,7 +247,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                 type="number"
                 variant="filled"
                 value={formData.consumption || ''}
-                onChange={(e) => setFormData({ ...formData, consumption: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, consumption: e.target.value })}
                 slotProps={{ input: { endAdornment: <Typography sx={{ ml: 1, opacity: 0.5, fontSize: '0.8rem' }}>{formData.subcategory === 'Elettricità' ? 'kWh' : 'smc'}</Typography> } }}
               />
             </Grid>
@@ -258,7 +258,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                 type="date"
                 variant="filled"
                 value={formData.readingDateStart || ''}
-                onChange={e => setFormData({ ...formData, readingDateStart: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, readingDateStart: e.target.value })}
                 slotProps={{ inputLabel: { shrink: true } }}
               />
             </Grid>
@@ -269,7 +269,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                 type="date"
                 variant="filled"
                 value={formData.readingDateEnd || ''}
-                onChange={e => setFormData({ ...formData, readingDateEnd: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, readingDateEnd: e.target.value })}
                 slotProps={{ inputLabel: { shrink: true } }}
               />
             </Grid>

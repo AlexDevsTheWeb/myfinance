@@ -304,7 +304,7 @@ const CarPage: React.FC = () => {
               label="Km iniziali (al momento dell'acquisto o inizio tracking)"
               type="number"
               value={initialMileageValue}
-              onChange={(e) => setInitialMileageValue(e.target.value)}
+              onChange={(e: any) => setInitialMileageValue(e.target.value)}
               variant="filled"
               size="small"
               sx={{ flexGrow: 1 }}
@@ -340,15 +340,15 @@ const CarPage: React.FC = () => {
               </Typography>
               <Grid container spacing={2} alignItems="center">
                 <Grid size={{ xs: 12, sm: 3 }}>
-                  <TextField select fullWidth label="Mese" value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))} variant="filled" SelectProps={{ native: true }}>
+                  <TextField select fullWidth label="Mese" value={selectedMonth} onChange={(e: any) => setSelectedMonth(Number(e.target.value))} variant="filled" SelectProps={{ native: true }}>
                     {months.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                   </TextField>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 3 }}>
-                  <TextField type="number" fullWidth label="Anno" value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))} variant="filled" />
+                  <TextField type="number" fullWidth label="Anno" value={selectedYear} onChange={(e: any) => setSelectedYear(Number(e.target.value))} variant="filled" />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <TextField type="number" fullWidth label="Km sul cruscotto" value={newReading} onChange={(e) => setNewReading(e.target.value)} variant="filled" placeholder="Esempio: 45200" />
+                  <TextField type="number" fullWidth label="Km sul cruscotto" value={newReading} onChange={(e: any) => setNewReading(e.target.value)} variant="filled" placeholder="Esempio: 45200" />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 2 }}>
                   <Button fullWidth variant="contained" size="large" onClick={handleSaveMileage} sx={{ height: 56, borderRadius: 2 }}>
@@ -368,8 +368,12 @@ const CarPage: React.FC = () => {
                     <LineChart data={yearStats.chartData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                       <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v} km`} />
-                      <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} itemStyle={{ fontWeight: 600 }} />
+                      <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0} km`} />
+                      <Tooltip
+                        contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                        itemStyle={{ fontWeight: 600 }}
+                        formatter={(value: any) => [`${Number(value || 0).toLocaleString()} km`, 'Chilometraggio']}
+                      />
                       <Line type="monotone" dataKey="km" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
                     </LineChart>
                   </ResponsiveContainer>
@@ -476,14 +480,14 @@ const CarPage: React.FC = () => {
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Imposta Modelli e Baseline</Typography>
               <Grid container spacing={4}>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <TextField fullWidth label="Modello Estive" value={tireModelEdit.summer} onChange={(e) => setTireModelEdit({ ...tireModelEdit, summer: e.target.value })} variant="filled" />
+                  <TextField fullWidth label="Modello Estive" value={tireModelEdit.summer} onChange={(e: any) => setTireModelEdit({ ...tireModelEdit, summer: e.target.value })} variant="filled" />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <TextField fullWidth label="Modello Invernali" value={tireModelEdit.winter} onChange={(e) => setTireModelEdit({ ...tireModelEdit, winter: e.target.value })} variant="filled" />
+                  <TextField fullWidth label="Modello Invernali" value={tireModelEdit.winter} onChange={(e: any) => setTireModelEdit({ ...tireModelEdit, winter: e.target.value })} variant="filled" />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
                   <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, display: 'block', mb: 1 }}>Gomme al ritiro dell'auto</Typography>
-                  <RadioGroup row value={tireModelEdit.initialType} onChange={(e) => setTireModelEdit({ ...tireModelEdit, initialType: e.target.value as 'summer' | 'winter' })}>
+                  <RadioGroup row value={tireModelEdit.initialType} onChange={(e: any) => setTireModelEdit({ ...tireModelEdit, initialType: e.target.value as 'summer' | 'winter' })}>
                     <FormControlLabel value="summer" control={<Radio size="small" />} label="Estive" />
                     <FormControlLabel value="winter" control={<Radio size="small" />} label="Invernali" />
                   </RadioGroup>
@@ -500,16 +504,16 @@ const CarPage: React.FC = () => {
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>Monta Nuovi Pneumatici</Typography>
               <Grid container spacing={2} alignItems="center">
                 <Grid size={{ xs: 12, sm: 3 }}>
-                  <TextField type="date" fullWidth label="Data del cambio" value={newTireChange.date} onChange={(e) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" InputLabelProps={{ shrink: true }} />
+                  <TextField type="date" fullWidth label="Data del cambio" value={newTireChange.date} onChange={(e: any) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" InputLabelProps={{ shrink: true }} />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 3 }}>
-                  <TextField select fullWidth label="Nuovo Set Montato" value={newTireChange.type} onChange={(e) => setNewTireChange({ ...newTireChange, type: e.target.value as any })} variant="filled">
+                  <TextField select fullWidth label="Nuovo Set Montato" value={newTireChange.type} onChange={(e: any) => setNewTireChange({ ...newTireChange, type: e.target.value as any })} variant="filled">
                     <MenuItem value="summer">Estivi</MenuItem>
                     <MenuItem value="winter">Invernali</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 4 }}>
-                  <TextField type="number" fullWidth label="Odomatro al cambio (Km)" value={newTireChange.odometer} onChange={(e) => setNewTireChange({ ...newTireChange, odometer: e.target.value })} variant="filled" />
+                  <TextField type="number" fullWidth label="Odomatro al cambio (Km)" value={newTireChange.odometer} onChange={(e: any) => setNewTireChange({ ...newTireChange, odometer: e.target.value })} variant="filled" />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 2 }}>
                   <Button fullWidth variant="contained" size="large" onClick={handleSaveTireChange} sx={{ height: 56, borderRadius: 2 }}>{editingTireChangeId ? 'Modifica' : 'Registra'}</Button>
@@ -643,11 +647,11 @@ const CarPage: React.FC = () => {
                   <LineChart data={costStats.chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                     <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}€`} />
+                    <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0}€`} />
                     <Tooltip
                       contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
                       itemStyle={{ fontWeight: 600 }}
-                      formatter={(value: number) => [`${value} €/km`, 'Efficienza']}
+                      formatter={(value: any) => [`${Number(value || 0).toFixed(3)} €/km`, 'Efficienza']}
                     />
                     <Line type="monotone" dataKey="val" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981' }} activeDot={{ r: 6 }} />
                   </LineChart>
