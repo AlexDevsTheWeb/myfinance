@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Autocomplete, Box, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
@@ -14,7 +15,7 @@ interface TransactionFormProps {
     accountId: string;
     dayOfMonth?: number;
     startDate?: string;
-    endDate?: string;
+    endDate?: string | null;
     frequency?: 'monthly' | 'yearly';
     consumption?: number | string;
     readingDateStart?: string;

@@ -95,7 +95,9 @@ export const useSyncFinance = () => {
       }
       if (doc.exists() && !isInitializing.current) {
         const data = doc.data();
+        const { setAll, checkRecurring } = useFinanceStore.getState();
         setAll(data);
+        checkRecurring();
       }
     });
 
