@@ -16,6 +16,7 @@ export interface UserDoc {
   tireChanges: TireChangeRecord[];
   enabledModules: AppModules;
   balanceStartDate: string;
+  deletedRecurringInstances?: { recurringLinkId: string; date: string }[];
 }
 
 export const userDocConverter: FirestoreDataConverter<UserDoc> = {
@@ -58,6 +59,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       tireChanges: userDoc.tireChanges || [],
       enabledModules: userDoc.enabledModules,
       balanceStartDate: userDoc.balanceStartDate || '2026-01-01',
+      deletedRecurringInstances: userDoc.deletedRecurringInstances || [],
     };
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): UserDoc => {
@@ -109,6 +111,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       dayOfMonth: typeof r.dayOfMonth === 'number' ? r.dayOfMonth : 1,
       startDate: r.startDate ?? '',
       endDate: r.endDate,
+      frequency: r.frequency === 'yearly' || r.frequency === 'monthly' ? r.frequency : 'monthly',
     })) : [];
 
     const carMileage: CarMileageRecord[] = Array.isArray(data.carMileage) ? data.carMileage.map((m: any) => ({
@@ -141,6 +144,11 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
 
     const balanceStartDate: string = data.balanceStartDate || '2026-01-01';
 
+    const deletedRecurringInstances = Array.isArray(data.deletedRecurringInstances) ? data.deletedRecurringInstances.map((d: any) => ({
+      recurringLinkId: d.recurringLinkId ?? '',
+      date: d.date ?? ''
+    })) : [];
+
     return {
       transactions,
       initialBalance,
@@ -154,6 +162,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       tireChanges,
       enabledModules,
       balanceStartDate,
+      deletedRecurringInstances,
     };
   }
 };
