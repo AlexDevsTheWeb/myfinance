@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ArrowDownward, ArrowUpward, BarChart as BarChartIcon, TrendingUp } from '@mui/icons-material';
 import { Box, Card, CardContent, Chip, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import dayjs from 'dayjs';
@@ -132,7 +133,7 @@ const SalaryPage: React.FC = () => {
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
-                        tickFormatter={(value) => `€${value}`}
+                        tickFormatter={(value: number) => `€${value.toLocaleString()}`}
                       />
                       <Tooltip
                         contentStyle={{
@@ -142,16 +143,16 @@ const SalaryPage: React.FC = () => {
                           boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
                         }}
                         itemStyle={{ color: '#fff' }}
-                        formatter={(value: number, name: number, props: { payload?: { payload: MonthlySalaryData }[] }) => {
+                        formatter={(value: any, name: any, props: any) => {
                           const year = name;
-                          const details = props.payload?.[0]?.payload?.[`${year}_details`];
+                          const details = props.payload?.[`${year}_details`];
                           return [
                             <Box key={year}>
-                              <Typography variant="body2" sx={{ fontWeight: 700 }}>€ {value.toLocaleString()}</Typography>
-                              <Typography variant="caption" sx={{ opacity: 0.7, display: 'block' }}>{details}</Typography>
+                              <Typography variant="body2" sx={{ fontWeight: 700 }}>€ {Number(value || 0).toLocaleString()}</Typography>
+                              {details && <Typography variant="caption" sx={{ opacity: 0.7, display: 'block' }}>{details}</Typography>}
                             </Box>,
                             `Year ${year}`
-                          ];
+                          ] as any;
                         }}
                       />
                       <Legend iconType="circle" />

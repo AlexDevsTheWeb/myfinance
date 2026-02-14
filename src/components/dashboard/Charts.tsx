@@ -60,10 +60,11 @@ const Charts: React.FC = () => {
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
             <XAxis dataKey="displayDate" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-            <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: number) => `€${v}`} />
+            <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `€${v || 0}`} />
             <Tooltip
               contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
               itemStyle={{ fontWeight: 600 }}
+              formatter={(value: any) => `€ ${Number(value || 0).toLocaleString()}`}
             />
             <Area type="monotone" dataKey="income" stroke="#10b981" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={3} />
             <Area type="monotone" dataKey="expense" stroke="#ef4444" fillOpacity={1} fill="url(#colorExpense)" strokeWidth={3} />

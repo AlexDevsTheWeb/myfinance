@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BarChart as BarChartIcon } from '@mui/icons-material';
 import { Box, Paper, Typography } from '@mui/material';
 import dayjs from 'dayjs';
@@ -104,7 +105,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `€${value.toLocaleString()}`}
+              tickFormatter={(value: number) => `€${value.toLocaleString()}`}
             />
             <Tooltip
               contentStyle={{
@@ -114,7 +115,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
                 boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)',
               }}
               itemStyle={{ fontWeight: 600 }}
-              formatter={(value: number) => `€ ${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
+              formatter={(value: any) => `€ ${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
             />
             <Legend verticalAlign="top" height={36} iconType="circle" />
             <Area

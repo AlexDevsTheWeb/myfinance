@@ -164,11 +164,12 @@ const UtilitiesPage: React.FC = () => {
               <LineChart data={stats.chartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="period" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis yAxisId="left" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v} ${unit}`} />
-                <YAxis yAxisId="right" orientation="right" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}€`} />
+                <YAxis yAxisId="left" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0} ${unit}`} />
+                <YAxis yAxisId="right" orientation="right" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0}€`} />
                 <Tooltip
                   contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
                   itemStyle={{ fontWeight: 600 }}
+                  formatter={(value: any) => `${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
                 />
                 <Line yAxisId="left" type="monotone" dataKey="consumption" name={`Consumo (${unit})`} stroke={color} strokeWidth={3} dot={{ r: 4, fill: color }} />
                 <Line yAxisId="right" type="monotone" dataKey="unitCost" name={`Costo Unitario (€/${unit})`} stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: '#f59e0b' }} strokeDasharray="5 5" />
