@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { db } from '../lib/firebase';
 import { useAuthStore } from './useAuthStore';
 
@@ -203,7 +202,6 @@ const sanitizeRecurring = (r: RecurringTransaction): any => {
 };
 
 export const useFinanceStore = create<FinanceState>()(
-  persist<FinanceState>(
     (set) => ({
       initialBalance: 0,
       accounts: [
@@ -1225,9 +1223,5 @@ setBalanceStartDate: async (date) => {
       setAll: (data) => set(data),
 
       clearSaveError: () => set({ saveError: null }),
-    }),
-    {
-      name: 'finance-storage',
-    }
-  )
+    })
 );
