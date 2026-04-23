@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { db } from '../lib/firebase';
 import { useAuthStore } from './useAuthStore';
 
@@ -72,6 +71,37 @@ export interface TireSettings {
   initialTireType: 'summer' | 'winter';
 }
 
+// Store-level validation functions for transaction data
+export function validateTransaction(t: Transaction): { valid: boolean; error?: string } {
+  if (!t.description?.trim()) {
+    return { valid: false, error: 'Description is required' };
+  }
+  if (typeof t.amount !== 'number' || t.amount <= 0) {
+    return { valid: false, error: 'Amount must be greater than 0' };
+  }
+  if (!t.date || !t.category || !t.subcategory || !t.accountId) {
+    return { valid: false, error: 'Missing required fields' };
+  }
+  // NOTE: No date validation per D-01 ("No hard date bounds")
+  return { valid: true };
+}
+
+export function validateRecurringTransaction(r: RecurringTransaction): { valid: boolean; error?: string } {
+  if (!r.description?.trim()) {
+    return { valid: false, error: 'Description is required' };
+  }
+  if (typeof r.amount !== 'number' || r.amount <= 0) {
+    return { valid: false, error: 'Amount must be greater than 0' };
+  }
+  if (!r.startDate || !r.accountId || !r.category || !r.subcategory) {
+    return { valid: false, error: 'Missing required fields' };
+  }
+  if (r.endDate && r.startDate && r.endDate < r.startDate) {
+    return { valid: false, error: 'End date cannot be before start date' };
+  }
+  return { valid: true };
+}
+
 interface FinanceState {
   initialBalance: number;
   categories: Category[];
@@ -86,6 +116,8 @@ interface FinanceState {
   enabledModules: AppModules;
   balanceStartDate: string; // YYYY-MM-DD
   deletedRecurringInstances: { recurringLinkId: string; date: string }[];
+  isSaving: boolean;
+  saveError: string | null;
   setInitialBalance: (balance: number) => void;
   addTransaction: (transaction: Transaction) => void;
   updateTransaction: (transaction: Transaction) => void;
@@ -131,6 +163,7 @@ interface FinanceState {
   deleteTireChange: (id: string) => void;
   setTireChanges: (records: TireChangeRecord[]) => void;
   setAll: (data: Partial<FinanceState>) => void;
+  clearSaveError: () => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -169,7 +202,6 @@ const sanitizeRecurring = (r: RecurringTransaction): any => {
 };
 
 export const useFinanceStore = create<FinanceState>()(
-  persist<FinanceState>(
     (set) => ({
       initialBalance: 0,
       accounts: [
@@ -205,630 +237,991 @@ export const useFinanceStore = create<FinanceState>()(
       },
       balanceStartDate: '2026-01-01',
       deletedRecurringInstances: [],
+      isSaving: false,
+      saveError: null,
 
-      setInitialBalance: (balance) => {
+      setInitialBalance: async (balance) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { initialBalance: balance });
-        set({ initialBalance: balance });
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { initialBalance: balance });
+          set({ initialBalance: balance, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set initial balance';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setInitialBalance error:', err);
+        }
       },
 
-      addTransaction: (transaction) => {
+      addTransaction: async (transaction) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        set((state) => {
-          const sorted = [transaction, ...state.transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-          const sanitizedTransactions = sorted.map(sanitizeTransaction);
-          const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { transactions: sanitizedTransactions });
-          return { transactions: sorted };
-        });
-      },
+        // Validate transaction before saving
+        const validation = validateTransaction(transaction);
+        if (!validation.valid) {
+          set({ saveError: validation.error, isSaving: false });
+          return;
+        }
 
-      updateTransaction: (transaction) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-
-        set((state) => {
-          const newTransactions = state.transactions.map((t) => (t.id === transaction.id ? transaction : t));
-          const sanitizedTransactions = newTransactions.map(sanitizeTransaction);
-          const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { transactions: sanitizedTransactions });
-
-          const sorted = newTransactions.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-          return { transactions: sorted };
-        });
-      },
-
-      deleteTransaction: (id) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-
-        set((state) => {
-          const tToDelete = state.transactions.find((t) => t.id === id);
-          const newTransactions = state.transactions.filter((t) => t.id !== id);
-          const sanitizedTransactions = newTransactions.map(sanitizeTransaction);
-          const docRef = doc(db, 'users', userId);
-
-          let newDeletedInstances = state.deletedRecurringInstances;
-          if (tToDelete?.recurringLinkId) {
-            newDeletedInstances = [...state.deletedRecurringInstances, {
-              recurringLinkId: tToDelete.recurringLinkId,
-              date: tToDelete.date
-            }];
-          }
-
-          updateDoc(docRef, {
-            transactions: sanitizedTransactions,
-            deletedRecurringInstances: newDeletedInstances
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const sorted = [transaction, ...state.transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+            return { transactions: sorted, isSaving: false };
           });
+          const docRef = doc(db, 'users', userId);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          await updateDoc(docRef, { transactions: sanitizedTransactions });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to add transaction';
+          set((state) => {
+            // Revert optimistic update on error
+            const reverted = state.transactions.filter(t => t.id !== transaction.id);
+            return { saveError: errorMessage, isSaving: false, transactions: reverted };
+          });
+          console.error('addTransaction error:', err);
+        }
+      },
+
+      updateTransaction: async (transaction) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        // Validate transaction before saving
+        const validation = validateTransaction(transaction);
+        if (!validation.valid) {
+          set({ saveError: validation.error, isSaving: false });
+          return;
+        }
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          set((state) => {
+            const newTransactions = state.transactions.map((t) => (t.id === transaction.id ? transaction : t));
+            const sorted = newTransactions.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+            return { transactions: sorted, isSaving: false };
+          });
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          await updateDoc(docRef, { transactions: sanitizedTransactions });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to update transaction';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('updateTransaction error:', err);
+        }
+      },
+
+      deleteTransaction: async (id) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          let newDeletedInstances: { recurringLinkId: string; date: string }[] = [];
+          set((state) => {
+            const tToDelete = state.transactions.find((t) => t.id === id);
+            const newTransactions = state.transactions.filter((t) => t.id !== id);
+
+            if (tToDelete?.recurringLinkId) {
+              newDeletedInstances = [...state.deletedRecurringInstances, {
+                recurringLinkId: tToDelete.recurringLinkId,
+                date: tToDelete.date
+              }];
+            }
+
+            return {
+              transactions: newTransactions,
+              deletedRecurringInstances: newDeletedInstances,
+              isSaving: false
+            };
+          });
+          const docRef = doc(db, 'users', userId);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          const currentDeletedInstances = useFinanceStore.getState().deletedRecurringInstances;
+          await updateDoc(docRef, {
+            transactions: sanitizedTransactions,
+            deletedRecurringInstances: currentDeletedInstances
+          });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete transaction';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('deleteTransaction error:', err);
+        }
+      },
+
+      setCategories: async (categories) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { categories });
+          set({ categories, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set categories';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setCategories error:', err);
+        }
+      },
+
+      setIncomeCategories: async (categories) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { incomeCategories: categories });
+          set({ incomeCategories: categories, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set income categories';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setIncomeCategories error:', err);
+        }
+      },
+
+      setTransactions: async (transactions) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { transactions });
+          set({
+            transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()),
+            isSaving: false
+          });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set transactions';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setTransactions error:', err);
+        }
+      },
+
+      setAccounts: async (accounts) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { accounts });
+          set({ accounts, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set accounts';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setAccounts error:', err);
+        }
+      },
+
+      setRecurringTransactions: async (recurring) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { recurringTransactions: recurring });
+          set({ recurringTransactions: recurring, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set recurring transactions';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setRecurringTransactions error:', err);
+        }
+      },
+
+      setCarMileage: async (mileage) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { carMileage: mileage });
+          set({ carMileage: mileage, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set car mileage';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setCarMileage error:', err);
+        }
+      },
+
+setEnabledModules: async (modules) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { enabledModules: modules });
+          set({ enabledModules: modules, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set enabled modules';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setEnabledModules error:', err);
+        }
+      },
+
+      toggleModule: async (module) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const newModules = {
+              ...state.enabledModules,
+              [module]: !state.enabledModules[module],
+            };
+            return { enabledModules: newModules, isSaving: false };
+          });
+          const docRef = doc(db, 'users', userId);
+          const newModules = useFinanceStore.getState().enabledModules;
+          await updateDoc(docRef, { enabledModules: newModules });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to toggle module';
+          set((state) => {
+            // Revert the toggle on error
+            const revertedModules = {
+              ...state.enabledModules,
+              [module]: !state.enabledModules[module],
+            };
+            return { saveError: errorMessage, isSaving: false, enabledModules: revertedModules };
+          });
+          console.error('toggleModule error:', err);
+        }
+      },
+
+setBalanceStartDate: async (date) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { balanceStartDate: date });
+          set({ balanceStartDate: date, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set balance start date';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setBalanceStartDate error:', err);
+        }
+      },
+
+      _migrateToMultiAccount: async () => {
+        const defaultAccount = useFinanceStore.getState().accounts.find(a => a.isDefault) || useFinanceStore.getState().accounts[0];
+        if (!defaultAccount) return;
+
+        set((state) => {
+          const updatedTransactions = state.transactions.map(t =>
+            t.accountId ? t : { ...t, accountId: defaultAccount.id }
+          );
+          const updatedRecurring = state.recurringTransactions.map(r =>
+            r.accountId ? r : { ...r, accountId: defaultAccount.id }
+          );
 
           return {
-            transactions: newTransactions,
-            deletedRecurringInstances: newDeletedInstances
+            transactions: updatedTransactions,
+            recurringTransactions: updatedRecurring
           };
         });
-      },
 
-      setCategories: (categories) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { categories });
-        set({ categories });
-      },
-
-      setIncomeCategories: (categories) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { incomeCategories: categories });
-        set({ incomeCategories: categories });
-      },
-
-      setTransactions: (transactions) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { transactions });
-
-        set({
-          transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix())
-        });
-      },
-
-      setAccounts: (accounts) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { accounts });
-        set({ accounts });
-      },
-
-      setRecurringTransactions: (recurring) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { recurringTransactions: recurring });
-        set({ recurringTransactions: recurring });
-      },
-
-      setCarMileage: (mileage) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { carMileage: mileage });
-        set({ carMileage: mileage });
-      },
-
-      setEnabledModules: (modules) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { enabledModules: modules });
-        set({ enabledModules: modules });
-      },
-
-      toggleModule: (module) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        set((state) => {
-          const newModules = {
-            ...state.enabledModules,
-            [module]: !state.enabledModules[module],
-          };
+        set({ saveError: null, isSaving: true });
+        try {
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { enabledModules: newModules });
-          return { enabledModules: newModules };
-        });
+          const currentTransactions = useFinanceStore.getState().transactions;
+          const currentRecurring = useFinanceStore.getState().recurringTransactions;
+          await updateDoc(docRef, {
+            transactions: currentTransactions,
+            recurringTransactions: currentRecurring
+          });
+          set({ isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to migrate to multi-account';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('_migrateToMultiAccount error:', err);
+        }
       },
 
-      setBalanceStartDate: (date) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { balanceStartDate: date });
-        set({ balanceStartDate: date });
-      },
-
-      _migrateToMultiAccount: () => set((state) => {
-        const defaultAccount = state.accounts.find(a => a.isDefault) || state.accounts[0];
-        if (!defaultAccount) return state;
-
-        const updatedTransactions = state.transactions.map(t =>
-          t.accountId ? t : { ...t, accountId: defaultAccount.id }
-        );
-        const updatedRecurring = state.recurringTransactions.map(r =>
-          r.accountId ? r : { ...r, accountId: defaultAccount.id }
-        );
-
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return state;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, {
-          transactions: updatedTransactions,
-          recurringTransactions: updatedRecurring
-        });
-
-        return {
-          transactions: updatedTransactions,
-          recurringTransactions: updatedRecurring
-        };
-      }),
-
-      addCategory: (type, name) => {
+      addCategory: async (type, name) => {
         const newCategory = { name, subcategories: [] };
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        const key = type === 'income' ? 'incomeCategories' : 'categories';
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { [key]: arrayUnion(newCategory) });
 
-        set((state) => ({ [key]: [...state[key], newCategory] }));
+        set({ saveError: null, isSaving: true });
+        try {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          set((state) => ({ [key]: [...state[key], newCategory], isSaving: false }));
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { [key]: arrayUnion(newCategory) });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to add category';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('addCategory error:', err);
+        }
       },
 
-      renameCategory: (type, oldName, newName) => {
+      renameCategory: async (type, oldName, newName) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        set((state) => {
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
-          const updatedTransactions = state.transactions.map(t =>
-            t.type === type && t.category === oldName ? { ...t, category: newName } : t
-          );
-          const updatedRecurring = state.recurringTransactions.map(r =>
-            r.type === type && r.category === oldName ? { ...r, category: newName } : r
-          );
-          const updatedCategories = state[key].map(c => c.name === oldName ? { ...c, name: newName } : c);
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const key = type === 'income' ? 'incomeCategories' : 'categories';
+            const updatedTransactions = state.transactions.map(t =>
+              t.type === type && t.category === oldName ? { ...t, category: newName } : t
+            );
+            const updatedRecurring = state.recurringTransactions.map(r =>
+              r.type === type && r.category === oldName ? { ...r, category: newName } : r
+            );
+            const updatedCategories = state[key].map(c => c.name === oldName ? { ...c, name: newName } : c);
 
-          const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, {
-            [key]: updatedCategories,
-            transactions: updatedTransactions,
-            recurringTransactions: updatedRecurring
+            return {
+              [key]: updatedCategories,
+              transactions: updatedTransactions,
+              recurringTransactions: updatedRecurring,
+              isSaving: false
+            };
           });
-
-          return {
-            [key]: updatedCategories,
-            transactions: updatedTransactions,
-            recurringTransactions: updatedRecurring
-          };
-        });
-      },
-
-      deleteCategory: (type, name) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-
-        set((state) => {
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
-          const cat = state[key].find(c => c.name === name);
-          if (cat && cat.subcategories.length > 0) return state;
-
-          const updatedCategories = state[key].filter(c => c.name !== name);
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { [key]: updatedCategories });
-
-          return { [key]: updatedCategories };
-        });
-      },
-
-      addSubcategory: (type, categoryName, subName) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-
-        set((state) => {
           const key = type === 'income' ? 'incomeCategories' : 'categories';
-          const updatedCategories = state[key].map(c => c.name === categoryName ? { ...c, subcategories: [...c.subcategories, subName] } : c);
-          const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { [key]: updatedCategories });
-          return { [key]: updatedCategories };
-        });
-      },
-
-      renameSubcategory: (type, categoryName, oldName, newName) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-
-        set((state) => {
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
-          const updatedTransactions = state.transactions.map(t =>
-            t.type === type && t.category === categoryName && t.subcategory === oldName ? { ...t, subcategory: newName } : t
-          );
-          const updatedRecurring = state.recurringTransactions.map(r =>
-            r.type === type && r.category === categoryName && r.subcategory === oldName ? { ...r, subcategory: newName } : r
-          );
-          const updatedCategories = state[key].map(c => c.name === categoryName ? {
-            ...c,
-            subcategories: c.subcategories.map(s => s === oldName ? newName : s)
-          } : c);
-
-          const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, {
-            [key]: updatedCategories,
-            transactions: updatedTransactions,
-            recurringTransactions: updatedRecurring
+          const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
+          const transactions = useFinanceStore.getState().transactions;
+          const recurringTransactions = useFinanceStore.getState().recurringTransactions;
+          await updateDoc(docRef, {
+            [key]: categories,
+            transactions: transactions,
+            recurringTransactions: recurringTransactions
           });
-
-          return {
-            [key]: updatedCategories,
-            transactions: updatedTransactions,
-            recurringTransactions: updatedRecurring
-          };
-        });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to rename category';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('renameCategory error:', err);
+        }
       },
 
-      deleteSubcategory: (type, categoryName, subName) => {
+      deleteCategory: async (type, name) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        set((state) => {
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
-          const updatedCategories = state[key].map(c => c.name === categoryName ? {
-            ...c,
-            subcategories: c.subcategories.filter(s => s !== subName)
-          } : c);
-          const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { [key]: updatedCategories });
-          return { [key]: updatedCategories };
-        });
-      },
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const key = type === 'income' ? 'incomeCategories' : 'categories';
+            const cat = state[key].find(c => c.name === name);
+            if (cat && cat.subcategories.length > 0) return state;
 
-      deleteSubcategoryAndRemap: (type, categoryName, subToDelete, remapToSub) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-
-        set((state) => {
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
-          const updatedTransactions = state.transactions.map(t =>
-            (t.type === type && t.category === categoryName && t.subcategory === subToDelete)
-              ? { ...t, subcategory: remapToSub }
-              : t
-          );
-          const updatedRecurring = state.recurringTransactions.map(r =>
-            (r.type === type && r.category === categoryName && r.subcategory === subToDelete)
-              ? { ...r, subcategory: remapToSub }
-              : r
-          );
-          const updatedCategories = state[key].map(c =>
-            c.name === categoryName ? { ...c, subcategories: c.subcategories.filter(s => s !== subToDelete) } : c
-          );
-
-          const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, {
-            [key]: updatedCategories,
-            transactions: updatedTransactions,
-            recurringTransactions: updatedRecurring
+            const updatedCategories = state[key].filter(c => c.name !== name);
+            return { [key]: updatedCategories, isSaving: false };
           });
-
-          return {
-            [key]: updatedCategories,
-            transactions: updatedTransactions,
-            recurringTransactions: updatedRecurring
-          };
-        });
-      },
-
-      moveSubcategory: (type, subName, fromCategory, toCategory) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-
-        set((state) => {
-          if (fromCategory === toCategory) return state;
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
-          const updatedCategories = state[key].map(cat => {
-            if (cat.name === fromCategory) {
-              return { ...cat, subcategories: cat.subcategories.filter(s => s !== subName) };
-            }
-            if (cat.name === toCategory) {
-              return { ...cat, subcategories: [...cat.subcategories, subName] };
-            }
-            return cat;
-          });
-          const updatedTransactions = state.transactions.map(t =>
-            (t.type === type && t.category === fromCategory && t.subcategory === subName)
-              ? { ...t, category: toCategory }
-              : t
-          );
-          const updatedRecurring = state.recurringTransactions.map(r =>
-            (r.type === type && r.category === fromCategory && r.subcategory === subName)
-              ? { ...r, category: toCategory }
-              : r
-          );
-
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, {
-            [key]: updatedCategories,
-            transactions: updatedTransactions,
-            recurringTransactions: updatedRecurring
-          });
-
-          return {
-            [key]: updatedCategories,
-            transactions: updatedTransactions,
-            recurringTransactions: updatedRecurring
-          };
-        });
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
+          await updateDoc(docRef, { [key]: categories });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete category';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('deleteCategory error:', err);
+        }
       },
 
-      addRecurring: (recurring) => {
+      addSubcategory: async (type, categoryName, subName) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const key = type === 'income' ? 'incomeCategories' : 'categories';
+            const updatedCategories = state[key].map(c => c.name === categoryName ? { ...c, subcategories: [...c.subcategories, subName] } : c);
+            return { [key]: updatedCategories, isSaving: false };
+          });
+          const docRef = doc(db, 'users', userId);
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
+          await updateDoc(docRef, { [key]: categories });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to add subcategory';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('addSubcategory error:', err);
+        }
+      },
+
+      renameSubcategory: async (type, categoryName, oldName, newName) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const key = type === 'income' ? 'incomeCategories' : 'categories';
+            const updatedTransactions = state.transactions.map(t =>
+              t.type === type && t.category === categoryName && t.subcategory === oldName ? { ...t, subcategory: newName } : t
+            );
+            const updatedRecurring = state.recurringTransactions.map(r =>
+              r.type === type && r.category === categoryName && r.subcategory === oldName ? { ...r, subcategory: newName } : r
+            );
+            const updatedCategories = state[key].map(c => c.name === categoryName ? {
+              ...c,
+              subcategories: c.subcategories.map(s => s === oldName ? newName : s)
+            } : c);
+
+            return {
+              [key]: updatedCategories,
+              transactions: updatedTransactions,
+              recurringTransactions: updatedRecurring,
+              isSaving: false
+            };
+          });
+          const docRef = doc(db, 'users', userId);
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
+          const transactions = useFinanceStore.getState().transactions;
+          const recurringTransactions = useFinanceStore.getState().recurringTransactions;
+          await updateDoc(docRef, {
+            [key]: categories,
+            transactions: transactions,
+            recurringTransactions: recurringTransactions
+          });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to rename subcategory';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('renameSubcategory error:', err);
+        }
+      },
+
+      deleteSubcategory: async (type, categoryName, subName) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const key = type === 'income' ? 'incomeCategories' : 'categories';
+            const updatedCategories = state[key].map(c => c.name === categoryName ? {
+              ...c,
+              subcategories: c.subcategories.filter(s => s !== subName)
+            } : c);
+            return { [key]: updatedCategories, isSaving: false };
+          });
+          const docRef = doc(db, 'users', userId);
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
+          await updateDoc(docRef, { [key]: categories });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete subcategory';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('deleteSubcategory error:', err);
+        }
+      },
+
+      deleteSubcategoryAndRemap: async (type, categoryName, subToDelete, remapToSub) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const key = type === 'income' ? 'incomeCategories' : 'categories';
+            const updatedTransactions = state.transactions.map(t =>
+              (t.type === type && t.category === categoryName && t.subcategory === subToDelete)
+                ? { ...t, subcategory: remapToSub }
+                : t
+            );
+            const updatedRecurring = state.recurringTransactions.map(r =>
+              (r.type === type && r.category === categoryName && r.subcategory === subToDelete)
+                ? { ...r, subcategory: remapToSub }
+                : r
+            );
+            const updatedCategories = state[key].map(c =>
+              c.name === categoryName ? { ...c, subcategories: c.subcategories.filter(s => s !== subToDelete) } : c
+            );
+
+            return {
+              [key]: updatedCategories,
+              transactions: updatedTransactions,
+              recurringTransactions: updatedRecurring,
+              isSaving: false
+            };
+          });
+          const docRef = doc(db, 'users', userId);
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
+          const transactions = useFinanceStore.getState().transactions;
+          const recurringTransactions = useFinanceStore.getState().recurringTransactions;
+          await updateDoc(docRef, {
+            [key]: categories,
+            transactions: transactions,
+            recurringTransactions: recurringTransactions
+          });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete and remap subcategory';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('deleteSubcategoryAndRemap error:', err);
+        }
+      },
+
+      moveSubcategory: async (type, subName, fromCategory, toCategory) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            if (fromCategory === toCategory) return state;
+            const key = type === 'income' ? 'incomeCategories' : 'categories';
+            const updatedCategories = state[key].map(cat => {
+              if (cat.name === fromCategory) {
+                return { ...cat, subcategories: cat.subcategories.filter(s => s !== subName) };
+              }
+              if (cat.name === toCategory) {
+                return { ...cat, subcategories: [...cat.subcategories, subName] };
+              }
+              return cat;
+            });
+            const updatedTransactions = state.transactions.map(t =>
+              (t.type === type && t.category === fromCategory && t.subcategory === subName)
+                ? { ...t, category: toCategory }
+                : t
+            );
+            const updatedRecurring = state.recurringTransactions.map(r =>
+              (r.type === type && r.category === fromCategory && r.subcategory === subName)
+                ? { ...r, category: toCategory }
+                : r
+            );
+
+            return {
+              [key]: updatedCategories,
+              transactions: updatedTransactions,
+              recurringTransactions: updatedRecurring,
+              isSaving: false
+            };
+          });
+          const docRef = doc(db, 'users', userId);
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
+          const transactions = useFinanceStore.getState().transactions;
+          const recurringTransactions = useFinanceStore.getState().recurringTransactions;
+          await updateDoc(docRef, {
+            [key]: categories,
+            transactions: transactions,
+            recurringTransactions: recurringTransactions
+          });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to move subcategory';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('moveSubcategory error:', err);
+        }
+      },
+
+      addRecurring: async (recurring) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        // Validate recurring transaction before saving
+        const validation = validateRecurringTransaction(recurring);
+        if (!validation.valid) {
+          set({ saveError: validation.error, isSaving: false });
+          return;
+        }
 
         const payload = sanitizeRecurring(recurring);
-
-        set((state) => {
-          const newRecurring = [...state.recurringTransactions, payload].sort((a, b) => a.description.localeCompare(b.description));
-          const sanitizedRecurring = newRecurring.map(sanitizeRecurring);
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const newRecurring = [...state.recurringTransactions, payload].sort((a, b) => a.description.localeCompare(b.description));
+            return { recurringTransactions: newRecurring, isSaving: false };
+          });
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
-          return { recurringTransactions: newRecurring };
-        });
-
-        useFinanceStore.getState().checkRecurring();
+          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(sanitizeRecurring);
+          await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
+          useFinanceStore.getState().checkRecurring();
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to add recurring transaction';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('addRecurring error:', err);
+        }
       },
 
-      updateRecurring: (recurring) => {
+      updateRecurring: async (recurring) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
+
+        // Validate recurring transaction before saving
+        const validation = validateRecurringTransaction(recurring);
+        if (!validation.valid) {
+          set({ saveError: validation.error, isSaving: false });
+          return;
+        }
 
         const payload = sanitizeRecurring(recurring);
-
-        set((state) => {
-          const updatedRecurring = state.recurringTransactions.map(r => r.id === payload.id ? payload : r);
-          const sanitizedRecurring = updatedRecurring.map(sanitizeRecurring);
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedRecurring = state.recurringTransactions.map(r => r.id === payload.id ? payload : r);
+            return { recurringTransactions: updatedRecurring, isSaving: false };
+          });
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
-          return { recurringTransactions: updatedRecurring };
-        });
-
-        useFinanceStore.getState().checkRecurring();
+          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(sanitizeRecurring);
+          await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
+          useFinanceStore.getState().checkRecurring();
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to update recurring transaction';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('updateRecurring error:', err);
+        }
       },
 
-      checkRecurring: () => {
+      checkRecurring: async () => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        set((state) => {
-          const newTransactions: Transaction[] = [];
-          const now = dayjs();
-          const balanceStart = dayjs(state.balanceStartDate);
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const newTransactions: Transaction[] = [];
+            const now = dayjs();
+            const balanceStart = dayjs(state.balanceStartDate);
 
-          state.recurringTransactions.forEach(payload => {
-            const start = dayjs(payload.startDate);
-            let current = start.isAfter(balanceStart) ? start : balanceStart;
-            let safetyCounter = 0;
+            state.recurringTransactions.forEach(payload => {
+              const start = dayjs(payload.startDate);
+              let current = start.isAfter(balanceStart) ? start : balanceStart;
+              let safetyCounter = 0;
 
-            while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
-              if (safetyCounter++ > 1000) break;
+              while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
+                if (safetyCounter++ > 1000) break;
 
-              let targetDate = current.date(payload.dayOfMonth);
-              if (targetDate.month() !== current.month()) {
-                targetDate = current.endOf('month');
-              }
-
-              if (targetDate.isAfter(now, 'day')) break;
-              if (payload.endDate && targetDate.isAfter(dayjs(payload.endDate), 'day')) break;
-
-              if (targetDate.isBefore(start, 'day') || targetDate.isBefore(balanceStart, 'day')) {
-                current = current.add(1, payload.frequency === 'yearly' ? 'year' : 'month');
-                continue;
-              }
-
-              const dateStr = targetDate.format('YYYY-MM-DD');
-
-              // SMARTER CHECK:
-              // 1. Check if it was explicitly deleted within the same period
-              const isDeleted = state.deletedRecurringInstances.some((d: { recurringLinkId: string; date: string }) => {
-                if (d.recurringLinkId !== payload.id) return false;
-                if (payload.frequency === 'yearly') {
-                  return dayjs(d.date).year() === targetDate.year();
+                let targetDate = current.date(payload.dayOfMonth);
+                if (targetDate.month() !== current.month()) {
+                  targetDate = current.endOf('month');
                 }
-                return dayjs(d.date).isSame(targetDate, 'month');
-              });
 
-              // 2. Check if a transaction for this link already exists in the same period (month/year)
-              const existsInPeriod = state.transactions.some(t => {
-                if (t.recurringLinkId !== payload.id) return false;
-                if (payload.frequency === 'yearly') {
-                  return dayjs(t.date).year() === targetDate.year();
+                if (targetDate.isAfter(now, 'day')) break;
+                if (payload.endDate && targetDate.isAfter(dayjs(payload.endDate), 'day')) break;
+
+                if (targetDate.isBefore(start, 'day') || targetDate.isBefore(balanceStart, 'day')) {
+                  current = current.add(1, payload.frequency === 'yearly' ? 'year' : 'month');
+                  continue;
                 }
-                return dayjs(t.date).isSame(targetDate, 'month');
-              });
 
-              if (!isDeleted && !existsInPeriod) {
-                newTransactions.push({
-                  id: crypto.randomUUID(),
-                  date: dateStr,
-                  description: payload.description,
-                  category: payload.category,
-                  subcategory: payload.subcategory,
-                  amount: payload.amount,
-                  type: payload.type,
-                  accountId: payload.accountId,
-                  recurringLinkId: payload.id,
+                const dateStr = targetDate.format('YYYY-MM-DD');
+
+                const isDeleted = state.deletedRecurringInstances.some((d: { recurringLinkId: string; date: string }) => {
+                  if (d.recurringLinkId !== payload.id) return false;
+                  if (payload.frequency === 'yearly') {
+                    return dayjs(d.date).year() === targetDate.year();
+                  }
+                  return dayjs(d.date).isSame(targetDate, 'month');
                 });
+
+                const existsInPeriod = state.transactions.some(t => {
+                  if (t.recurringLinkId !== payload.id) return false;
+                  if (payload.frequency === 'yearly') {
+                    return dayjs(t.date).year() === targetDate.year();
+                  }
+                  return dayjs(t.date).isSame(targetDate, 'month');
+                });
+
+                if (!isDeleted && !existsInPeriod) {
+                  newTransactions.push({
+                    id: crypto.randomUUID(),
+                    date: dateStr,
+                    description: payload.description,
+                    category: payload.category,
+                    subcategory: payload.subcategory,
+                    amount: payload.amount,
+                    type: payload.type,
+                    accountId: payload.accountId,
+                    recurringLinkId: payload.id,
+                  });
+                }
+                current = current.add(1, payload.frequency === 'yearly' ? 'year' : 'month');
               }
-              current = current.add(1, payload.frequency === 'yearly' ? 'year' : 'month');
-            }
+            });
+
+            if (newTransactions.length === 0) return { isSaving: false };
+
+            const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+            return { transactions: allTransactions, isSaving: false };
           });
-
-          if (newTransactions.length === 0) return state;
-
-          const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-          const sanitizedTransactions = allTransactions.map(sanitizeTransaction);
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { transactions: sanitizedTransactions });
-
-          return { transactions: allTransactions };
-        });
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          await updateDoc(docRef, { transactions: sanitizedTransactions });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to check recurring transactions';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('checkRecurring error:', err);
+        }
       },
 
-      deleteRecurring: (id) => {
+      deleteRecurring: async (id) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        set((state) => {
-          const updatedRecurring = state.recurringTransactions.filter(r => r.id !== id);
-          const sanitizedRecurring = updatedRecurring.map(sanitizeRecurring);
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedRecurring = state.recurringTransactions.filter(r => r.id !== id);
+            return { recurringTransactions: updatedRecurring, isSaving: false };
+          });
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
-          return { recurringTransactions: updatedRecurring };
-        });
+          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(sanitizeRecurring);
+          await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete recurring transaction';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('deleteRecurring error:', err);
+        }
       },
 
-      addAccount: (account) => {
+      addAccount: async (account) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { accounts: arrayUnion(account) });
-        set((state) => ({ accounts: [...state.accounts, account] }));
-      },
 
-      updateAccount: (account) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        set((state) => {
-          const updatedAccounts = state.accounts.map(a => a.id === account.id ? account : a);
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => ({ accounts: [...state.accounts, account], isSaving: false }));
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { accounts: updatedAccounts });
-          return { accounts: updatedAccounts };
-        });
+          await updateDoc(docRef, { accounts: arrayUnion(account) });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to add account';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('addAccount error:', err);
+        }
       },
 
-      deleteAccount: (id) => {
+      updateAccount: async (account) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        set((state) => {
-          const updatedAccounts = state.accounts.filter(a => a.id !== id);
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedAccounts = state.accounts.map(a => a.id === account.id ? account : a);
+            return { accounts: updatedAccounts, isSaving: false };
+          });
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { accounts: updatedAccounts });
-          return { accounts: updatedAccounts };
-        });
+          const updatedAccounts = useFinanceStore.getState().accounts;
+          await updateDoc(docRef, { accounts: updatedAccounts });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to update account';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('updateAccount error:', err);
+        }
       },
 
-      setDefaultAccount: (id) => {
+      deleteAccount: async (id) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        set((state) => {
-          const updatedAccounts = state.accounts.map(a => ({ ...a, isDefault: a.id === id }));
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedAccounts = state.accounts.filter(a => a.id !== id);
+            return { accounts: updatedAccounts, isSaving: false };
+          });
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { accounts: updatedAccounts });
-          return { accounts: updatedAccounts };
-        });
+          const updatedAccounts = useFinanceStore.getState().accounts;
+          await updateDoc(docRef, { accounts: updatedAccounts });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete account';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('deleteAccount error:', err);
+        }
       },
 
-      addCarMileage: (record) => {
+      setDefaultAccount: async (id) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { carMileage: arrayUnion(record) });
-        set((state) => ({ carMileage: [...state.carMileage, record] }));
-      },
 
-      updateCarMileage: (record) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        set((state) => {
-          const updatedMileage = state.carMileage.map(m => m.id === record.id ? record : m);
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedAccounts = state.accounts.map(a => ({ ...a, isDefault: a.id === id }));
+            return { accounts: updatedAccounts, isSaving: false };
+          });
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { carMileage: updatedMileage });
-          return { carMileage: updatedMileage };
-        });
+          const updatedAccounts = useFinanceStore.getState().accounts;
+          await updateDoc(docRef, { accounts: updatedAccounts });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set default account';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setDefaultAccount error:', err);
+        }
       },
 
-      deleteCarMileage: (id) => {
+      addCarMileage: async (record) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        set((state) => {
-          const updatedMileage = state.carMileage.filter(m => m.id !== id);
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => ({ carMileage: [...state.carMileage, record], isSaving: false }));
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { carMileage: updatedMileage });
-          return { carMileage: updatedMileage };
-        });
+          await updateDoc(docRef, { carMileage: arrayUnion(record) });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to add car mileage';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('addCarMileage error:', err);
+        }
       },
 
-      setCarInitialMileage: (value) => {
+      updateCarMileage: async (record) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { carInitialMileage: value });
-        set({ carInitialMileage: value });
-      },
 
-      setTireSettings: (settings) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { tireSettings: settings });
-        set({ tireSettings: settings });
-      },
-
-      addTireChange: (record) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { tireChanges: arrayUnion(record) });
-        set((state) => ({ tireChanges: [...state.tireChanges, record] }));
-      },
-
-      updateTireChange: (record) => {
-        const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
-        set((state) => {
-          const updatedChanges = state.tireChanges.map(t => t.id === record.id ? record : t);
+        set({ saveError: null, isSaving: true });
+        try {
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { tireChanges: updatedChanges });
-          return { tireChanges: updatedChanges };
-        });
+          set((state) => {
+            const updatedMileage = state.carMileage.map(m => m.id === record.id ? record : m);
+            return { carMileage: updatedMileage, isSaving: false };
+          });
+          const updatedMileage = useFinanceStore.getState().carMileage;
+          await updateDoc(docRef, { carMileage: updatedMileage });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to update car mileage';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('updateCarMileage error:', err);
+        }
       },
 
-      deleteTireChange: (id) => {
+      deleteCarMileage: async (id) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        set((state) => {
-          const updatedChanges = state.tireChanges.filter(t => t.id !== id);
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedMileage = state.carMileage.filter(m => m.id !== id);
+            return { carMileage: updatedMileage, isSaving: false };
+          });
           const docRef = doc(db, 'users', userId);
-          updateDoc(docRef, { tireChanges: updatedChanges });
-          return { tireChanges: updatedChanges };
-        });
+          const updatedMileage = useFinanceStore.getState().carMileage;
+          await updateDoc(docRef, { carMileage: updatedMileage });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete car mileage';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('deleteCarMileage error:', err);
+        }
       },
 
-      setTireChanges: (records) => {
+      setCarInitialMileage: async (value) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
-        const docRef = doc(db, 'users', userId);
-        updateDoc(docRef, { tireChanges: records });
-        set({ tireChanges: records });
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { carInitialMileage: value });
+          set({ carInitialMileage: value, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set car initial mileage';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setCarInitialMileage error:', err);
+        }
+      },
+
+      setTireSettings: async (settings) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { tireSettings: settings });
+          set({ tireSettings: settings, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set tire settings';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setTireSettings error:', err);
+        }
+      },
+
+      addTireChange: async (record) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => ({ tireChanges: [...state.tireChanges, record], isSaving: false }));
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { tireChanges: arrayUnion(record) });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to add tire change';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('addTireChange error:', err);
+        }
+      },
+
+      updateTireChange: async (record) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedChanges = state.tireChanges.map(t => t.id === record.id ? record : t);
+            return { tireChanges: updatedChanges, isSaving: false };
+          });
+          const docRef = doc(db, 'users', userId);
+          const updatedChanges = useFinanceStore.getState().tireChanges;
+          await updateDoc(docRef, { tireChanges: updatedChanges });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to update tire change';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('updateTireChange error:', err);
+        }
+      },
+
+      deleteTireChange: async (id) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedChanges = state.tireChanges.filter(t => t.id !== id);
+            return { tireChanges: updatedChanges, isSaving: false };
+          });
+          const docRef = doc(db, 'users', userId);
+          const updatedChanges = useFinanceStore.getState().tireChanges;
+          await updateDoc(docRef, { tireChanges: updatedChanges });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete tire change';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('deleteTireChange error:', err);
+        }
+      },
+
+      setTireChanges: async (records) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { tireChanges: records });
+          set({ tireChanges: records, isSaving: false });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to set tire changes';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('setTireChanges error:', err);
+        }
       },
 
       setAll: (data) => set(data),
-    }),
-    {
-      name: 'finance-storage',
-    }
-  )
+
+      clearSaveError: () => set({ saveError: null }),
+    })
 );
