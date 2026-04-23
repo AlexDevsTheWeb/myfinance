@@ -58,4 +58,22 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 
 ---
 
+## Phase 04: Backup & Restore
+
+**Status:** Planned (2026-04-23)
+**Priority:** High (data disaster protection)
+
+**Goal:** Implement backup and restore functionality for user data
+
+**Requirements:**
+- **[BACKUP-01]** User can export all data to downloadable JSON file
+- **[BACKUP-02]** User can import backup file to restore all data
+- **[BACKUP-03]** Backup files must be valid and human-readable JSON
+- **[BACKUP-04]** Data disaster recovery through restore capability
+
+**Plans:**
+- [ ] 04-01-PLAN.md — Implement backup export, restore, and preview functions + ConfigPage UI
+
+---
+
 *Roadmap audit: 2026-04-23*
