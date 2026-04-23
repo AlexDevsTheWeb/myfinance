@@ -24,3 +24,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.agents/
+.agents/*
+.config/
+.config/*
+AGENTS.md

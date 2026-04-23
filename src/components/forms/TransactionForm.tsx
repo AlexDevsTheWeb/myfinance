@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Autocomplete, Box, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, FormHelperText, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 
 interface TransactionFormProps {
@@ -25,9 +25,81 @@ interface TransactionFormProps {
   isRecurring?: boolean;
 }
 
+// Utility subcategories that show consumption fields
+const UTILITY_SUBCATEGORIES = ['Elettricità', 'Gas', 'Acqua', 'Telefono'];
+
+// Validation function for transaction form data
+interface ValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+}
+
+function validateTransactionForm(
+  formData: TransactionFormProps['formData'],
+  isRecurring: boolean
+): ValidationResult {
+  const errors: Record<string, string> = {};
+
+  // Amount validation: must be > 0
+  const amount = typeof formData.amount === 'string' ? parseFloat(formData.amount) : formData.amount;
+  if (amount === undefined || amount === null || isNaN(amount) || amount <= 0) {
+    errors.amount = 'Amount must be greater than 0';
+  }
+
+  // Description validation: required
+  if (!formData.description || formData.description.trim().length === 0) {
+    errors.description = 'Description is required';
+  }
+
+  // Category/Subcategory validation: both required
+  if (!formData.category) {
+    errors.category = 'Category is required';
+  }
+  if (!formData.subcategory) {
+    errors.subcategory = 'Subcategory is required';
+  }
+
+  // Account validation: required
+  if (!formData.accountId) {
+    errors.accountId = 'Account is required';
+  }
+
+  // Date validation: LENIENT per D-01 - no bounds enforced
+  // Only check if provided (optional for recurring)
+  if (!isRecurring && !formData.date) {
+    // Date is optional in formData but we use today's date as default
+  }
+
+  // Recurring-specific validations
+  if (isRecurring) {
+    if (!formData.startDate) {
+      errors.startDate = 'Start date is required';
+    }
+    if (formData.endDate && formData.startDate && formData.endDate < formData.startDate) {
+      errors.endDate = 'End date cannot be before start date';
+    }
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
+
 const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFormData, isRecurring = false }) => {
   const { categories, incomeCategories, transactions, accounts } = useFinanceStore();
   const currentCategories = type === 'income' ? incomeCategories : categories;
+
+  // Form validation errors
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  // Validate on formData changes
+  const validation = useMemo(() => validateTransactionForm(formData, isRecurring), [formData, isRecurring]);
+
+  // Update errors when validation changes
+  useMemo(() => {
+    setFormErrors(validation.errors);
+  }, [validation.errors]);
 
   // Unique descriptions for suggestions based on current type
   const descriptionOptions = useMemo(() => {
@@ -104,9 +176,11 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                 label="Description"
                 variant="filled"
                 placeholder="e.g. Salary, Rent, Grocery"
+                error={!!formErrors.description}
               />
             )}
           />
+          {formErrors.description && <FormHelperText error>{formErrors.description}</FormHelperText>}
         </Grid>
 
         <Grid size={{ xs: 12 }}>
@@ -118,7 +192,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
             value={formData.amount}
             onChange={(e: any) => setFormData({ ...formData, amount: e.target.value })}
             slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }}
+            error={!!formErrors.amount}
           />
+          {formErrors.amount && <FormHelperText error>{formErrors.amount}</FormHelperText>}
         </Grid>
 
         {isRecurring && (
@@ -166,7 +242,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
             }}
             groupBy={(option) => option.category}
             renderInput={(params) => (
-              <TextField {...params} label="Search Subcategory" variant="filled" placeholder="Type to search..." />
+              <TextField
+                {...params}
+                label="Search Subcategory"
+                variant="filled"
+                placeholder="Type to search..."
+                error={!!formErrors.subcategory}
+              />
             )}
             renderOption={(props, option) => {
               const { key, ...rest } = props as any;
@@ -188,7 +270,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
             value={formData.category}
             slotProps={{ input: { readOnly: true } }}
             sx={{ '& .MuiInputBase-input.Mui-readOnly': { opacity: 0.7 } }}
+            error={!!formErrors.category}
           />
+          {formErrors.category && <FormHelperText error>{formErrors.category}</FormHelperText>}
         </Grid>
 
         <Grid size={{ xs: 12 }}>
@@ -199,6 +283,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
             variant="filled"
             value={formData.accountId}
             onChange={(e: any) => setFormData({ ...formData, accountId: e.target.value })}
+            error={!!formErrors.accountId}
           >
             {accounts.map((acc) => (
               <MenuItem key={acc.id} value={acc.id}>
@@ -206,6 +291,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
               </MenuItem>
             ))}
           </TextField>
+          {formErrors.accountId && <FormHelperText error>{formErrors.accountId}</FormHelperText>}
         </Grid>
 
         {isRecurring && (
@@ -235,7 +321,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
           </>
         )}
 
-        {!isRecurring && formData.category === 'Bollette' && (formData.subcategory === 'Elettricità' || formData.subcategory === 'Gas') && (
+        {!isRecurring && formData.subcategory && UTILITY_SUBCATEGORIES.includes(formData.subcategory) && (
           <>
             <Grid size={{ xs: 12 }}>
               <Typography variant="subtitle2" sx={{ opacity: 0.7, mb: 1, mt: 1, fontWeight: 700 }}>Dettagli Utenza (Opzionale)</Typography>

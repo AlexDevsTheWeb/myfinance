@@ -9,10 +9,12 @@ export const useLogout = () => {
 
   const logout = async () => {
     setIsLoggingOut(true);
+    const userId = useAuthStore.getState().user?.uid;
     try {
       await signOut(auth);
-      // Clear Zustand's persisted state
-      localStorage.removeItem('finance-storage');
+      if (userId) {
+        localStorage.removeItem(`finance-storage-${userId}`);
+      }
       navigate('/');
     } catch (error) {
       console.error('Error logging out:', error);

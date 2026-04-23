@@ -3,6 +3,7 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'; // This line is already correct.
 import Layout from './components/layout/Layout';
+import { TransactionError } from './components/TransactionError';
 import { useSyncFinance } from './hooks/useSyncFinance';
 import { auth } from './lib/firebase';
 import AnalysisPage from './pages/AnalysisPage';
@@ -91,6 +92,7 @@ function App() {
           </ProtectedRoute>
         } />
       </Routes>
+      <TransactionError />
     </BrowserRouter>
   );
 }
