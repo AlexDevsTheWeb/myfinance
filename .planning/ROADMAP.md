@@ -76,4 +76,38 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 
 ---
 
+## Phase 05: Cloud Backup (Google Drive)
+
+**Status:** Planned (2026-04-23)
+**Priority:** Medium (convenience feature)
+
+**Goal:** Add optional cloud backup to Google Drive for signed-in Google users
+
+**Requirements:**
+- **[CLOUD-01]** Auto-detect if user logged in with Google Auth
+- **[CLOUD-02]** Upload backup files to user's Google Drive
+- **[CLOUD-03]** Show "Save to Google Drive" button next to download backup
+
+**Plans:**
+- [ ] 05-01-PLAN.md — Google Drive integration for cloud backup
+
+---
+
+## Phase 06: FAB Navigation
+
+**Status:** Planned (2026-04-23)
+**Priority:** High (UX improvement)
+
+**Goal:** Make transaction entry accessible from all pages via single FAB button with dropdown
+
+**Requirements:**
+- **[FAB-01]** Single "+/-" FAB button visible on all pages except Config
+- **[FAB-02]** Dropdown menu shows "New Income" and "New Expense" options
+- **[FAB-03]** Clicking option opens TransactionModal with correct type
+
+**Plans:**
+- [ ] 06-01-PLAN.md — Add FAB with dropdown to Layout, remove from Dashboard
+
+---
+
 *Roadmap audit: 2026-04-23*
