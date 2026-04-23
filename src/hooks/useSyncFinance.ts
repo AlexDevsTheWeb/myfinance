@@ -70,17 +70,17 @@ export const useSyncFinance = () => {
       try {
         await runTransaction(db, async (transaction) => {
           const remoteDoc = await transaction.get(docRef);
-          if (!remoteDoc.exists()) {
-            // console.log(
-            //   'SyncFinance: New user detected, initializing with transaction...'
-            // );
+          if (remoteDoc.exists()) {
+            const data = remoteDoc.data();
+            setAll(data);
+          } else {
             const defaultConfig = getDefaultUserConfig();
             transaction.set(docRef, defaultConfig);
-            setAll(defaultConfig); // Set local state immediately
+            setAll(defaultConfig);
           }
         });
       } catch (error) {
-        console.error('Error in new user transaction:', error);
+        console.error('Error in initializeUser transaction:', error);
       } finally {
         isInitializing.current = false;
       }
