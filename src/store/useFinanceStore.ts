@@ -104,6 +104,7 @@ export function validateRecurringTransaction(r: RecurringTransaction): { valid: 
 }
 
 interface FinanceState {
+  _storedUid?: string;
   initialBalance: number;
   categories: Category[];
   incomeCategories: Category[];
@@ -202,8 +203,22 @@ const sanitizeRecurring = (r: RecurringTransaction): any => {
   };
 };
 
+const partialize = (state: FinanceState): Partial<FinanceState> => ({
+  _storedUid: state._storedUid,
+  initialBalance: state.initialBalance,
+  accounts: state.accounts,
+  categories: state.categories,
+  incomeCategories: state.incomeCategories,
+  balanceStartDate: state.balanceStartDate,
+  enabledModules: state.enabledModules,
+  tireSettings: state.tireSettings,
+  tireChanges: state.tireChanges,
+  carInitialMileage: state.carInitialMileage,
+});
+
 export const useFinanceStore = create<FinanceState>()(
-  persist<FinanceState>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  persist<FinanceState, any, any, Partial<FinanceState>>(
     (set) => ({
       initialBalance: 0,
       accounts: [
@@ -1228,6 +1243,12 @@ setBalanceStartDate: async (date) => {
     }),
     {
       name: 'finance-storage',
+      partialize,
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state._storedUid = useAuthStore.getState().user?.uid;
+        }
+      },
     }
   )
 );
