@@ -72,6 +72,37 @@ export interface TireSettings {
   initialTireType: 'summer' | 'winter';
 }
 
+// Store-level validation functions for transaction data
+export function validateTransaction(t: Transaction): { valid: boolean; error?: string } {
+  if (!t.description?.trim()) {
+    return { valid: false, error: 'Description is required' };
+  }
+  if (typeof t.amount !== 'number' || t.amount <= 0) {
+    return { valid: false, error: 'Amount must be greater than 0' };
+  }
+  if (!t.date || !t.category || !t.subcategory || !t.accountId) {
+    return { valid: false, error: 'Missing required fields' };
+  }
+  // NOTE: No date validation per D-01 ("No hard date bounds")
+  return { valid: true };
+}
+
+export function validateRecurringTransaction(r: RecurringTransaction): { valid: boolean; error?: string } {
+  if (!r.description?.trim()) {
+    return { valid: false, error: 'Description is required' };
+  }
+  if (typeof r.amount !== 'number' || r.amount <= 0) {
+    return { valid: false, error: 'Amount must be greater than 0' };
+  }
+  if (!r.startDate || !r.accountId || !r.category || !r.subcategory) {
+    return { valid: false, error: 'Missing required fields' };
+  }
+  if (r.endDate && r.startDate && r.endDate < r.startDate) {
+    return { valid: false, error: 'End date cannot be before start date' };
+  }
+  return { valid: true };
+}
+
 interface FinanceState {
   initialBalance: number;
   categories: Category[];
@@ -231,6 +262,13 @@ export const useFinanceStore = create<FinanceState>()(
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
+        // Validate transaction before saving
+        const validation = validateTransaction(transaction);
+        if (!validation.valid) {
+          set({ saveError: validation.error, isSaving: false });
+          return;
+        }
+
         set({ saveError: null, isSaving: true });
         try {
           set((state) => {
@@ -254,6 +292,13 @@ export const useFinanceStore = create<FinanceState>()(
       updateTransaction: async (transaction) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
+
+        // Validate transaction before saving
+        const validation = validateTransaction(transaction);
+        if (!validation.valid) {
+          set({ saveError: validation.error, isSaving: false });
+          return;
+        }
 
         set({ saveError: null, isSaving: true });
         try {
@@ -785,6 +830,13 @@ setBalanceStartDate: async (date) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
+        // Validate recurring transaction before saving
+        const validation = validateRecurringTransaction(recurring);
+        if (!validation.valid) {
+          set({ saveError: validation.error, isSaving: false });
+          return;
+        }
+
         const payload = sanitizeRecurring(recurring);
         set({ saveError: null, isSaving: true });
         try {
@@ -806,6 +858,13 @@ setBalanceStartDate: async (date) => {
       updateRecurring: async (recurring) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
+
+        // Validate recurring transaction before saving
+        const validation = validateRecurringTransaction(recurring);
+        if (!validation.valid) {
+          set({ saveError: validation.error, isSaving: false });
+          return;
+        }
 
         const payload = sanitizeRecurring(recurring);
         set({ saveError: null, isSaving: true });
