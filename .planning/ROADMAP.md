@@ -35,9 +35,9 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 ## Future Phases (Suggested)
 
 ### Phase 02: Error Handling Improvements
-- Wrap Firestore operations in try-catch with user notification
-- Add loading states for Firestore writes
-- Show toast/snackbar for network failures
+- [x] Wrap Firestore operations in try-catch with user notification ✓ (2026-04-23)
+- [x] Add loading states for Firestore writes ✓
+- [x] Show toast/snackbar for network failures ✓
 
 ### Phase 03: Input Validation
 - Add amount validation (> 0)
