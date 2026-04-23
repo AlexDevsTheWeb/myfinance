@@ -40,30 +40,21 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 - [x] Show toast/snackbar for network failures ✓
 
 ### Phase 03: Input Validation
-- Add amount validation (> 0)
-- Add date bounds checking
-- Remove hardcoded category logic for utility fields
+- [x] Add amount validation (> 0) ✓ (2026-04-23)
+- [x] Add date bounds checking (lenient per D-01) ✓
+- [x] Remove hardcoded category logic for utility fields ✓
 
-### Phase 04: Test Suite
-- Set up Vitest or Jest
-- Add tests for store functions
-- Add component tests with RTL
-
-### Phase 05: Data Integrity
-- Cascade deletion warnings for accounts
-- Migration flag to prevent repeated migrations
-- Confirmation dialogs for deletes
-
-### Phase 06: Offline Support
-- Service worker configuration
-- Offline indicator
-- Sync queue for offline writes
+**Status:** ✓ Complete (2026-04-23)
+**Plans:**
+- [x] 03-01-PLAN.md — Add input validation for amount, dates, and remove hardcoded category logic
 
 ---
 
 ## Completed Phases
 
-None yet.
+- Phase 01: Firebase Security Rules ✓ Complete (2026-04-23)
+- Phase 02: Error Handling Improvements ✓ Complete (2026-04-23)
+- Phase 03: Input Validation ✓ Complete (2026-04-23)
 
 ---
 
