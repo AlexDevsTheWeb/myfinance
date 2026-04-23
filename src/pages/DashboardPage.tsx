@@ -1,5 +1,5 @@
 import { DirectionsCar as CarIcon } from '@mui/icons-material';
-import { Alert, AlertTitle, Box, Button, Typography } from '@mui/material';
+import { Alert, AlertTitle, Box, Button, Grid, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +17,6 @@ const DashboardPage: React.FC = () => {
   const hasReadingThisMonth = carMileage.some(m => m.month === (dayjs().month() + 1) && m.year === dayjs().year());
   const showMileageReminder = enabledModules.carManagement && isFirstOfMonth && !hasReadingThisMonth;
 
-  // For edit functionality - local to this page
   const [editModalOpen, setEditModalOpen] = React.useState(false);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
   const [editType, setEditType] = React.useState<'income' | 'expense'>('expense');
@@ -30,11 +29,11 @@ const DashboardPage: React.FC = () => {
 
   return (
     <Box sx={{ pb: 10 }}>
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
           Dashboard
         </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.6 }}>
+        <Typography variant="body2" sx={{ opacity: 0.6 }}>
           Welcome back! Here's your financial overview.
         </Typography>
       </Box>
@@ -43,7 +42,7 @@ const DashboardPage: React.FC = () => {
         <Alert
           severity="info"
           icon={<CarIcon fontSize="inherit" />}
-          sx={{ mb: 4, borderRadius: 3, border: '1px solid rgba(2, 136, 209, 0.2)' }}
+          sx={{ mb: 3, borderRadius: 2, border: '1px solid rgba(2, 136, 209, 0.2)' }}
           action={
             <Button color="inherit" size="small" onClick={() => navigate('/car')}>
               Vai alla gestione auto
@@ -55,11 +54,17 @@ const DashboardPage: React.FC = () => {
         </Alert>
       )}
 
-      <RecapCards />
-
-      <Charts />
-
-      <TransactionTable onEdit={handleEditTransaction} limit={10} />
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, lg: 5 }}>
+          <RecapCards />
+          <Box sx={{ mt: 3 }}>
+            <TransactionTable onEdit={handleEditTransaction} limit={8} />
+          </Box>
+        </Grid>
+        <Grid size={{ xs: 12, lg: 7 }}>
+          <Charts />
+        </Grid>
+      </Grid>
 
       <TransactionModal
         open={editModalOpen}

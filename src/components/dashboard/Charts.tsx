@@ -41,11 +41,11 @@ const Charts: React.FC = () => {
 
 
   return (
-    <Paper sx={{ mt: 4 }}>
-      <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
+    <Paper sx={{ p: 2 }}>
+      <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
         Cash Flow Trend
       </Typography>
-      <Box sx={{ height: 350, width: '100%' }}>
+      <Box sx={{ height: 280, width: '100%' }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <defs>
@@ -59,15 +59,15 @@ const Charts: React.FC = () => {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="displayDate" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-            <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `€${v || 0}`} />
+            <XAxis dataKey="displayDate" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
+            <YAxis stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: any) => `€${v || 0}`} />
             <Tooltip
-              contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+              contentStyle={{ background: '#161b2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 2 }}
               itemStyle={{ fontWeight: 600 }}
               formatter={(value: any) => `€ ${Number(value || 0).toLocaleString()}`}
             />
-            <Area type="monotone" dataKey="income" stroke="#10b981" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={3} />
-            <Area type="monotone" dataKey="expense" stroke="#ef4444" fillOpacity={1} fill="url(#colorExpense)" strokeWidth={3} />
+            <Area type="monotone" dataKey="income" stroke="#10b981" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={2} />
+            <Area type="monotone" dataKey="expense" stroke="#ef4444" fillOpacity={1} fill="url(#colorExpense)" strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
       </Box>

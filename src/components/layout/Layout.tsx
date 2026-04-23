@@ -273,7 +273,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
           {drawer}
         </SwipeableDrawer>
       </Box>
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
+      <Container maxWidth={false} sx={{ mt: 3, mb: 3, px: { xs: 2, sm: 3, md: 5 }, flexGrow: 1, maxWidth: '100%' }}>
         {user && pathnames.length > 0 && (
           <Breadcrumbs
             separator={<ChevronRight fontSize="small" sx={{ opacity: 0.5 }} />}

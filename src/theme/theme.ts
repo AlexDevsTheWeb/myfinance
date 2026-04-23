@@ -4,14 +4,14 @@ export const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#6366f1', // Luxury Indigo
+      main: '#5b6cb8', // Muted indigo - less saturated
     },
     secondary: {
-      main: '#ec4899', // Pinkish/Magenta
+      main: '#c026d3', // Less saturated pink
     },
     background: {
-      default: '#0f172a',
-      paper: '#1e293b',
+      default: '#0f1523', // Darker slate
+      paper: '#161b2e', // Slightly darker than before
     },
     success: {
       main: '#10b981',
@@ -28,14 +28,14 @@ export const theme = createTheme({
     h4: { fontWeight: 600 },
   },
   shape: {
-    borderRadius: 12,
+    borderRadius: 2, // Minimal corners
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 8,
+          borderRadius: 2, // Sharp corners
           fontWeight: 600,
         },
       },
@@ -43,11 +43,24 @@ export const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: 4, // Corrisponde a borderRadius: 1 (4px default)
+          borderRadius: 2, // Minimal corners
           overflow: 'hidden',
-          background: 'rgba(30, 41, 59, 0.5)',
-          backdropFilter: 'blur(10px)',
+          background: '#161b2e',
           border: '1px solid rgba(255, 255, 255, 0.05)',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 2,
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 2,
         },
       },
     },
