@@ -19,7 +19,7 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 
 ## Phase 01: Firebase Security Rules
 
-**Status:** Planned
+**Status:** ✓ Complete (2026-04-23)
 **Priority:** Critical (security gap identified in CONCERNS.md)
 
 **Goal:** Implement Firestore security rules to enforce user data isolation
@@ -28,7 +28,7 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 - **[SEC-01]** Firestore security rules must enforce: `request.auth != null && request.auth.uid == resource.data.ownerId` (or document ID match)
 
 **Plans:**
-- [ ] 01-01-PLAN.md — Create and deploy Firestore security rules
+- [x] 01-01-PLAN.md — Create and deploy Firestore security rules ✓
 
 ---
 
