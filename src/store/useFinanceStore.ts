@@ -164,6 +164,20 @@ interface FinanceState {
   setTireChanges: (records: TireChangeRecord[]) => void;
   setAll: (data: Partial<FinanceState>) => void;
   clearSaveError: () => void;
+  exportAllData: () => void;
+  importAllData: (fileOrData: File | object) => Promise<boolean>;
+  previewBackup: (file: File) => Promise<{
+    valid: boolean;
+    error?: string;
+    summary: {
+      transactionCount: number;
+      accountCount: number;
+      recurringCount: number;
+      categoryCount: number;
+      incomeCategoryCount: number;
+      exportedAt: string;
+    } | null;
+  }>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1223,5 +1237,146 @@ setBalanceStartDate: async (date) => {
       setAll: (data) => set(data),
 
       clearSaveError: () => set({ saveError: null }),
+
+      exportAllData: () => {
+        const state = useFinanceStore.getState();
+        const backupData = {
+          version: '1.0',
+          exportedAt: new Date().toISOString(),
+          app: 'myfinance',
+          data: {
+            initialBalance: state.initialBalance,
+            accounts: state.accounts,
+            transactions: state.transactions,
+            recurringTransactions: state.recurringTransactions,
+            categories: state.categories,
+            incomeCategories: state.incomeCategories,
+            enabledModules: state.enabledModules,
+            balanceStartDate: state.balanceStartDate,
+            carMileage: state.carMileage,
+            carInitialMileage: state.carInitialMileage,
+            tireSettings: state.tireSettings,
+            tireChanges: state.tireChanges,
+          }
+        };
+
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `myfinance-backup-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      },
+
+      importAllData: async (fileOrData: File | object) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return false;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          let backup: { version?: string; app?: string; data?: Partial<FinanceState>; state?: Partial<FinanceState> };
+
+          if (fileOrData instanceof File) {
+            const text = await fileOrData.text();
+            backup = JSON.parse(text);
+          } else {
+            backup = fileOrData as { version?: string; app?: string; data?: Partial<FinanceState>; state?: Partial<FinanceState> };
+          }
+
+          let data: Partial<FinanceState>;
+
+          if (backup.version) {
+            if (backup.app !== 'myfinance') {
+              set({ saveError: 'Invalid backup: not a MyFinance backup file', isSaving: false });
+              return false;
+            }
+            data = backup.data ?? {};
+          } else if (backup.state) {
+            data = backup.state;
+          } else {
+            set({ saveError: 'Invalid backup: missing data', isSaving: false });
+            return false;
+          }
+
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, {
+            initialBalance: data.initialBalance ?? 0,
+            accounts: data.accounts ?? [],
+            transactions: data.transactions ?? [],
+            recurringTransactions: data.recurringTransactions ?? [],
+            categories: data.categories ?? [],
+            incomeCategories: data.incomeCategories ?? [],
+            enabledModules: data.enabledModules ?? { financeTracker: true, carManagement: false, utilityTracker: false },
+            balanceStartDate: data.balanceStartDate ?? '2026-01-01',
+            carMileage: data.carMileage ?? [],
+            carInitialMileage: data.carInitialMileage ?? 0,
+            tireSettings: data.tireSettings ?? { summerModel: '', winterModel: '', initialTireType: 'summer' },
+            tireChanges: data.tireChanges ?? [],
+          });
+
+          set({
+            initialBalance: data.initialBalance ?? 0,
+            accounts: data.accounts ?? [],
+            transactions: data.transactions ?? [],
+            recurringTransactions: data.recurringTransactions ?? [],
+            categories: data.categories ?? [],
+            incomeCategories: data.incomeCategories ?? [],
+            enabledModules: data.enabledModules ?? { financeTracker: true, carManagement: false, utilityTracker: false },
+            balanceStartDate: data.balanceStartDate ?? '2026-01-01',
+            carMileage: data.carMileage ?? [],
+            carInitialMileage: data.carInitialMileage ?? 0,
+            tireSettings: data.tireSettings ?? { summerModel: '', winterModel: '', initialTireType: 'summer' },
+            tireChanges: data.tireChanges ?? [],
+            isSaving: false,
+          });
+
+          return true;
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to import backup';
+          set({ saveError: errorMessage, isSaving: false });
+          return false;
+        }
+      },
+
+      previewBackup: async (file: File) => {
+        try {
+          const text = await file.text();
+          const backup = JSON.parse(text);
+
+          let data: Partial<FinanceState>;
+          let exportedAt = 'Unknown';
+
+          if (backup.version && backup.app === 'myfinance') {
+            data = backup.data ?? {};
+            exportedAt = backup.exportedAt ?? 'Unknown';
+          } else if (backup.state) {
+            data = backup.state;
+            exportedAt = backup.exportedAt ?? backup.createdAt ?? 'Unknown';
+          } else {
+            return { valid: false, error: 'Invalid backup: not a MyFinance backup file', summary: null };
+          }
+
+          return {
+            valid: true,
+            summary: {
+              transactionCount: data.transactions?.length ?? 0,
+              accountCount: data.accounts?.length ?? 0,
+              recurringCount: data.recurringTransactions?.length ?? 0,
+              categoryCount: data.categories?.length ?? 0,
+              incomeCategoryCount: data.incomeCategories?.length ?? 0,
+              exportedAt,
+            },
+          };
+        } catch (err) {
+          return {
+            valid: false,
+            error: err instanceof Error ? err.message : 'Failed to read backup file',
+            summary: null,
+          };
+        }
+      },
     })
 );

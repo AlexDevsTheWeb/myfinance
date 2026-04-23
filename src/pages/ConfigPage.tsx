@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DndContext, type DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
-import { AccountBalance, Add as AddIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Repeat, TrendingDown, TrendingUp, ViewQuilt } from '@mui/icons-material';
+import { AccountBalance, Add as AddIcon, Backup as BackupIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, Repeat, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
 import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Switch, Tab, Tabs, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
@@ -142,7 +142,12 @@ const ConfigPage: React.FC = () => {
     balanceStartDate,
     setBalanceStartDate,
     enabledModules,
-    toggleModule
+    toggleModule,
+    exportAllData,
+    importAllData,
+    previewBackup,
+    isSaving,
+    saveError,
   } = useFinanceStore();
 
   const [tabValue, setTabValue] = React.useState(0);
@@ -182,6 +187,17 @@ const ConfigPage: React.FC = () => {
     accountId: '',
     frequency: 'monthly' as 'monthly' | 'yearly'
   });
+
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<{
+    transactionCount: number;
+    accountCount: number;
+    recurringCount: number;
+    categoryCount: number;
+    incomeCategoryCount: number;
+    exportedAt: string;
+  } | null>(null);
+  const [importFile, setImportFile] = useState<File | null>(null);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -259,6 +275,34 @@ const ConfigPage: React.FC = () => {
       deleteSubcategoryAndRemap(remapConfig.type, remapConfig.categoryName, remapConfig.subToDelete, remapTarget);
       handleCloseRemapDialog();
     }
+  };
+
+  const handleImportBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const result = await previewBackup(file);
+    if (!result.valid) {
+      alert(result.error);
+      return;
+    }
+    setPreviewData(result.summary);
+    setImportFile(file);
+    setPreviewDialogOpen(true);
+  };
+
+  const handleConfirmRestore = async () => {
+    setPreviewDialogOpen(false);
+    if (!importFile) return;
+
+    const success = await importAllData(importFile);
+    if (success) {
+      alert('Backup ripristinato con successo!');
+    } else {
+      alert(saveError || 'Errore nel ripristino del backup');
+    }
+    setPreviewData(null);
+    setImportFile(null);
   };
 
   const handleConfirm = () => {
@@ -426,6 +470,7 @@ const ConfigPage: React.FC = () => {
             <Tab icon={<Repeat sx={{ mr: 1 }} />} iconPosition="start" label="Recurring" />
             <Tab icon={<TrendingDown sx={{ mr: 1 }} />} iconPosition="start" label="Expenses" />
             <Tab icon={<TrendingUp sx={{ mr: 1 }} />} iconPosition="start" label="Incomes" />
+            <Tab icon={<BackupIcon sx={{ mr: 1 }} />} iconPosition="start" label="Backup" />
           </Tabs>
         </Box>
 
@@ -603,6 +648,58 @@ const ConfigPage: React.FC = () => {
           {renderExplodedList(sortedIncome, 'income')}
         </TabPanel>
 
+        <TabPanel value={tabValue} index={5}>
+          <Paper sx={{ p: 3, mb: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              Esporta Backup
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
+              Scarica tutti i tuoi dati in un file JSON. Usa questo per:
+            </Typography>
+            <List dense>
+              <ListItem><ListItemText primary="Esportare i dati su un altro dispositivo" /></ListItem>
+              <ListItem><ListItemText primary="Proteggerti da perdite di dati" /></ListItem>
+              <ListItem><ListItemText primary="Archiviare i tuoi dati manualmente" /></ListItem>
+            </List>
+            <Button
+              variant="contained"
+              startIcon={<Download />}
+              onClick={exportAllData}
+              disabled={isSaving}
+            >
+              Scarica Backup
+            </Button>
+          </Paper>
+
+          <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+              Ripristina da Backup
+            </Typography>
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>Attenzione!</Typography>
+              Il ripristino sovrascriverà tutti i dati attuali. Assicurati di aver esportato un backup prima di procedere.
+            </Alert>
+            <input
+              type="file"
+              accept=".json"
+              id="backup-import"
+              hidden
+              onChange={handleImportBackup}
+            />
+            <label htmlFor="backup-import">
+              <Button
+                component="span"
+                variant="outlined"
+                startIcon={<Upload />}
+                disabled={isSaving}
+                sx={{ cursor: 'pointer' }}
+              >
+                Seleziona File
+              </Button>
+            </label>
+          </Paper>
+        </TabPanel>
+
         {/* Global Dialog for Add/Edit/Rename */}
         <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth={dialogConfig?.type === 'recurring' ? 'sm' : 'xs'} PaperProps={{ sx: { background: '#1e293b', borderRadius: 4 } }}>
           <DialogTitle sx={{ fontWeight: 800 }}>
@@ -695,6 +792,44 @@ const ConfigPage: React.FC = () => {
               disabled={!remapTarget}
             >
               Confirm Deletion & Move
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Backup Preview Dialog */}
+        <Dialog open={previewDialogOpen} onClose={() => setPreviewDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { background: '#1e293b', borderRadius: 4 } }}>
+          <DialogTitle sx={{ fontWeight: 800 }}>Anteprima Backup</DialogTitle>
+          <DialogContent>
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Il backup verrà ripristinato con i seguenti dati:
+            </Alert>
+            {previewData && (
+              <List dense>
+                <ListItem>
+                  <ListItemText primary="Transazioni" secondary={`${previewData.transactionCount} transazioni`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Conti" secondary={`${previewData.accountCount} conti`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Transazioni Ricorrenti" secondary={`${previewData.recurringCount} template`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Categorie Spesa" secondary={`${previewData.categoryCount} categorie`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Categorie Entrata" secondary={`${previewData.incomeCategoryCount} categorie`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Esportato il" secondary={new Date(previewData.exportedAt).toLocaleString('it-IT')} />
+                </ListItem>
+              </List>
+            )}
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={() => setPreviewDialogOpen(false)} color="inherit">Annulla</Button>
+            <Button onClick={handleConfirmRestore} variant="contained" color="warning" disabled={isSaving}>
+              {isSaving ? 'Ripristino in corso...' : 'Conferma Ripristino'}
             </Button>
           </DialogActions>
         </Dialog>
