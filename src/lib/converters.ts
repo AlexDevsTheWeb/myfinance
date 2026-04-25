@@ -112,6 +112,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       startDate: r.startDate ?? '',
       endDate: r.endDate,
       frequency: r.frequency === 'yearly' || r.frequency === 'monthly' ? r.frequency : 'monthly',
+      ...(r.monthOfYear ? { monthOfYear: r.monthOfYear } : {}),
     })) : [];
 
     const carMileage: CarMileageRecord[] = Array.isArray(data.carMileage) ? data.carMileage.map((m: any) => ({

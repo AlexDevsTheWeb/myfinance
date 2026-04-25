@@ -108,106 +108,73 @@ const UtilitiesPage: React.FC = () => {
   }
 
   const renderDashboard = (stats: Stats, title: string, unit: string, color: string, icon: React.ReactNode) => (
-    <Grid container spacing={4}>
-      <Grid size={{ xs: 12, md: 3 }}>
-        <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, height: '100%', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              {icon}
-              <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', ml: 1 }}>Totale {title} ({selectedYear})</Typography>
-            </Box>
-            <Typography variant="h4" sx={{ fontWeight: 900, color }}>{stats.totalCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
-            <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Costo totale anno {selectedYear}</Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid size={{ xs: 12, md: 3 }}>
-        <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, height: '100%', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <TrendingUpIcon sx={{ opacity: 0.8, mr: 1 }} />
-              <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Proiezione Mensile</Typography>
-            </Box>
-            <Typography variant="h4" sx={{ fontWeight: 900 }}>{stats.avgMonthlyCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
-            <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Media costo mensile</Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid size={{ xs: 12, md: 3 }}>
-        <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, height: '100%', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Consumo Totale</Typography>
-            </Box>
-            <Typography variant="h4" sx={{ fontWeight: 900 }}>{stats.totalConsumption.toLocaleString('it-IT')} <small style={{ fontSize: '1rem', opacity: 0.7 }}>{unit}</small></Typography>
-            <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Consumo cumulativo {selectedYear}</Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid size={{ xs: 12, md: 3 }}>
-        <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, height: '100%', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Costo Unitario Medio</Typography>
-            </Box>
-            <Typography variant="h4" sx={{ fontWeight: 900, color: '#f59e0b' }}>{stats.avgUnitCost.toFixed(3)} <small style={{ fontSize: '1rem', opacity: 0.7 }}>€/{unit}</small></Typography>
-            <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Media annuale</Typography>
-          </CardContent>
-        </Card>
+    <Grid container spacing={3}>
+      <Grid size={{ xs: 12 }}>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
+              <CardContent sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  {icon}
+                  <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', ml: 1 }}>Totale {title}</Typography>
+                </Box>
+                <Typography variant="h5" sx={{ fontWeight: 900, color }}>{stats.totalCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
+              <CardContent sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <TrendingUpIcon sx={{ opacity: 0.8, mr: 0.5, fontSize: 18 }} />
+                  <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Mensile</Typography>
+                </Box>
+                <Typography variant="h5" sx={{ fontWeight: 900 }}>{stats.avgMonthlyCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
+              <CardContent sx={{ p: 2 }}>
+                <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Consumo Totale</Typography>
+                <Typography variant="h5" sx={{ fontWeight: 900 }}>{stats.totalConsumption.toLocaleString('it-IT')} <small style={{ fontSize: '0.8rem', opacity: 0.7 }}>{unit}</small></Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
+              <CardContent sx={{ p: 2 }}>
+                <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Costo Unitario</Typography>
+                <Typography variant="h5" sx={{ fontWeight: 900, color: '#f59e0b' }}>{stats.avgUnitCost.toFixed(3)} <small style={{ fontSize: '0.8rem', opacity: 0.7 }}>€/{unit}</small></Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Grid>
 
-      <Grid size={{ xs: 12 }}>
-        <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 4 }}>Andamento Consumi e Costo Unitario</Typography>
-          <Box sx={{ height: 350, width: '100%' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={stats.chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="period" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis yAxisId="left" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0} ${unit}`} />
-                <YAxis yAxisId="right" orientation="right" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0}€`} />
-                <Tooltip
-                  contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                  itemStyle={{ fontWeight: 600 }}
-                  formatter={(value: any) => `${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
-                />
-                <Line yAxisId="left" type="monotone" dataKey="consumption" name={`Consumo (${unit})`} stroke={color} strokeWidth={3} dot={{ r: 4, fill: color }} />
-                <Line yAxisId="right" type="monotone" dataKey="unitCost" name={`Costo Unitario (€/${unit})`} stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: '#f59e0b' }} strokeDasharray="5 5" />
-              </LineChart>
-            </ResponsiveContainer>
-          </Box>
-        </Paper>
-      </Grid>
-
-      <Grid size={{ xs: 12 }}>
-        <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 800, mb: 3 }}>Storico Bollette</Typography>
-          <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 3 }}>
-            <Table>
+      <Grid size={{ xs: 12, lg: 7 }}>
+        <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Storico Bollette</Typography>
+          <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
+            <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700, opacity: 0.7 }}>Data Pagamento</TableCell>
-                  <TableCell sx={{ fontWeight: 700, opacity: 0.7 }}>Periodo Riferimento</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Importo</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Consumo</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Costo Unitario</TableCell>
+                  <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Data</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Importo</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Consumo</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {stats.history.map((row: Stats['history'][number]) => (
                   <TableRow key={row.id}>
-                    <TableCell>{dayjs(row.date).format('DD/MM/YYYY')}</TableCell>
-                    <TableCell>{row.readingDateStart ? `${dayjs(row.readingDateStart).format('DD/MM/YY')} - ${dayjs(row.readingDateEnd).format('DD/MM/YY')}` : '-'}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>{row.amount.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</TableCell>
-                    <TableCell align="right">{row.consumption ? `${row.consumption} ${unit}` : '-'}</TableCell>
-                    <TableCell align="right" sx={{ color: '#f59e0b', fontWeight: 700 }}>
-                      {row.consumption ? `${(row.amount / row.consumption).toFixed(3)} €/${unit}` : '-'}
-                    </TableCell>
+                    <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('DD/MM/YY')}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700, p: 1 }}>{row.amount.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</TableCell>
+                    <TableCell align="right" sx={{ p: 1 }}>{row.consumption ? `${row.consumption} ${unit}` : '-'}</TableCell>
                   </TableRow>
                 ))}
                 {stats.history.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 4, opacity: 0.5 }}>Nessuna bolletta trovata.</TableCell>
+                    <TableCell colSpan={3} align="center" sx={{ py: 2, opacity: 0.5 }}>Nessuna bolletta.</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -215,15 +182,44 @@ const UtilitiesPage: React.FC = () => {
           </TableContainer>
         </Paper>
       </Grid>
+
+      <Grid size={{ xs: 12, lg: 5 }}>
+        <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Andamento Consumi</Typography>
+          <Box sx={{ height: 300, width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={stats.chartData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="period" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis yAxisId="left" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0}`} />
+                <YAxis yAxisId="right" orientation="right" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0}€`} />
+                <Tooltip
+                  contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                  itemStyle={{ fontWeight: 600 }}
+                  formatter={(value: any) => `${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
+                />
+                <Line yAxisId="left" type="monotone" dataKey="consumption" name={`Consumo`} stroke={color} strokeWidth={3} dot={{ r: 4, fill: color }} />
+                <Line yAxisId="right" type="monotone" dataKey="unitCost" name={`Costo Unit.`} stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: '#f59e0b' }} strokeDasharray="5 5" />
+              </LineChart>
+            </ResponsiveContainer>
+          </Box>
+        </Paper>
+      </Grid>
     </Grid>
   );
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
-          Utenze e Consumi Energetici
-        </Typography>
+    <Box sx={{ pb: 6 }}>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <ElecIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+            Utilities
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: 0.6 }}>
+            Monitor your utility expenses and consumption trends.
+          </Typography>
+        </Box>
         <YearSelector
           availableYears={availableYears}
           selectedYear={selectedYear}
@@ -231,7 +227,7 @@ const UtilitiesPage: React.FC = () => {
         />
       </Box>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} textColor="inherit" indicatorColor="primary">
           <Tab label="Elettricità" icon={<ElecIcon />} iconPosition="start" />
           <Tab label="Gas" icon={<GasIcon />} iconPosition="start" />

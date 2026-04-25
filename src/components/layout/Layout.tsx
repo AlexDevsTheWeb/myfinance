@@ -1,13 +1,15 @@
 import { BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event as DateIcon, Bolt as ElecIcon, AccountBalance as FinanceIcon, Home, KeyboardArrowDown, ExitToApp as LogoutIcon, Menu as MenuIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
 import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/it';
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLogout } from '../../hooks/useLogout';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useFinanceStore } from '../../store/useFinanceStore';
+import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 import { getEnvVar } from '../../utils/variables.utils';
+import TransactionModal from '../modals/TransactionModal';
 
 // Set dayjs to Italian
 dayjs.locale('it');
@@ -25,16 +27,32 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorElFinance, setAnchorElFinance] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
+  const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
+  const [fabOpen, setFabOpen] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  const handleToggleFab = () => {
+    setFabOpen(!fabOpen);
+  };
+
+  const handleCloseFab = () => setFabOpen(false);
 
   const handleOpenFinance = (event: React.MouseEvent<HTMLElement>) => setAnchorElFinance(event.currentTarget);
   const handleCloseFinance = () => setAnchorElFinance(null);
 
   const handleOpenUser = (event: React.MouseEvent<HTMLElement>) => setAnchorElUser(event.currentTarget);
   const handleCloseUser = () => setAnchorElUser(null);
+
+  const handleFabSelect = (type: 'income' | 'expense') => {
+    setTransactionToEdit(null);
+    setModalType(type);
+    setModalOpen(true);
+  };
 
   const logout = useLogout();
 
@@ -255,7 +273,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
           {drawer}
         </SwipeableDrawer>
       </Box>
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
+      <Container maxWidth={false} sx={{ mt: 3, mb: 3, px: { xs: 2, sm: 3, md: 5 }, flexGrow: 1, maxWidth: '100%' }}>
         {user && pathnames.length > 0 && (
           <Breadcrumbs
             separator={<ChevronRight fontSize="small" sx={{ opacity: 0.5 }} />}
@@ -320,6 +338,80 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
         )}
         {children}
       </Container>
+
+      {user && location.pathname !== '/config' && (
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            display: 'flex',
+            flexDirection: 'column-reverse',
+            alignItems: 'center',
+            gap: 1,
+            zIndex: 1000,
+          }}
+        >
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleToggleFab}
+            sx={{
+              borderRadius: 2,
+              boxShadow: '0 8px 32px rgba(99, 102, 241, 0.4)',
+              fontWeight: 800,
+              minWidth: 120,
+            }}
+          >
+            +
+          </Button>
+          {fabOpen && (
+            <>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<ArrowUpward />}
+                onClick={() => { handleFabSelect('income'); handleCloseFab(); }}
+                sx={{
+                  borderRadius: 2,
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
+                  animation: 'fadeIn 0.2s ease-in',
+                  '@keyframes fadeIn': {
+                    from: { opacity: 0, transform: 'translateY(10px)' },
+                    to: { opacity: 1, transform: 'translateY(0)' },
+                  },
+                }}
+              >
+                New Income
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<ArrowDownward />}
+                onClick={() => { handleFabSelect('expense'); handleCloseFab(); }}
+                sx={{
+                  borderRadius: 2,
+                  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)',
+                  animation: 'fadeIn 0.2s ease-in 0.05s both',
+                  '@keyframes fadeIn': {
+                    from: { opacity: 0, transform: 'translateY(10px)' },
+                    to: { opacity: 1, transform: 'translateY(0)' },
+                  },
+                }}
+              >
+                New Expense
+              </Button>
+            </>
+          )}
+        </Box>
+      )}
+
+      <TransactionModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        type={modalType}
+        transaction={transactionToEdit}
+      />
     </Box>
   );
 };

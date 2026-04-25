@@ -109,9 +109,9 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
             />
             <Tooltip
               contentStyle={{
-                background: '#1e293b',
+                background: '#161b2e',
                 border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
+                borderRadius: 2,
                 boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)',
               }}
               itemStyle={{ fontWeight: 600 }}

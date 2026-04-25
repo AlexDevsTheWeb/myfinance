@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Delete as DeleteIcon, Edit as EditIcon, LocalGasStation as FuelIcon, Settings as SettingsIcon, Speed as SpeedIcon, DriveEta as TireIcon, TrendingUp as TrendingUpIcon } from '@mui/icons-material';
-import { Box, Button, Card, CardContent, Collapse, FormControlLabel, Grid, IconButton, MenuItem, Paper, Radio, RadioGroup, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, TextField, Typography } from '@mui/material';
+import { Edit as EditIcon, LocalGasStation as FuelIcon, Speed as SpeedIcon, DriveEta as TireIcon } from '@mui/icons-material';
+import { Box, Button, Card, CardContent, Collapse, Grid, IconButton, MenuItem, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -29,8 +29,8 @@ function TabPanel(props: TabPanelProps) {
 
 const CarPage: React.FC = () => {
   const {
-    carMileage, carInitialMileage, setCarInitialMileage, addCarMileage, updateCarMileage, deleteCarMileage,
-    tireSettings, tireChanges, setTireSettings, addTireChange, updateTireChange, deleteTireChange,
+    carMileage, carInitialMileage, setCarInitialMileage, addCarMileage, updateCarMileage,
+    tireSettings, tireChanges, addTireChange, updateTireChange,
     transactions
   } = useFinanceStore();
 
@@ -46,12 +46,6 @@ const CarPage: React.FC = () => {
   const [initialMileageValue, setInitialMileageValue] = useState(carInitialMileage.toString());
 
   // Tire State
-  const [tireModelEdit, setTireModelEdit] = useState({
-    summer: tireSettings.summerModel,
-    winter: tireSettings.winterModel,
-    initialType: tireSettings.initialTireType || 'summer'
-  });
-  const [isEditingTireModels, setIsEditingTireModels] = useState(false);
   const [newTireChange, setNewTireChange] = useState({ date: dayjs().format('YYYY-MM-DD'), type: 'winter' as 'summer' | 'winter', odometer: '' });
   const [editingTireChangeId, setEditingTireChangeId] = useState<string | null>(null);
 
@@ -232,15 +226,6 @@ const CarPage: React.FC = () => {
     }
   };
 
-  const handleSaveTireModels = () => {
-    setTireSettings({
-      summerModel: tireModelEdit.summer,
-      winterModel: tireModelEdit.winter,
-      initialTireType: tireModelEdit.initialType as 'summer' | 'winter'
-    });
-    setIsEditingTireModels(false);
-  };
-
   const handleSaveTireChange = () => {
     const odo = parseFloat(newTireChange.odometer);
     if (isNaN(odo)) return;
@@ -262,46 +247,45 @@ const CarPage: React.FC = () => {
     setEditingTireChangeId(null);
   };
 
+  // Note: handleEditTireChange not currently used but kept for future edit feature
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleEditTireChange = (record: TireChangeRecord) => {
-    setEditingTireChangeId(record.id);
     setNewTireChange({ date: record.date, type: record.type, odometer: record.odometer.toString() });
   };
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
-          Gestione Automobile
-        </Typography>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {tabValue !== 1 && ( // Hide year filter only on Tires tab if preferred, but usually keep it
-            <YearSelector
-              availableYears={availableYears}
-              selectedYear={selectedYearFilter}
-              onYearChange={setSelectedYearFilter}
-            />
-          )}
-          <IconButton onClick={() => setShowSettings(!showSettings)} color={showSettings ? "primary" : "default"}>
-            <SettingsIcon />
-          </IconButton>
+    <Box sx={{ pb: 6 }}>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <SpeedIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+            Car Management
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: 0.6 }}>
+            Track mileage, tires, and fuel efficiency.
+          </Typography>
         </Box>
+        <YearSelector
+          availableYears={availableYears}
+          selectedYear={selectedYearFilter}
+          onYearChange={setSelectedYearFilter}
+        />
       </Box>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 3 }}>
         <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} textColor="inherit" indicatorColor="primary">
-          <Tab label="Chilometraggio" icon={<SpeedIcon />} iconPosition="start" />
-          <Tab label="Pneumatici" icon={<TireIcon />} iconPosition="start" />
-          <Tab label="Analisi Costi" icon={<FuelIcon />} iconPosition="start" />
+          <Tab label="Mileage" icon={<SpeedIcon />} iconPosition="start" />
+          <Tab label="Tires" icon={<TireIcon />} iconPosition="start" />
+          <Tab label="Fuel" icon={<FuelIcon />} iconPosition="start" />
         </Tabs>
       </Box>
 
       <Collapse in={showSettings}>
-        <Paper sx={{ p: 3, mb: 4, background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Impostazioni Veicolo</Typography>
+        <Paper sx={{ p: 3, mb: 3, background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Vehicle Settings</Typography>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <TextField
-              label="Km iniziali (al momento dell'acquisto o inizio tracking)"
+              label="Initial Km"
               type="number"
               value={initialMileageValue}
               onChange={(e: any) => setInitialMileageValue(e.target.value)}
@@ -309,132 +293,94 @@ const CarPage: React.FC = () => {
               size="small"
               sx={{ flexGrow: 1 }}
             />
-            <Button variant="contained" onClick={handleSaveInitialMileage}>Salva Baseline</Button>
+            <Button variant="contained" onClick={handleSaveInitialMileage}>Save</Button>
           </Box>
-          <Typography variant="caption" sx={{ mt: 1, display: 'block', opacity: 0.6 }}>
-            Questo valore verrà usato come base per calcolare la distanza percorsa dalla tua prima registrazione.
-          </Typography>
         </Paper>
       </Collapse>
 
       {/* CHILOMETRAGGIO TAB */}
       <TabPanel value={tabValue} index={0}>
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', borderRadius: 4, height: '100%', boxShadow: '0 8px 32px rgba(37, 99, 235, 0.3)' }}>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, lg: 5 }}>
+            <Card sx={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', borderRadius: 4, boxShadow: '0 8px 32px rgba(37, 99, 235, 0.3)', mb: 3 }}>
               <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <SpeedIcon sx={{ mr: 1, opacity: 0.8 }} />
-                  <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Km Totali Veicolo</Typography>
+                  <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Total Km</Typography>
                 </Box>
-                <Typography variant="h3" sx={{ fontWeight: 900 }}>{totalOdometer.toLocaleString('it-IT')} <small style={{ fontSize: '1.2rem', opacity: 0.7 }}>km</small></Typography>
-                <Typography variant="body2" sx={{ mt: 1, opacity: 0.8 }}>Distanza totale registrata</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 900 }}>{totalOdometer.toLocaleString('it-IT')} <small style={{ fontSize: '1rem', opacity: 0.7 }}>km</small></Typography>
               </CardContent>
             </Card>
-          </Grid>
 
-          <Grid size={{ xs: 12, md: 8 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
-                {editingId ? 'Modifica Lettura' : 'Registra Nuova Lettura'}
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', mb: 3 }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 2 }}>
+                {editingId ? 'Edit Reading' : 'New Reading'}
               </Typography>
-              <Grid container spacing={2} alignItems="center">
-                <Grid size={{ xs: 12, sm: 3 }}>
-                  <TextField select fullWidth label="Mese" value={selectedMonth} onChange={(e: any) => setSelectedMonth(Number(e.target.value))} variant="filled" SelectProps={{ native: true }}>
-                    {months.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 4 }}>
+                  <TextField select fullWidth label="Month" value={selectedMonth} onChange={(e: any) => setSelectedMonth(Number(e.target.value))} variant="filled" SelectProps={{ native: true }} size="small">
+                    {months.map((m, i) => <option key={m} value={i + 1}>{m.substring(0, 3)}</option>)}
                   </TextField>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 3 }}>
-                  <TextField type="number" fullWidth label="Anno" value={selectedYear} onChange={(e: any) => setSelectedYear(Number(e.target.value))} variant="filled" />
+                <Grid size={{ xs: 4 }}>
+                  <TextField type="number" fullWidth label="Year" value={selectedYear} onChange={(e: any) => setSelectedYear(Number(e.target.value))} variant="filled" size="small" />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <TextField type="number" fullWidth label="Km sul cruscotto" value={newReading} onChange={(e: any) => setNewReading(e.target.value)} variant="filled" placeholder="Esempio: 45200" />
+                <Grid size={{ xs: 4 }}>
+                  <Button fullWidth variant="contained" onClick={handleSaveMileage}>{editingId ? 'Update' : 'Save'}</Button>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 2 }}>
-                  <Button fullWidth variant="contained" size="large" onClick={handleSaveMileage} sx={{ height: 56, borderRadius: 2 }}>
-                    {editingId ? 'Aggiorna' : 'Salva'}
-                  </Button>
+                <Grid size={{ xs: 12 }}>
+                  <TextField type="number" fullWidth label="Odometer" value={newReading} onChange={(e: any) => setNewReading(e.target.value)} variant="filled" placeholder="e.g. 45200" />
                 </Grid>
               </Grid>
             </Paper>
-          </Grid>
 
-          {yearStats.chartData.length > 0 && (
-            <Grid size={{ xs: 12 }}>
-              <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 4 }}>Andamento Chilometri Percorsi ({selectedYearFilter})</Typography>
-                <Box sx={{ height: 300, width: '100%' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={yearStats.chartData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                      <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0} km`} />
-                      <Tooltip
-                        contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                        itemStyle={{ fontWeight: 600 }}
-                        formatter={(value: any) => [`${Number(value || 0).toLocaleString()} km`, 'Chilometraggio']}
-                      />
-                      <Line type="monotone" dataKey="km" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </Box>
-              </Paper>
-            </Grid>
-          )}
-
-          <Grid size={{ xs: 12 }}>
-            <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 4 }}>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 800 }}>Statistiche {selectedYearFilter}</Typography>
-                  <Typography variant="body2" sx={{ opacity: 0.6 }}>Riepilogo mensile dei chilometri percorsi</Typography>
-                </Box>
-                <Box sx={{ textAlign: 'right', display: 'flex', gap: 4 }}>
-                  <Box>
-                    <Typography variant="caption" sx={{ display: 'block', opacity: 0.5, fontWeight: 700, textTransform: 'uppercase' }}>Totale Anno</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#6366f1' }}>{yearStats.totalKmYear.toLocaleString('it-IT')} km</Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" sx={{ display: 'block', opacity: 0.5, fontWeight: 700, textTransform: 'uppercase' }}>Media Mensile</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#10b981' }}>{Math.round(yearStats.avgKmYear).toLocaleString('it-IT')} km</Typography>
-                  </Box>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 800 }}>Statistics {selectedYearFilter}</Typography>
+                <Box sx={{ textAlign: 'right' }}>
+                  <Typography variant="caption" sx={{ display: 'block', opacity: 0.5, fontWeight: 700 }}>Total</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#6366f1' }}>{yearStats.totalKmYear.toLocaleString()} km</Typography>
                 </Box>
               </Box>
-
-              <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 3 }}>
-                <Table>
+              <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
+                <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700, opacity: 0.7 }}>Mese</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Lettura Cruscotto</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Differenza (Km Fatti)</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Azioni</TableCell>
+                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Month</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Km</TableCell>
+                      <TableCell align="right" sx={{ p: 1 }}></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {yearStats.monthlyData.map((row) => (
                       <TableRow key={row.id}>
-                        <TableCell sx={{ fontWeight: 600 }}>{months[row.month - 1]}</TableCell>
-                        <TableCell align="right">{row.reading.toLocaleString('it-IT')} km</TableCell>
-                        <TableCell align="right">
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', color: '#10b981' }}>
-                            <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                            <Typography sx={{ fontWeight: 700, fontSize: '0.9rem' }}>+{row.delta.toLocaleString('it-IT')} km</Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell align="right">
-                          <IconButton size="small" color="primary" onClick={() => handleEditMileage(row)} sx={{ mr: 1 }}>
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton size="small" color="error" onClick={() => { if (window.confirm('Eliminare questa lettura?')) deleteCarMileage(row.id); }}>
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
+                        <TableCell sx={{ p: 1 }}>{months[row.month - 1].substring(0, 3)}</TableCell>
+                        <TableCell align="right" sx={{ p: 1, fontWeight: 600 }}>+{row.delta.toLocaleString()}</TableCell>
+                        <TableCell align="right" sx={{ p: 1 }}>
+                          <IconButton size="small" onClick={() => handleEditMileage(row)}><EditIcon fontSize="small" /></IconButton>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TableContainer>
+            </Paper>
+          </Grid>
+
+          <Grid size={{ xs: 12, lg: 7 }}>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Mileage Trend</Typography>
+              <Box sx={{ height: 400, width: '100%' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={yearStats.chartData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
+                    <Line type="monotone" dataKey="km" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
             </Paper>
           </Grid>
         </Grid>
@@ -442,156 +388,87 @@ const CarPage: React.FC = () => {
 
       {/* PNEUMATICI TAB */}
       <TabPanel value={tabValue} index={1}>
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card sx={{ background: tireStats.currentTire === 'summer' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(30, 41, 59, 0.4)', borderRadius: 4, height: '100%', border: tireStats.currentTire === 'summer' ? '2px solid #f59e0b' : '1px solid rgba(255,255,255,0.05)' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>Pneumatici Estivi</Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 800 }}>{tireSettings.summerModel || 'Non impostato'}</Typography>
-                  </Box>
-                  <IconButton size="small" onClick={() => setIsEditingTireModels(true)}><SettingsIcon fontSize="small" /></IconButton>
-                </Box>
-                <Typography variant="h3" sx={{ fontWeight: 900, color: '#f59e0b' }}>{tireStats.summerTotal.toLocaleString('it-IT')} <small style={{ fontSize: '1.2rem', opacity: 0.7 }}>km</small></Typography>
-                <Typography variant="body2" sx={{ opacity: 0.6 }}>Chilometraggio totale cumulativo</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card sx={{ background: tireStats.currentTire === 'winter' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(30, 41, 59, 0.4)', borderRadius: 4, height: '100%', border: tireStats.currentTire === 'winter' ? '2px solid #3b82f6' : '1px solid rgba(255,255,255,0.05)' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>Pneumatici Invernali</Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 800 }}>{tireSettings.winterModel || 'Non impostato'}</Typography>
-                  </Box>
-                  <IconButton size="small" onClick={() => setIsEditingTireModels(true)}><SettingsIcon fontSize="small" /></IconButton>
-                </Box>
-                <Typography variant="h3" sx={{ fontWeight: 900, color: '#3b82f6' }}>{tireStats.winterTotal.toLocaleString('it-IT')} <small style={{ fontSize: '1.2rem', opacity: 0.7 }}>km</small></Typography>
-                <Typography variant="body2" sx={{ opacity: 0.6 }}>Chilometraggio totale cumulativo</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Collapse in={isEditingTireModels} sx={{ width: '100%', px: 4 }}>
-            <Paper sx={{ p: 4, mt: 4, borderRadius: 4, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(30, 41, 59, 0.8)' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Imposta Modelli e Baseline</Typography>
-              <Grid container spacing={4}>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <TextField fullWidth label="Modello Estive" value={tireModelEdit.summer} onChange={(e: any) => setTireModelEdit({ ...tireModelEdit, summer: e.target.value })} variant="filled" />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <TextField fullWidth label="Modello Invernali" value={tireModelEdit.winter} onChange={(e: any) => setTireModelEdit({ ...tireModelEdit, winter: e.target.value })} variant="filled" />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, display: 'block', mb: 1 }}>Gomme al ritiro dell'auto</Typography>
-                  <RadioGroup row value={tireModelEdit.initialType} onChange={(e: any) => setTireModelEdit({ ...tireModelEdit, initialType: e.target.value as 'summer' | 'winter' })}>
-                    <FormControlLabel value="summer" control={<Radio size="small" />} label="Estive" />
-                    <FormControlLabel value="winter" control={<Radio size="small" />} label="Invernali" />
-                  </RadioGroup>
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <Button variant="contained" size="large" onClick={handleSaveTireModels}>Salva Impostazioni</Button>
-                </Grid>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, lg: 5 }}>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'rgba(245, 158, 11, 0.1)', borderRadius: 4, border: '1px solid #f59e0b' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Summer Tires</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#f59e0b' }}>{tireStats.summerTotal.toLocaleString()} km</Typography>
+                  </CardContent>
+                </Card>
               </Grid>
-            </Paper>
-          </Collapse>
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'rgba(59, 130, 246, 0.1)', borderRadius: 4, border: '1px solid #3b82f6' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Winter Tires</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#3b82f6' }}>{tireStats.winterTotal.toLocaleString()} km</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
 
-          <Grid size={{ xs: 12 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>Monta Nuovi Pneumatici</Typography>
-              <Grid container spacing={2} alignItems="center">
-                <Grid size={{ xs: 12, sm: 3 }}>
-                  <TextField type="date" fullWidth label="Data del cambio" value={newTireChange.date} onChange={(e: any) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" InputLabelProps={{ shrink: true }} />
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', mb: 3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>New Tire Change</Typography>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 4 }}>
+                  <TextField type="date" fullWidth label="Date" value={newTireChange.date} onChange={(e: any) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" size="small" InputLabelProps={{ shrink: true }} />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 3 }}>
-                  <TextField select fullWidth label="Nuovo Set Montato" value={newTireChange.type} onChange={(e: any) => setNewTireChange({ ...newTireChange, type: e.target.value as any })} variant="filled">
-                    <MenuItem value="summer">Estivi</MenuItem>
-                    <MenuItem value="winter">Invernali</MenuItem>
+                <Grid size={{ xs: 4 }}>
+                  <TextField select fullWidth label="Type" value={newTireChange.type} onChange={(e: any) => setNewTireChange({ ...newTireChange, type: e.target.value as any })} variant="filled" size="small">
+                    <MenuItem value="summer">Summer</MenuItem>
+                    <MenuItem value="winter">Winter</MenuItem>
                   </TextField>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <TextField type="number" fullWidth label="Odomatro al cambio (Km)" value={newTireChange.odometer} onChange={(e: any) => setNewTireChange({ ...newTireChange, odometer: e.target.value })} variant="filled" />
+                <Grid size={{ xs: 4 }}>
+                  <Button fullWidth variant="contained" onClick={handleSaveTireChange}>{editingTireChangeId ? 'Update' : 'Save'}</Button>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 2 }}>
-                  <Button fullWidth variant="contained" size="large" onClick={handleSaveTireChange} sx={{ height: 56, borderRadius: 2 }}>{editingTireChangeId ? 'Modifica' : 'Registra'}</Button>
+                <Grid size={{ xs: 12 }}>
+                  <TextField type="number" fullWidth label="Odometer" value={newTireChange.odometer} onChange={(e: any) => setNewTireChange({ ...newTireChange, odometer: e.target.value })} variant="filled" />
                 </Grid>
               </Grid>
-              <Typography variant="caption" sx={{ mt: 1, display: 'block', opacity: 0.5 }}>
-                Registrando un cambio, il sistema calcolerà i km fatti dal set precedente fino a questa lettura.
-              </Typography>
             </Paper>
-          </Grid>
 
-          <Grid size={{ xs: 12 }}>
-            <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 800 }}>Cronologia Cambi e Utilizzo</Typography>
-              <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 3 }}>
-                <Table>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>History</Typography>
+              <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
+                <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700, opacity: 0.7 }}>Data</TableCell>
-                      <TableCell sx={{ fontWeight: 700, opacity: 0.7 }}>Evento</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Lettura Cruscotto</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Km Percorsi dal set precedente</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Azioni</TableCell>
+                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Date</TableCell>
+                      <TableCell sx={{ p: 1 }}>Type</TableCell>
+                      <TableCell align="right" sx={{ p: 1 }}>Km</TableCell>
+                      <TableCell align="right" sx={{ p: 1 }}></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    <TableRow sx={{ opacity: 0.6, fontStyle: 'italic' }}>
-                      <TableCell>-</TableCell>
-                      <TableCell>Baseline veicolo</TableCell>
-                      <TableCell align="right">{carInitialMileage.toLocaleString('it-IT')} km</TableCell>
-                      <TableCell align="right">-</TableCell>
-                      <TableCell align="right">-</TableCell>
-                    </TableRow>
                     {tireStats.history.map((row) => (
                       <TableRow key={row.id}>
-                        <TableCell>{dayjs(row.date).format('DD/MM/YYYY')}</TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Box sx={{ fontSize: '0.8rem', mr: 1, color: 'rgba(255,255,255,0.5)' }}>Montati</Box>
-                            <Box sx={{ color: row.type === 'summer' ? '#f59e0b' : '#3b82f6', fontWeight: 700 }}>
-                              {row.type === 'summer' ? 'Estivi' : 'Invernali'}
-                            </Box>
-                          </Box>
-                        </TableCell>
-                        <TableCell align="right">{row.odometer.toLocaleString('it-IT')} km</TableCell>
-                        <TableCell align="right">
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                            <Typography sx={{ fontWeight: 700 }}>{row.runKm.toLocaleString('it-IT')} km</Typography>
-                            <Box sx={{ fontSize: '0.7rem', ml: 1, color: row.tireThatRan === 'summer' ? '#f59e0b' : '#3b82f6', opacity: 0.8 }}>
-                              ({row.tireThatRan === 'summer' ? 'Estive' : 'Invernali'})
-                            </Box>
-                          </Box>
-                        </TableCell>
-                        <TableCell align="right">
-                          <IconButton size="small" color="primary" onClick={() => handleEditTireChange(row)} sx={{ mr: 1 }}><EditIcon fontSize="small" /></IconButton>
-                          <IconButton size="small" color="error" onClick={() => { if (window.confirm('Eliminare questo cambio?')) deleteTireChange(row.id); }}><DeleteIcon fontSize="small" /></IconButton>
+                        <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('DD/MM')}</TableCell>
+                        <TableCell sx={{ p: 1, color: row.type === 'summer' ? '#f59e0b' : '#3b82f6' }}>{row.type === 'summer' ? 'Summer' : 'Winter'}</TableCell>
+                        <TableCell align="right" sx={{ p: 1, fontWeight: 600 }}>{row.runKm.toLocaleString()}</TableCell>
+                        <TableCell align="right" sx={{ p: 1 }}>
+                          <IconButton size="small" onClick={() => handleEditTireChange(row)}><EditIcon fontSize="small" /></IconButton>
                         </TableCell>
                       </TableRow>
                     ))}
-                    {tireStats.currentRunKm > 0 && (
-                      <TableRow sx={{ background: 'rgba(255,255,255,0.02)' }}>
-                        <TableCell sx={{ fontWeight: 700 }}>Oggi</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>Run in corso</TableCell>
-                        <TableCell align="right">{totalOdometer.toLocaleString('it-IT')} km</TableCell>
-                        <TableCell align="right">
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                            <Typography sx={{ fontWeight: 700 }}>{tireStats.currentRunKm.toLocaleString('it-IT')} km</Typography>
-                            <Box sx={{ fontSize: '0.7rem', ml: 1, color: tireStats.currentTire === 'summer' ? '#f59e0b' : '#3b82f6' }}>
-                              ({tireStats.currentTire === 'summer' ? 'Estive' : 'Invernali'})
-                            </Box>
-                          </Box>
-                        </TableCell>
-                        <TableCell align="right">-</TableCell>
-                      </TableRow>
-                    )}
                   </TableBody>
                 </Table>
               </TableContainer>
+            </Paper>
+          </Grid>
+
+          <Grid size={{ xs: 12, lg: 7 }}>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Tire Usage</Typography>
+              <Box sx={{ height: 400, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box sx={{ textAlign: 'center', opacity: 0.6 }}>
+                  <TireIcon sx={{ fontSize: 80, opacity: 0.3, mb: 2 }} />
+                  <Typography>Current: {tireStats.currentTire === 'summer' ? 'Summer' : 'Winter'}</Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 900, mt: 1 }}>{tireStats.currentRunKm.toLocaleString()} km</Typography>
+                </Box>
+              </Box>
             </Paper>
           </Grid>
         </Grid>
@@ -599,106 +476,71 @@ const CarPage: React.FC = () => {
 
       {/* ANALISI COSTI TAB */}
       <TabPanel value={tabValue} index={2}>
-        <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: 4, height: '100%', boxShadow: '0 8px 32px rgba(16, 185, 129, 0.2)' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <FuelIcon sx={{ mr: 1, opacity: 0.8 }} />
-                  <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Spesa Carburante {selectedYearFilter}</Typography>
-                </Box>
-                <Typography variant="h4" sx={{ fontWeight: 900 }}>{costStats.totalCostYear.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
-                <Typography variant="body2" sx={{ mt: 1, opacity: 0.8 }}>Totale speso in benzina/diesel</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, lg: 5 }}>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: 4 }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700 }}>Total Spent</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900 }}>{costStats.totalCostYear.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'rgba(30, 41, 59, 0.4)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Efficiency</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#10b981' }}>{costStats.avgEfficiencyYear.toFixed(3)} €/km</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
 
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ background: 'rgba(30, 41, 59, 0.4)', borderRadius: 4, height: '100%', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <TrendingUpIcon sx={{ mr: 1, color: '#10b981' }} />
-                  <Typography variant="subtitle2" sx={{ opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>Efficienza Media</Typography>
-                </Box>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#10b981' }}>{costStats.avgEfficiencyYear.toFixed(3)} <small style={{ fontSize: '1rem', opacity: 0.7 }}>€/km</small></Typography>
-                <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Costo medio per chilometro</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ background: 'rgba(30, 41, 59, 0.4)', borderRadius: 4, height: '100%', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <SpeedIcon sx={{ mr: 1, opacity: 0.6 }} />
-                  <Typography variant="subtitle2" sx={{ opacity: 0.6, fontWeight: 700, textTransform: 'uppercase' }}>Km Totali {selectedYearFilter}</Typography>
-                </Box>
-                <Typography variant="h4" sx={{ fontWeight: 900 }}>{costStats.totalKmYear.toLocaleString('it-IT')} <small style={{ fontSize: '1rem', opacity: 0.7 }}>km</small></Typography>
-                <Typography variant="body2" sx={{ mt: 1, opacity: 0.6 }}>Distanza totale nell'anno selezionato</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid size={{ xs: 12 }}>
-            <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 4 }}>Andamento Efficienza Carburante (€/km)</Typography>
-              <Box sx={{ height: 300, width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={costStats.chartData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0}€`} />
-                    <Tooltip
-                      contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                      itemStyle={{ fontWeight: 600 }}
-                      formatter={(value: any) => [`${Number(value || 0).toFixed(3)} €/km`, 'Efficienza']}
-                    />
-                    <Line type="monotone" dataKey="val" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981' }} activeDot={{ r: 6 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid size={{ xs: 12 }}>
-            <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 800, mb: 3 }}>Dettaglio Mensile Costi</Typography>
-              <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 3 }}>
-                <Table>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Monthly Details</Typography>
+              <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
+                <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700, opacity: 0.7 }}>Mese</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Km Percorsi</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Spesa Carburante</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7 }}>Efficienza (€/km)</TableCell>
+                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Month</TableCell>
+                      <TableCell align="right" sx={{ p: 1 }}>Km</TableCell>
+                      <TableCell align="right" sx={{ p: 1 }}>Cost</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {costStats.monthlyEfficiency.map((row) => (
                       <TableRow key={`${row.year}-${row.month}`}>
-                        <TableCell sx={{ fontWeight: 600 }}>{months[row.month - 1]}</TableCell>
-                        <TableCell align="right">{row.kmDriven.toLocaleString('it-IT')} km</TableCell>
-                        <TableCell align="right">{row.fuelCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</TableCell>
-                        <TableCell align="right">
-                          <Typography sx={{ fontWeight: 800, color: '#10b981' }}>
-                            {row.euroPerKm > 0 ? `${row.euroPerKm.toFixed(3)} €/km` : '-'}
-                          </Typography>
-                        </TableCell>
+                        <TableCell sx={{ p: 1, fontWeight: 600 }}>{months[row.month - 1].substring(0, 3)}</TableCell>
+                        <TableCell align="right" sx={{ p: 1 }}>{row.kmDriven.toLocaleString()}</TableCell>
+                        <TableCell align="right" sx={{ p: 1 }}>{row.fuelCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</TableCell>
                       </TableRow>
                     ))}
                     {costStats.monthlyEfficiency.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={4} align="center" sx={{ py: 4, opacity: 0.5 }}>
-                          Nessun dato disponibile per l'anno {selectedYearFilter}. Assicurati di aver inserito sia i km che le spese carburante.
-                        </TableCell>
+                        <TableCell colSpan={3} align="center" sx={{ py: 2, opacity: 0.5 }}>No data.</TableCell>
                       </TableRow>
                     )}
                   </TableBody>
                 </Table>
               </TableContainer>
-              <Typography variant="caption" sx={{ mt: 2, display: 'block', opacity: 0.5, fontStyle: 'italic' }}>
-                * Le spese sono estratte automaticamente dalla categoria 'Trasporti' e sottocategorie 'Carburante', 'Benzina' o 'Gasolio'.
-              </Typography>
+            </Paper>
+          </Grid>
+
+          <Grid size={{ xs: 12, lg: 7 }}>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Fuel Efficiency Trend</Typography>
+              <Box sx={{ height: 400, width: '100%' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={costStats.chartData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
+                    <Line type="monotone" dataKey="val" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
             </Paper>
           </Grid>
         </Grid>

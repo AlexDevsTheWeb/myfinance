@@ -5,10 +5,42 @@ import React from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import AccountCard from './AccountCard.component';
 
-const RecapCards: React.FC = () => {
+interface AccountDetail {
+  id: string;
+  name: string;
+  initialBalance: number;
+  currentBalance: number;
+  periodIncome: number;
+  periodExpense: number;
+  history: Array<{ date: string; amount: number }>;
+}
+
+interface RecapCardsProps {
+  onToggleAccountDetails?: () => void;
+  accountDetails?: boolean;
+  accountsDetail?: AccountDetail[];
+  hideAccountDetails?: boolean;
+}
+
+const RecapCards: React.FC<RecapCardsProps> = ({ onToggleAccountDetails, accountDetails: externalAccountDetails, accountsDetail: externalAccountsDetail, hideAccountDetails }) => {
   const { transactions, accounts, balanceStartDate } = useFinanceStore();
-  const [accountDetails, setAccountDetails] = React.useState<boolean>(false);
+  const [internalAccountDetails, setInternalAccountDetails] = React.useState<boolean>(false);
+
+  const isExternal = externalAccountDetails !== undefined;
+  const showAccountDetails = isExternal ? externalAccountDetails : internalAccountDetails;
+  const shouldHide = hideAccountDetails && isExternal;
+
+  const handleToggle = () => {
+    if (onToggleAccountDetails) {
+      onToggleAccountDetails();
+    } else {
+      setInternalAccountDetails(!internalAccountDetails);
+    }
+  };
+
   const accountsDetail = React.useMemo(() => {
+    if (externalAccountsDetail) return externalAccountsDetail;
+
     const startDateStr = dayjs(balanceStartDate).format('YYYY-MM-DD');
 
     return accounts.map(acc => {
@@ -59,22 +91,19 @@ const RecapCards: React.FC = () => {
       title: 'Current Balance',
       amount: currentBalance,
       icon: <Wallet size={24} />,
-      color: '#6366f1',
-      bg: 'rgba(99, 102, 241, 0.1)',
+      color: '#5b6cb8', // Muted indigo
     },
     {
       title: 'Total Income',
       amount: totalIncome,
       icon: <TrendingUp size={24} />,
       color: '#10b981',
-      bg: 'rgba(16, 185, 129, 0.1)',
     },
     {
       title: 'Total Expenses',
       amount: totalExpenses,
       icon: <TrendingDown size={24} />,
       color: '#ef4444',
-      bg: 'rgba(239, 68, 68, 0.1)',
     },
   ];
 
@@ -100,59 +129,57 @@ const RecapCards: React.FC = () => {
     <Grid container spacing={3}>
 
       {cardData.map((card) => (
-        <Grid size={{ xs: 12, md: 4 }} key={card.title}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={card.title}>
           <Paper
-            onClick={() => card.title === 'Current Balance' && setAccountDetails(!accountDetails)}
+            onClick={() => card.title === 'Current Balance' && handleToggle()}
             sx={{
-              p: 2,
-              borderRadius: 1,
-              background: card.bg,
-              border: `1px solid ${card.color}`,
+              p: 1.5,
+              background: '#161b2e',
+              border: `1px solid ${card.color}30`,
               display: 'flex',
               alignItems: 'center',
-              gap: 2,
+              gap: 1.5,
               cursor: card.title === 'Current Balance' ? 'pointer' : 'default',
             }}
           >
-            <Box sx={{ p: 1.5, borderRadius: 3, background: card.color, color: '#fff', display: 'flex' }}>
+            <Box sx={{ p: 1, background: card.color, color: '#fff', display: 'flex' }}>
               {card.icon}
             </Box>
             <Box>
-              <Typography variant="subtitle2" sx={{ color: card.color }}>
+              <Typography variant="caption" sx={{ color: card.color, opacity: 0.9, textTransform: 'uppercase', fontWeight: 700, fontSize: '0.65rem' }}>
                 {card.title}
               </Typography>
-              <Typography variant="h4">
-                € {card.amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-              </Typography>
+<Typography variant="h5" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' }, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                 € {card.amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+               </Typography>
             </Box>
           </Paper>
         </Grid>
       ))}
 
       {monthlyCardData.map((card) => (
-        <Grid size={{ xs: 12, md: 4 }} key={card.title}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={card.title}>
           <Paper
             sx={{
-              p: 2,
-              borderRadius: 1,
-              background: 'rgba(30, 41, 59, 0.4)',
+              p: 1.5,
+              background: '#161b2e',
               border: '1px solid rgba(255,255,255,0.05)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
             }}
           >
-            <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}>
+            <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, textTransform: 'uppercase', fontSize: '0.6rem', mb: 0.5 }}>
               {card.title}
             </Typography>
-            <Typography variant="h5" sx={{ color: card.color, fontWeight: 800 }}>
-              € {card.amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-            </Typography>
+<Typography variant="h6" sx={{ color: card.color, fontWeight: 800, fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' }, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+               € {card.amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+             </Typography>
           </Paper>
         </Grid>
       ))}
 
-      {accountDetails && (
+      {showAccountDetails && !shouldHide && (
         <Box sx={{ mt: 1, width: '100%' }}>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Accounts Detail</Typography>
           <Grid container spacing={2}>

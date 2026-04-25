@@ -1,44 +1,68 @@
-import { ArrowDownward, ArrowUpward, DirectionsCar as CarIcon } from '@mui/icons-material';
-import { Alert, AlertTitle, Box, Button, Fab, Typography, Zoom } from '@mui/material';
+import { DirectionsCar as CarIcon } from '@mui/icons-material';
+import { Alert, AlertTitle, Box, Button, Grid, Typography } from '@mui/material';
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Charts from '../components/dashboard/Charts';
 import RecapCards from '../components/dashboard/RecapCards';
 import TransactionTable from '../components/dashboard/TransactionTable';
 import TransactionModal from '../components/modals/TransactionModal';
+import AccountCard from '../components/dashboard/AccountCard.component';
 import { useFinanceStore, type Transaction } from '../store/useFinanceStore';
 
 const DashboardPage: React.FC = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
-  const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
   const navigate = useNavigate();
-  const { enabledModules, carMileage } = useFinanceStore();
+  const { enabledModules, carMileage, transactions, accounts, balanceStartDate } = useFinanceStore();
+  const [accountDetails, setAccountDetails] = React.useState(false);
+
+  const accountsDetail = React.useMemo(() => {
+    const startDateStr = dayjs(balanceStartDate).format('YYYY-MM-DD');
+
+    return accounts.map(acc => {
+      const periodTransactions = transactions
+        .filter(t => t.accountId === acc.id && dayjs(t.date).format('YYYY-MM-DD') >= startDateStr)
+        .sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());
+
+      const income = periodTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+      const expense = periodTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+
+      let runningBalance = acc.initialBalance;
+      const history = [{ date: startDateStr, amount: runningBalance }, ...periodTransactions.map(t => {
+        runningBalance += (t.type === 'income' ? t.amount : -t.amount);
+        return { date: t.date, amount: runningBalance };
+      })];
+
+      return {
+        ...acc,
+        currentBalance: acc.initialBalance + income - expense,
+        periodIncome: income,
+        periodExpense: expense,
+        history
+      };
+    });
+  }, [transactions, accounts, balanceStartDate]);
 
   const isFirstOfMonth = dayjs().date() === 1;
   const hasReadingThisMonth = carMileage.some(m => m.month === (dayjs().month() + 1) && m.year === dayjs().year());
   const showMileageReminder = enabledModules.carManagement && isFirstOfMonth && !hasReadingThisMonth;
 
-  const handleOpenModal = (type: 'income' | 'expense') => {
-    setTransactionToEdit(null);
-    setModalType(type);
-    setModalOpen(true);
-  };
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
+  const [editType, setEditType] = React.useState<'income' | 'expense'>('expense');
 
   const handleEditTransaction = (transaction: Transaction) => {
-    setTransactionToEdit(transaction);
-    setModalType(transaction.type);
-    setModalOpen(true);
+    setEditTransaction(transaction);
+    setEditType(transaction.type);
+    setEditModalOpen(true);
   };
 
   return (
     <Box sx={{ pb: 10 }}>
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
           Dashboard
         </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.6 }}>
+        <Typography variant="body2" sx={{ opacity: 0.6 }}>
           Welcome back! Here's your financial overview.
         </Typography>
       </Box>
@@ -47,7 +71,7 @@ const DashboardPage: React.FC = () => {
         <Alert
           severity="info"
           icon={<CarIcon fontSize="inherit" />}
-          sx={{ mb: 4, borderRadius: 3, border: '1px solid rgba(2, 136, 209, 0.2)' }}
+          sx={{ mb: 3, borderRadius: 2, border: '1px solid rgba(2, 136, 209, 0.2)' }}
           action={
             <Button color="inherit" size="small" onClick={() => navigate('/car')}>
               Vai alla gestione auto
@@ -59,32 +83,40 @@ const DashboardPage: React.FC = () => {
         </Alert>
       )}
 
-      <RecapCards />
-
-      <Charts />
-
-      <TransactionTable onEdit={handleEditTransaction} limit={10} />
-
-      <Box sx={{ position: 'fixed', bottom: 32, right: 32, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <Zoom in={true} style={{ transitionDelay: '300ms' }}>
-          <Fab color="success" variant="extended" size="large" onClick={() => handleOpenModal('income')} sx={{ boxShadow: '0 8px 32px rgba(16, 185, 129, 0.4)' }}>
-            <ArrowUpward sx={{ mr: 1 }} />
-            New Income
-          </Fab>
-        </Zoom>
-        <Zoom in={true} style={{ transitionDelay: '400ms' }}>
-          <Fab color="error" variant="extended" size="large" onClick={() => handleOpenModal('expense')} sx={{ boxShadow: '0 8px 32px rgba(239, 68, 68, 0.4)' }}>
-            <ArrowDownward sx={{ mr: 1 }} />
-            New Expense
-          </Fab>
-        </Zoom>
-      </Box>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, lg: 7 }}>
+          <RecapCards onToggleAccountDetails={() => setAccountDetails(!accountDetails)} accountDetails={accountDetails} accountsDetail={accountsDetail} hideAccountDetails />
+          <Box sx={{ mt: 3 }}>
+            <TransactionTable onEdit={handleEditTransaction} limit={8} />
+          </Box>
+        </Grid>
+        <Grid size={{ xs: 12, lg: 5 }}>
+          {accountDetails && (
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Accounts Detail</Typography>
+              <Grid container spacing={2}>
+                {accountsDetail.map(acc => (
+                  <Grid size={{ xs: 12, sm: 6 }} key={acc.id}>
+                    <AccountCard
+                      name={acc.name}
+                      currentBalance={acc.currentBalance}
+                      initialBalance={acc.initialBalance}
+                      history={acc.history}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
+          <Charts />
+        </Grid>
+      </Grid>
 
       <TransactionModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        type={modalType}
-        transaction={transactionToEdit}
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        type={editType}
+        transaction={editTransaction}
       />
     </Box>
   );
