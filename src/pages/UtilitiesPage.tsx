@@ -152,7 +152,7 @@ const UtilitiesPage: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Grid size={{ xs: 12, lg: 5 }}>
+      <Grid size={{ xs: 12, lg: 7 }}>
         <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
           <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Storico Bollette</Typography>
           <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
@@ -183,7 +183,7 @@ const UtilitiesPage: React.FC = () => {
         </Paper>
       </Grid>
 
-      <Grid size={{ xs: 12, lg: 7 }}>
+      <Grid size={{ xs: 12, lg: 5 }}>
         <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Andamento Consumi</Typography>
           <Box sx={{ height: 300, width: '100%' }}>

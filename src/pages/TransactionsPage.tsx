@@ -123,10 +123,10 @@ const TransactionsPage: React.FC = () => {
           </Typography>
         </Box>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           <Grid size={{ xs: 12, lg: 4 }}>
             <Card sx={{ borderRadius: 0, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <CardContent>
+              <CardContent sx={{ py: 2 }}>
                 <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>Filters</Typography>
                   <Button size="small" variant="outlined" startIcon={<FilterList />} onClick={handleClearFilters} sx={{ borderRadius: 2 }}>

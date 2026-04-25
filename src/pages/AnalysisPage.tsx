@@ -31,7 +31,7 @@ const AnalysisPage: React.FC = () => {
       </Box>
 
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, lg: 5 }}>
+        <Grid size={{ xs: 12, lg: 7 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
             <YearSelector
               availableYears={availableYears}
@@ -41,7 +41,7 @@ const AnalysisPage: React.FC = () => {
           </Box>
           <AnalysisTables selectedYear={selectedYear} />
         </Grid>
-        <Grid size={{ xs: 12, lg: 7 }}>
+        <Grid size={{ xs: 12, lg: 5 }}>
           <FinancialTrendChart selectedYear={selectedYear} />
         </Grid>
       </Grid>

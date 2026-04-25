@@ -108,6 +108,7 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 - [ ] 07-01-PLAN.md — Adjust dashboard column grid ratio (60/40) and fix typography overflow
 - [ ] 07-02-PLAN.md — Apply 60/40 column ratio to AnalysisPage, SalaryPage, TransactionsPage, UtilitiesPage
 - [ ] 07-03-PLAN.md — Move account details to right column above Cash Flow Trend (optional)
+- [ ] 07-04-PLAN.md — Compact SalaryPage table to 2 rows (salary + combined deltas)
 
 ---
 

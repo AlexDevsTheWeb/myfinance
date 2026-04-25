@@ -9,8 +9,8 @@
 
 | Field | Value |
 |-------|-------|
-| Phase | 04-test-suite |
-| Status | Pending |
+| Phase | 07-ui-redesign |
+| Status | Planned |
 
 ---
 
@@ -22,6 +22,10 @@
 - [x] Plans created (03-01-PLAN.md)
 - [x] Execution complete (03-01-SUMMARY.md)
 - [x] Verification passed (03-VERIFICATION.md)
+
+### Phase 07: UI Layout Refinement
+- [x] Context defined (07-CONTEXT.md)
+- [x] Plans created (07-01-PLAN.md)
 
 ---
 
@@ -47,8 +51,8 @@
 
 ## Next Steps
 
-1. `/gsd-discuss-phase 04` — Discuss test suite setup
-2. `/gsd-plan-phase 04` — Plan next phase
+1. `/gsd-execute-phase 07` — Execute UI layout refinement (column ratio + typography fixes)
+2. `/gsd-discuss-phase 08` — Plan next phase
 3. `/gsd-progress` — See updated roadmap
 
 ---

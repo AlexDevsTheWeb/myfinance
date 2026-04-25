@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ArrowDownward, ArrowUpward, BarChart as BarChartIcon, TrendingUp } from '@mui/icons-material';
-import { Box, Card, CardContent, Chip, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { BarChart as BarChartIcon, TrendingUp } from '@mui/icons-material';
+import { Box, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -110,7 +110,7 @@ const SalaryPage: React.FC = () => {
 
       <Grid container spacing={3}>
         {/* YoY Comparison Table - Left Column */}
-        <Grid size={{ xs: 12, lg: 5 }}>
+        <Grid size={{ xs: 12, lg: 7 }}>
           <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>Year over Year Comparison</Typography>
@@ -139,31 +139,15 @@ const SalaryPage: React.FC = () => {
                           const isIncrease = amount >= prevAmount;
 
                           return (
-                            <TableCell key={year} align="right" sx={{ verticalAlign: 'top' }}>
+                            <TableCell key={year} align="right" sx={{ verticalAlign: 'top', py: 1.5 }}>
                               <Typography variant="body1" sx={{ fontWeight: 600 }}>
                                 € {amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
                               </Typography>
 
                               {hasPrev && (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', mt: 1, gap: 0.5 }}>
-                                  <Chip
-                                    size="small"
-                                    icon={isIncrease ? <ArrowUpward sx={{ fontSize: '0.7rem !important' }} /> : <ArrowDownward sx={{ fontSize: '0.7rem !important' }} />}
-                                    label={`${isIncrease ? '+' : ''}${diff.toFixed(1)}%`}
-                                    color={isIncrease ? 'success' : 'error'}
-                                    variant="outlined"
-                                    sx={{
-                                      height: 20,
-                                      fontSize: '0.7rem',
-                                      fontWeight: 700,
-                                      '& .MuiChip-label': { px: 1 },
-                                      '& .MuiChip-icon': { ml: 0.5, mr: -0.5 }
-                                    }}
-                                  />
-                                  <Typography variant="caption" sx={{ fontWeight: 600, color: isIncrease ? 'success.main' : 'error.main', opacity: 0.8, fontSize: '0.65rem' }}>
-                                    {absDiff >= 0 ? '+' : ''}€ {absDiff.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                                  </Typography>
-                                </Box>
+                                <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', display: 'block', color: isIncrease ? 'success.main' : 'error.main', opacity: 0.9 }}>
+                                  {isIncrease ? '+' : ''}{diff.toFixed(1)}% | {absDiff >= 0 ? '+' : ''}€ {absDiff.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                                </Typography>
                               )}
                             </TableCell>
                           );
@@ -178,7 +162,7 @@ const SalaryPage: React.FC = () => {
         </Grid>
 
         {/* Monthly Trend Chart - Right Column */}
-        <Grid size={{ xs: 12, lg: 7 }}>
+        <Grid size={{ xs: 12, lg: 5 }}>
           <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
