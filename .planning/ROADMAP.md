@@ -112,4 +112,19 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 
 ---
 
+## Phase 08: Move Year Selector to Page Title (CleanUI)
+
+**Status:** Planned (2026-04-25)
+**Priority:** Medium (UI cleanliness)
+
+**Goal:** Move the year selector from its current position to inline with the page title using space-between layout across three pages
+
+**Requirements:**
+- **[UI-08]** Year selector appears on same row as page title, aligned to the right side
+
+**Plans:**
+- [ ] 08-01-PLAN.md — Move year selector inline with page title on AnalysisPage, CarPage, UtilitiesPage
+
+---
+
 *Roadmap audit: 2026-04-25*

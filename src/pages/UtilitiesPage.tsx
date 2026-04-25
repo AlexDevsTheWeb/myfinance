@@ -210,14 +210,21 @@ const UtilitiesPage: React.FC = () => {
 
   return (
     <Box sx={{ pb: 6 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <ElecIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-          Utilities
-        </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.6 }}>
-          Monitor your utility expenses and consumption trends.
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <ElecIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+            Utilities
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: 0.6 }}>
+            Monitor your utility expenses and consumption trends.
+          </Typography>
+        </Box>
+        <YearSelector
+          availableYears={availableYears}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+        />
       </Box>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
@@ -226,16 +233,6 @@ const UtilitiesPage: React.FC = () => {
           <Tab label="Gas" icon={<GasIcon />} iconPosition="start" />
         </Tabs>
       </Box>
-
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, lg: 4 }}>
-          <YearSelector
-            availableYears={availableYears}
-            selectedYear={selectedYear}
-            onYearChange={setSelectedYear}
-          />
-        </Grid>
-      </Grid>
 
       <TabPanel value={tabValue} index={0}>
         {renderDashboard(elecStats, 'Luce', 'kWh', '#eab308', <ElecIcon sx={{ opacity: 0.8, color: '#eab308' }} />)}

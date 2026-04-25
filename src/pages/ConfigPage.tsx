@@ -185,7 +185,8 @@ const ConfigPage: React.FC = () => {
     endDate: '',
     type: 'expense' as 'income' | 'expense',
     accountId: '',
-    frequency: 'monthly' as 'monthly' | 'yearly'
+    frequency: 'monthly' as 'monthly' | 'yearly',
+    monthOfYear: 1
   });
 
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
@@ -219,7 +220,8 @@ const ConfigPage: React.FC = () => {
             endDate: rec.endDate || '',
             type: rec.type,
             accountId: rec.accountId,
-            frequency: rec.frequency || 'monthly'
+            frequency: rec.frequency || 'monthly',
+            monthOfYear: rec.monthOfYear || 1
           });
         }
       } else {
@@ -233,7 +235,8 @@ const ConfigPage: React.FC = () => {
           endDate: '',
           type: config.financeType,
           accountId: accounts.find(a => a.isDefault)?.id || accounts[0]?.id || '',
-          frequency: 'monthly'
+          frequency: 'monthly',
+          monthOfYear: 1
         });
       }
     } else if (config?.type === 'account') {
@@ -320,7 +323,8 @@ const ConfigPage: React.FC = () => {
         endDate: recurringForm.endDate || '',
         type: recurringForm.type,
         accountId: recurringForm.accountId,
-        frequency: recurringForm.frequency
+        frequency: recurringForm.frequency,
+        monthOfYear: recurringForm.frequency === 'yearly' ? Number(recurringForm.monthOfYear) : undefined
       };
 
       if (dialogConfig.mode === 'add') {
@@ -600,15 +604,15 @@ const ConfigPage: React.FC = () => {
                   <ListItem key={rec.id} divider={i !== recurringTransactions.length - 1}>
                     <ListItemText
                       primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography sx={{ fontWeight: 700 }}>{rec.description}</Typography>
-                          {rec.frequency === 'yearly' && (
-                            <Typography variant="caption" sx={{ background: 'rgba(255,255,255,0.1)', px: 0.8, py: 0.2, borderRadius: 1, fontSize: '0.65rem', border: '1px solid rgba(255,255,255,0.2)' }}>
-                              YEARLY
-                            </Typography>
-                          )}
-                          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', ml: 1 }}>
-                            <Typography sx={{ color: rec.type === 'income' ? '#10b981' : '#ef4444', fontWeight: 800 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: '1rem' }}>{rec.description}</Typography>
+                            {rec.frequency === 'yearly' && (
+                              <Typography variant="caption" sx={{ background: 'rgba(255,255,255,0.1)', px: 0.8, py: 0.2, borderRadius: 1, fontSize: '0.65rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+                                YEARLY
+                              </Typography>
+                            )}
+                            <Typography sx={{ color: rec.type === 'income' ? '#10b981' : '#ef4444', fontWeight: 800, fontSize: '1rem', ml: 1 }}>
                               € {rec.frequency === 'yearly'
                                 ? (rec.amount / 12).toLocaleString('it-IT', { maximumFractionDigits: 0 })
                                 : rec.amount.toLocaleString('it-IT')
@@ -616,14 +620,18 @@ const ConfigPage: React.FC = () => {
                               {rec.frequency === 'yearly' && <Typography component="span" sx={{ fontSize: '0.7em', opacity: 0.7 }}> /mo</Typography>}
                             </Typography>
                             {rec.frequency === 'yearly' && (
-                              <Typography variant="caption" sx={{ opacity: 0.5, fontSize: '0.7rem' }}>
-                                (€ {rec.amount.toLocaleString('it-IT')}/yr)
+                              <Typography component="span" variant="caption" sx={{ opacity: 0.5 }}>
+                                (€{rec.amount.toLocaleString('it-IT')}/yr)
                               </Typography>
                             )}
                           </Box>
                         </Box>
                       }
-                      secondary={`${rec.category} > ${rec.subcategory} | Every ${rec.frequency === 'yearly' ? 'year' : 'month'} on day ${rec.dayOfMonth}`}
+                      secondary={
+                        <Typography variant="caption" sx={{ opacity: 0.6 }}>
+                          {rec.category} &gt; {rec.subcategory} | Every {rec.frequency === 'yearly' ? 'year in ' + dayjs().month((rec.monthOfYear || 1) - 1).format('MMMM') : 'month'} on day {rec.dayOfMonth}
+                        </Typography>
+                      }
                     />
                     <ListItemSecondaryAction>
                       <IconButton size="small" onClick={() => handleOpenDialog({ type: 'recurring', mode: 'edit', financeType: rec.type, recurringId: rec.id })}>

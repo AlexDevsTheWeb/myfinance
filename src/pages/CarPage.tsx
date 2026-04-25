@@ -255,25 +255,22 @@ const CarPage: React.FC = () => {
 
   return (
     <Box sx={{ pb: 6 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <SpeedIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-          Car Management
-        </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.6 }}>
-          Track mileage, tires, and fuel efficiency.
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <SpeedIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+            Car Management
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: 0.6 }}>
+            Track mileage, tires, and fuel efficiency.
+          </Typography>
+        </Box>
+        <YearSelector
+          availableYears={availableYears}
+          selectedYear={selectedYearFilter}
+          onYearChange={setSelectedYearFilter}
+        />
       </Box>
-
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, lg: 3 }}>
-          <YearSelector
-            availableYears={availableYears}
-            selectedYear={selectedYearFilter}
-            onYearChange={setSelectedYearFilter}
-          />
-        </Grid>
-      </Grid>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 3 }}>
         <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} textColor="inherit" indicatorColor="primary">
