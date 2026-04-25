@@ -93,21 +93,22 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 
 ---
 
-## Phase 06: FAB Navigation
+## Phase 07: UI Layout Refinement
 
-**Status:** Planned (2026-04-23)
-**Priority:** High (UX improvement)
+**Status:** Planned (2026-04-25)
+**Priority:** Medium (UX improvement)
 
-**Goal:** Make transaction entry accessible from all pages via single FAB button with dropdown
+**Goal:** Refine the two-column dashboard layout with proper sizing and typography for large values, plus apply consistent 60/40 column ratio to all pages
 
 **Requirements:**
-- **[FAB-01]** Single "+/-" FAB button visible on all pages except Config
-- **[FAB-02]** Dropdown menu shows "New Income" and "New Expense" options
-- **[FAB-03]** Clicking option opens TransactionModal with correct type
+- **[UI-01]** Left column (Balance + TransactionTable) wider than right column — 60/40 ratio
+- **[UI-02]** Balance and income values display on single row without wrapping
 
 **Plans:**
-- [ ] 06-01-PLAN.md — Add FAB with dropdown to Layout, remove from Dashboard
+- [ ] 07-01-PLAN.md — Adjust dashboard column grid ratio (60/40) and fix typography overflow
+- [ ] 07-02-PLAN.md — Apply 60/40 column ratio to AnalysisPage, SalaryPage, TransactionsPage, UtilitiesPage
+- [ ] 07-03-PLAN.md — Move account details to right column above Cash Flow Trend (optional)
 
 ---
 
-*Roadmap audit: 2026-04-23*
+*Roadmap audit: 2026-04-25*
