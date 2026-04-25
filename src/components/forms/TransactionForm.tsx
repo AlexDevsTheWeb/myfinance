@@ -17,6 +17,7 @@ interface TransactionFormProps {
     startDate?: string;
     endDate?: string | null;
     frequency?: 'monthly' | 'yearly';
+    monthOfYear?: number;
     consumption?: number | string;
     readingDateStart?: string;
     readingDateEnd?: string;
@@ -218,12 +219,28 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                   label="Frequency"
                   variant="filled"
                   value={formData.frequency || 'monthly'}
-                  onChange={(e: any) => setFormData({ ...formData, frequency: e.target.value })}
+                  onChange={(e: any) => setFormData({ ...formData, frequency: e.target.value, monthOfYear: e.target.value === 'yearly' ? (formData.monthOfYear || 1) : undefined })}
                 >
                   <MenuItem value="monthly">Monthly</MenuItem>
                   <MenuItem value="yearly">Yearly</MenuItem>
                 </TextField>
               </Grid>
+              {formData.frequency === 'yearly' && (
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Month of Year"
+                    variant="filled"
+                    value={formData.monthOfYear || 1}
+                    onChange={(e: any) => setFormData({ ...formData, monthOfYear: Number(e.target.value) })}
+                  >
+                    {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((m, i) => (
+                      <MenuItem key={i} value={i + 1}>{m}</MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+              )}
             </Grid>
           </Grid>
         )}

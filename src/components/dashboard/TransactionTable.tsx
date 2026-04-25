@@ -46,14 +46,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 
   const isPaginated = onPageChange !== undefined && page !== undefined && rowsPerPage !== undefined && count !== undefined;
 
+  const isDashboard = typeof limit === 'number' && limit > 0;
+
   return (
-    <Paper sx={{ mt: 4 }}>
+    <Paper>
       <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6">
-          {limit ? 'Recent Transactions' : 'Transactions'}
+          {isDashboard ? 'Recent Transactions' : 'Transactions'}
         </Typography>
 
-        {limit &&
+        {isDashboard &&
           <Button
             size='small'
             onClick={() => navigate('/transactions')}

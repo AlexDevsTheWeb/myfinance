@@ -76,4 +76,55 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 
 ---
 
-*Roadmap audit: 2026-04-23*
+## Phase 05: Cloud Backup (Google Drive)
+
+**Status:** Planned (2026-04-23)
+**Priority:** Medium (convenience feature)
+
+**Goal:** Add optional cloud backup to Google Drive for signed-in Google users
+
+**Requirements:**
+- **[CLOUD-01]** Auto-detect if user logged in with Google Auth
+- **[CLOUD-02]** Upload backup files to user's Google Drive
+- **[CLOUD-03]** Show "Save to Google Drive" button next to download backup
+
+**Plans:**
+- [ ] 05-01-PLAN.md — Google Drive integration for cloud backup
+
+---
+
+## Phase 07: UI Layout Refinement
+
+**Status:** Planned (2026-04-25)
+**Priority:** Medium (UX improvement)
+
+**Goal:** Refine the two-column dashboard layout with proper sizing and typography for large values, plus apply consistent 60/40 column ratio to all pages
+
+**Requirements:**
+- **[UI-01]** Left column (Balance + TransactionTable) wider than right column — 60/40 ratio
+- **[UI-02]** Balance and income values display on single row without wrapping
+
+**Plans:**
+- [ ] 07-01-PLAN.md — Adjust dashboard column grid ratio (60/40) and fix typography overflow
+- [ ] 07-02-PLAN.md — Apply 60/40 column ratio to AnalysisPage, SalaryPage, TransactionsPage, UtilitiesPage
+- [ ] 07-03-PLAN.md — Move account details to right column above Cash Flow Trend (optional)
+- [ ] 07-04-PLAN.md — Compact SalaryPage table to 2 rows (salary + combined deltas)
+
+---
+
+## Phase 08: Move Year Selector to Page Title (CleanUI)
+
+**Status:** Planned (2026-04-25)
+**Priority:** Medium (UI cleanliness)
+
+**Goal:** Move the year selector from its current position to inline with the page title using space-between layout across three pages
+
+**Requirements:**
+- **[UI-08]** Year selector appears on same row as page title, aligned to the right side
+
+**Plans:**
+- [ ] 08-01-PLAN.md — Move year selector inline with page title on AnalysisPage, CarPage, UtilitiesPage
+
+---
+
+*Roadmap audit: 2026-04-25*

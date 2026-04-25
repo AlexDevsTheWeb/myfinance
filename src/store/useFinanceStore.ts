@@ -43,6 +43,7 @@ export interface RecurringTransaction {
   startDate: string; // YYYY-MM-DD
   endDate?: string | null; // YYYY-MM-DD (optional)
   frequency?: 'monthly' | 'yearly';
+  monthOfYear?: number; // 1-12, only used when frequency is 'yearly'
 }
 
 export interface AppModules {
@@ -212,6 +213,7 @@ const sanitizeRecurring = (r: RecurringTransaction): any => {
     startDate: r.startDate,
     endDate: r.endDate || null,
     frequency: r.frequency || 'monthly',
+    ...(r.frequency === 'yearly' && r.monthOfYear ? { monthOfYear: r.monthOfYear } : {}),
   };
 };
 
