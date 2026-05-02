@@ -472,7 +472,7 @@ const CarPage: React.FC = () => {
         <Grid container spacing={3}>
           {/* Column 1: Stats + Form */}
           <Grid size={{ xs: 12, md: 3 }}>
-            {/* 3 Stat cards in 2x2 grid */}
+            {/* 3 Stat cards - Current spans 2 columns */}
             <Grid container spacing={2} sx={{ mb: 3 }}>
               {/* Summer Total */}
               <Grid size={{ xs: 6 }}>
@@ -494,8 +494,8 @@ const CarPage: React.FC = () => {
                 </Card>
               </Grid>
 
-              {/* Current */}
-              <Grid size={{ xs: 6 }}>
+              {/* Current - spans 2 columns */}
+              <Grid size={{ xs: 12 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4 }}>
                   <CardContent sx={{ p: 2 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Current</Typography>
@@ -530,8 +530,8 @@ const CarPage: React.FC = () => {
           </Grid>
 
           {/* Column 2: History Table */}
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', mb: 3 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>History</Typography>
               <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
                 <Table size="small">
@@ -558,11 +558,13 @@ const CarPage: React.FC = () => {
                 </Table>
               </TableContainer>
             </Paper>
+          </Grid>
 
-            {/* Tire Usage Chart */}
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          {/* Column 3: Tire Usage Chart */}
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Tire Usage</Typography>
-              <Box sx={{ height: 200, width: '100%' }}>
+              <Box sx={{ height: 250, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={tireStats.history.slice(0, 10).map((t, i) => ({ name: `${i + 1}`, km: t.runKm }))}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
