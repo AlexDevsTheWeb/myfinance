@@ -1,181 +1,121 @@
-# SemVer + Version Display Specification
+# Car Management Redesign Specification
 
 **Date:** 2026-05-02
 
 ## Overview
 
-- Implement semantic versioning triggered on PR merge to main
-- Display version in footer on all pages
-
-## Part 1: CI/CD Version Bump
-
-### Trigger
-
-- GitHub Actions workflow runs on: `pull_request` target `main` with `types: [closed]` AND `mergeable: true`
-- Alternatively: run on `push to main` and check if it's a merge commit
-
-### Tool
-
-Use [standard-version](https://github.com/conventional-changelog/standard-version):
-- Analyzes conventional commits since last release
-- Auto-increments based on commit types:
-  - `fix:` → patch (e.g., 1.0.0 → 1.0.1)
-  - `feat:` → minor (e.g., 1.0.0 → 1.1.0)
-  - `feat!:` or `BREAKING CHANGE:` → major
-
-### Workflow Steps
-
-1. Checkout code
-2. Install Node.js
-3. Install dependencies (`npm ci`)
-4. Run `npx standard-version` (pre-release mode)
-5. If version changed:
-   - Commit version bump
-   - Create git tag (`v{major.minor.patch}`)
-   - Push commit + tag
-6. (Optional) Create GitHub Release
-
-### Configuration
-
-`.versionrc`:
-```json
-{
-  "types": [
-    { "type": "feat", "release": "minor" },
-    { "type": "fix", "release": "patch" },
-    { "type": "perf", "release": "patch" },
-    { "type": "refactor", "release": "patch" },
-    { "type": "docs", "release": "patch" },
-    { "type": "style", "release": "patch" },
-    { "type": "test", "release": "patch" },
-    { "type": "build", "release": "patch" }
-  ]
-}
-```
-
-### GitHub Actions File
-
-`.github/workflows/version-bump.yml`:
-```yaml
-name: Version Bump
-
-on:
-  pull_request:
-    types: [closed]
-    branches: [main]
-
-jobs:
-  version-bump:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Bump version
-        run: npx standard-version
-      
-      - name: Push changes
-        run: git push && git push --tags
-```
+- Redesign Car page with bento grid layout
+- Add monthly averages for mileage tracking
+- Improve charts and maintain all existing visualizations
 
 ---
 
-## Part 2: Version Display in Footer
+## Part 1: Monthly Averages
 
-### Approach
+### Current Year (selected year)
 
-Generate version at build-time using Vite's `define` plugin.
+Display two average calculations:
 
-### Implementation
-
-1. Add script to `package.json` to generate version file before build:
-   ```json
-   {
-     "scripts": {
-       "prebuild": "node scripts/generate-version.js",
-       "build": "tsc -b && vite build"
-     }
-   }
-   }
-   ```
-
-2. Create `scripts/generate-version.js`:
-   ```javascript
-   import { writeFileSync } from 'fs';
-   import { execSync } from 'child_process';
+1. **Average with data** = total km / months with readings
+   - Formula: `yearStats.totalKmYear / yearStats.monthlyData.length`
    
-   const version = require('./package.json').version;
-   const date = new Date().toISOString();
-   const commit = execSync('git rev-parse --short HEAD').toString().trim();
-   
-   const content = `export const version = '${version}';\nexport const buildDate = '${date}';\nexport const commit = '${commit}';\n`;
-   
-   writeFileSync('src/version.ts', content);
-   ```
+2. **Average full year** = total km / 12
+   - Formula: `yearStats.totalKmYear / 12`
 
-3. Create footer component `src/components/common/VersionFooter.tsx`:
-   ```tsx
-   import { version, buildDate, commit } from '../../version';
-   import { useTranslation } from 'react-i18next';
-   
-   export const VersionFooter: React.FC = () => {
-     const { t } = useTranslation();
-     
-     return (
-       <Box
-         component="footer"
-         sx={{
-           py: 1,
-           px: 2,
-           textAlign: 'center',
-           fontSize: '0.75rem',
-           color: 'text.secondary',
-           borderTop: '1px solid',
-           borderColor: 'divider',
-         }}
-       >
-         v{version}
-         {import.meta.env.DEV && ` • ${commit}`}
-       </Box>
-     );
-   };
-   ```
+### All Years
 
-4. Add to Layout component on all pages:
-   - Import `VersionFooter` component
-   - Add before closing `Box` or after `children`
+Create a summary showing historical data per year:
+- Year | Total Km | Avg/Month | Months Recorded
+
+---
+
+## Part 2: Bento Grid Layout
+
+### Design System
+
+**Card styles:**
+- Border radius: 16px
+- Background: rgba(30, 41, 59, 0.5)
+- Border: 1px solid rgba(255,255,255,0.05)
+- Gradient accents for key metrics
+
+**Stat cards:**
+- Compact typography
+- Secondary/opacity labels
+- Icon overlays with muted colors
+
+**Tables:**
+- Striped rows
+- Hover states
+- Action buttons for edit
+
+### Mileage Tab Layout
+
+| Box | Size | Content |
+|-----|-----|---------|
+| Total Odometer | lg (spans full) | Total km with gradient card |
+| Year Stats | lg | Total Km current year |
+| Avg With Data | md | Average km (months with data) |
+| Avg Full Year | md | Average km (/12) |
+| Form | lg | New Reading Form |
+| Table | lg | Statistics by month |
+| Chart | lg | Mileage Trend (preserved) |
+
+### Tires Tab Layout
+
+| Box | Size | Content |
+|-----|-----|---------|
+| Summer Total | md | Summer tires km |
+| Winter Total | md | Winter tires km |
+| Current Tires | md | Current tires km |
+| Form | lg | New Tire Change Form |
+| Table | lg | History Table |
+| Chart | lg | Tire Usage (improved) |
+
+### Fuel Tab Layout
+
+| Box | Size | Content |
+|-----|-----|---------|
+| Total Spent | md | Total fuel cost |
+| Efficiency | md | €/km |
+| Total Km | md | Total km driven |
+| Table | lg | Monthly Details |
+| Chart | lg | Fuel Efficiency Trend |
+
+---
+
+## Part 3: Charts
+
+### Mileage Trend (preserved)
+- Line chart showing km per month
+- Blue stroke (#3b82f6)
+
+### Tire Usage (improved)
+- Replace current placeholder with visualization
+- Show summer/winter usage over time
+
+### Fuel Efficiency Trend (preserved)
+- Line chart showing €/km per month
+- Green stroke (#10b981)
+
+---
+
+## Files to Modify
+
+| File | Action |
+|------|--------|
+| `src/pages/CarPage.tsx` | Complete redesign |
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] GitHub Actions workflow created in `.github/workflows/`
-- [ ] Version bumps automatically on PR merge to main
-- [ ] Version increment follows conventional commits
-- [ ] Git tag created with version
-- [ ] Footer component created
-- [ ] Footer visible on all pages showing version number
-- [ ] Development build shows commit hash
-
----
-
-## Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| `.github/workflows/version-bump.yml` | Create |
-| `.versionrc` | Create |
-| `scripts/generate-version.js` | Create |
-| `src/components/common/VersionFooter.tsx` | Create |
-| `src/components/layout/Layout.tsx` | Modify (add footer) |
-| `package.json` | Modify (add prebuild script) |
+- [ ] Monthly averages displayed for current year
+- [ ] Historical averages per year visible
+- [ ] Bento grid layout applied to Mileage tab
+- [ ] Bento grid layout applied to Tires tab
+- [ ] Bento grid layout applied to Fuel tab
+- [ ] Mileage Trend chart preserved
+- [ ] Tire Usage chart improved
+- [ ] Fuel Efficiency Trend chart preserved
+- [ ] All existing data and functionality maintained
