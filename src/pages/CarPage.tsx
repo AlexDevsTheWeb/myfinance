@@ -470,64 +470,68 @@ const CarPage: React.FC = () => {
       {/* PNEUMATICI TAB */}
       <TabPanel value={tabValue} index={1}>
         <Grid container spacing={3}>
-          {/* Summer Total */}
-          <Grid size={{ xs: 6, md: 4 }}>
-            <Card sx={{ background: 'rgba(245, 158, 11, 0.1)', borderRadius: 4, border: '1px solid #f59e0b' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Summer Tires</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#f59e0b' }}>{tireStats.summerTotal.toLocaleString()} km</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+          {/* Column 1: Stats + Form */}
+          <Grid size={{ xs: 12, md: 3 }}>
+            {/* 3 Stat cards in 2x2 grid */}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              {/* Summer Total */}
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'rgba(245, 158, 11, 0.1)', borderRadius: 4, border: '1px solid #f59e0b' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Summer</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#f59e0b' }}>{tireStats.summerTotal.toLocaleString()} km</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-          {/* Winter Total */}
-          <Grid size={{ xs: 6, md: 4 }}>
-            <Card sx={{ background: 'rgba(59, 130, 246, 0.1)', borderRadius: 4, border: '1px solid #3b82f6' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Winter Tires</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#3b82f6' }}>{tireStats.winterTotal.toLocaleString()} km</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+              {/* Winter Total */}
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'rgba(59, 130, 246, 0.1)', borderRadius: 4, border: '1px solid #3b82f6' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Winter</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#3b82f6' }}>{tireStats.winterTotal.toLocaleString()} km</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
 
-          {/* Current */}
-          <Grid size={{ xs: 6, md: 4 }}>
-            <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Current</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900 }}>{tireStats.currentTire === 'summer' ? 'Summer' : 'Winter'}</Typography>
-                <Typography variant="body2" sx={{ opacity: 0.6 }}>{tireStats.currentRunKm.toLocaleString()} km</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+              {/* Current */}
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4 }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Current</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{tireStats.currentTire === 'summer' ? 'Summer' : 'Winter'}</Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.6 }}>{tireStats.currentRunKm.toLocaleString()} km</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
 
-          {/* New Tire Change Form */}
-          <Grid size={{ xs: 12, md: 6 }}>
+            {/* New Tire Change Form */}
             <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>New Tire Change</Typography>
               <Grid container spacing={2}>
-                <Grid size={{ xs: 4 }}>
+                <Grid size={{ xs: 6 }}>
                   <TextField type="date" fullWidth label="Date" value={newTireChange.date} onChange={(e: any) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" size="small" InputLabelProps={{ shrink: true }} />
                 </Grid>
-                <Grid size={{ xs: 4 }}>
+                <Grid size={{ xs: 6 }}>
                   <TextField select fullWidth label="Type" value={newTireChange.type} onChange={(e: any) => setNewTireChange({ ...newTireChange, type: e.target.value as any })} variant="filled" size="small">
                     <MenuItem value="summer">Summer</MenuItem>
                     <MenuItem value="winter">Winter</MenuItem>
                   </TextField>
                 </Grid>
-                <Grid size={{ xs: 4 }}>
-                  <Button fullWidth variant="contained" onClick={handleSaveTireChange}>{editingTireChangeId ? 'Update' : 'Save'}</Button>
-                </Grid>
                 <Grid size={{ xs: 12 }}>
                   <TextField type="number" fullWidth label="Odometer" value={newTireChange.odometer} onChange={(e: any) => setNewTireChange({ ...newTireChange, odometer: e.target.value })} variant="filled" />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Button fullWidth variant="contained" onClick={handleSaveTireChange}>{editingTireChangeId ? 'Update' : 'Save'}</Button>
                 </Grid>
               </Grid>
             </Paper>
           </Grid>
 
-          {/* History Table */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          {/* Column 2: History Table */}
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', mb: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>History</Typography>
               <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
                 <Table size="small">
@@ -554,13 +558,11 @@ const CarPage: React.FC = () => {
                 </Table>
               </TableContainer>
             </Paper>
-          </Grid>
 
-          {/* Tire Usage Chart */}
-          <Grid size={{ xs: 12, md: 12 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+            {/* Tire Usage Chart */}
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Tire Usage</Typography>
-              <Box sx={{ height: 250, width: '100%' }}>
+              <Box sx={{ height: 200, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={tireStats.history.slice(0, 10).map((t, i) => ({ name: `${i + 1}`, km: t.runKm }))}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
@@ -579,39 +581,44 @@ const CarPage: React.FC = () => {
       {/* ANALISI COSTI TAB */}
       <TabPanel value={tabValue} index={2}>
         <Grid container spacing={3}>
-          {/* Total Spent */}
-          <Grid size={{ xs: 6, md: 4 }}>
-            <Card sx={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: 4 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700 }}>Total Spent</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900 }}>{costStats.totalCostYear.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
-              </CardContent>
-            </Card>
+          {/* Column 1: Stats */}
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              {/* Total Spent */}
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: 4 }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700 }}>Total Spent</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{costStats.totalCostYear.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Efficiency */}
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Efficiency</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#10b981' }}>{costStats.avgEfficiencyYear.toFixed(3)} €/km</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Total Km */}
+              <Grid size={{ xs: 6 }}>
+                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <CardContent sx={{ p: 2 }}>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Total Km</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{costStats.totalKmYear.toLocaleString()}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
           </Grid>
 
-          {/* Efficiency */}
-          <Grid size={{ xs: 6, md: 4 }}>
-            <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Efficiency</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#10b981' }}>{costStats.avgEfficiencyYear.toFixed(3)} €/km</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Total Km */}
-          <Grid size={{ xs: 6, md: 4 }}>
-            <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Total Km</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900 }}>{costStats.totalKmYear.toLocaleString()}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Monthly Details Table */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          {/* Column 2: Monthly Details Table + Chart */}
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', mb: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Monthly Details</Typography>
               <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
                 <Table size="small">
@@ -639,13 +646,11 @@ const CarPage: React.FC = () => {
                 </Table>
               </TableContainer>
             </Paper>
-          </Grid>
 
-          {/* Fuel Efficiency Trend Chart */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+            {/* Fuel Efficiency Trend Chart */}
+            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Fuel Efficiency Trend</Typography>
-              <Box sx={{ height: 250, width: '100%' }}>
+              <Box sx={{ height: 200, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={costStats.chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
