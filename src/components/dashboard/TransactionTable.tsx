@@ -3,6 +3,7 @@ import { Box, Button, Chip, IconButton, Paper, Table, TableBody, TableCell, Tabl
 import dayjs from 'dayjs';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 
 interface TransactionTableProps {
@@ -27,6 +28,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 }) => {
   const { transactions: storeTransactions, deleteTransaction } = useFinanceStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Logic for dashboard view (limit is a number)
   const getDashboardTransactions = () => {
@@ -52,7 +54,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     <Paper>
       <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6">
-          {isDashboard ? 'Recent Transactions' : 'Transactions'}
+          {isDashboard ? t('dashboard.recentTransactions') : t('transactions.title')}
         </Typography>
 
         {isDashboard &&
