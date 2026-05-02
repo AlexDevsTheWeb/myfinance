@@ -10,8 +10,6 @@ export const VersionFooter: React.FC = () => {
         py: 1,
         px: 2,
         textAlign: 'center',
-        borderTop: '1px solid',
-        borderColor: 'divider',
       }}
     >
       <Typography variant="caption" color="text.secondary">
