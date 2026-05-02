@@ -11,6 +11,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 import { getEnvVar } from '../../utils/variables.utils';
 import TransactionModal from '../modals/TransactionModal';
+import { VersionFooter } from '../common/VersionFooter';
 
 // Initialize dayjs locale based on current language
 dayjs.locale(i18n.language);
@@ -414,6 +415,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
         type={modalType}
         transaction={transactionToEdit}
       />
+      <VersionFooter />
     </Box>
   );
 };
