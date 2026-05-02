@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 import { create } from 'zustand';
 import { db } from '../lib/firebase';
+import i18n from '../lib/i18n';
 import { useAuthStore } from './useAuthStore';
 
 export interface Category {
@@ -119,6 +120,8 @@ interface FinanceState {
   deletedRecurringInstances: { recurringLinkId: string; date: string }[];
   isSaving: boolean;
   saveError: string | null;
+  language: string;
+  setLanguage: (lang: string) => void;
   setInitialBalance: (balance: number) => void;
   addTransaction: (transaction: Transaction) => void;
   updateTransaction: (transaction: Transaction) => void;
@@ -255,6 +258,13 @@ export const useFinanceStore = create<FinanceState>()(
       deletedRecurringInstances: [],
       isSaving: false,
       saveError: null,
+      language: 'it',
+
+      setLanguage: (lang) => {
+        localStorage.setItem('myfinance_language', lang);
+        i18n.changeLanguage(lang);
+        set({ language: lang });
+      },
 
       setInitialBalance: async (balance) => {
         const userId = useAuthStore.getState().user?.uid;
