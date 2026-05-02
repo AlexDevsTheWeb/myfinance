@@ -1,0 +1,135 @@
+{
+  "app": {
+    "title": "My finance tracker"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "salary": "Salary",
+    "analysis": "Analysis",
+    "car": "Car",
+    "utilities": "Utilities",
+    "config": "Settings"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "actions": "Actions",
+    "loading": "Loading...",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "balance": "Balance",
+    "income": "Income",
+    "expense": "Expense",
+    "netCashFlow": "Net Cash Flow",
+    "recentTransactions": "Recent Transactions",
+    "thisMonth": "This Month",
+    "accounts": "Accounts",
+    "welcome": "Welcome back! Here's your financial overview.",
+    "goToCar": "Go to Car Management",
+    "mileageReminder": "Mileage Reminder",
+    "mileageReminderText": "It's the first of the month! Don't forget to record the mileage reading from your car dashboard.",
+    "accountsDetail": "Accounts Detail"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "addNew": "New Transaction",
+    "date": "Date",
+    "description": "Description",
+    "category": "Category",
+    "subcategory": "Subcategory",
+    "amount": "Amount",
+    "type": "Type",
+    "account": "Account",
+    "income": "Income",
+    "expense": "Expense",
+    "noTransactions": "No transactions",
+    "addFirst": "Add your first transaction"
+  },
+  "salary": {
+    "title": "Salary",
+    "salary": "Salary",
+    "deltas": "Differences",
+    "total": "Total",
+    "monthly": "Monthly",
+    "yearly": "Yearly"
+  },
+  "analysis": {
+    "title": "Analysis",
+    "totalIncome": "Total Income",
+    "totalExpense": "Total Expense",
+    "balance": "Balance",
+    "cashFlowTrend": "Cash Flow Trend",
+    "expensesByCategory": "Expenses by Category"
+  },
+  "car": {
+    "title": "Car",
+    "mileage": "Mileage",
+    "tires": "Tires",
+    "maintenance": "Maintenance",
+    "addMileage": "Add Mileage",
+    "addTire": "Add Tire"
+  },
+  "utilities": {
+    "title": "Utilities",
+    "electricity": "Electricity",
+    "gas": "Gas",
+    "water": "Water",
+    "addReading": "Add Reading"
+  },
+  "config": {
+    "general": "General",
+    "language": "Language",
+    "balance": "Balance",
+    "recurring": "Recurring",
+    "expenses": "Expenses",
+    "incomes": "Incomes",
+    "backup": "Backup",
+    "modules": "Active Modules",
+    "modulesDescription": "Enable or disable app modules",
+    "financeTracker": "Finance Management",
+    "carManagement": "Car Management",
+    "utilityTracker": "Utilities Management",
+    "calculationStartDate": "Calculation Start Date",
+    "calculationStartDateDescription": "Totals are calculated from this date onwards"
+  },
+  "language": {
+    "italian": "Italiano",
+    "english": "English"
+  },
+  "dateFormat": "MM/DD/YYYY",
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "app": {
+    "title": "Il mio finance tracker"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "transactions": "Transazioni",
+    "salary": "Stipendio",
+    "analysis": "Analisi",
+    "car": "Auto",
+    "utilities": "Utenze",
+    "config": "Configurazione"
+  },
+  "common": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "add": "Aggiungi",
+    "confirm": "Conferma",
+    "yes": "Sì",
+    "no": "No",
+    "close": "Chiudi",
+    "search": "Cerca",
+    "filter": "Filtra",
+    "actions": "Azioni",
+    "loading": "Caricamento...",
+    "logout": "Esci"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "balance": "Saldo",
+    "income": "Entrate",
+    "expense": "Uscite",
+    "netCashFlow": "Flusso di cassa netto",
+    "recentTransactions": "Transazioni recenti",
+    "thisMonth": "Questo mese",
+    "accounts": "Conti",
+    "welcome": "Benvenuto! Ecco la panoramica finanziaria.",
+    "goToCar": "Vai alla gestione auto",
+    "mileageReminder": "Promemoria Chilometri",
+    "mileageReminderText": "È il primo del mese! Non dimenticare di registrare il valore dei km letti sul cruscotto dell'auto.",
+    "accountsDetail": "Dettagli Conti"
+  },
+  "transactions": {
+    "title": "Transazioni",
+    "addNew": "Nuova transazione",
+    "date": "Data",
+    "description": "Descrizione",
+    "category": "Categoria",
+    "subcategory": "Sottocategoria",
+    "amount": "Importo",
+    "type": "Tipo",
+    "account": "Conto",
+    "income": "Entrata",
+    "expense": "Uscita",
+    "noTransactions": "Nessuna transazione",
+    "addFirst": "Aggiungi la tua prima transazione"
+  },
+  "salary": {
+    "title": "Stipendio",
+    "salary": "Stipendio",
+    "deltas": "Differenze",
+    "total": "Totale",
+    "monthly": "Mensile",
+    "yearly": "Annuale"
+  },
+  "analysis": {
+    "title": "Analisi",
+    "totalIncome": "Totale entrate",
+    "totalExpense": "Totale uscite",
+    "balance": "Saldo",
+    "cashFlowTrend": "Andamento flusso di cassa",
+    "expensesByCategory": "Uscite per categoria"
+  },
+  "car": {
+    "title": "Auto",
+    "mileage": "Chilometraggio",
+    "tires": "Pneumatici",
+    "maintenance": "Manutenzione",
+    "addMileage": "Aggiungi chilometraggio",
+    "addTire": "Aggiungi pneumatico"
+  },
+  "utilities": {
+    "title": "Utenze",
+    "electricity": "Elettricità",
+    "gas": "Gas",
+    "water": "Acqua",
+    "addReading": "Aggiungi lettura"
+  },
+  "config": {
+    "general": "Generale",
+    "language": "Lingua",
+    "balance": "Saldo",
+    "recurring": "Ricorrenti",
+    "expenses": "Spese",
+    "incomes": "Entrate",
+    "backup": "Backup",
+    "modules": "Moduli attivi",
+    "modulesDescription": "Attiva o disattiva i moduli dell'app",
+    "financeTracker": "Gestione finanziaria",
+    "carManagement": "Gestione auto",
+    "utilityTracker": "Gestione utenze",
+    "calculationStartDate": "Data inizio calcolo",
+    "calculationStartDateDescription": "Da questa data in poi vengono calcolati i totali"
+  },
+  "language": {
+    "italian": "Italiano",
+    "english": "English"
+  },
+  "dateFormat": "DD/MM/YYYY",
+  "days": {
+    "monday": "Lunedì",
+    "tuesday": "Martedì",
+    "wednesday": "Mercoledì",
+    "thursday": "Giovedì",
+    "friday": "Venerdì",
+    "saturday": "Sabato",
+    "sunday": "Domenica"
+  },
+  "months": {
+    "january": "Gennaio",
+    "february": "Febbraio",
+    "march": "Marzo",
+    "april": "Aprile",
+    "may": "Maggio",
+    "june": "Giugno",
+    "july": "Luglio",
+    "august": "Agosto",
+    "september": "Settembre",
+    "october": "Ottobre",
+    "november": "Novembre",
+    "december": "Dicembre"
+  }
+}

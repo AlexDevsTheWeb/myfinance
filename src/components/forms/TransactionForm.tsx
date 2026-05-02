@@ -2,6 +2,7 @@
 import { Autocomplete, Box, FormHelperText, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 
 interface TransactionFormProps {
@@ -90,6 +91,7 @@ function validateTransactionForm(
 const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFormData, isRecurring = false }) => {
   const { categories, incomeCategories, transactions, accounts } = useFinanceStore();
   const currentCategories = type === 'income' ? incomeCategories : categories;
+  const { t } = useTranslation();
 
   // Form validation errors
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -134,7 +136,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
           <Grid size={{ xs: 12 }}>
             <TextField
               fullWidth
-              label="Date"
+              label={t('transactions.date')}
               type="date"
               variant="filled"
               value={formData.date || dayjs().format('YYYY-MM-DD')}
@@ -174,7 +176,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Description"
+                label={t('transactions.description')}
                 variant="filled"
                 placeholder="e.g. Salary, Rent, Grocery"
                 error={!!formErrors.description}
@@ -187,7 +189,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
         <Grid size={{ xs: 12 }}>
           <TextField
             fullWidth
-            label="Amount"
+            label={t('transactions.amount')}
             type="number"
             variant="filled"
             value={formData.amount}
@@ -282,7 +284,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
         <Grid size={{ xs: 5 }}>
           <TextField
             fullWidth
-            label="Category"
+            label={t('transactions.category')}
             variant="filled"
             value={formData.category}
             slotProps={{ input: { readOnly: true } }}
@@ -296,7 +298,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
           <TextField
             fullWidth
             select
-            label="Account"
+            label={t('transactions.account')}
             variant="filled"
             value={formData.accountId}
             onChange={(e: any) => setFormData({ ...formData, accountId: e.target.value })}

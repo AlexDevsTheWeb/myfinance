@@ -2,17 +2,18 @@ import { BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event
 import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
 import dayjs from 'dayjs';
-import 'dayjs/locale/it';
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../lib/i18n';
 import { useLogout } from '../../hooks/useLogout';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 import { getEnvVar } from '../../utils/variables.utils';
 import TransactionModal from '../modals/TransactionModal';
 
-// Set dayjs to Italian
-dayjs.locale('it');
+// Initialize dayjs locale based on current language
+dayjs.locale(i18n.language);
 
 const drawerWidth = 240;
 
@@ -23,6 +24,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   const { enabledModules } = useFinanceStore();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { t } = useTranslation();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorElFinance, setAnchorElFinance] = useState<null | HTMLElement>(null);
@@ -67,11 +69,11 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   const breadcrumbNameMap: { [key: string]: string } = {
     'dashboard': 'Dashboard',
     'transactions': 'Transactions',
-    'config': 'Config',
-    'salary': 'Salary Analysis',
-    'analysis': 'Detailed Analysis',
-    'car': 'Gestione Auto',
-    'utilities': 'Utenze',
+    'config': t('navigation.config'),
+    'salary': t('salary.title'),
+    'analysis': t('analysis.title'),
+    'car': t('car.title'),
+    'utilities': t('utilities.title'),
   };
 
   const drawer = (
@@ -83,36 +85,36 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
       <List>
         <ListItemButton component={Link} to="/dashboard">
           <ListItemIcon><Home sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary="Dashboard" sx={{ color: 'white' }} />
+          <ListItemText primary={t('navigation.dashboard')} sx={{ color: 'white' }} />
         </ListItemButton>
         <ListItemButton onClick={() => { navigate('/salary'); }}>
           <ListItemIcon><TrendingUp sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary="Salary Analysis" sx={{ color: 'white' }} />
+          <ListItemText primary={t('salary.title')} sx={{ color: 'white' }} />
         </ListItemButton>
         <ListItemButton onClick={() => { navigate('/analysis'); }}>
           <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary="Detailed Analysis" sx={{ color: 'white' }} />
+          <ListItemText primary={t('analysis.title')} sx={{ color: 'white' }} />
         </ListItemButton>
         {enabledModules?.carManagement && (
           <ListItemButton component={Link} to="/car">
             <ListItemIcon><CarIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-            <ListItemText primary="Auto" sx={{ color: 'white' }} />
+            <ListItemText primary={t('car.title')} sx={{ color: 'white' }} />
           </ListItemButton>
         )}
         {enabledModules?.utilityTracker && (
           <ListItemButton component={Link} to="/utilities">
             <ListItemIcon><ElecIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-            <ListItemText primary="Utenze" sx={{ color: 'white' }} />
+            <ListItemText primary={t('utilities.title')} sx={{ color: 'white' }} />
           </ListItemButton>
         )}
         <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
         <ListItemButton onClick={() => { navigate('/config'); }}>
           <ListItemIcon><SettingsIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary="Impostazioni" sx={{ color: 'white' }} />
+          <ListItemText primary={t('navigation.config')} sx={{ color: 'white' }} />
         </ListItemButton>
         <ListItemButton onClick={handleLogout}>
           <ListItemIcon><LogoutIcon sx={{ color: '#ef4444' }} /></ListItemIcon>
-          <ListItemText primary="Logout" sx={{ color: '#ef4444' }} />
+          <ListItemText primary={t('common.logout')} sx={{ color: '#ef4444' }} />
         </ListItemButton>
       </List>
     </Box>
@@ -172,10 +174,10 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                 }}
               >
                 <MenuItem onClick={() => { navigate('/salary'); handleCloseFinance(); }}>
-                  <TrendingUp sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> Salary Analysis
+                  <TrendingUp sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> {t('salary.title')}
                 </MenuItem>
                 <MenuItem onClick={() => { navigate('/analysis'); handleCloseFinance(); }}>
-                  <BarChartIcon sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> Detailed Analysis
+                  <BarChartIcon sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> {t('analysis.title')}
                 </MenuItem>
               </Menu>
 
@@ -188,7 +190,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                   startIcon={<CarIcon />}
                   sx={{ borderRadius: 2, px: 2 }}
                 >
-                  Auto
+                  {t('car.title')}
                 </Button>
               )}
               {enabledModules?.utilityTracker && (
@@ -199,7 +201,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                   startIcon={<ElecIcon />}
                   sx={{ borderRadius: 2, px: 2 }}
                 >
-                  Utenze
+                  {t('utilities.title')}
                 </Button>
               )}
 

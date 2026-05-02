@@ -9,7 +9,7 @@
 
 | Field | Value |
 |-------|-------|
-| Phase | 07-ui-redesign |
+| Phase | 09-language-i18n |
 | Status | Planned |
 
 ---
@@ -26,6 +26,11 @@
 ### Phase 07: UI Layout Refinement
 - [x] Context defined (07-CONTEXT.md)
 - [x] Plans created (07-01-PLAN.md)
+
+### Phase 09: Language i18n
+- [x] Research complete (09-RESEARCH.md)
+- [x] Context defined (09-CONTEXT.md)
+- [x] Plans created (09-01-PLAN.md, 09-02-PLAN.md, 09-03-PLAN.md, 09-04-PLAN.md)
 
 ---
 

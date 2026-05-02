@@ -127,4 +127,27 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring:
 
 ---
 
-*Roadmap audit: 2026-04-25*
+## Phase 09: Language i18n
+
+**Status:** Planned (2026-04-26)
+**Priority:** High (user experience)
+
+**Goal:** Implement internationalization with Italian/English support, language selector in ConfigPage, and locale-aware date formatting
+
+**Requirements:**
+- **[I18N-01]** User can select language in ConfigPage General tab
+- **[I18N-02]** Support Italian and English languages
+- **[I18N-03]** Default to browser language detection
+- **[I18N-04]** All UI labels use translation keys
+- **[I18N-05]** Dates display in locale-appropriate format (DD/MM/YYYY for Italian, MM/DD/YYYY for English)
+- **[I18N-06]** DatePicker uses correct locale format and stores YYYY-MM-DD in Firestore
+
+**Plans:**
+- [ ] 09-01-PLAN.md — Set up i18next infrastructure and locale files
+- [ ] 09-02-PLAN.md — Add language selector to ConfigPage General tab
+- [ ] 09-03-PLAN.md — Replace all hardcoded labels with translation keys
+- [ ] 09-04-PLAN.md — Configure locale-aware date formatting
+
+---
+
+*Roadmap audit: 2026-04-26*

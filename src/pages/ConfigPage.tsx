@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DndContext, type DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
 import { AccountBalance, Add as AddIcon, Backup as BackupIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, Repeat, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
-import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Switch, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Select, Switch, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import TransactionForm from '../components/forms/TransactionForm';
@@ -148,7 +149,11 @@ const ConfigPage: React.FC = () => {
     previewBackup,
     isSaving,
     saveError,
+    language,
+    setLanguage,
   } = useFinanceStore();
+
+  const { t } = useTranslation();
 
   const [tabValue, setTabValue] = React.useState(0);
 
@@ -469,12 +474,12 @@ const ConfigPage: React.FC = () => {
               }
             }}
           >
-            <Tab icon={<ViewQuilt sx={{ mr: 1 }} />} iconPosition="start" label="Moduli attivi" />
-            <Tab icon={<AccountBalance sx={{ mr: 1 }} />} iconPosition="start" label="Balance" />
-            <Tab icon={<Repeat sx={{ mr: 1 }} />} iconPosition="start" label="Recurring" />
-            <Tab icon={<TrendingDown sx={{ mr: 1 }} />} iconPosition="start" label="Expenses" />
-            <Tab icon={<TrendingUp sx={{ mr: 1 }} />} iconPosition="start" label="Incomes" />
-            <Tab icon={<BackupIcon sx={{ mr: 1 }} />} iconPosition="start" label="Backup" />
+            <Tab icon={<ViewQuilt sx={{ mr: 1 }} />} iconPosition="start" label={t('config.general')} />
+            <Tab icon={<AccountBalance sx={{ mr: 1 }} />} iconPosition="start" label={t('config.balance')} />
+            <Tab icon={<Repeat sx={{ mr: 1 }} />} iconPosition="start" label={t('config.recurring')} />
+            <Tab icon={<TrendingDown sx={{ mr: 1 }} />} iconPosition="start" label={t('config.expenses')} />
+            <Tab icon={<TrendingUp sx={{ mr: 1 }} />} iconPosition="start" label={t('config.incomes')} />
+            <Tab icon={<BackupIcon sx={{ mr: 1 }} />} iconPosition="start" label={t('config.backup')} />
           </Tabs>
         </Box>
 
@@ -515,6 +520,31 @@ const ConfigPage: React.FC = () => {
                 />
               </ListItem>
             </List>
+            <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
+                {t('config.language')}
+              </Typography>
+              <FormControl fullWidth variant="filled">
+                <Select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  sx={{
+                    '& .MuiSelect-select': { display: 'flex', alignItems: 'center', gap: 1 }
+                  }}
+                >
+                  <MenuItem value="it">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <span>🇮🇹</span> {t('language.italian')}
+                    </Box>
+                  </MenuItem>
+                  <MenuItem value="en">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <span>🇬🇧</span> {t('language.english')}
+                    </Box>
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
           </Paper>
         </TabPanel>
 

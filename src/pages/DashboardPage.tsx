@@ -3,6 +3,7 @@ import { Alert, AlertTitle, Box, Button, Grid, Typography } from '@mui/material'
 import dayjs from 'dayjs';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Charts from '../components/dashboard/Charts';
 import RecapCards from '../components/dashboard/RecapCards';
 import TransactionTable from '../components/dashboard/TransactionTable';
@@ -14,6 +15,7 @@ const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { enabledModules, carMileage, transactions, accounts, balanceStartDate } = useFinanceStore();
   const [accountDetails, setAccountDetails] = React.useState(false);
+  const { t } = useTranslation();
 
   const accountsDetail = React.useMemo(() => {
     const startDateStr = dayjs(balanceStartDate).format('YYYY-MM-DD');
@@ -60,10 +62,10 @@ const DashboardPage: React.FC = () => {
     <Box sx={{ pb: 10 }}>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
-          Dashboard
+          {t('dashboard.title')}
         </Typography>
         <Typography variant="body2" sx={{ opacity: 0.6 }}>
-          Welcome back! Here's your financial overview.
+          {t('dashboard.welcome')}
         </Typography>
       </Box>
 
@@ -74,12 +76,12 @@ const DashboardPage: React.FC = () => {
           sx={{ mb: 3, borderRadius: 2, border: '1px solid rgba(2, 136, 209, 0.2)' }}
           action={
             <Button color="inherit" size="small" onClick={() => navigate('/car')}>
-              Vai alla gestione auto
+              {t('dashboard.goToCar')}
             </Button>
           }
         >
-          <AlertTitle sx={{ fontWeight: 700 }}>Promemoria Chilometri</AlertTitle>
-          È il primo del mese! Non dimenticare di registrare il valore dei km letti sul cruscotto dell'auto.
+          <AlertTitle sx={{ fontWeight: 700 }}>{t('dashboard.mileageReminder')}</AlertTitle>
+          {t('dashboard.mileageReminderText')}
         </Alert>
       )}
 
