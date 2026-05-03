@@ -4,105 +4,24 @@ import { create } from 'zustand';
 import { db } from '../lib/firebase';
 import i18n from '../lib/i18n';
 import { useAuthStore } from './useAuthStore';
+import * as Types from './types';
 
-export interface Category {
-  name: string;
-  subcategories: string[];
-}
+// Re-export types (with "I" prefix)
+export { Types };
 
-export interface Account {
-  id: string;
-  name: string;
-  initialBalance: number;
-  isDefault: boolean;
-}
+// Backward-compatible type aliases (no prefix for existing code)
+export type Category = Types.ICategory;
+export type Account = Types.IAccount;
+export type Transaction = Types.ITransaction;
+export type RecurringTransaction = Types.IRecurringTransaction;
+export type AppModules = Types.IAppModules;
+export type CarMileageRecord = Types.ICarMileageRecord;
+export type TireChangeRecord = Types.ITireChangeRecord;
+export type TireSettings = Types.ITireSettings;
 
-export interface Transaction {
-  id: string;
-  date: string;
-  description: string;
-  category: string;
-  subcategory: string;
-  amount: number;
-  type: 'income' | 'expense';
-  accountId: string; // Refers to Account.id
-  recurringLinkId?: string;
-  consumption?: number; // kWh or smc
-  readingDateStart?: string; // YYYY-MM-DD
-  readingDateEnd?: string; // YYYY-MM-DD
-}
-
-export interface RecurringTransaction {
-  id: string;
-  description: string;
-  category: string;
-  subcategory: string;
-  amount: number;
-  type: 'income' | 'expense';
-  dayOfMonth: number;
-  accountId: string; // Refers to Account.id
-  startDate: string; // YYYY-MM-DD
-  endDate?: string | null; // YYYY-MM-DD (optional)
-  frequency?: 'monthly' | 'yearly';
-  monthOfYear?: number; // 1-12, only used when frequency is 'yearly'
-}
-
-export interface AppModules {
-  financeTracker: boolean;
-  carManagement: boolean;
-  utilityTracker: boolean;
-}
-
-export interface CarMileageRecord {
-  id: string;
-  year: number;
-  month: number;
-  reading: number;
-}
-
-export interface TireChangeRecord {
-  id: string;
-  date: string; // YYYY-MM-DD
-  type: 'summer' | 'winter';
-  odometer: number;
-}
-
-export interface TireSettings {
-  summerModel: string;
-  winterModel: string;
-  initialTireType: 'summer' | 'winter';
-}
-
-// Store-level validation functions for transaction data
-export function validateTransaction(t: Transaction): { valid: boolean; error?: string } {
-  if (!t.description?.trim()) {
-    return { valid: false, error: 'Description is required' };
-  }
-  if (typeof t.amount !== 'number' || t.amount <= 0) {
-    return { valid: false, error: 'Amount must be greater than 0' };
-  }
-  if (!t.date || !t.category || !t.subcategory || !t.accountId) {
-    return { valid: false, error: 'Missing required fields' };
-  }
-  // NOTE: No date validation per D-01 ("No hard date bounds")
-  return { valid: true };
-}
-
-export function validateRecurringTransaction(r: RecurringTransaction): { valid: boolean; error?: string } {
-  if (!r.description?.trim()) {
-    return { valid: false, error: 'Description is required' };
-  }
-  if (typeof r.amount !== 'number' || r.amount <= 0) {
-    return { valid: false, error: 'Amount must be greater than 0' };
-  }
-  if (!r.startDate || !r.accountId || !r.category || !r.subcategory) {
-    return { valid: false, error: 'Missing required fields' };
-  }
-  if (r.endDate && r.startDate && r.endDate < r.startDate) {
-    return { valid: false, error: 'End date cannot be before start date' };
-  }
-  return { valid: true };
-}
+// Re-export validation functions from types
+export const validateTransaction = Types.validateTransaction;
+export const validateRecurringTransaction = Types.validateRecurringTransaction;
 
 interface FinanceState {
   initialBalance: number;
