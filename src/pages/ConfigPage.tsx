@@ -484,68 +484,81 @@ const ConfigPage: React.FC = () => {
         </Box>
 
         <TabPanel value={tabValue} index={0}>
-          <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', maxWidth: 600 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Moduli Applicativi</Typography>
-            <Typography variant="body2" sx={{ mb: 3, opacity: 0.7 }}>
-              Abilita o disabilita le macro funzionalità dell'applicazione. Alcuni moduli sono sempre attivi per garantire il funzionamento base.
-            </Typography>
-            <List>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemText
-                  primary={<Typography sx={{ fontWeight: 600 }}>Finance Tracker</Typography>}
-                  secondary="Gestione entrate, uscite e transazioni ricorrenti"
-                />
-                <Switch checked={true} disabled />
-              </ListItem>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemText
-                  primary={<Typography sx={{ fontWeight: 600 }}>Gestione Auto</Typography>}
-                  secondary="Monitoraggio consumi, manutenzione e scadenze veicolo"
-                />
-                <Switch
-                  checked={enabledModules.carManagement}
-                  onChange={() => toggleModule('carManagement')}
-                  color="primary"
-                />
-              </ListItem>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemText
-                  primary={<Typography sx={{ fontWeight: 600 }}>Utenze (Luce & Gas)</Typography>}
-                  secondary="Monitoraggio consumi e costi energetici"
-                />
-                <Switch
-                  checked={enabledModules.utilityTracker}
-                  onChange={() => toggleModule('utilityTracker')}
-                  color="primary"
-                />
-              </ListItem>
-            </List>
-            <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
-                {t('config.language')}
-              </Typography>
-              <FormControl fullWidth variant="filled">
-                <Select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  sx={{
-                    '& .MuiSelect-select': { display: 'flex', alignItems: 'center', gap: 1 }
-                  }}
-                >
-                  <MenuItem value="it">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <span>🇮🇹</span> {t('language.italian')}
-                    </Box>
-                  </MenuItem>
-                  <MenuItem value="en">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <span>🇬🇧</span> {t('language.english')}
-                    </Box>
-                  </MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-          </Paper>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
+                  {t('config.language')}
+                </Typography>
+                <FormControl fullWidth variant="filled">
+                  <Select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    sx={{
+                      '& .MuiSelect-select': { display: 'flex', alignItems: 'center', gap: 1 }
+                    }}
+                  >
+                    <MenuItem value="it">
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span>🇮🇹</span> {t('language.italian')}
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="en">
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span>🇬🇧</span> {t('language.english')}
+                      </Box>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>{t('config.modules')}</Typography>
+                <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
+                  {t('config.modulesDescription')}
+                </Typography>
+                <List>
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemText
+                      primary={<Typography sx={{ fontWeight: 600 }}>{t('config.financeTracker')}</Typography>}
+                      secondary={t('dashboard.recentTransactions')}
+                    />
+                    <Switch checked={true} disabled />
+                  </ListItem>
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemText
+                      primary={<Typography sx={{ fontWeight: 600 }}>{t('config.carManagement')}</Typography>}
+                      secondary={t('car.maintenance')}
+                    />
+                    <Switch
+                      checked={enabledModules.carManagement}
+                      onChange={() => toggleModule('carManagement')}
+                      color="primary"
+                    />
+                  </ListItem>
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemText
+                      primary={<Typography sx={{ fontWeight: 600 }}>{t('config.utilityTracker')}</Typography>}
+                      secondary={t('utilities.title')}
+                    />
+                    <Switch
+                      checked={enabledModules.utilityTracker}
+                      onChange={() => toggleModule('utilityTracker')}
+                      color="primary"
+                    />
+                  </ListItem>
+                </List>
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Typography variant="body2" sx={{ textAlign: 'center', opacity: 0.3, fontStyle: 'italic' }}>
+                  {t('config.accountsPlaceholder')}
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
@@ -553,9 +566,9 @@ const ConfigPage: React.FC = () => {
             <Grid size={{ xs: 12, md: 8 }}>
               <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>Manage Accounts</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('config.manageAccounts')}</Typography>
                   <Button startIcon={<AddIcon />} variant="outlined" size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'add' })}>
-                    Add Account
+                    {t('config.addAccount')}
                   </Button>
                 </Box>
                 <List>
@@ -580,7 +593,7 @@ const ConfigPage: React.FC = () => {
                       />
                       <ListItemSecondaryAction>
                         {!acc.isDefault && (
-                          <Button size="small" variant="text" onClick={() => setDefaultAccount(acc.id)} sx={{ mr: 1, fontSize: '0.7rem' }}>Set Default</Button>
+                          <Button size="small" variant="text" onClick={() => setDefaultAccount(acc.id)} sx={{ mr: 1, fontSize: '0.7rem' }}>{t('config.setDefault')}</Button>
                         )}
                         <IconButton size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'edit', accountId: acc.id })}>
                           <EditIcon fontSize="small" />
@@ -596,7 +609,7 @@ const ConfigPage: React.FC = () => {
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
               <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>Calculation Start Date</Typography>
+                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>{t('config.calculationStartDate')}</Typography>
                 <TextField
                   type="date"
                   fullWidth
@@ -606,7 +619,7 @@ const ConfigPage: React.FC = () => {
                   slotProps={{ inputLabel: { shrink: true } }}
                 />
                 <Alert severity="info" sx={{ mt: 2, '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
-                  The current total balance is calculated using the initial balance of each account plus all transactions since this date.
+                  {t('config.calculationStartDateDescription')}
                 </Alert>
               </Paper>
             </Grid>
@@ -616,18 +629,18 @@ const ConfigPage: React.FC = () => {
         <TabPanel value={tabValue} index={2}>
           <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h5" sx={{ fontWeight: 800 }}>Recurring Templates</Typography>
+              <Typography variant="h5" sx={{ fontWeight: 800 }}>{t('config.recurringTemplates')}</Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Button startIcon={<AddIcon />} size="small" variant="outlined" color="error" onClick={() => handleOpenDialog({ type: 'recurring', mode: 'add', financeType: 'expense' })}>
-                  Add Exp
+                  {t('config.addExpense')}
                 </Button>
                 <Button startIcon={<AddIcon />} size="small" variant="outlined" color="success" onClick={() => handleOpenDialog({ type: 'recurring', mode: 'add', financeType: 'income' })}>
-                  Add Inc
+                  {t('config.addIncome')}
                 </Button>
               </Box>
             </Box>
             {recurringTransactions.length === 0 ? (
-              <Typography sx={{ py: 4, textAlign: 'center', opacity: 0.3, fontStyle: 'italic' }}>No recurring transactions defined.</Typography>
+              <Typography sx={{ py: 4, textAlign: 'center', opacity: 0.3, fontStyle: 'italic' }}>{t('config.noRecurring')}</Typography>
             ) : (
               <List sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 3 }}>
                 {recurringTransactions.map((rec, i) => (
@@ -659,7 +672,7 @@ const ConfigPage: React.FC = () => {
                       }
                       secondary={
                         <Typography variant="caption" sx={{ opacity: 0.6 }}>
-                          {rec.category} &gt; {rec.subcategory} | Every {rec.frequency === 'yearly' ? 'year in ' + dayjs().month((rec.monthOfYear || 1) - 1).format('MMMM') : 'month'} on day {rec.dayOfMonth}
+                          {rec.category} &gt; {rec.subcategory} | Every {rec.frequency === 'yearly' ? 'year in ' + dayjs().month((rec.monthOfYear || 1) - 1).format('MMMM') : t('config.month')} on day {rec.dayOfMonth}
                         </Typography>
                       }
                     />
@@ -687,68 +700,73 @@ const ConfigPage: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={5}>
-          <Paper sx={{ p: 3, mb: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-              Esporta Backup
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
-              Scarica tutti i tuoi dati in un file JSON. Usa questo per:
-            </Typography>
-            <List dense>
-              <ListItem><ListItemText primary="Esportare i dati su un altro dispositivo" /></ListItem>
-              <ListItem><ListItemText primary="Proteggerti da perdite di dati" /></ListItem>
-              <ListItem><ListItemText primary="Archiviare i tuoi dati manualmente" /></ListItem>
-            </List>
-            <Button
-              variant="contained"
-              startIcon={<Download />}
-              onClick={exportAllData}
-              disabled={isSaving}
-            >
-              Scarica Backup
-            </Button>
-          </Paper>
-
-          <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-              Ripristina da Backup
-            </Typography>
-            <Alert severity="warning" sx={{ mb: 2 }}>
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>Attenzione!</Typography>
-              Il ripristino sovrascriverà tutti i dati attuali. Assicurati di aver esportato un backup prima di procedere.
-            </Alert>
-            <input
-              type="file"
-              accept=".json"
-              id="backup-import"
-              hidden
-              onChange={handleImportBackup}
-            />
-            <label htmlFor="backup-import">
-              <Button
-                component="span"
-                variant="outlined"
-                startIcon={<Upload />}
-                disabled={isSaving}
-                sx={{ cursor: 'pointer' }}
-              >
-                Seleziona File
-              </Button>
-            </label>
-          </Paper>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                  Esporta Backup
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
+                  Scarica tutti i tuoi dati in un file JSON. Usa questo per:
+                </Typography>
+                <List dense>
+                  <ListItem><ListItemText primary="Esportare i dati su un altro dispositivo" /></ListItem>
+                  <ListItem><ListItemText primary="Proteggerti da perdite di dati" /></ListItem>
+                  <ListItem><ListItemText primary="Archiviare i tuoi dati manualmente" /></ListItem>
+                </List>
+                <Button
+                  variant="contained"
+                  startIcon={<Download />}
+                  onClick={exportAllData}
+                  disabled={isSaving}
+                >
+                  {t('config.backup.export')}
+                </Button>
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                  {t('config.backup.restore')}
+                </Typography>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>{t('common.warning') || 'Attenzione!'}</Typography>
+                  {t('config.backup.warning')}
+                </Alert>
+                <input
+                  type="file"
+                  accept=".json"
+                  id="backup-import"
+                  hidden
+                  onChange={handleImportBackup}
+                />
+                <label htmlFor="backup-import">
+                  <Button
+                    component="span"
+                    variant="outlined"
+                    startIcon={<Upload />}
+                    disabled={isSaving}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    {t('config.backup.selectFile')}
+                  </Button>
+                </label>
+              </Paper>
+            </Grid>
+          </Grid>
         </TabPanel>
 
         {/* Global Dialog for Add/Edit/Rename */}
         <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth={dialogConfig?.type === 'recurring' ? 'sm' : 'xs'} PaperProps={{ sx: { background: '#1e293b', borderRadius: 4 } }}>
           <DialogTitle sx={{ fontWeight: 800 }}>
-            {dialogConfig?.mode === 'add' ? 'Add New ' : dialogConfig?.mode === 'edit' ? 'Edit ' : 'Rename '}
-            {dialogConfig?.type === 'category' ? 'Category' : dialogConfig?.type === 'recurring' ? 'Recurring Template' : dialogConfig?.type === 'account' ? 'Account' : 'Item'}
+            {dialogConfig?.mode === 'add' ? t('config.addNew') : dialogConfig?.mode === 'edit' ? t('config.edit') : t('config.rename')} {' '}
+            {dialogConfig?.type === 'category' ? t('config.category') : dialogConfig?.type === 'recurring' ? t('config.recurringTemplate') : dialogConfig?.type === 'account' ? t('config.account') : t('config.item')}
           </DialogTitle>
           <DialogContent>
             {dialogConfig?.type === 'subcategory' && dialogConfig.mode === 'rename' && (
               <Alert severity="warning" sx={{ mb: 2, background: 'rgba(237, 108, 2, 0.1)', border: '1px solid #ed6c02' }}>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>Heads up!</Typography>
-                Renaming this item will also update all your existing transactions and recurring templates associated with it.
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>{t('common.headsUp')}</Typography>
+                {t('common.headsUpDescription')}
               </Alert>
             )}
 

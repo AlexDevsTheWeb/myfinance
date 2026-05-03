@@ -71,25 +71,25 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         <Table>
           <TableHead sx={{ background: 'rgba(255,255,255,0.02)' }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Date</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Description</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Type</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Amount</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Actions</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{t('transactions.headers.date')}</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{t('transactions.headers.description')}</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{t('transactions.headers.category')}</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{t('transactions.headers.type')}</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{t('transactions.headers.amount')}</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{t('transactions.headers.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {displayedTransactions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'rgba(255,255,255,0.3)' }}>
-                  No transactions for this period.
+                  {t('transactions.noTransactionsPeriod')}
                 </TableCell>
               </TableRow>
             ) : (
               displayedTransactions.map((t) => (
                 <TableRow key={t.id} sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { background: 'rgba(255,255,255,0.01)' } }}>
-                  <TableCell>{dayjs(t.date).format('DD MMM YYYY')}</TableCell>
+                  <TableCell>{dayjs(t.date).format('LL')}</TableCell>
                   <TableCell sx={{ fontWeight: 500 }}>{t.description}</TableCell>
                   <TableCell>
                     <Typography variant="body2">{t.category}</Typography>

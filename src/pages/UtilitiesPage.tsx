@@ -2,6 +2,7 @@ import { Bolt as ElecIcon, LocalFireDepartment as GasIcon, TrendingUp as Trendin
 import { Box, Card, CardContent, Grid, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { YearSelector } from '../components/common/YearSelector.component';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -23,6 +24,7 @@ function TabPanel(props: TabPanelProps) {
 
 const UtilitiesPage: React.FC = () => {
   const { transactions } = useFinanceStore();
+  const { t } = useTranslation();
   const [tabValue, setTabValue] = useState(0);
   const [selectedYear, setSelectedYear] = useState(dayjs().year());
 
@@ -59,13 +61,13 @@ const UtilitiesPage: React.FC = () => {
 
     // Chart Data
     const chartData = relevantTransactions.map(t => ({
-      date: dayjs(t.date).format('DD/MM/YYYY'),
+      date: dayjs(t.date).format('L'),
       year: dayjs(t.date).year(),
       unitCost: t.consumption ? parseFloat((t.amount / t.consumption).toFixed(3)) : 0,
       consumption: t.consumption || 0,
       amount: t.amount,
       period: t.readingDateStart && t.readingDateEnd
-        ? `${dayjs(t.readingDateStart).format('DD/MM')} - ${dayjs(t.readingDateEnd).format('DD/MM')}`
+        ? `${dayjs(t.readingDateStart).format('L')} - ${dayjs(t.readingDateEnd).format('L')}`
         : 'N/A'
     })).filter(d => d.consumption > 0 && d.year === selectedYear);
 
@@ -116,7 +118,7 @@ const UtilitiesPage: React.FC = () => {
               <CardContent sx={{ p: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   {icon}
-                  <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', ml: 1 }}>Totale {title}</Typography>
+                  <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', ml: 1 }}>{t('utilities.total', { title })}</Typography>
                 </Box>
                 <Typography variant="h5" sx={{ fontWeight: 900, color }}>{stats.totalCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
               </CardContent>
@@ -127,7 +129,7 @@ const UtilitiesPage: React.FC = () => {
               <CardContent sx={{ p: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <TrendingUpIcon sx={{ opacity: 0.8, mr: 0.5, fontSize: 18 }} />
-                  <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Mensile</Typography>
+                  <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>{t('utilities.monthly')}</Typography>
                 </Box>
                 <Typography variant="h5" sx={{ fontWeight: 900 }}>{stats.avgMonthlyCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
               </CardContent>
@@ -136,7 +138,7 @@ const UtilitiesPage: React.FC = () => {
           <Grid size={{ xs: 6, md: 3 }}>
             <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
               <CardContent sx={{ p: 2 }}>
-                <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Consumo Totale</Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>{t('utilities.totalConsumption')}</Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900 }}>{stats.totalConsumption.toLocaleString('it-IT')} <small style={{ fontSize: '0.8rem', opacity: 0.7 }}>{unit}</small></Typography>
               </CardContent>
             </Card>
@@ -144,7 +146,7 @@ const UtilitiesPage: React.FC = () => {
           <Grid size={{ xs: 6, md: 3 }}>
             <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
               <CardContent sx={{ p: 2 }}>
-                <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Costo Unitario</Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>{t('utilities.unitCost')}</Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: '#f59e0b' }}>{stats.avgUnitCost.toFixed(3)} <small style={{ fontSize: '0.8rem', opacity: 0.7 }}>€/{unit}</small></Typography>
               </CardContent>
             </Card>
@@ -154,27 +156,27 @@ const UtilitiesPage: React.FC = () => {
 
       <Grid size={{ xs: 12, lg: 7 }}>
         <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Storico Bollette</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>{t('utilities.billHistory')}</Typography>
           <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Data</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Importo</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Consumo</TableCell>
+<TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>{t('car.date')}</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>{t('transactions.amount')}</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>{t('utilities.totalConsumption')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {stats.history.map((row: Stats['history'][number]) => (
                   <TableRow key={row.id}>
-                    <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('DD/MM/YY')}</TableCell>
+                    <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('L')}</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 700, p: 1 }}>{row.amount.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</TableCell>
                     <TableCell align="right" sx={{ p: 1 }}>{row.consumption ? `${row.consumption} ${unit}` : '-'}</TableCell>
                   </TableRow>
                 ))}
                 {stats.history.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={3} align="center" sx={{ py: 2, opacity: 0.5 }}>Nessuna bolletta.</TableCell>
+                    <TableCell colSpan={3} align="center" sx={{ py: 2, opacity: 0.5 }}>{t('utilities.noBills')}</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -185,7 +187,7 @@ const UtilitiesPage: React.FC = () => {
 
       <Grid size={{ xs: 12, lg: 5 }}>
         <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Andamento Consumi</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('utilities.consumptionTrend')}</Typography>
           <Box sx={{ height: 300, width: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={stats.chartData}>

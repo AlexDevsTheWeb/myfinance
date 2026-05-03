@@ -3,6 +3,7 @@ import { BarChart as BarChartIcon, TrendingUp } from '@mui/icons-material';
 import { Box, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useFinanceStore } from '../store/useFinanceStore';
 
@@ -14,6 +15,7 @@ interface MonthlySalaryData {
 
 const SalaryPage: React.FC = () => {
   const { transactions } = useFinanceStore();
+  const { t } = useTranslation();
 
   const salaryData = useMemo(() => {
     return transactions
@@ -113,12 +115,12 @@ const SalaryPage: React.FC = () => {
         <Grid size={{ xs: 12, lg: 7 }}>
           <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>Year over Year Comparison</Typography>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>{t('salary.comparison')}</Typography>
               <TableContainer component={Paper} sx={{ background: 'transparent', boxShadow: 'none' }}>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Month</TableCell>
+                      <TableCell sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{t('car.month')}</TableCell>
                       {availableYears.map(year => (
                         <TableCell key={year} align="right" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{year}</TableCell>
                       ))}
