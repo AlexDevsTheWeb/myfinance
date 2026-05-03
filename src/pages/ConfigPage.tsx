@@ -484,68 +484,81 @@ const ConfigPage: React.FC = () => {
         </Box>
 
         <TabPanel value={tabValue} index={0}>
-          <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', maxWidth: 600 }}>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Moduli Applicativi</Typography>
-            <Typography variant="body2" sx={{ mb: 3, opacity: 0.7 }}>
-              Abilita o disabilita le macro funzionalità dell'applicazione. Alcuni moduli sono sempre attivi per garantire il funzionamento base.
-            </Typography>
-            <List>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemText
-                  primary={<Typography sx={{ fontWeight: 600 }}>Finance Tracker</Typography>}
-                  secondary="Gestione entrate, uscite e transazioni ricorrenti"
-                />
-                <Switch checked={true} disabled />
-              </ListItem>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemText
-                  primary={<Typography sx={{ fontWeight: 600 }}>Gestione Auto</Typography>}
-                  secondary="Monitoraggio consumi, manutenzione e scadenze veicolo"
-                />
-                <Switch
-                  checked={enabledModules.carManagement}
-                  onChange={() => toggleModule('carManagement')}
-                  color="primary"
-                />
-              </ListItem>
-              <ListItem sx={{ px: 0 }}>
-                <ListItemText
-                  primary={<Typography sx={{ fontWeight: 600 }}>Utenze (Luce & Gas)</Typography>}
-                  secondary="Monitoraggio consumi e costi energetici"
-                />
-                <Switch
-                  checked={enabledModules.utilityTracker}
-                  onChange={() => toggleModule('utilityTracker')}
-                  color="primary"
-                />
-              </ListItem>
-            </List>
-            <Box sx={{ mt: 4, pt: 3, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
-                {t('config.language')}
-              </Typography>
-              <FormControl fullWidth variant="filled">
-                <Select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  sx={{
-                    '& .MuiSelect-select': { display: 'flex', alignItems: 'center', gap: 1 }
-                  }}
-                >
-                  <MenuItem value="it">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <span>🇮🇹</span> {t('language.italian')}
-                    </Box>
-                  </MenuItem>
-                  <MenuItem value="en">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <span>🇬🇧</span> {t('language.english')}
-                    </Box>
-                  </MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-          </Paper>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
+                  {t('config.language')}
+                </Typography>
+                <FormControl fullWidth variant="filled">
+                  <Select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    sx={{
+                      '& .MuiSelect-select': { display: 'flex', alignItems: 'center', gap: 1 }
+                    }}
+                  >
+                    <MenuItem value="it">
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span>🇮🇹</span> {t('language.italian')}
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="en">
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span>🇬🇧</span> {t('language.english')}
+                      </Box>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Moduli Applicativi</Typography>
+                <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
+                  Abilita o disabilita le macro funzionalità dell'applicazione.
+                </Typography>
+                <List>
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemText
+                      primary={<Typography sx={{ fontWeight: 600 }}>Finance Tracker</Typography>}
+                      secondary="Gestione entrate, uscite e transazioni ricorrenti"
+                    />
+                    <Switch checked={true} disabled />
+                  </ListItem>
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemText
+                      primary={<Typography sx={{ fontWeight: 600 }}>Gestione Auto</Typography>}
+                      secondary="Monitoraggio consumi, manutenzione e scadenze veicolo"
+                    />
+                    <Switch
+                      checked={enabledModules.carManagement}
+                      onChange={() => toggleModule('carManagement')}
+                      color="primary"
+                    />
+                  </ListItem>
+                  <ListItem sx={{ px: 0 }}>
+                    <ListItemText
+                      primary={<Typography sx={{ fontWeight: 600 }}>Utenze (Luce & Gas)</Typography>}
+                      secondary="Monitoraggio consumi e costi energetici"
+                    />
+                    <Switch
+                      checked={enabledModules.utilityTracker}
+                      onChange={() => toggleModule('utilityTracker')}
+                      color="primary"
+                    />
+                  </ListItem>
+                </List>
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <Typography variant="body2" sx={{ textAlign: 'center', opacity: 0.3, fontStyle: 'italic' }}>
+                  Altre impostazioni disponibili nelle schede successive
+                </Typography>
+              </Paper>
+            </Grid>
+          </Grid>
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
@@ -687,55 +700,60 @@ const ConfigPage: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={5}>
-          <Paper sx={{ p: 3, mb: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-              Esporta Backup
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
-              Scarica tutti i tuoi dati in un file JSON. Usa questo per:
-            </Typography>
-            <List dense>
-              <ListItem><ListItemText primary="Esportare i dati su un altro dispositivo" /></ListItem>
-              <ListItem><ListItemText primary="Proteggerti da perdite di dati" /></ListItem>
-              <ListItem><ListItemText primary="Archiviare i tuoi dati manualmente" /></ListItem>
-            </List>
-            <Button
-              variant="contained"
-              startIcon={<Download />}
-              onClick={exportAllData}
-              disabled={isSaving}
-            >
-              Scarica Backup
-            </Button>
-          </Paper>
-
-          <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-              Ripristina da Backup
-            </Typography>
-            <Alert severity="warning" sx={{ mb: 2 }}>
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>Attenzione!</Typography>
-              Il ripristino sovrascriverà tutti i dati attuali. Assicurati di aver esportato un backup prima di procedere.
-            </Alert>
-            <input
-              type="file"
-              accept=".json"
-              id="backup-import"
-              hidden
-              onChange={handleImportBackup}
-            />
-            <label htmlFor="backup-import">
-              <Button
-                component="span"
-                variant="outlined"
-                startIcon={<Upload />}
-                disabled={isSaving}
-                sx={{ cursor: 'pointer' }}
-              >
-                Seleziona File
-              </Button>
-            </label>
-          </Paper>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                  Esporta Backup
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
+                  Scarica tutti i tuoi dati in un file JSON. Usa questo per:
+                </Typography>
+                <List dense>
+                  <ListItem><ListItemText primary="Esportare i dati su un altro dispositivo" /></ListItem>
+                  <ListItem><ListItemText primary="Proteggerti da perdite di dati" /></ListItem>
+                  <ListItem><ListItemText primary="Archiviare i tuoi dati manualmente" /></ListItem>
+                </List>
+                <Button
+                  variant="contained"
+                  startIcon={<Download />}
+                  onClick={exportAllData}
+                  disabled={isSaving}
+                >
+                  Scarica Backup
+                </Button>
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                  Ripristina da Backup
+                </Typography>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>Attenzione!</Typography>
+                  Il ripristino sovrascriverà tutti i dati attuali. Assicurati di aver esportato un backup prima di procedere.
+                </Alert>
+                <input
+                  type="file"
+                  accept=".json"
+                  id="backup-import"
+                  hidden
+                  onChange={handleImportBackup}
+                />
+                <label htmlFor="backup-import">
+                  <Button
+                    component="span"
+                    variant="outlined"
+                    startIcon={<Upload />}
+                    disabled={isSaving}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    Seleziona File
+                  </Button>
+                </label>
+              </Paper>
+            </Grid>
+          </Grid>
         </TabPanel>
 
         {/* Global Dialog for Add/Edit/Rename */}
