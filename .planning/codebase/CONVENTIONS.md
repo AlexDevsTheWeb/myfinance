@@ -1,154 +1,140 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-04-23
+**Analysis Date:** 2026-05-03
 
 ## Naming Patterns
 
 **Files:**
-- Components: PascalCase with `.component.tsx` suffix (e.g., `YearSelector.component.tsx`)
-- Pages: PascalCase with `Page.tsx` suffix (e.g., `DashboardPage.tsx`)
-- Hooks: camelCase with `.ts` extension (e.g., `useSyncFinance.ts`)
-- Stores: camelCase with `use` prefix and `Store.ts` suffix (e.g., `useAuthStore.ts`)
-- Utils: camelCase with `.utils.tsx` suffix (e.g., `variables.utils.tsx`)
-- Types: PascalCase with `.types.tsx` suffix (e.g., `auth.types.tsx`)
+- Components use `.component.tsx` suffix for reusable UI components: `AccountCard.component.tsx`, `YearSelector.component.tsx`
+- Regular `.tsx` for pages and non-reusable components: `TransactionsPage.tsx`, `TransactionTable.tsx`
+- Hooks use `use*.ts` pattern: `useSyncFinance.ts`, `useLogout.ts`
+- Stores use `use*Store.ts` pattern: `useFinanceStore.ts`, `useAuthStore.ts`
+- Utils use `.utils.tsx` suffix: `variables.utils.tsx`
+- Types use `.types.tsx` suffix: `props.types.tsx`, `auth.types.tsx`
+- Lib files use plain `.ts`: `firebase.ts`, `converters.ts`, `i18n.ts`
 
 **Interfaces:**
-- Prefix with `I` (e.g., `IAuthState`, `IProps`)
+- Use `I` prefix for interfaces: `IAuthState`, `ITabPanelProps`
+- PascalCase: `AccountCardProps`, `FinanceState`
 
-**Functions/Variables:**
-- camelCase for functions and variables
+**Functions:**
+- camelCase: `getEnvVar`, `validateTransaction`, `sanitizeTransaction`
+- Verb-noun pattern: `setUser`, `addTransaction`, `deleteCategory`
 
-**Constants:**
-- camelCase or SCREAMING_SNAKE_CASE (e.g., `drawerWidth = 240`)
+**Variables:**
+- camelCase: `isSaving`, `saveError`, `initialBalance`
+- Boolean prefixes: `isPositive`, `isDefault`, `isLoggingOut`
 
 ## Code Style
 
 **Formatting:**
-- Tool: ESLint with `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`
-- No Prettier configuration detected (no `.prettierrc*` files)
-- No enforced formatting on commit
+- ESLint 9 with flat config (`eslint.config.js`)
+- TypeScript strict mode enabled (`tsconfig.app.json`)
+- ESM with `verbatimModuleSyntax` (requires explicit `import type`)
+- 2-space indentation
 
 **Linting:**
-- Config: `eslint.config.js` using flat config format
+- Extends: `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`
 - Ignores: `dist` directory
-- Extends: recommended configs for JS, TypeScript, React Hooks, React Refresh
+- Browser globals enabled
 
-**Indentation:**
-- Based on ESLint defaults (likely 2 spaces - standard for Vite/React projects)
+**TypeScript Settings:**
+- Target: ES2022
+- Strict: true
+- `noUnusedLocals`: true
+- `noUnusedParameters`: true
+- `noFallthroughCasesInSwitch`: true
+- JSX: `react-jsx`
 
 ## Import Organization
 
-**Order (as observed in files):**
-1. Third-party library imports (`react`, `firebase`, `mui`, etc.)
-2. Relative imports (`./`, `../`)
-3. Type imports with `import type` syntax
+**Order:**
+1. External libraries (React, Firebase, etc.)
+2. MUI and icon imports
+3. Third-party utilities (Zustand, dayjs, i18next, etc.)
+4. Internal lib imports (`../lib/firebase`)
+5. Store imports (`../store/useFinanceStore`)
+6. Type imports (`../types/auth.types`)
+7. Component-specific imports
 
-**Pattern:**
-```typescript
-import { useState } from 'react';
-import { Box, Button } from '@mui/material';
-import type { User } from 'firebase/auth';
-import Layout from './components/layout/Layout';
-import { useAuthStore } from './store/useAuthStore';
-```
-
-**No path aliases configured** (no `tsconfig.json` path mappings beyond defaults)
-
-## Component Structure
-
-**React Components:**
-```typescript
-// Functional components with explicit FC type annotation
-const ComponentName: React.FC<Props> = ({ prop1, prop2 }) => {
-  // Hooks first
-  const [state, setState] = useState();
-  
-  // Handlers
-  const handleClick = () => { ... };
-  
-  // Render
-  return ( ... );
-};
-
-export default ComponentName;
-```
-
-**Props Pattern:**
-- Interface-based props defined in `src/types/props.types.tsx`
-- `React.FC` typing with explicit interface
-
-## Styling Approach
-
-**Framework:** MUI Emotion (CSS-in-JS)
-
-**Pattern:**
-- MUI `sx` prop for inline styles (preferred for simple styles)
-- MUI `styled()` API for reusable styled components
-- Direct CSS-in-JS via `@mui/styled` or `@emotion/styled`
-
-**Theme:**
-- Dark mode via MUI `createTheme`
-- Custom palette: Indigo primary (`#6366f1`), Pink secondary (`#ec4899`)
-- Font: Inter
-- Border radius: 12px default
-- Defined in `src/theme/theme.ts`
+**Path Aliases:**
+- None configured (uses relative paths)
 
 **Example:**
 ```typescript
-<Box sx={{ display: 'flex', justifyContent: 'center', height: '100vh' }}>
-  <Typography variant="h4" sx={{ fontWeight: 800 }}>
-    Title
-  </Typography>
-</Box>
-```
-
-## State Management
-
-**Library:** Zustand v5
-
-**Pattern:**
-```typescript
+import React from 'react';
+import { Box, Paper, Typography } from '@mui/material';
+import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { Line, LineChart, ResponsiveContainer, YAxis } from 'recharts';
 import { create } from 'zustand';
-import type { IState } from '../types/state.types';
-
-export const useStore = create<IState>((set) => ({
-  // State
-  items: [],
-  // Actions
-  addItem: (item) => set((state) => ({ items: [...state.items, item] })),
-}));
+import dayjs from 'dayjs';
+import { db } from '../lib/firebase';
+import { useAuthStore } from '../store/useAuthStore';
+import type { IAuthState } from '../types/auth.types';
 ```
-
-**Stores location:** `src/store/`
-
-## TypeScript Usage
-
-**Strict mode:** Likely enabled (standard in modern React projects)
-
-**Type imports:**
-```typescript
-import type { User } from 'firebase/auth';  // Preferred for type-only imports
-import { create } from 'zustand';            // Runtime imports
-```
-
-**Type definitions location:** `src/types/`
 
 ## Error Handling
 
-**Approach:** Firebase error handling via try/catch in hooks (e.g., `useLogout.ts`)
+**Patterns:**
+- Error state stored in Zustand store (`saveError` field)
+- User-facing errors via MUI Snackbar/Alert components
+- Development errors logged to console with context
+- Error messages extracted from caught exceptions: `err instanceof Error ? err.message : 'Failed to ...'`
 
-**Loading states:** Managed via Zustand stores with `loading` boolean
+**Example from `useFinanceStore.ts`:**
+```typescript
+} catch (err) {
+  const errorMessage = err instanceof Error ? err.message : 'Failed to add transaction';
+  set({ saveError: errorMessage, isSaving: false });
+  console.error('addTransaction error:', err);
+}
+```
 
-**No centralized error boundary detected**
+**Error Display:**
+- `TransactionError.tsx` component listens to `saveError` from store
+- Shows Snackbar with Alert for user notification
 
-## Commit Conventions
+## Logging
 
-**Pre-commit hooks:** None configured (no Husky, no lint-staged)
+**Framework:** Console logging (`console.error`, `console.log`)
 
-**Commit commands:** Manual via git
+**Patterns:**
+- Error logging includes action context: `console.error('addTransaction error:', err)`
+- No structured logging library configured
 
-**Lint command:** `npm run lint` - runs ESLint on entire project
+## Comments
+
+**When to Comment:**
+- Complex logic explains the "why" (e.g., comment at line 87 in `useFinanceStore.ts`: "NOTE: No date validation per D-01")
+- eslint-disable comments for specific known issues: `// eslint-disable-next-line @typescript-eslint/no-explicit-any`
+
+**JSDoc/TSDoc:**
+- Minimal usage in codebase
+- Interfaces typically self-documenting
+
+## Function Design
+
+**Size:** Large store functions (~50-100 lines for complex operations like `checkRecurring`)
+
+**Parameters:** Typed explicitly, no optional chaining in critical paths
+
+**Return Values:**
+- Validation returns object: `{ valid: boolean; error?: string }`
+- Store actions return void (async)
+
+## Module Design
+
+**Exports:**
+- Named exports for hooks and utilities: `export const useFinanceStore = create<FinanceState>()`
+- Default exports for React components: `export default AccountCard`
+
+**Barrel Files:** None (no `index.ts` barrel exports)
+
+**Store Pattern:**
+- Zustand with TypeScript generics: `create<FinanceState>()`
+- Interface defined in store file
+- All actions are async (sync local state + Firestore write)
 
 ---
 
-*Convention analysis: 2026-04-23*
+*Convention analysis: 2026-05-03*

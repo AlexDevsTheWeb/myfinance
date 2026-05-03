@@ -1,128 +1,120 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-04-23
+**Analysis Date:** 2026-05-03
 
 ## Test Framework
 
-**Status:** No test suite detected
+**Status: No testing infrastructure configured**
 
-**Findings:**
-- No Jest, Vitest, or other test runner in `package.json`
-- No `.test.ts`, `.test.tsx`, `.spec.ts`, or `.spec.tsx` files in codebase
-- No test configuration files (no `jest.config.*`, `vitest.config.*`)
-- No E2E testing framework (Playwright, Cypress, etc.)
+**Runner:** None (no Jest, Vitest, or other test runner in dependencies)
 
-## Current Quality Assurance
+**Assertion Library:** None
 
-**Manual Testing:**
-- ESLint for linting: `npm run lint`
-- TypeScript type checking: `npm run build` (runs `tsc -b`)
-- Browser testing during development: `npm run dev`
+**Test Commands:** None defined
+
+```
+# Run tests - NOT CONFIGURED
+# No test runner available in package.json scripts
+```
+
+**Evidence:**
+- No test files found (`glob('**/*.test.*')` returns no results)
+- No test framework in `package.json` dependencies or devDependencies
+- No test configuration files (`jest.config.*`, `vitest.config.*`)
 
 ## Test File Organization
 
-**Not applicable** - No test files exist
+**Location:** Not applicable - no tests exist
 
-**Standard locations that would be used (if tests were added):**
-```
-src/
-├── components/
-│   └── __tests__/           # Component unit tests
-├── hooks/
-│   └── __tests__/           # Hook tests
-├── store/
-│   └── __tests__/           # Store tests
-├── utils/
-│   └── __tests__/           # Utility function tests
-src/__tests__/               # Integration tests
-tests/                       # E2E or shared tests
-```
+**Naming:** Not applicable
 
-## Test Naming Convention
+**Structure:** Not applicable
 
-**If tests were to be added, recommended pattern:**
-- Unit tests: `ComponentName.test.tsx`
-- Spec files: `hookName.spec.ts`
+## Test Structure
 
-## Recommended Testing Setup
+**Suite Organization:** Not applicable
 
-Based on current stack, the following would be appropriate:
-
-**Unit Testing:**
-- Framework: Vitest (native Vite integration)
-- Add to `package.json`:
-  ```json
-  {
-    "devDependencies": {
-      "vitest": "^2.0.0",
-      "@testing-library/react": "^15.0.0",
-      "@testing-library/jest-dom": "^6.0.0",
-      "jsdom": "^24.0.0"
-    }
-  }
-  ```
-
-**Configuration:** Create `vitest.config.ts`:
-```typescript
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: 'jsdom',
-    globals: true,
-  },
-});
-```
-
-**Test commands:**
-```bash
-npm run test              # Run all tests
-npm run test:watch        # Watch mode
-npm run test:coverage     # Coverage report
-```
+**Patterns:** Not applicable
 
 ## Mocking
 
-**Not applicable** - No test framework in use
+**Framework:** None
 
-**Would use:** Jest/Vitest mocking, MSW for API mocking
+**Patterns:** Not applicable
+
+**What to Mock:** Not applicable
+
+**What NOT to Mock:** Not applicable
+
+## Fixtures and Factories
+
+**Test Data:** Not applicable
+
+**Location:** Not applicable
 
 ## Coverage
 
-**Current:** None enforced
+**Requirements:** None enforced
 
-**If testing added:**
-```bash
-npm run test:coverage
+**View Coverage:** No command available
+
+## Test Types
+
+**Unit Tests:** None - no test framework installed
+
+**Integration Tests:** None
+
+**E2E Tests:** None
+
+## Common Patterns
+
+**Async Testing:** Not applicable - no testing framework
+
+**Error Testing:** Not applicable
+
+## Critical Finding
+
+**No Testing Infrastructure:**
+
+This codebase has no testing infrastructure. Key implications:
+
+1. **No test files exist** - The codebase contains zero test files
+2. **No test runner** - No Jest, Vitest, Playwright, or other testing framework in dependencies
+3. **No linting of tests** - ESLint is configured but not used for test files (no test files to lint)
+4. **Risk:** Any refactoring or changes could break existing functionality without detection
+
+**Recommended additions to `package.json`:**
+```json
+{
+  "devDependencies": {
+    "vitest": "^2.0.0",
+    "@testing-library/react": "^16.0.0",
+    "jsdom": "^24.0.0"
+  },
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  }
+}
 ```
 
-**Recommended coverage targets:**
-- Components: 80%+ line coverage
-- Hooks: 90%+ line coverage
-- Utilities: 100% line coverage
-
-## E2E Testing
-
-**Not present**
-
-**Would use:** Playwright (recommended for React + Vite projects)
-
-## Integration Testing
-
-**Not present**
-
-**Would test:**
-- Firebase auth flow
-- Store interactions
-- Component composition
-- Route guards
-
-## CI/CD Testing
-
-**Current:** No CI pipeline detected
+**Suggested test file structure:**
+```
+src/
+├── __tests__/                 # Test files
+│   ├── store/
+│   │   └── useFinanceStore.test.ts
+│   ├── lib/
+│   │   └── converters.test.ts
+│   └── components/
+│       └── AccountCard.test.tsx
+├── components/                 # Source files
+├── store/
+├── lib/
+└── ...
+```
 
 ---
 
-*Testing analysis: 2026-04-23*
+*Testing analysis: 2026-05-03*
