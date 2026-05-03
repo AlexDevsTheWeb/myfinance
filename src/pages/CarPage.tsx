@@ -546,7 +546,7 @@ const CarPage: React.FC = () => {
                   <TableBody>
                     {tireStats.history.map((row) => (
                       <TableRow key={row.id}>
-                        <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('DD/MM')}</TableCell>
+                        <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('L')}</TableCell>
                         <TableCell sx={{ p: 1, color: row.type === 'summer' ? '#f59e0b' : '#3b82f6' }}>{row.type === 'summer' ? 'Summer' : 'Winter'}</TableCell>
                         <TableCell align="right" sx={{ p: 1, fontWeight: 600 }}>{row.runKm.toLocaleString()}</TableCell>
                         <TableCell align="right" sx={{ p: 1 }}>

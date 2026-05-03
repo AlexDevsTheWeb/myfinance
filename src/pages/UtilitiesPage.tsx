@@ -59,13 +59,13 @@ const UtilitiesPage: React.FC = () => {
 
     // Chart Data
     const chartData = relevantTransactions.map(t => ({
-      date: dayjs(t.date).format('DD/MM/YYYY'),
+      date: dayjs(t.date).format('L'),
       year: dayjs(t.date).year(),
       unitCost: t.consumption ? parseFloat((t.amount / t.consumption).toFixed(3)) : 0,
       consumption: t.consumption || 0,
       amount: t.amount,
       period: t.readingDateStart && t.readingDateEnd
-        ? `${dayjs(t.readingDateStart).format('DD/MM')} - ${dayjs(t.readingDateEnd).format('DD/MM')}`
+        ? `${dayjs(t.readingDateStart).format('L')} - ${dayjs(t.readingDateEnd).format('L')}`
         : 'N/A'
     })).filter(d => d.consumption > 0 && d.year === selectedYear);
 
@@ -167,7 +167,7 @@ const UtilitiesPage: React.FC = () => {
               <TableBody>
                 {stats.history.map((row: Stats['history'][number]) => (
                   <TableRow key={row.id}>
-                    <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('DD/MM/YY')}</TableCell>
+                    <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('L')}</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 700, p: 1 }}>{row.amount.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</TableCell>
                     <TableCell align="right" sx={{ p: 1 }}>{row.consumption ? `${row.consumption} ${unit}` : '-'}</TableCell>
                   </TableRow>

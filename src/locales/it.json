@@ -11,7 +11,7 @@
     "utilities": "Utenze",
     "config": "Configurazione"
   },
-  "common": {
+"common": {
     "save": "Salva",
     "cancel": "Annulla",
     "delete": "Elimina",
@@ -23,9 +23,46 @@
     "close": "Chiudi",
     "search": "Cerca",
     "filter": "Filtra",
+    "filterAll": "Tutti",
     "actions": "Azioni",
     "loading": "Caricamento...",
-    "logout": "Esci"
+    "logout": "Esci",
+    "saveChanges": "Salva modifiche",
+    "noData": "Nessun dato",
+    "warning": "Attenzione!",
+    "headsUp": "Attenzione!",
+    "headsUpDescription": "La rinomina aggiornerà anche tutte le transazioni e i template ricorrenti associati."
+  },
+  "transactions": {
+    "title": "Transazioni",
+    "addNew": "Nuova transazione",
+    "date": "Data",
+    "description": "Descrizione",
+    "category": "Categoria",
+    "subcategory": "Sottocategoria",
+    "amount": "Importo",
+    "type": "Tipo",
+    "account": "Conto",
+    "income": "Entrata",
+    "expense": "Uscita",
+    "noTransactions": "Nessuna transazione",
+    "addFirst": "Aggiungi la tua prima transazione",
+    "headers": {
+      "date": "Data",
+      "description": "Descrizione",
+      "category": "Categoria",
+      "type": "Tipo",
+      "amount": "Importo",
+      "actions": "Azioni"
+    },
+    "filters": {
+      "title": "Filtri",
+      "category": "Categoria",
+      "subcategory": "Sottocategoria",
+      "sortBy": "Ordina per:",
+      "allCategories": "Tutte le categorie",
+      "allSubcategories": "Tutte le sottocategorie"
+    }
   },
   "dashboard": {
     "title": "Dashboard",
@@ -55,6 +92,7 @@
     "income": "Entrata",
     "expense": "Uscita",
     "noTransactions": "Nessuna transazione",
+    "noTransactionsPeriod": "Nessuna transazione per questo periodo.",
     "addFirst": "Aggiungi la tua prima transazione"
   },
   "salary": {
@@ -63,7 +101,8 @@
     "deltas": "Differenze",
     "total": "Totale",
     "monthly": "Mensile",
-    "yearly": "Annuale"
+    "yearly": "Annuale",
+    "comparison": "Confronto Annuale"
   },
   "analysis": {
     "title": "Analisi",
@@ -79,14 +118,42 @@
     "tires": "Pneumatici",
     "maintenance": "Manutenzione",
     "addMileage": "Aggiungi chilometraggio",
-    "addTire": "Aggiungi pneumatico"
+    "addTire": "Aggiungi pneumatico",
+    "settings": "Impostazioni Veicolo",
+    "save": "Salva",
+    "totalKm": "Totale Km",
+    "trend": "Andamento Chilometraggio",
+    "statistics": "Statistiche {year}",
+    "month": "Mese",
+    "km": "Km",
+    "tireUsage": "Uso Pneumatici",
+    "summer": "Estivi",
+    "winter": "Invernali",
+    "current": "Attuali",
+    "newTire": "Nuovo Cambio Pneumatici",
+    "history": "Storico",
+    "date": "Data",
+    "type": "Tipo",
+    "avgData": "Avg/Dati",
+    "avg12": "Avg/12",
+    "efficiency": "Efficienza",
+    "monthlyDetails": "Dettagli Mensili",
+    "cost": "Costo",
+    "fuelTrend": "Andamento Consumo Carburante"
   },
   "utilities": {
     "title": "Utenze",
     "electricity": "Elettricità",
     "gas": "Gas",
     "water": "Acqua",
-    "addReading": "Aggiungi lettura"
+    "addReading": "Aggiungi lettura",
+    "total": "Totale {title}",
+    "monthly": "Mensile",
+    "totalConsumption": "Consumo Totale",
+    "unitCost": "Costo Unitario",
+    "billHistory": "Storico Bollette",
+    "consumptionTrend": "Andamento Consumi",
+    "noBills": "Nessuna bolletta."
   },
   "config": {
     "general": "Generale",
@@ -96,13 +163,40 @@
     "expenses": "Spese",
     "incomes": "Entrate",
     "backup": "Backup",
+    "backup.export": "Esporta Backup",
+    "backup.restore": "Ripristina da Backup",
+"backup.warning": "Attenzione! Il ripristino sovrascriverà tutti i dati attuali. Assicurati di aver esportato un backup prima di procedere.",
     "modules": "Moduli attivi",
     "modulesDescription": "Attiva o disattiva i moduli dell'app",
     "financeTracker": "Gestione finanziaria",
     "carManagement": "Gestione auto",
     "utilityTracker": "Gestione utenze",
     "calculationStartDate": "Data inizio calcolo",
-    "calculationStartDateDescription": "Da questa data in poi vengono calcolati i totali"
+    "calculationStartDateDescription": "Da questa data in poi vengono calcolati i totali",
+    "accounts": "Gestione Conti",
+    "manageAccounts": "Gestione Conti",
+    "addAccount": "Aggiungi Conto",
+    "editAccount": "Modifica Conto",
+    "initialBalance": "Saldo iniziale",
+    "setDefault": "Imposta Predefinito",
+    "default": "Predefinito",
+    "recurringTemplates": "Template Ricorrenti",
+    "noRecurring": "Nessuna transazione ricorrente definita.",
+    "addExpense": "Agg. Spesa",
+    "addIncome": "Agg. Entrata",
+    "month": "mese",
+    "yearly": "annuali",
+    "frequency": "Frequenza",
+    "dayOfMonth": "Giorno del mese",
+    "accountsPlaceholder": "Altre impostazioni disponibili nelle schede successive",
+    "backup.selectFile": "Seleziona File",
+    "addNew": "Aggiungi nuovo",
+    "edit": "Modifica",
+    "rename": "Rinomina",
+    "category": "Categoria",
+    "item": "Elemento",
+    "recurringTemplate": "Template Ricorrente",
+    "account": "Conto"
   },
   "language": {
     "italian": "Italiano",

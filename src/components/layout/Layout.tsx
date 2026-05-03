@@ -239,7 +239,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                   <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5, opacity: 0.6 }}>
                     <DateIcon sx={{ fontSize: 14, mr: 0.5 }} />
                     <Typography variant="caption" sx={{ textTransform: 'capitalize' }}>
-                      {dayjs().format('dddd, D MMMM')}
+                      {dayjs().format('LLLL')}
                     </Typography>
                   </Box>
                 </Box>
