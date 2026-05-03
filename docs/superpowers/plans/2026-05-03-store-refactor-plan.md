@@ -8,6 +8,11 @@
 
 **Tech Stack:** TypeScript, Zustand, Firebase Firestore
 
+**Naming Conventions:**
+- Interfaces: prefix with "I" (e.g., `ICategory`, `IAccount`)
+- Types: prefix with "T" (e.g., `TTransaction`, `TRecurringTransaction`)
+- This applies to all extracted types in the codebase
+
 ---
 
 ## File Structure to Create/Modify
