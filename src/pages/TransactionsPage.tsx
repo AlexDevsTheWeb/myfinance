@@ -4,12 +4,14 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import TransactionTable from '../components/dashboard/TransactionTable';
 import TransactionModal from '../components/modals/TransactionModal';
 import { useFinanceStore, type Transaction } from '../store/useFinanceStore';
 
 const TransactionsPage: React.FC = () => {
   const { transactions, categories, incomeCategories } = useFinanceStore();
+  const { t } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
   const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
@@ -128,7 +130,7 @@ const TransactionsPage: React.FC = () => {
             <Card sx={{ borderRadius: 0, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
               <CardContent sx={{ py: 2 }}>
                 <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>Filters</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>{t('transactions.filters.title')}</Typography>
                   <Button size="small" variant="outlined" startIcon={<FilterList />} onClick={handleClearFilters} sx={{ borderRadius: 2 }}>
                     Clear
                   </Button>
@@ -168,16 +170,16 @@ const TransactionsPage: React.FC = () => {
                   </Grid>
                   <Grid size={{ xs: 12 }}>
                     <FormControl fullWidth>
-                      <InputLabel>Category</InputLabel>
+                      <InputLabel>{t('transactions.filters.category')}</InputLabel>
                       <Select
                         value={category}
-                        label="Category"
+                        label={t('transactions.filters.category')}
                         onChange={(e) => {
                           setCategory(e.target.value);
                           setSubcategory('all');
                         }}
                       >
-                        <MenuItem value="all">All Categories</MenuItem>
+                        <MenuItem value="all">{t('transactions.filters.allCategories')}</MenuItem>
                         {allCategories.map(cat => (
                           <MenuItem key={cat} value={cat}>{cat}</MenuItem>
                         ))}
@@ -186,13 +188,13 @@ const TransactionsPage: React.FC = () => {
                   </Grid>
                   <Grid size={{ xs: 12 }}>
                     <FormControl fullWidth disabled={category === 'all'}>
-                      <InputLabel>Subcategory</InputLabel>
+                      <InputLabel>{t('transactions.filters.subcategory')}</InputLabel>
                       <Select
                         value={subcategory}
-                        label="Subcategory"
+                        label={t('transactions.filters.subcategory')}
                         onChange={(e) => setSubcategory(e.target.value)}
                       >
-                        <MenuItem value="all">All Subcategories</MenuItem>
+                        <MenuItem value="all">{t('transactions.filters.allSubcategories')}</MenuItem>
                         {availableSubcategories.map(sub => (
                           <MenuItem key={sub} value={sub}>{sub}</MenuItem>
                         ))}
@@ -201,7 +203,7 @@ const TransactionsPage: React.FC = () => {
                   </Grid>
                   <Grid size={{ xs: 12 }}>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-                      <Typography variant="body2" sx={{ mr: 1, opacity: 0.5 }}>Sort by:</Typography>
+                      <Typography variant="body2" sx={{ mr: 1, opacity: 0.5 }}>{t('transactions.filters.sortBy')}</Typography>
                       {[
                         { val: 'date-desc', label: 'Date', icon: <ArrowDownward sx={{ fontSize: 16 }} /> },
                         { val: 'date-asc', label: 'Date', icon: <ArrowUpward sx={{ fontSize: 16 }} /> },

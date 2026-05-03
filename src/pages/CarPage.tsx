@@ -3,6 +3,7 @@ import { Edit as EditIcon, LocalGasStation as FuelIcon, Speed as SpeedIcon, Driv
 import { Box, Button, Card, CardContent, Collapse, Grid, IconButton, MenuItem, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { YearSelector } from '../components/common/YearSelector.component';
 import { useFinanceStore, type CarMileageRecord, type TireChangeRecord } from '../store/useFinanceStore';
@@ -33,6 +34,8 @@ const CarPage: React.FC = () => {
     tireSettings, tireChanges, addTireChange, updateTireChange,
     transactions
   } = useFinanceStore();
+
+  const { t } = useTranslation();
 
   const [tabValue, setTabValue] = useState(0);
 
@@ -312,7 +315,7 @@ const CarPage: React.FC = () => {
 
       <Collapse in={showSettings}>
         <Paper sx={{ p: 3, mb: 3, background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>Vehicle Settings</Typography>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>{t('car.settings')}</Typography>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <TextField
               label="Initial Km"
@@ -323,7 +326,7 @@ const CarPage: React.FC = () => {
               size="small"
               sx={{ flexGrow: 1 }}
             />
-            <Button variant="contained" onClick={handleSaveInitialMileage}>Save</Button>
+            <Button variant="contained" onClick={handleSaveInitialMileage}>{t('car.save')}</Button>
           </Box>
         </Paper>
       </Collapse>
@@ -337,7 +340,7 @@ const CarPage: React.FC = () => {
               <CardContent sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <SpeedIcon sx={{ mr: 1, opacity: 0.8 }} />
-                  <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>Total Km</Typography>
+                  <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>{t('car.totalKm')}</Typography>
                 </Box>
                 <Typography variant="h4" sx={{ fontWeight: 900 }}>{totalOdometer.toLocaleString('it-IT')} <small style={{ fontSize: '1rem', opacity: 0.7 }}>km</small></Typography>
               </CardContent>
@@ -383,7 +386,7 @@ const CarPage: React.FC = () => {
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
                   <CardContent sx={{ p: 2 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Avg/Data</Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.avgData')}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>{yearStats.avgKmYear.toLocaleString()} km</Typography>
                   </CardContent>
                 </Card>
@@ -393,7 +396,7 @@ const CarPage: React.FC = () => {
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
                   <CardContent sx={{ p: 2 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Avg/12</Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.avg12')}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>{(yearStats.totalKmYear / 12).toLocaleString()} km</Typography>
                   </CardContent>
                 </Card>
@@ -403,7 +406,7 @@ const CarPage: React.FC = () => {
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
                   <CardContent sx={{ p: 2 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, display: 'block', mb: 1 }}>History</Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, display: 'block', mb: 1 }}>{t('car.history')}</Typography>
                     <Box sx={{ maxHeight: 50, overflow: 'auto' }}>
                       {historicalStats.slice(0, 3).map(h => (
                         <Box key={h.year} sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
@@ -419,7 +422,7 @@ const CarPage: React.FC = () => {
 
             {/* Mileage Trend Chart */}
             <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Mileage Trend</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.trend')}</Typography>
               <Box sx={{ height: 200, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={yearStats.chartData}>
@@ -438,14 +441,14 @@ const CarPage: React.FC = () => {
           <Grid size={{ xs: 12, md: 4 }}>
             <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 800 }}>Statistics {selectedYearFilter}</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 800 }}>{t('car.statistics', { year: selectedYearFilter })}</Typography>
               </Box>
               <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Month</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Km</TableCell>
+                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>{t('car.month')}</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>{t('car.km')}</TableCell>
                       <TableCell align="right" sx={{ p: 1 }}></TableCell>
                     </TableRow>
                   </TableHead>
@@ -478,7 +481,7 @@ const CarPage: React.FC = () => {
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(245, 158, 11, 0.1)', borderRadius: 4, border: '1px solid #f59e0b' }}>
                   <CardContent sx={{ p: 2 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Summer</Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.summer')}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#f59e0b' }}>{tireStats.summerTotal.toLocaleString()} km</Typography>
                   </CardContent>
                 </Card>
@@ -488,7 +491,7 @@ const CarPage: React.FC = () => {
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(59, 130, 246, 0.1)', borderRadius: 4, border: '1px solid #3b82f6' }}>
                   <CardContent sx={{ p: 2 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Winter</Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.winter')}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#3b82f6' }}>{tireStats.winterTotal.toLocaleString()} km</Typography>
                   </CardContent>
                 </Card>
@@ -498,8 +501,8 @@ const CarPage: React.FC = () => {
               <Grid size={{ xs: 12 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4 }}>
                   <CardContent sx={{ p: 2 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Current</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{tireStats.currentTire === 'summer' ? 'Summer' : 'Winter'}</Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.current')}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{tireStats.currentTire === 'summer' ? t('car.summer') : t('car.winter')}</Typography>
                     <Typography variant="body2" sx={{ opacity: 0.6 }}>{tireStats.currentRunKm.toLocaleString()} km</Typography>
                   </CardContent>
                 </Card>
@@ -508,15 +511,15 @@ const CarPage: React.FC = () => {
 
             {/* New Tire Change Form */}
             <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>New Tire Change</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.newTire')}</Typography>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6 }}>
-                  <TextField type="date" fullWidth label="Date" value={newTireChange.date} onChange={(e: any) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" size="small" InputLabelProps={{ shrink: true }} />
+                  <TextField type="date" fullWidth label={t('car.date')} value={newTireChange.date} onChange={(e: any) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" size="small" InputLabelProps={{ shrink: true }} />
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <TextField select fullWidth label="Type" value={newTireChange.type} onChange={(e: any) => setNewTireChange({ ...newTireChange, type: e.target.value as any })} variant="filled" size="small">
-                    <MenuItem value="summer">Summer</MenuItem>
-                    <MenuItem value="winter">Winter</MenuItem>
+                  <TextField select fullWidth label={t('car.type')} value={newTireChange.type} onChange={(e: any) => setNewTireChange({ ...newTireChange, type: e.target.value as any })} variant="filled" size="small">
+                    <MenuItem value="summer">{t('car.summer')}</MenuItem>
+                    <MenuItem value="winter">{t('car.winter')}</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid size={{ xs: 12 }}>
@@ -537,9 +540,9 @@ const CarPage: React.FC = () => {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Date</TableCell>
-                      <TableCell sx={{ p: 1 }}>Type</TableCell>
-                      <TableCell align="right" sx={{ p: 1 }}>Km</TableCell>
+                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>{t('car.date')}</TableCell>
+                      <TableCell sx={{ p: 1 }}>{t('car.type')}</TableCell>
+                      <TableCell align="right" sx={{ p: 1 }}>{t('car.km')}</TableCell>
                       <TableCell align="right" sx={{ p: 1 }}></TableCell>
                     </TableRow>
                   </TableHead>
@@ -547,7 +550,7 @@ const CarPage: React.FC = () => {
                     {tireStats.history.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('L')}</TableCell>
-                        <TableCell sx={{ p: 1, color: row.type === 'summer' ? '#f59e0b' : '#3b82f6' }}>{row.type === 'summer' ? 'Summer' : 'Winter'}</TableCell>
+                        <TableCell sx={{ p: 1, color: row.type === 'summer' ? '#f59e0b' : '#3b82f6' }}>{row.type === 'summer' ? t('car.summer') : t('car.winter')}</TableCell>
                         <TableCell align="right" sx={{ p: 1, fontWeight: 600 }}>{row.runKm.toLocaleString()}</TableCell>
                         <TableCell align="right" sx={{ p: 1 }}>
                           <IconButton size="small" onClick={() => handleEditTireChange(row)}><EditIcon fontSize="small" /></IconButton>
@@ -563,7 +566,7 @@ const CarPage: React.FC = () => {
           {/* Column 3: Tire Usage Chart */}
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Tire Usage</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.tireUsage')}</Typography>
               <Box sx={{ height: 250, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={tireStats.history.slice(0, 10).map((t, i) => ({ name: `${i + 1}`, km: t.runKm }))}>
