@@ -12,8 +12,3 @@ export type {
   ITireSettings,
   IFinanceState,
 } from './finance.types';
-
-export {
-  validateTransaction,
-  validateRecurringTransaction,
-} from './finance.types';

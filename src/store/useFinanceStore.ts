@@ -5,9 +5,13 @@ import { db } from '../lib/firebase';
 import i18n from '../lib/i18n';
 import { useAuthStore } from './useAuthStore';
 import * as Types from './types';
+import * as Validation from './validation';
 
 // Re-export types (with "I" prefix)
 export { Types };
+
+// Re-export validation functions from validation folder
+export { Validation };
 
 // Backward-compatible type aliases (no prefix for existing code)
 export type Category = Types.ICategory;
@@ -19,9 +23,9 @@ export type CarMileageRecord = Types.ICarMileageRecord;
 export type TireChangeRecord = Types.ITireChangeRecord;
 export type TireSettings = Types.ITireSettings;
 
-// Re-export validation functions from types
-export const validateTransaction = Types.validateTransaction;
-export const validateRecurringTransaction = Types.validateRecurringTransaction;
+// Re-export validation functions from validation folder
+export const validateTransaction = Validation.validateTransaction;
+export const validateRecurringTransaction = Validation.validateRecurringTransaction;
 
 interface FinanceState {
   initialBalance: number;
