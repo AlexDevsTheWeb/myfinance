@@ -6,6 +6,7 @@ import i18n from '../lib/i18n';
 import { useAuthStore } from './useAuthStore';
 import * as Types from './types';
 import * as Validation from './validation';
+import * as Sanitization from './sanitization';
 
 // Re-export types (with "I" prefix)
 export { Types };
@@ -26,6 +27,9 @@ export type TireSettings = Types.ITireSettings;
 // Re-export validation functions from validation folder
 export const validateTransaction = Validation.validateTransaction;
 export const validateRecurringTransaction = Validation.validateRecurringTransaction;
+
+// Re-export sanitization functions from sanitization folder
+export { Sanitization };
 
 interface FinanceState {
   initialBalance: number;
@@ -107,42 +111,6 @@ interface FinanceState {
   }>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sanitizeTransaction = (t: Transaction): any => {
-  return {
-    id: t.id,
-    date: t.date,
-    description: t.description,
-    category: t.category,
-    subcategory: t.subcategory,
-    amount: Number(t.amount),
-    type: t.type,
-    accountId: t.accountId,
-    recurringLinkId: t.recurringLinkId ?? null,
-    consumption: (t.consumption !== undefined && t.consumption !== null && String(t.consumption) !== '') ? Number(t.consumption) : null,
-    readingDateStart: t.readingDateStart ?? null,
-    readingDateEnd: t.readingDateEnd ?? null,
-  };
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sanitizeRecurring = (r: RecurringTransaction): any => {
-  return {
-    id: r.id,
-    description: r.description,
-    category: r.category,
-    subcategory: r.subcategory,
-    amount: Number(r.amount),
-    type: r.type,
-    dayOfMonth: Number(r.dayOfMonth),
-    accountId: r.accountId,
-    startDate: r.startDate,
-    endDate: r.endDate || null,
-    frequency: r.frequency || 'monthly',
-    ...(r.frequency === 'yearly' && r.monthOfYear ? { monthOfYear: r.monthOfYear } : {}),
-  };
-};
-
 export const useFinanceStore = create<FinanceState>()(
     (set) => ({
       initialBalance: 0,
@@ -223,7 +191,7 @@ export const useFinanceStore = create<FinanceState>()(
             return { transactions: sorted, isSaving: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to add transaction';
@@ -255,7 +223,7 @@ export const useFinanceStore = create<FinanceState>()(
             const sorted = newTransactions.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
             return { transactions: sorted, isSaving: false };
           });
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to update transaction';
@@ -289,7 +257,7 @@ export const useFinanceStore = create<FinanceState>()(
             };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           const currentDeletedInstances = useFinanceStore.getState().deletedRecurringInstances;
           await updateDoc(docRef, {
             transactions: sanitizedTransactions,
@@ -793,7 +761,7 @@ setBalanceStartDate: async (date) => {
           return;
         }
 
-        const payload = sanitizeRecurring(recurring);
+        const payload = Sanitization.sanitizeRecurring(recurring);
         set({ saveError: null, isSaving: true });
         try {
           set((state) => {
@@ -801,7 +769,7 @@ setBalanceStartDate: async (date) => {
             return { recurringTransactions: newRecurring, isSaving: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(sanitizeRecurring);
+          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
           await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
           useFinanceStore.getState().checkRecurring();
         } catch (err) {
@@ -822,7 +790,7 @@ setBalanceStartDate: async (date) => {
           return;
         }
 
-        const payload = sanitizeRecurring(recurring);
+        const payload = Sanitization.sanitizeRecurring(recurring);
         set({ saveError: null, isSaving: true });
         try {
           set((state) => {
@@ -830,7 +798,7 @@ setBalanceStartDate: async (date) => {
             return { recurringTransactions: updatedRecurring, isSaving: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(sanitizeRecurring);
+          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
           await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
           useFinanceStore.getState().checkRecurring();
         } catch (err) {
@@ -913,7 +881,7 @@ setBalanceStartDate: async (date) => {
             return { transactions: allTransactions, isSaving: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to check recurring transactions';
@@ -933,7 +901,7 @@ setBalanceStartDate: async (date) => {
             return { recurringTransactions: updatedRecurring, isSaving: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(sanitizeRecurring);
+          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
           await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete recurring transaction';
