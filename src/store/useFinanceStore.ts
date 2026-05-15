@@ -4,105 +4,34 @@ import { create } from 'zustand';
 import { db } from '../lib/firebase';
 import i18n from '../lib/i18n';
 import { useAuthStore } from './useAuthStore';
+import * as Types from './types';
+import * as Validation from './validation';
+import * as Sanitization from './sanitization';
+import * as Defaults from './defaults';
+import * as Backup from './backup';
 
-export interface Category {
-  name: string;
-  subcategories: string[];
-}
+// Re-export types (with "I" prefix)
+export { Types };
 
-export interface Account {
-  id: string;
-  name: string;
-  initialBalance: number;
-  isDefault: boolean;
-}
+// Re-export validation functions from validation folder
+export { Validation };
 
-export interface Transaction {
-  id: string;
-  date: string;
-  description: string;
-  category: string;
-  subcategory: string;
-  amount: number;
-  type: 'income' | 'expense';
-  accountId: string; // Refers to Account.id
-  recurringLinkId?: string;
-  consumption?: number; // kWh or smc
-  readingDateStart?: string; // YYYY-MM-DD
-  readingDateEnd?: string; // YYYY-MM-DD
-}
+// Backward-compatible type aliases (no prefix for existing code)
+export type Category = Types.ICategory;
+export type Account = Types.IAccount;
+export type Transaction = Types.ITransaction;
+export type RecurringTransaction = Types.IRecurringTransaction;
+export type AppModules = Types.IAppModules;
+export type CarMileageRecord = Types.ICarMileageRecord;
+export type TireChangeRecord = Types.ITireChangeRecord;
+export type TireSettings = Types.ITireSettings;
 
-export interface RecurringTransaction {
-  id: string;
-  description: string;
-  category: string;
-  subcategory: string;
-  amount: number;
-  type: 'income' | 'expense';
-  dayOfMonth: number;
-  accountId: string; // Refers to Account.id
-  startDate: string; // YYYY-MM-DD
-  endDate?: string | null; // YYYY-MM-DD (optional)
-  frequency?: 'monthly' | 'yearly';
-  monthOfYear?: number; // 1-12, only used when frequency is 'yearly'
-}
+// Re-export validation functions from validation folder
+export const validateTransaction = Validation.validateTransaction;
+export const validateRecurringTransaction = Validation.validateRecurringTransaction;
 
-export interface AppModules {
-  financeTracker: boolean;
-  carManagement: boolean;
-  utilityTracker: boolean;
-}
-
-export interface CarMileageRecord {
-  id: string;
-  year: number;
-  month: number;
-  reading: number;
-}
-
-export interface TireChangeRecord {
-  id: string;
-  date: string; // YYYY-MM-DD
-  type: 'summer' | 'winter';
-  odometer: number;
-}
-
-export interface TireSettings {
-  summerModel: string;
-  winterModel: string;
-  initialTireType: 'summer' | 'winter';
-}
-
-// Store-level validation functions for transaction data
-export function validateTransaction(t: Transaction): { valid: boolean; error?: string } {
-  if (!t.description?.trim()) {
-    return { valid: false, error: 'Description is required' };
-  }
-  if (typeof t.amount !== 'number' || t.amount <= 0) {
-    return { valid: false, error: 'Amount must be greater than 0' };
-  }
-  if (!t.date || !t.category || !t.subcategory || !t.accountId) {
-    return { valid: false, error: 'Missing required fields' };
-  }
-  // NOTE: No date validation per D-01 ("No hard date bounds")
-  return { valid: true };
-}
-
-export function validateRecurringTransaction(r: RecurringTransaction): { valid: boolean; error?: string } {
-  if (!r.description?.trim()) {
-    return { valid: false, error: 'Description is required' };
-  }
-  if (typeof r.amount !== 'number' || r.amount <= 0) {
-    return { valid: false, error: 'Amount must be greater than 0' };
-  }
-  if (!r.startDate || !r.accountId || !r.category || !r.subcategory) {
-    return { valid: false, error: 'Missing required fields' };
-  }
-  if (r.endDate && r.startDate && r.endDate < r.startDate) {
-    return { valid: false, error: 'End date cannot be before start date' };
-  }
-  return { valid: true };
-}
+// Re-export sanitization functions from sanitization folder
+export { Sanitization };
 
 interface FinanceState {
   initialBalance: number;
@@ -116,9 +45,11 @@ interface FinanceState {
   tireSettings: TireSettings;
   tireChanges: TireChangeRecord[];
   enabledModules: AppModules;
-  balanceStartDate: string; // YYYY-MM-DD
+  balanceStartDate: string;
   deletedRecurringInstances: { recurringLinkId: string; date: string }[];
   isSaving: boolean;
+  isCheckingRecurring: boolean;
+  hasLocalChanges: boolean;
   saveError: string | null;
   language: string;
   setLanguage: (lang: string) => void;
@@ -184,81 +115,26 @@ interface FinanceState {
   }>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sanitizeTransaction = (t: Transaction): any => {
-  return {
-    id: t.id,
-    date: t.date,
-    description: t.description,
-    category: t.category,
-    subcategory: t.subcategory,
-    amount: Number(t.amount),
-    type: t.type,
-    accountId: t.accountId,
-    recurringLinkId: t.recurringLinkId ?? null,
-    consumption: (t.consumption !== undefined && t.consumption !== null && String(t.consumption) !== '') ? Number(t.consumption) : null,
-    readingDateStart: t.readingDateStart ?? null,
-    readingDateEnd: t.readingDateEnd ?? null,
-  };
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const sanitizeRecurring = (r: RecurringTransaction): any => {
-  return {
-    id: r.id,
-    description: r.description,
-    category: r.category,
-    subcategory: r.subcategory,
-    amount: Number(r.amount),
-    type: r.type,
-    dayOfMonth: Number(r.dayOfMonth),
-    accountId: r.accountId,
-    startDate: r.startDate,
-    endDate: r.endDate || null,
-    frequency: r.frequency || 'monthly',
-    ...(r.frequency === 'yearly' && r.monthOfYear ? { monthOfYear: r.monthOfYear } : {}),
-  };
-};
-
 export const useFinanceStore = create<FinanceState>()(
     (set) => ({
       initialBalance: 0,
-      accounts: [
-        { id: 'default-main', name: 'Conto Principale', initialBalance: 0, isDefault: true }
-      ],
-      categories: [
-        { name: 'Debiti', subcategories: ['Carte di credito', 'Prestiti studio', 'Altri prestiti', 'Imposte'] },
-        { name: 'Divertimento', subcategories: ['Libri', 'Concerti', 'Partite', 'Hobby', 'Film', 'Musica', 'Attività all\'aperto', 'Fotografia', 'Sport', 'Golf', 'Teatro', 'TV'] },
-        { name: 'Spese quotidiane', subcategories: ['Spesa', 'Ristoranti', 'Barbiere', 'Vestiti', 'Lavanderia', 'Tabacchi', 'Nespresso'] },
-        { name: 'Regali', subcategories: ['Regali generici', 'Donazioni'] },
-        { name: 'Salute', subcategories: ['Dottori/dentista/oculista', 'Cure specialistiche', 'Farmacia', 'Emergenze'] },
-        { name: 'Casa', subcategories: ['Mutuo', 'Imposte immobili', 'Arredamento', 'Giardinaggio', 'Forniture', 'Manutenzione', 'Miglioramenti', 'Verisure', 'Trasloco'] },
-        { name: 'Assicurazione', subcategories: ['Auto', 'Salute', 'Casa', 'Vita'] },
-        { name: 'Tecnologia', subcategories: ['Domini/hosting', 'Servizi online', 'Hardware', 'Software'] },
-        { name: 'Trasporti', subcategories: ['Carburante', 'Prestito auto', 'Riparazioni', 'Bollo', 'Trasporto pubblico'] },
-        { name: 'Viaggi', subcategories: ['Biglietti aerei', 'Hotel', 'Alimenti', 'Trasporti', 'Divertimento'] },
-        { name: 'Bollette', subcategories: ['Telefono', 'TV', 'Internet', 'Elettricità', 'Gas', 'Condominio', 'Rifiuti'] },
-      ],
-      incomeCategories: [
-        { name: 'Salario', subcategories: ['Busta paga', 'Mance', 'Bonus', 'Commissioni', '13-esima', '14-esima'] },
-        { name: 'Altro', subcategories: ['Risparmi', 'Interessi', 'Dividendi', 'Regali', 'Rimborsi', 'Rimborso 730'] },
-      ],
+      accounts: Defaults.DEFAULT_ACCOUNTS,
+      categories: Defaults.DEFAULT_CATEGORIES,
+      incomeCategories: Defaults.DEFAULT_INCOME_CATEGORIES,
       transactions: [],
       recurringTransactions: [],
       carMileage: [],
       carInitialMileage: 0,
-      tireSettings: { summerModel: '', winterModel: '', initialTireType: 'summer' },
+      tireSettings: Defaults.DEFAULT_TIRE_SETTINGS,
       tireChanges: [],
-      enabledModules: {
-        financeTracker: true,
-        carManagement: false,
-        utilityTracker: false,
-      },
-      balanceStartDate: '2026-01-01',
+      enabledModules: Defaults.DEFAULT_ENABLED_MODULES,
+      balanceStartDate: Defaults.DEFAULT_BALANCE_START_DATE,
       deletedRecurringInstances: [],
       isSaving: false,
+      isCheckingRecurring: false,
+      hasLocalChanges: false,
       saveError: null,
-      language: 'it',
+      language: Defaults.DEFAULT_LANGUAGE,
 
       setLanguage: (lang) => {
         localStorage.setItem('myfinance_language', lang);
@@ -293,21 +169,21 @@ export const useFinanceStore = create<FinanceState>()(
           return;
         }
 
-        set({ saveError: null, isSaving: true });
+        set({ saveError: null, isSaving: true, hasLocalChanges: true });
         try {
           set((state) => {
             const sorted = [transaction, ...state.transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
             return { transactions: sorted, isSaving: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
+          set({ hasLocalChanges: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to add transaction';
           set((state) => {
-            // Revert optimistic update on error
             const reverted = state.transactions.filter(t => t.id !== transaction.id);
-            return { saveError: errorMessage, isSaving: false, transactions: reverted };
+            return { saveError: errorMessage, isSaving: false, hasLocalChanges: false, transactions: reverted };
           });
           console.error('addTransaction error:', err);
         }
@@ -332,7 +208,7 @@ export const useFinanceStore = create<FinanceState>()(
             const sorted = newTransactions.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
             return { transactions: sorted, isSaving: false };
           });
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to update transaction';
@@ -366,7 +242,7 @@ export const useFinanceStore = create<FinanceState>()(
             };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           const currentDeletedInstances = useFinanceStore.getState().deletedRecurringInstances;
           await updateDoc(docRef, {
             transactions: sanitizedTransactions,
@@ -870,7 +746,7 @@ setBalanceStartDate: async (date) => {
           return;
         }
 
-        const payload = sanitizeRecurring(recurring);
+        const payload = Sanitization.sanitizeRecurring(recurring);
         set({ saveError: null, isSaving: true });
         try {
           set((state) => {
@@ -878,7 +754,7 @@ setBalanceStartDate: async (date) => {
             return { recurringTransactions: newRecurring, isSaving: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(sanitizeRecurring);
+          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
           await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
           useFinanceStore.getState().checkRecurring();
         } catch (err) {
@@ -899,7 +775,7 @@ setBalanceStartDate: async (date) => {
           return;
         }
 
-        const payload = sanitizeRecurring(recurring);
+        const payload = Sanitization.sanitizeRecurring(recurring);
         set({ saveError: null, isSaving: true });
         try {
           set((state) => {
@@ -907,7 +783,7 @@ setBalanceStartDate: async (date) => {
             return { recurringTransactions: updatedRecurring, isSaving: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(sanitizeRecurring);
+          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
           await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
           useFinanceStore.getState().checkRecurring();
         } catch (err) {
@@ -921,7 +797,12 @@ setBalanceStartDate: async (date) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        set({ saveError: null, isSaving: true });
+        const state = useFinanceStore.getState();
+        if (state.isCheckingRecurring) {
+          return;
+        }
+
+        set({ saveError: null, isSaving: true, isCheckingRecurring: true });
         try {
           set((state) => {
             const newTransactions: Transaction[] = [];
@@ -984,17 +865,18 @@ setBalanceStartDate: async (date) => {
               }
             });
 
-            if (newTransactions.length === 0) return { isSaving: false };
+            if (newTransactions.length === 0) return { isSaving: false, isCheckingRecurring: false };
 
             const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-            return { transactions: allTransactions, isSaving: false };
+            return { transactions: allTransactions, isSaving: false, isCheckingRecurring: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(sanitizeTransaction);
+          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
+          set({ isCheckingRecurring: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to check recurring transactions';
-          set({ saveError: errorMessage, isSaving: false });
+          set({ saveError: errorMessage, isSaving: false, isCheckingRecurring: false });
           console.error('checkRecurring error:', err);
         }
       },
@@ -1010,7 +892,7 @@ setBalanceStartDate: async (date) => {
             return { recurringTransactions: updatedRecurring, isSaving: false };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(sanitizeRecurring);
+          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
           await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete recurring transaction';
@@ -1261,35 +1143,8 @@ setBalanceStartDate: async (date) => {
 
       exportAllData: () => {
         const state = useFinanceStore.getState();
-        const backupData = {
-          version: '1.0',
-          exportedAt: new Date().toISOString(),
-          app: 'myfinance',
-          data: {
-            initialBalance: state.initialBalance,
-            accounts: state.accounts,
-            transactions: state.transactions,
-            recurringTransactions: state.recurringTransactions,
-            categories: state.categories,
-            incomeCategories: state.incomeCategories,
-            enabledModules: state.enabledModules,
-            balanceStartDate: state.balanceStartDate,
-            carMileage: state.carMileage,
-            carInitialMileage: state.carInitialMileage,
-            tireSettings: state.tireSettings,
-            tireChanges: state.tireChanges,
-          }
-        };
-
-        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `myfinance-backup-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const backup = Backup.createBackup(state);
+        Backup.downloadBackup(backup);
       },
 
       importAllData: async (fileOrData: File | object) => {
@@ -1322,34 +1177,41 @@ setBalanceStartDate: async (date) => {
             return false;
           }
 
+          const validation = Backup.validateBackupData(data);
+          if (!validation.valid) {
+            const errorMessages = validation.errors.slice(0, 3).map(e => e.message).join(', ');
+            set({ saveError: `Invalid backup data: ${errorMessages}`, isSaving: false });
+            return false;
+          }
+
           const docRef = doc(db, 'users', userId);
           await updateDoc(docRef, {
             initialBalance: data.initialBalance ?? 0,
-            accounts: data.accounts ?? [],
+            accounts: data.accounts ?? Defaults.DEFAULT_ACCOUNTS,
             transactions: data.transactions ?? [],
             recurringTransactions: data.recurringTransactions ?? [],
-            categories: data.categories ?? [],
-            incomeCategories: data.incomeCategories ?? [],
-            enabledModules: data.enabledModules ?? { financeTracker: true, carManagement: false, utilityTracker: false },
-            balanceStartDate: data.balanceStartDate ?? '2026-01-01',
+            categories: data.categories ?? Defaults.DEFAULT_CATEGORIES,
+            incomeCategories: data.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
+            enabledModules: data.enabledModules ?? Defaults.DEFAULT_ENABLED_MODULES,
+            balanceStartDate: data.balanceStartDate ?? Defaults.DEFAULT_BALANCE_START_DATE,
             carMileage: data.carMileage ?? [],
             carInitialMileage: data.carInitialMileage ?? 0,
-            tireSettings: data.tireSettings ?? { summerModel: '', winterModel: '', initialTireType: 'summer' },
+            tireSettings: data.tireSettings ?? Defaults.DEFAULT_TIRE_SETTINGS,
             tireChanges: data.tireChanges ?? [],
           });
 
           set({
             initialBalance: data.initialBalance ?? 0,
-            accounts: data.accounts ?? [],
+            accounts: data.accounts ?? Defaults.DEFAULT_ACCOUNTS,
             transactions: data.transactions ?? [],
             recurringTransactions: data.recurringTransactions ?? [],
-            categories: data.categories ?? [],
-            incomeCategories: data.incomeCategories ?? [],
-            enabledModules: data.enabledModules ?? { financeTracker: true, carManagement: false, utilityTracker: false },
-            balanceStartDate: data.balanceStartDate ?? '2026-01-01',
+            categories: data.categories ?? Defaults.DEFAULT_CATEGORIES,
+            incomeCategories: data.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
+            enabledModules: data.enabledModules ?? Defaults.DEFAULT_ENABLED_MODULES,
+            balanceStartDate: data.balanceStartDate ?? Defaults.DEFAULT_BALANCE_START_DATE,
             carMileage: data.carMileage ?? [],
             carInitialMileage: data.carInitialMileage ?? 0,
-            tireSettings: data.tireSettings ?? { summerModel: '', winterModel: '', initialTireType: 'summer' },
+            tireSettings: data.tireSettings ?? Defaults.DEFAULT_TIRE_SETTINGS,
             tireChanges: data.tireChanges ?? [],
             isSaving: false,
           });
@@ -1363,41 +1225,7 @@ setBalanceStartDate: async (date) => {
       },
 
       previewBackup: async (file: File) => {
-        try {
-          const text = await file.text();
-          const backup = JSON.parse(text);
-
-          let data: Partial<FinanceState>;
-          let exportedAt = 'Unknown';
-
-          if (backup.version && backup.app === 'myfinance') {
-            data = backup.data ?? {};
-            exportedAt = backup.exportedAt ?? 'Unknown';
-          } else if (backup.state) {
-            data = backup.state;
-            exportedAt = backup.exportedAt ?? backup.createdAt ?? 'Unknown';
-          } else {
-            return { valid: false, error: 'Invalid backup: not a MyFinance backup file', summary: null };
-          }
-
-          return {
-            valid: true,
-            summary: {
-              transactionCount: data.transactions?.length ?? 0,
-              accountCount: data.accounts?.length ?? 0,
-              recurringCount: data.recurringTransactions?.length ?? 0,
-              categoryCount: data.categories?.length ?? 0,
-              incomeCategoryCount: data.incomeCategories?.length ?? 0,
-              exportedAt,
-            },
-          };
-        } catch (err) {
-          return {
-            valid: false,
-            error: err instanceof Error ? err.message : 'Failed to read backup file',
-            summary: null,
-          };
-        }
+        return Backup.previewBackup(file);
       },
     })
 );
