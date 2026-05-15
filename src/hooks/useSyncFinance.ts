@@ -49,6 +49,10 @@ export const useSyncFinance = () => {
         return;
       }
       if (doc.exists() && !isInitializing.current) {
+        const storeState = useFinanceStore.getState();
+        if (storeState.isSaving || storeState.hasLocalChanges) {
+          return;
+        }
         const data = doc.data();
         const { setAll, checkRecurring } = useFinanceStore.getState();
         setAll(data);

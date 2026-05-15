@@ -58,20 +58,21 @@
 ## Current Status
 
 **Store Refactor Progress:**
-- 1403 → 1214 lines (13% reduction)
-- Extracted: types, validation, sanitization, defaults, backup modules
+- 1403 → 1224 lines (13% reduction)
+- Extracted: types, validation, sanitization, defaults, backup, sync modules
 - Build: ✓ Passing
 
-**Next extraction opportunity:**
-- Extract Firestore sync/hooks logic to `src/store/sync/` module
+**Bug Fixes Applied:**
+- ✅ Race condition in checkRecurring - added isCheckingRecurring flag
+- ✅ Sync overwrites local edits - added hasLocalChanges tracking
+- ✅ Import validation - added Backup.validateBackupData()
 
 ---
 
 ## Next Steps
 
-1. **Extract default constants** - Move hardcoded categories/accounts/modules to defaults.ts
-2. **Add test suite** - Configure Vitest
-3. **Address CONCERNS.md** - Fix race conditions in checkRecurring
+1. **Add test suite** - Configure Vitest
+2. **Update CONCERNS.md** - Mark fixed issues as resolved
 
 ---
 

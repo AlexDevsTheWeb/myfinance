@@ -45,9 +45,11 @@ interface FinanceState {
   tireSettings: TireSettings;
   tireChanges: TireChangeRecord[];
   enabledModules: AppModules;
-  balanceStartDate: string; // YYYY-MM-DD
+  balanceStartDate: string;
   deletedRecurringInstances: { recurringLinkId: string; date: string }[];
   isSaving: boolean;
+  isCheckingRecurring: boolean;
+  hasLocalChanges: boolean;
   saveError: string | null;
   language: string;
   setLanguage: (lang: string) => void;
@@ -129,6 +131,8 @@ export const useFinanceStore = create<FinanceState>()(
       balanceStartDate: Defaults.DEFAULT_BALANCE_START_DATE,
       deletedRecurringInstances: [],
       isSaving: false,
+      isCheckingRecurring: false,
+      hasLocalChanges: false,
       saveError: null,
       language: Defaults.DEFAULT_LANGUAGE,
 
@@ -165,7 +169,7 @@ export const useFinanceStore = create<FinanceState>()(
           return;
         }
 
-        set({ saveError: null, isSaving: true });
+        set({ saveError: null, isSaving: true, hasLocalChanges: true });
         try {
           set((state) => {
             const sorted = [transaction, ...state.transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
@@ -174,12 +178,12 @@ export const useFinanceStore = create<FinanceState>()(
           const docRef = doc(db, 'users', userId);
           const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
+          set({ hasLocalChanges: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to add transaction';
           set((state) => {
-            // Revert optimistic update on error
             const reverted = state.transactions.filter(t => t.id !== transaction.id);
-            return { saveError: errorMessage, isSaving: false, transactions: reverted };
+            return { saveError: errorMessage, isSaving: false, hasLocalChanges: false, transactions: reverted };
           });
           console.error('addTransaction error:', err);
         }
@@ -793,7 +797,12 @@ setBalanceStartDate: async (date) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        set({ saveError: null, isSaving: true });
+        const state = useFinanceStore.getState();
+        if (state.isCheckingRecurring) {
+          return;
+        }
+
+        set({ saveError: null, isSaving: true, isCheckingRecurring: true });
         try {
           set((state) => {
             const newTransactions: Transaction[] = [];
@@ -856,17 +865,18 @@ setBalanceStartDate: async (date) => {
               }
             });
 
-            if (newTransactions.length === 0) return { isSaving: false };
+            if (newTransactions.length === 0) return { isSaving: false, isCheckingRecurring: false };
 
             const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-            return { transactions: allTransactions, isSaving: false };
+            return { transactions: allTransactions, isSaving: false, isCheckingRecurring: false };
           });
           const docRef = doc(db, 'users', userId);
           const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
+          set({ isCheckingRecurring: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to check recurring transactions';
-          set({ saveError: errorMessage, isSaving: false });
+          set({ saveError: errorMessage, isSaving: false, isCheckingRecurring: false });
           console.error('checkRecurring error:', err);
         }
       },
@@ -1164,6 +1174,13 @@ setBalanceStartDate: async (date) => {
             data = backup.state;
           } else {
             set({ saveError: 'Invalid backup: missing data', isSaving: false });
+            return false;
+          }
+
+          const validation = Backup.validateBackupData(data);
+          if (!validation.valid) {
+            const errorMessages = validation.errors.slice(0, 3).map(e => e.message).join(', ');
+            set({ saveError: `Invalid backup data: ${errorMessages}`, isSaving: false });
             return false;
           }
 

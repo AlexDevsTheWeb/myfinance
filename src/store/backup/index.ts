@@ -1,4 +1,86 @@
 import type { IFinanceState } from '../types';
+import { validateTransaction, validateRecurringTransaction } from '../validation';
+
+export interface BackupValidationError {
+  type: 'transaction' | 'recurring' | 'account' | 'category' | 'field';
+  index?: number;
+  message: string;
+}
+
+export interface BackupValidationResult {
+  valid: boolean;
+  errors: BackupValidationError[];
+}
+
+export function validateBackupData(data: BackupPayload): BackupValidationResult {
+  const errors: BackupValidationError[] = [];
+
+  if (data.transactions) {
+    data.transactions.forEach((t, i) => {
+      const result = validateTransaction(t);
+      if (!result.valid) {
+        errors.push({ type: 'transaction', index: i, message: result.error || 'Invalid transaction' });
+      }
+    });
+  }
+
+  if (data.recurringTransactions) {
+    data.recurringTransactions.forEach((r, i) => {
+      const result = validateRecurringTransaction(r);
+      if (!result.valid) {
+        errors.push({ type: 'recurring', index: i, message: result.error || 'Invalid recurring transaction' });
+      }
+    });
+  }
+
+  if (data.accounts) {
+    data.accounts.forEach((a, i) => {
+      if (!a.id || typeof a.id !== 'string') {
+        errors.push({ type: 'account', index: i, message: 'Account missing valid id' });
+      }
+      if (!a.name || typeof a.name !== 'string') {
+        errors.push({ type: 'account', index: i, message: 'Account missing valid name' });
+      }
+      if (typeof a.initialBalance !== 'number') {
+        errors.push({ type: 'account', index: i, message: 'Account missing valid initialBalance' });
+      }
+    });
+  }
+
+  if (data.categories) {
+    data.categories.forEach((c, i) => {
+      if (!c.name || typeof c.name !== 'string') {
+        errors.push({ type: 'category', index: i, message: 'Category missing valid name' });
+      }
+      if (!Array.isArray(c.subcategories)) {
+        errors.push({ type: 'category', index: i, message: 'Category missing subcategories array' });
+      }
+    });
+  }
+
+  if (data.incomeCategories) {
+    data.incomeCategories.forEach((c, i) => {
+      if (!c.name || typeof c.name !== 'string') {
+        errors.push({ type: 'category', index: i, message: 'Income category missing valid name' });
+      }
+      if (!Array.isArray(c.subcategories)) {
+        errors.push({ type: 'category', index: i, message: 'Income category missing subcategories array' });
+      }
+    });
+  }
+
+  if (data.initialBalance !== undefined && typeof data.initialBalance !== 'number') {
+    errors.push({ type: 'field', message: 'initialBalance must be a number' });
+  }
+
+  if (data.balanceStartDate !== undefined) {
+    if (typeof data.balanceStartDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(data.balanceStartDate)) {
+      errors.push({ type: 'field', message: 'balanceStartDate must be YYYY-MM-DD format' });
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
 
 export interface BackupData {
   version: string;
