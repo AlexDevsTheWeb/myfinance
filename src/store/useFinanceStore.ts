@@ -8,6 +8,7 @@ import * as Types from './types';
 import * as Validation from './validation';
 import * as Sanitization from './sanitization';
 import * as Defaults from './defaults';
+import * as Backup from './backup';
 
 // Re-export types (with "I" prefix)
 export { Types };
@@ -1132,35 +1133,8 @@ setBalanceStartDate: async (date) => {
 
       exportAllData: () => {
         const state = useFinanceStore.getState();
-        const backupData = {
-          version: '1.0',
-          exportedAt: new Date().toISOString(),
-          app: 'myfinance',
-          data: {
-            initialBalance: state.initialBalance,
-            accounts: state.accounts,
-            transactions: state.transactions,
-            recurringTransactions: state.recurringTransactions,
-            categories: state.categories,
-            incomeCategories: state.incomeCategories,
-            enabledModules: state.enabledModules,
-            balanceStartDate: state.balanceStartDate,
-            carMileage: state.carMileage,
-            carInitialMileage: state.carInitialMileage,
-            tireSettings: state.tireSettings,
-            tireChanges: state.tireChanges,
-          }
-        };
-
-        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `myfinance-backup-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const backup = Backup.createBackup(state);
+        Backup.downloadBackup(backup);
       },
 
       importAllData: async (fileOrData: File | object) => {
@@ -1234,41 +1208,7 @@ setBalanceStartDate: async (date) => {
       },
 
       previewBackup: async (file: File) => {
-        try {
-          const text = await file.text();
-          const backup = JSON.parse(text);
-
-          let data: Partial<FinanceState>;
-          let exportedAt = 'Unknown';
-
-          if (backup.version && backup.app === 'myfinance') {
-            data = backup.data ?? {};
-            exportedAt = backup.exportedAt ?? 'Unknown';
-          } else if (backup.state) {
-            data = backup.state;
-            exportedAt = backup.exportedAt ?? backup.createdAt ?? 'Unknown';
-          } else {
-            return { valid: false, error: 'Invalid backup: not a MyFinance backup file', summary: null };
-          }
-
-          return {
-            valid: true,
-            summary: {
-              transactionCount: data.transactions?.length ?? 0,
-              accountCount: data.accounts?.length ?? 0,
-              recurringCount: data.recurringTransactions?.length ?? 0,
-              categoryCount: data.categories?.length ?? 0,
-              incomeCategoryCount: data.incomeCategories?.length ?? 0,
-              exportedAt,
-            },
-          };
-        } catch (err) {
-          return {
-            valid: false,
-            error: err instanceof Error ? err.message : 'Failed to read backup file',
-            summary: null,
-          };
-        }
+        return Backup.previewBackup(file);
       },
     })
 );

@@ -43,3 +43,7 @@ export const DEFAULT_ENABLED_MODULES: IAppModules = {
 export const DEFAULT_BALANCE_START_DATE = '2026-01-01';
 
 export const DEFAULT_LANGUAGE = 'it';
+
+export const DEFAULT_INITIAL_BALANCE = 0;
+
+export const DEFAULT_CAR_INITIAL_MILEAGE = 0;

@@ -22,8 +22,10 @@
 - [x] Extract validation to `src/store/validation/finance.validation.ts`
 - [x] Extract sanitization to `src/store/sanitization/` (transaction.ts, recurring.ts)
 - [x] Extract defaults to `src/store/defaults.ts`
+- [x] Extract backup (export/preview) to `src/store/backup/index.ts`
+- [x] Extract sync config to `src/store/sync/index.ts`
 - [x] Update converters.ts to use extracted types
-- [ ] Complete remaining extraction from useFinanceStore.ts
+- [x] Update useSyncFinance hook to use centralized defaults
 
 ### Completed Phases (Legacy)
 | Phase | Status | Completed |
@@ -56,12 +58,12 @@
 ## Current Status
 
 **Store Refactor Progress:**
-- 1403 → 1274 lines (9% reduction)
-- Extracted: types, validation, sanitization, defaults modules
+- 1403 → 1214 lines (13% reduction)
+- Extracted: types, validation, sanitization, defaults, backup modules
 - Build: ✓ Passing
 
 **Next extraction opportunity:**
-- Export/Import backup logic could move to `src/store/backup/` module
+- Extract Firestore sync/hooks logic to `src/store/sync/` module
 
 ---
 
