@@ -7,6 +7,7 @@ import { useAuthStore } from './useAuthStore';
 import * as Types from './types';
 import * as Validation from './validation';
 import * as Sanitization from './sanitization';
+import * as Defaults from './defaults';
 
 // Re-export types (with "I" prefix)
 export { Types };
@@ -114,42 +115,21 @@ interface FinanceState {
 export const useFinanceStore = create<FinanceState>()(
     (set) => ({
       initialBalance: 0,
-      accounts: [
-        { id: 'default-main', name: 'Conto Principale', initialBalance: 0, isDefault: true }
-      ],
-      categories: [
-        { name: 'Debiti', subcategories: ['Carte di credito', 'Prestiti studio', 'Altri prestiti', 'Imposte'] },
-        { name: 'Divertimento', subcategories: ['Libri', 'Concerti', 'Partite', 'Hobby', 'Film', 'Musica', 'Attività all\'aperto', 'Fotografia', 'Sport', 'Golf', 'Teatro', 'TV'] },
-        { name: 'Spese quotidiane', subcategories: ['Spesa', 'Ristoranti', 'Barbiere', 'Vestiti', 'Lavanderia', 'Tabacchi', 'Nespresso'] },
-        { name: 'Regali', subcategories: ['Regali generici', 'Donazioni'] },
-        { name: 'Salute', subcategories: ['Dottori/dentista/oculista', 'Cure specialistiche', 'Farmacia', 'Emergenze'] },
-        { name: 'Casa', subcategories: ['Mutuo', 'Imposte immobili', 'Arredamento', 'Giardinaggio', 'Forniture', 'Manutenzione', 'Miglioramenti', 'Verisure', 'Trasloco'] },
-        { name: 'Assicurazione', subcategories: ['Auto', 'Salute', 'Casa', 'Vita'] },
-        { name: 'Tecnologia', subcategories: ['Domini/hosting', 'Servizi online', 'Hardware', 'Software'] },
-        { name: 'Trasporti', subcategories: ['Carburante', 'Prestito auto', 'Riparazioni', 'Bollo', 'Trasporto pubblico'] },
-        { name: 'Viaggi', subcategories: ['Biglietti aerei', 'Hotel', 'Alimenti', 'Trasporti', 'Divertimento'] },
-        { name: 'Bollette', subcategories: ['Telefono', 'TV', 'Internet', 'Elettricità', 'Gas', 'Condominio', 'Rifiuti'] },
-      ],
-      incomeCategories: [
-        { name: 'Salario', subcategories: ['Busta paga', 'Mance', 'Bonus', 'Commissioni', '13-esima', '14-esima'] },
-        { name: 'Altro', subcategories: ['Risparmi', 'Interessi', 'Dividendi', 'Regali', 'Rimborsi', 'Rimborso 730'] },
-      ],
+      accounts: Defaults.DEFAULT_ACCOUNTS,
+      categories: Defaults.DEFAULT_CATEGORIES,
+      incomeCategories: Defaults.DEFAULT_INCOME_CATEGORIES,
       transactions: [],
       recurringTransactions: [],
       carMileage: [],
       carInitialMileage: 0,
-      tireSettings: { summerModel: '', winterModel: '', initialTireType: 'summer' },
+      tireSettings: Defaults.DEFAULT_TIRE_SETTINGS,
       tireChanges: [],
-      enabledModules: {
-        financeTracker: true,
-        carManagement: false,
-        utilityTracker: false,
-      },
-      balanceStartDate: '2026-01-01',
+      enabledModules: Defaults.DEFAULT_ENABLED_MODULES,
+      balanceStartDate: Defaults.DEFAULT_BALANCE_START_DATE,
       deletedRecurringInstances: [],
       isSaving: false,
       saveError: null,
-      language: 'it',
+      language: Defaults.DEFAULT_LANGUAGE,
 
       setLanguage: (lang) => {
         localStorage.setItem('myfinance_language', lang);
@@ -1216,31 +1196,31 @@ setBalanceStartDate: async (date) => {
           const docRef = doc(db, 'users', userId);
           await updateDoc(docRef, {
             initialBalance: data.initialBalance ?? 0,
-            accounts: data.accounts ?? [],
+            accounts: data.accounts ?? Defaults.DEFAULT_ACCOUNTS,
             transactions: data.transactions ?? [],
             recurringTransactions: data.recurringTransactions ?? [],
-            categories: data.categories ?? [],
-            incomeCategories: data.incomeCategories ?? [],
-            enabledModules: data.enabledModules ?? { financeTracker: true, carManagement: false, utilityTracker: false },
-            balanceStartDate: data.balanceStartDate ?? '2026-01-01',
+            categories: data.categories ?? Defaults.DEFAULT_CATEGORIES,
+            incomeCategories: data.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
+            enabledModules: data.enabledModules ?? Defaults.DEFAULT_ENABLED_MODULES,
+            balanceStartDate: data.balanceStartDate ?? Defaults.DEFAULT_BALANCE_START_DATE,
             carMileage: data.carMileage ?? [],
             carInitialMileage: data.carInitialMileage ?? 0,
-            tireSettings: data.tireSettings ?? { summerModel: '', winterModel: '', initialTireType: 'summer' },
+            tireSettings: data.tireSettings ?? Defaults.DEFAULT_TIRE_SETTINGS,
             tireChanges: data.tireChanges ?? [],
           });
 
           set({
             initialBalance: data.initialBalance ?? 0,
-            accounts: data.accounts ?? [],
+            accounts: data.accounts ?? Defaults.DEFAULT_ACCOUNTS,
             transactions: data.transactions ?? [],
             recurringTransactions: data.recurringTransactions ?? [],
-            categories: data.categories ?? [],
-            incomeCategories: data.incomeCategories ?? [],
-            enabledModules: data.enabledModules ?? { financeTracker: true, carManagement: false, utilityTracker: false },
-            balanceStartDate: data.balanceStartDate ?? '2026-01-01',
+            categories: data.categories ?? Defaults.DEFAULT_CATEGORIES,
+            incomeCategories: data.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
+            enabledModules: data.enabledModules ?? Defaults.DEFAULT_ENABLED_MODULES,
+            balanceStartDate: data.balanceStartDate ?? Defaults.DEFAULT_BALANCE_START_DATE,
             carMileage: data.carMileage ?? [],
             carInitialMileage: data.carInitialMileage ?? 0,
-            tireSettings: data.tireSettings ?? { summerModel: '', winterModel: '', initialTireType: 'summer' },
+            tireSettings: data.tireSettings ?? Defaults.DEFAULT_TIRE_SETTINGS,
             tireChanges: data.tireChanges ?? [],
             isSaving: false,
           });

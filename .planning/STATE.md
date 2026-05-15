@@ -1,65 +1,76 @@
 # Project State
 
 **Project:** MyFinance - Personal Finance Tracker
-**Updated:** 2026-04-23
+**Updated:** 2026-05-15
 
 ---
 
-## Current Phase
+## Current Focus
 
 | Field | Value |
 |-------|-------|
-| Phase | 09-language-i18n |
-| Status | Planned |
+| Issue | #46 - Massive Store Refactor |
+| Branch | feat/46-massive-store-refactor |
+| Status | In Progress |
 
 ---
 
-## Phase Progress
+## Recent Work
 
-### Phase 03: Input Validation
-- [x] Research complete (03-RESEARCH.md)
-- [x] Context defined (03-CONTEXT.md)
-- [x] Plans created (03-01-PLAN.md)
-- [x] Execution complete (03-01-SUMMARY.md)
-- [x] Verification passed (03-VERIFICATION.md)
+### Store Refactoring (In Progress)
+- [x] Extract types to `src/store/types/finance.types.ts`
+- [x] Extract validation to `src/store/validation/finance.validation.ts`
+- [x] Extract sanitization to `src/store/sanitization/` (transaction.ts, recurring.ts)
+- [x] Extract defaults to `src/store/defaults.ts`
+- [x] Update converters.ts to use extracted types
+- [ ] Complete remaining extraction from useFinanceStore.ts
 
-### Phase 07: UI Layout Refinement
-- [x] Context defined (07-CONTEXT.md)
-- [x] Plans created (07-01-PLAN.md)
-
-### Phase 09: Language i18n
-- [x] Research complete (09-RESEARCH.md)
-- [x] Context defined (09-CONTEXT.md)
-- [x] Plans created (09-01-PLAN.md, 09-02-PLAN.md, 09-03-PLAN.md, 09-04-PLAN.md)
-
----
-
-## Decisions
-
-| ID | Decision | Source | Status |
-|----|----------|--------|--------|
-| IV-01 | Amount must be > 0 (form + store) | CONCERNS.md | **Implemented** |
-| IV-02 | No hard date bounds | Discuss-phase | **Implemented** |
-| IV-03 | Configurable utility subcategory list | Discuss-phase | **Implemented** |
-
----
-
-## Completed Phases
-
+### Completed Phases (Legacy)
 | Phase | Status | Completed |
 |-------|--------|-----------|
 | 01-firebase-security-rules | ✓ Complete | 2026-04-23 |
 | 02-error-handling | ✓ Complete | 2026-04-23 |
 | 03-input-validation | ✓ Complete | 2026-04-23 |
+| 06-fab-navigation | ✓ Complete | 2026-04-26 |
+| 09-language-i18n | ✓ Complete | 2026-05-02 |
+
+---
+
+## Codebase Analysis (2026-05-03)
+
+### Key Concerns Identified
+1. **Massive Store File**: `useFinanceStore.ts` at 1294 lines (down from 1403)
+2. **Missing Test Suite**: No Vitest/Jest configured
+3. **Duplicate Categories**: Defined in both store and sync hook
+4. **Race Condition**: `checkRecurring()` can generate duplicates
+
+### Tech Stack
+- React + Vite + TypeScript
+- Firebase Auth + Firestore
+- Material UI + Recharts
+- i18next for localization
+- Zustand for state management
+
+---
+
+## Current Status
+
+**Store Refactor Progress:**
+- 1403 → 1274 lines (9% reduction)
+- Extracted: types, validation, sanitization, defaults modules
+- Build: ✓ Passing
+
+**Next extraction opportunity:**
+- Export/Import backup logic could move to `src/store/backup/` module
 
 ---
 
 ## Next Steps
 
-1. `/gsd-execute-phase 07` — Execute UI layout refinement (column ratio + typography fixes)
-2. `/gsd-discuss-phase 08` — Plan next phase
-3. `/gsd-progress` — See updated roadmap
+1. **Extract default constants** - Move hardcoded categories/accounts/modules to defaults.ts
+2. **Add test suite** - Configure Vitest
+3. **Address CONCERNS.md** - Fix race conditions in checkRecurring
 
 ---
 
-*State updated: 2026-04-23*
+*State updated: 2026-05-15*

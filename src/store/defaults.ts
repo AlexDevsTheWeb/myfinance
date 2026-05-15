@@ -1,0 +1,45 @@
+import type { IAccount, ICategory, IAppModules, ITireSettings } from './types';
+
+export const DEFAULT_ACCOUNT: IAccount = {
+  id: 'default-main',
+  name: 'Conto Principale',
+  initialBalance: 0,
+  isDefault: true,
+};
+
+export const DEFAULT_ACCOUNTS: IAccount[] = [DEFAULT_ACCOUNT];
+
+export const DEFAULT_CATEGORIES: ICategory[] = [
+  { name: 'Debiti', subcategories: ['Carte di credito', 'Prestiti studio', 'Altri prestiti', 'Imposte'] },
+  { name: 'Divertimento', subcategories: ['Libri', 'Concerti', 'Partite', 'Hobby', 'Film', 'Musica', 'Attività all\'aperto', 'Fotografia', 'Sport', 'Golf', 'Teatro', 'TV'] },
+  { name: 'Spese quotidiane', subcategories: ['Spesa', 'Ristoranti', 'Barbiere', 'Vestiti', 'Lavanderia', 'Tabacchi', 'Nespresso'] },
+  { name: 'Regali', subcategories: ['Regali generici', 'Donazioni'] },
+  { name: 'Salute', subcategories: ['Dottori/dentista/oculista', 'Cure specialistiche', 'Farmacia', 'Emergenze'] },
+  { name: 'Casa', subcategories: ['Mutuo', 'Imposte immobili', 'Arredamento', 'Giardinaggio', 'Forniture', 'Manutenzione', 'Miglioramenti', 'Verisure', 'Trasloco'] },
+  { name: 'Assicurazione', subcategories: ['Auto', 'Salute', 'Casa', 'Vita'] },
+  { name: 'Tecnologia', subcategories: ['Domini/hosting', 'Servizi online', 'Hardware', 'Software'] },
+  { name: 'Trasporti', subcategories: ['Carburante', 'Prestito auto', 'Riparazioni', 'Bollo', 'Trasporto pubblico'] },
+  { name: 'Viaggi', subcategories: ['Biglietti aerei', 'Hotel', 'Alimenti', 'Trasporti', 'Divertimento'] },
+  { name: 'Bollette', subcategories: ['Telefono', 'TV', 'Internet', 'Elettricità', 'Gas', 'Condominio', 'Rifiuti'] },
+];
+
+export const DEFAULT_INCOME_CATEGORIES: ICategory[] = [
+  { name: 'Salario', subcategories: ['Busta paga', 'Mance', 'Bonus', 'Commissioni', '13-esima', '14-esima'] },
+  { name: 'Altro', subcategories: ['Risparmi', 'Interessi', 'Dividendi', 'Regali', 'Rimborsi', 'Rimborso 730'] },
+];
+
+export const DEFAULT_TIRE_SETTINGS: ITireSettings = {
+  summerModel: '',
+  winterModel: '',
+  initialTireType: 'summer',
+};
+
+export const DEFAULT_ENABLED_MODULES: IAppModules = {
+  financeTracker: true,
+  carManagement: false,
+  utilityTracker: false,
+};
+
+export const DEFAULT_BALANCE_START_DATE = '2026-01-01';
+
+export const DEFAULT_LANGUAGE = 'it';
