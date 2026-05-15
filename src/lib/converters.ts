@@ -1,20 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions } from 'firebase/firestore';
-import { type Account, type AppModules, type CarMileageRecord, type Category, type RecurringTransaction, type TireChangeRecord, type TireSettings, type Transaction } from '../store/useFinanceStore';
+import { type IAccount, type IAppModules, type ICarMileageRecord, type ICategory, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type ITransaction } from '../store/types';
 
 export interface UserDoc {
-  transactions: Transaction[];
+  transactions: ITransaction[];
   initialBalance: number;
-  categories: Category[];
-  incomeCategories: Category[];
-  accounts: Account[];
-  recurringTransactions: RecurringTransaction[];
-  carMileage: CarMileageRecord[];
+  categories: ICategory[];
+  incomeCategories: ICategory[];
+  accounts: IAccount[];
+  recurringTransactions: IRecurringTransaction[];
+  carMileage: ICarMileageRecord[];
   carInitialMileage: number;
-  tireSettings: TireSettings;
-  tireChanges: TireChangeRecord[];
-  enabledModules: AppModules;
+  tireSettings: ITireSettings;
+  tireChanges: ITireChangeRecord[];
+  enabledModules: IAppModules;
   balanceStartDate: string;
   deletedRecurringInstances?: { recurringLinkId: string; date: string }[];
 }
@@ -66,7 +66,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
     const data = snapshot.data(options);
 
     // Basic validation and type casting
-    const transactions: Transaction[] = Array.isArray(data.transactions) ? data.transactions.map((t: any) => ({
+    const transactions: ITransaction[] = Array.isArray(data.transactions) ? data.transactions.map((t: any) => ({
       id: t.id ?? '',
       date: t.date ?? '',
       description: t.description ?? '',
@@ -83,24 +83,24 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
 
     const initialBalance: number = typeof data.initialBalance === 'number' ? data.initialBalance : 0;
 
-    const categories: Category[] = Array.isArray(data.categories) ? data.categories.map((c: any) => ({
+    const categories: ICategory[] = Array.isArray(data.categories) ? data.categories.map((c: any) => ({
       name: c.name ?? '',
       subcategories: Array.isArray(c.subcategories) ? c.subcategories.filter((sc: any) => typeof sc === 'string') : [],
     })) : [];
 
-    const incomeCategories: Category[] = Array.isArray(data.incomeCategories) ? data.incomeCategories.map((c: any) => ({
+    const incomeCategories: ICategory[] = Array.isArray(data.incomeCategories) ? data.incomeCategories.map((c: any) => ({
       name: c.name ?? '',
       subcategories: Array.isArray(c.subcategories) ? c.subcategories.filter((sc: any) => typeof sc === 'string') : [],
     })) : [];
 
-    const accounts: Account[] = Array.isArray(data.accounts) ? data.accounts.map((a: any) => ({
+    const accounts: IAccount[] = Array.isArray(data.accounts) ? data.accounts.map((a: any) => ({
       id: a.id ?? '',
       name: a.name ?? '',
       initialBalance: typeof a.initialBalance === 'number' ? a.initialBalance : 0,
       isDefault: !!a.isDefault,
     })) : [];
 
-    const recurringTransactions: RecurringTransaction[] = Array.isArray(data.recurringTransactions) ? data.recurringTransactions.map((r: any) => ({
+    const recurringTransactions: IRecurringTransaction[] = Array.isArray(data.recurringTransactions) ? data.recurringTransactions.map((r: any) => ({
       id: r.id ?? '',
       description: r.description ?? '',
       category: r.category ?? '',
@@ -115,7 +115,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       ...(r.monthOfYear ? { monthOfYear: r.monthOfYear } : {}),
     })) : [];
 
-    const carMileage: CarMileageRecord[] = Array.isArray(data.carMileage) ? data.carMileage.map((m: any) => ({
+    const carMileage: ICarMileageRecord[] = Array.isArray(data.carMileage) ? data.carMileage.map((m: any) => ({
       id: m.id ?? '',
       year: typeof m.year === 'number' ? m.year : data.year,
       month: typeof m.month === 'number' ? m.month : data.month,
@@ -124,20 +124,20 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
 
     const carInitialMileage: number = typeof data.carInitialMileage === 'number' ? data.carInitialMileage : 0;
 
-    const tireSettings: TireSettings = {
+    const tireSettings: ITireSettings = {
       summerModel: data.tireSettings?.summerModel ?? '',
       winterModel: data.tireSettings?.winterModel ?? '',
       initialTireType: data.tireSettings?.initialTireType === 'winter' ? 'winter' : 'summer',
     };
 
-    const tireChanges: TireChangeRecord[] = Array.isArray(data.tireChanges) ? data.tireChanges.map((t: any) => ({
+    const tireChanges: ITireChangeRecord[] = Array.isArray(data.tireChanges) ? data.tireChanges.map((t: any) => ({
       id: t.id ?? '',
       date: t.date ?? dayjs().format('YYYY-MM-DD'),
       type: t.type === 'summer' || t.type === 'winter' ? t.type : 'summer',
       odometer: typeof t.odometer === 'number' ? t.odometer : 0,
     })) : [];
 
-    const enabledModules: AppModules = {
+    const enabledModules: IAppModules = {
       financeTracker: data.enabledModules?.financeTracker ?? true,
       carManagement: !!data.enabledModules?.carManagement,
       utilityTracker: !!data.enabledModules?.utilityTracker,
