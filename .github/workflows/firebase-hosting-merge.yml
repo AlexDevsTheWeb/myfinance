@@ -9,11 +9,15 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
-      - name: Install and Build
-        # Qui diciamo a Vite quali variabili usare durante la compilazione
-        run: npm ci && npm run build
+      - name: Clean and Install
+        run: rm -rf node_modules package-lock.json && npm ci
+
+      - name: Build
+        run: npm run build
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
