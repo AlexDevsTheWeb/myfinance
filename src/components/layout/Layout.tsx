@@ -170,8 +170,8 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                 anchorEl={anchorElFinance}
                 open={Boolean(anchorElFinance)}
                 onClose={handleCloseFinance}
-                PaperProps={{
-                  sx: { background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', mt: 1.5, minWidth: 180 }
+                slotProps={{
+                  paper: { sx: { background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', mt: 1.5, minWidth: 180 } }
                 }}
               >
                 <MenuItem onClick={() => { navigate('/salary'); handleCloseFinance(); }}>
@@ -222,13 +222,15 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                 onClose={handleCloseUser}
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                PaperProps={{
-                  sx: {
-                    background: '#1e293b',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    mt: 1.5,
-                    minWidth: 220,
-                    '& .MuiMenuItem-root': { fontSize: '0.9rem' }
+                slotProps={{
+                  paper: {
+                    sx: {
+                      background: '#1e293b',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      mt: 1.5,
+                      minWidth: 220,
+                      '& .MuiMenuItem-root': { fontSize: '0.9rem' }
+                    }
                   }
                 }}
               >

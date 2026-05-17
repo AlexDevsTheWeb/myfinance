@@ -143,12 +143,14 @@ const TransactionsPage: React.FC = () => {
                       variant="outlined"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Search sx={{ opacity: 0.5 }} />
-                          </InputAdornment>
-                        ),
+                      slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Search sx={{ opacity: 0.5 }} />
+                            </InputAdornment>
+                          ),
+                        },
                       }}
                     />
                   </Grid>

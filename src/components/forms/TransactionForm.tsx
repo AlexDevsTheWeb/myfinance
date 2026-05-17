@@ -211,7 +211,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
                   variant="filled"
                   value={formData.dayOfMonth || 1}
                   onChange={(e: any) => setFormData({ ...formData, dayOfMonth: Number(e.target.value) })}
-                  inputProps={{ min: 1, max: 31 }}
+                  slotProps={{ htmlInput: { min: 1, max: 31 } }}
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
