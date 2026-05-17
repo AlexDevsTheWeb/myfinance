@@ -352,7 +352,7 @@ const CarPage: React.FC = () => {
               </Typography>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6 }}>
-                  <TextField select fullWidth label="Month" value={selectedMonth} onChange={(e: any) => setSelectedMonth(Number(e.target.value))} variant="filled" SelectProps={{ native: true }} size="small">
+                  <TextField select fullWidth label="Month" value={selectedMonth} onChange={(e: any) => setSelectedMonth(Number(e.target.value))} variant="filled" slotProps={{ select: { native: true } }} size="small">
                     {months.map((m, i) => <option key={m} value={i + 1}>{m.substring(0, 3)}</option>)}
                   </TextField>
                 </Grid>
@@ -514,7 +514,7 @@ const CarPage: React.FC = () => {
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.newTire')}</Typography>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6 }}>
-                  <TextField type="date" fullWidth label={t('car.date')} value={newTireChange.date} onChange={(e: any) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" size="small" InputLabelProps={{ shrink: true }} />
+                  <TextField type="date" fullWidth label={t('car.date')} value={newTireChange.date} onChange={(e: any) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" size="small" slotProps={{ inputLabel: { shrink: true } }} />
                 </Grid>
                 <Grid size={{ xs: 6 }}>
                   <TextField select fullWidth label={t('car.type')} value={newTireChange.type} onChange={(e: any) => setNewTireChange({ ...newTireChange, type: e.target.value as any })} variant="filled" size="small">

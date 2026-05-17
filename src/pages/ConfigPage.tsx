@@ -55,7 +55,7 @@ const DraggableSubcategory: React.FC<{ sub: string; catName: string; type: 'inco
       <Box {...listeners} {...attributes} sx={{ cursor: 'grab', mr: 2, display: 'flex', opacity: 0.3 }}>
         <DragIndicatorIcon fontSize="small" />
       </Box>
-      <ListItemText primary={sub} primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} />
+      <ListItemText primary={<Typography variant="body2" sx={{ fontWeight: 500 }}>{sub}</Typography>} />
       <ListItemSecondaryAction>
         <IconButton size="small" onClick={onRename}>
           <EditIcon fontSize="inherit" />
@@ -757,7 +757,7 @@ const ConfigPage: React.FC = () => {
         </TabPanel>
 
         {/* Global Dialog for Add/Edit/Rename */}
-        <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth={dialogConfig?.type === 'recurring' ? 'sm' : 'xs'} PaperProps={{ sx: { background: '#1e293b', borderRadius: 4 } }}>
+        <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth={dialogConfig?.type === 'recurring' ? 'sm' : 'xs'} slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
           <DialogTitle sx={{ fontWeight: 800 }}>
             {dialogConfig?.mode === 'add' ? t('config.addNew') : dialogConfig?.mode === 'edit' ? t('config.edit') : t('config.rename')} {' '}
             {dialogConfig?.type === 'category' ? t('config.category') : dialogConfig?.type === 'recurring' ? t('config.recurringTemplate') : dialogConfig?.type === 'account' ? t('config.account') : t('config.item')}
@@ -808,7 +808,7 @@ const ConfigPage: React.FC = () => {
         </Dialog>
 
         {/* Remap Deletion Dialog */}
-        <Dialog open={remapDialogOpen} onClose={handleCloseRemapDialog} fullWidth maxWidth="xs" PaperProps={{ sx: { background: '#1e293b', borderRadius: 4 } }}>
+        <Dialog open={remapDialogOpen} onClose={handleCloseRemapDialog} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
           <DialogTitle sx={{ fontWeight: 800 }}>Delete & Remap</DialogTitle>
           <DialogContent>
             <Alert severity="error" sx={{ mb: 3 }}>
@@ -853,7 +853,7 @@ const ConfigPage: React.FC = () => {
         </Dialog>
 
         {/* Backup Preview Dialog */}
-        <Dialog open={previewDialogOpen} onClose={() => setPreviewDialogOpen(false)} fullWidth maxWidth="sm" PaperProps={{ sx: { background: '#1e293b', borderRadius: 4 } }}>
+        <Dialog open={previewDialogOpen} onClose={() => setPreviewDialogOpen(false)} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
           <DialogTitle sx={{ fontWeight: 800 }}>Anteprima Backup</DialogTitle>
           <DialogContent>
             <Alert severity="info" sx={{ mb: 2 }}>
