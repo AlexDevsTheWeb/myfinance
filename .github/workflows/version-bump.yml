@@ -1,13 +1,11 @@
 name: Version Bump and Release
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches: [main]
 
 jobs:
   release:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -26,19 +24,45 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
+      - name: Get changed files
+        id: changes
+        run: |
+          git fetch --tags
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            COMMITS=$(git log --format=%s HEAD~1..HEAD)
+          else
+            COMMITS=$(git log --format=%s $PREV_TAG..HEAD)
+          fi
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Check if any commit matches conventional commit pattern
+          if echo "$COMMITS" | grep -qE '^(feat|fix| BREAK CHANGE):'; then
+            echo "needs_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_release=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install dependencies
+        if: steps.changes.outputs.needs_release == 'true'
         run: rm -rf node_modules package-lock.json && npm install
 
       - name: Install standard-version
+        if: steps.changes.outputs.needs_release == 'true'
         run: npm install --save-dev standard-version
 
       - name: Bump version and tag
+        if: steps.changes.outputs.needs_release == 'true'
         run: npx standard-version
 
       - name: Push version bump
+        if: steps.changes.outputs.needs_release == 'true'
         run: git push origin main && git push origin --tags
 
       - name: Create GitHub Release
+        if: steps.changes.outputs.needs_release == 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
