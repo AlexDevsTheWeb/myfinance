@@ -30,3 +30,4 @@ dist-ssr
 .config/
 .config/*
 AGENTS.md
+src/version.ts
