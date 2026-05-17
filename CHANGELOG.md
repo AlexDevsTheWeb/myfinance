@@ -1,4 +1,9 @@
 
+### [2026.4.2](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.4.1...v2026.4.2) (2026-05-17)
+
+
+* **ci:** version bump workflow now handles Firebase deployment to avoid race condition ([75417ac](https://github.com/AlexDevsTheWeb/myfinance/commit/75417ac58ae190e4e48c741c3f67ab46d8821a8a))
+
 ### [2026.4.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.4.0...v2026.4.1) (2026-05-17)
 
 
