@@ -1,0 +1,22 @@
+
+## [2026.3.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.2.1...v2026.3.0) (2026-05-17)
+
+
+* **46-massive-store-refactor:** first extraction of defaults ([b329a0e](https://github.com/AlexDevsTheWeb/myfinance/commit/b329a0ecc2297ad61dbe7f6392f56179bc9a0b80))
+* **46-massive-store-refactor:** more improvements ([abcd4a9](https://github.com/AlexDevsTheWeb/myfinance/commit/abcd4a9693bd28beacc1d0b72313b2b48f00b59d))
+* **46-massive-store-refactor:** started store refactoring ([46471ba](https://github.com/AlexDevsTheWeb/myfinance/commit/46471baff6bb5ed04d2c18294f3fc7dd80100a6a))
+* **46:** complete store refactor - extraction + bug fixes ([2ed3298](https://github.com/AlexDevsTheWeb/myfinance/commit/2ed329804d0adc43752989606ec93120eeecc301))
+* add store refactor design spec ([435f8e0](https://github.com/AlexDevsTheWeb/myfinance/commit/435f8e00a0fee8b94387f41f79003e98903c27ff))
+* add store refactor implementation plan ([1d52816](https://github.com/AlexDevsTheWeb/myfinance/commit/1d5281657807b3b2a17cb0f25fd9eadcecc12a22))
+* **ci:** add contents write permission for version bump push ([be3d6e1](https://github.com/AlexDevsTheWeb/myfinance/commit/be3d6e1038ccf842be85b6760084a3bbd680c140))
+* **ci:** configure git user in version-bump workflow ([dd4325c](https://github.com/AlexDevsTheWeb/myfinance/commit/dd4325ca8529d2138c2b38570dc857531a7fa2ea))
+* **ci:** use push trigger on main with conventional commit check ([354047b](https://github.com/AlexDevsTheWeb/myfinance/commit/354047b86294d319e6f0c59d1de4f36e09735153))
+* **ci:** version bump runs on PR to main instead of development ([3620c1d](https://github.com/AlexDevsTheWeb/myfinance/commit/3620c1d85d740609c08d5e0d005ffcf020b94bc0))
+* **deps:** upgrade to MUI v9 - migrate deprecated props to slotProps ([749a415](https://github.com/AlexDevsTheWeb/myfinance/commit/749a41532ab76b2beb40067728b829f83edf9cf8))
+* **development:** fix build pipeline ([5229ab4](https://github.com/AlexDevsTheWeb/myfinance/commit/5229ab4a2bef76a44890aca8f3c0e8960c0c3a3c))
+* **development:** fixing errors on version bump and build ([3274901](https://github.com/AlexDevsTheWeb/myfinance/commit/3274901171910f3959e3dc02cede60694844a55f))
+* extract types to src/store/types/ ([895ddc2](https://github.com/AlexDevsTheWeb/myfinance/commit/895ddc22b7b0f7006eb8a3f08aa92dc51bb49e84))
+* extract types to src/store/types/ ([858bbea](https://github.com/AlexDevsTheWeb/myfinance/commit/858bbea97bffcc24d65d05ec71a661729943e82d))
+* **locales:** remove duplicate keys from en.json ([5c74946](https://github.com/AlexDevsTheWeb/myfinance/commit/5c74946317f7f6318332936448656df0e1434570))
+* map existing codebase ([a759c6a](https://github.com/AlexDevsTheWeb/myfinance/commit/a759c6aaf56ff7e231b256d4d5ed855ea8bea565))
+* move validation to separate folder ([3ba9d15](https://github.com/AlexDevsTheWeb/myfinance/commit/3ba9d15b41d6763d762d78ef1290d60ec49fd54a))
