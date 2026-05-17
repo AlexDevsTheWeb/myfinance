@@ -1,12 +1,12 @@
-name: Version Bump
+name: Version Bump and Release
 
 on:
   pull_request:
     types: [closed]
-    branches: [development]
+    branches: [main]
 
 jobs:
-  version-bump:
+  release:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
@@ -32,8 +32,18 @@ jobs:
       - name: Install standard-version
         run: npm install --save-dev standard-version
 
-      - name: Bump version
+      - name: Bump version and tag
         run: npx standard-version
 
-      - name: Push changes
-        run: git push && git push --tags
+      - name: Push version bump
+        run: git push origin main && git push origin --tags
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
