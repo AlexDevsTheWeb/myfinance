@@ -61,7 +61,7 @@ jobs:
 
       - name: Push version bump
         if: steps.changes.outputs.needs_release == 'true'
-        run: git push origin main && git push origin --tags
+        run: git push origin refs/heads/main && git push origin --tags
 
       - name: Get latest tag
         if: steps.changes.outputs.needs_release == 'true'
