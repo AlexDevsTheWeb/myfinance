@@ -1,4 +1,10 @@
 
+### [2026.4.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.4.0...v2026.4.1) (2026-05-17)
+
+
+* **build:** ignore version.ts so it's regenerated on each build ([021c780](https://github.com/AlexDevsTheWeb/myfinance/commit/021c78015b7be8c61c2c985251af17f883d2ce15))
+* **ci:** match conventional commits with scope like fix(build): ([087cd7c](https://github.com/AlexDevsTheWeb/myfinance/commit/087cd7c6cc0502dd871d4289624daea4d907d62a))
+
 ## [2026.4.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.3.0...v2026.4.0) (2026-05-17)
 
 
