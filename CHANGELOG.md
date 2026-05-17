@@ -1,4 +1,11 @@
 
+## [2026.4.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.3.0...v2026.4.0) (2026-05-17)
+
+
+* **ci:** get latest tag for release creation ([c3aae1e](https://github.com/AlexDevsTheWeb/myfinance/commit/c3aae1e798d20c4021df537668971080185fa39a))
+* **ci:** use full refspec for main branch push ([d5ab717](https://github.com/AlexDevsTheWeb/myfinance/commit/d5ab717d7f7a5e243ca3196aa72879e729288517))
+* test version bump release creation ([2b8ee5d](https://github.com/AlexDevsTheWeb/myfinance/commit/2b8ee5df97beb40c13d86a072ad579c89a4d1d14))
+
 ## [2026.3.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.2.1...v2026.3.0) (2026-05-17)
 
 
