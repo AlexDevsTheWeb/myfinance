@@ -124,18 +124,20 @@ const DashboardPage: React.FC = () => {
               </Grid>
             </Box>
           )}
-          <Box sx={{ mb: 3 }}>
-            <NetWorthChart
-              data={netWorthData}
-              title="Net Worth"
-            />
-          </Box>
-          <Box sx={{ mb: 3 }}>
-            <AccountBreakdownChart
-              data={accountData}
-              title="Accounts"
-            />
-          </Box>
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 8 }}>
+              <NetWorthChart
+                data={netWorthData}
+                title="Net Worth"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <AccountBreakdownChart
+                data={accountData}
+                title="Accounts"
+              />
+            </Grid>
+          </Grid>
           <Charts />
         </Grid>
       </Grid>

@@ -82,20 +82,19 @@ const InsightsPage: React.FC = () => {
       />
 
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <CategoryPieChart
             data={categoryData.breakdown}
             title={t('insights.spendingByCategory')}
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <CategoryBarChart
             data={categoryData.breakdown}
             title={t('insights.categoryTotals')}
           />
         </Grid>
-
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <MonthlyComparisonChart
             data={comparisonData}
             title={t('insights.monthlyComparison')}
