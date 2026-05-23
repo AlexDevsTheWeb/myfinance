@@ -130,17 +130,20 @@ const InsightsPage: React.FC = () => {
             />
           </Box>
 
-          <Box sx={{ mb: 2 }}>
-            <NetWorthChart
-              data={netWorthData}
-              title={t('insights.netWorth')}
-            />
-          </Box>
-
-          <AccountBreakdownChart
-            data={accountData}
-            title={t('insights.accountBreakdown')}
-          />
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, md: 7 }}>
+              <NetWorthChart
+                data={netWorthData}
+                title={t('insights.netWorth')}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 5 }}>
+              <AccountBreakdownChart
+                data={accountData}
+                title={t('insights.accountBreakdown')}
+              />
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Box>
