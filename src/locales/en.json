@@ -210,5 +210,13 @@
     "october": "October",
     "november": "November",
     "december": "December"
+  },
+  "insights": {
+    "title": "Insights",
+    "spendingByCategory": "Spending by Category",
+    "categoryTotals": "Category Totals",
+    "monthlyComparison": "Monthly Comparison",
+    "netWorth": "Net Worth Over Time",
+    "accountBreakdown": "Account Breakdown"
   }
 }
