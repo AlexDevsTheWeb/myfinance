@@ -6,7 +6,6 @@
     "dashboard": "Dashboard",
     "transactions": "Transazioni",
     "salary": "Stipendio",
-    "analysis": "Analisi",
     "car": "Auto",
     "utilities": "Utenze",
     "config": "Configurazione"
@@ -103,14 +102,6 @@
     "monthly": "Mensile",
     "yearly": "Annuale",
     "comparison": "Confronto Annuale"
-  },
-  "analysis": {
-    "title": "Analisi",
-    "totalIncome": "Totale entrate",
-    "totalExpense": "Totale uscite",
-    "balance": "Saldo",
-    "cashFlowTrend": "Andamento flusso di cassa",
-    "expensesByCategory": "Uscite per categoria"
   },
   "car": {
     "title": "Auto",
@@ -225,5 +216,13 @@
     "october": "Ottobre",
     "november": "Novembre",
     "december": "Dicembre"
+  },
+  "insights": {
+    "title": "Analisi",
+    "spendingByCategory": "Spese per Categoria",
+    "categoryTotals": "Totali per Categoria",
+    "monthlyComparison": "Confronto Mensile",
+    "netWorth": "Patrimonio Netto",
+    "accountBreakdown": "Distribuzione Conti"
   }
 }

@@ -10,6 +10,12 @@ import TransactionTable from '../components/dashboard/TransactionTable';
 import TransactionModal from '../components/modals/TransactionModal';
 import AccountCard from '../components/dashboard/AccountCard.component';
 import { useFinanceStore, type Transaction } from '../store/useFinanceStore';
+import {
+  NetWorthChart,
+  AccountBreakdownChart,
+  useNetWorth,
+  useAccountBreakdown,
+} from '../analytics';
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,6 +49,14 @@ const DashboardPage: React.FC = () => {
       };
     });
   }, [transactions, accounts, balanceStartDate]);
+
+  const dashboardDateRange = React.useMemo(() => ({
+    startDate: dayjs(balanceStartDate).format('YYYY-MM-DD'),
+    endDate: dayjs().format('YYYY-MM-DD'),
+  }), [balanceStartDate]);
+
+  const netWorthData = useNetWorth(dashboardDateRange);
+  const accountData = useAccountBreakdown();
 
   const isFirstOfMonth = dayjs().date() === 1;
   const hasReadingThisMonth = carMileage.some(m => m.month === (dayjs().month() + 1) && m.year === dayjs().year());
@@ -110,6 +124,20 @@ const DashboardPage: React.FC = () => {
               </Grid>
             </Box>
           )}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, sm: 8 }}>
+              <NetWorthChart
+                data={netWorthData}
+                title="Net Worth"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <AccountBreakdownChart
+                data={accountData}
+                title="Accounts"
+              />
+            </Grid>
+          </Grid>
           <Charts />
         </Grid>
       </Grid>

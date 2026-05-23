@@ -3,7 +3,6 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import dayjs from 'dayjs';
 import itLocale from 'dayjs/locale/it';
-import enLocale from 'dayjs/locale/en';
 
 import it from '../locales/it.json';
 import en from '../locales/en.json';
@@ -31,7 +30,7 @@ i18n
 
 // Sync dayjs locale with i18n language
 const setDayjsLocale = (lng: string) => {
-  dayjs.locale(lng === 'it' ? itLocale : enLocale);
+  dayjs.locale(lng === 'it' ? itLocale : 'en');
 };
 
 // Set initial locale

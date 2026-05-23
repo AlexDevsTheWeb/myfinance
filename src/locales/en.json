@@ -6,7 +6,6 @@
     "dashboard": "Dashboard",
     "transactions": "Transactions",
     "salary": "Salary",
-    "analysis": "Analysis",
     "car": "Car",
     "utilities": "Utilities",
     "config": "Settings"
@@ -88,14 +87,6 @@
     "monthly": "Monthly",
     "yearly": "Yearly",
     "comparison": "Year over Year Comparison"
-  },
-  "analysis": {
-    "title": "Analysis",
-    "totalIncome": "Total Income",
-    "totalExpense": "Total Expense",
-    "balance": "Balance",
-    "cashFlowTrend": "Cash Flow Trend",
-    "expensesByCategory": "Expenses by Category"
   },
   "car": {
     "title": "Car",
@@ -210,5 +201,13 @@
     "october": "October",
     "november": "November",
     "december": "December"
+  },
+  "insights": {
+    "title": "Insights",
+    "spendingByCategory": "Spending by Category",
+    "categoryTotals": "Category Totals",
+    "monthlyComparison": "Monthly Comparison",
+    "netWorth": "Net Worth Over Time",
+    "accountBreakdown": "Account Breakdown"
   }
 }
