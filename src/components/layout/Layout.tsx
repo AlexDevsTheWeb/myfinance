@@ -72,8 +72,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
     'transactions': 'Transactions',
     'config': t('navigation.config'),
     'salary': t('salary.title'),
-    'analysis': t('analysis.title'),
-    'insights': 'Insights',
+    'insights': t('insights.title'),
     'car': t('car.title'),
     'utilities': t('utilities.title'),
   };
@@ -93,13 +92,9 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
           <ListItemIcon><TrendingUp sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
           <ListItemText primary={t('salary.title')} sx={{ color: 'white' }} />
         </ListItemButton>
-        <ListItemButton onClick={() => { navigate('/analysis'); }}>
-          <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary={t('analysis.title')} sx={{ color: 'white' }} />
-        </ListItemButton>
         <ListItemButton onClick={() => { navigate('/insights'); }}>
           <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary="Insights" sx={{ color: 'white' }} />
+          <ListItemText primary={t('insights.title')} sx={{ color: 'white' }} />
         </ListItemButton>
         {enabledModules?.carManagement && (
           <ListItemButton component={Link} to="/car">
@@ -182,11 +177,8 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                 <MenuItem onClick={() => { navigate('/salary'); handleCloseFinance(); }}>
                   <TrendingUp sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> {t('salary.title')}
                 </MenuItem>
-                <MenuItem onClick={() => { navigate('/analysis'); handleCloseFinance(); }}>
-                  <BarChartIcon sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> {t('analysis.title')}
-                </MenuItem>
                 <MenuItem onClick={() => { navigate('/insights'); handleCloseFinance(); }}>
-                  <BarChartIcon sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> Insights
+                  <BarChartIcon sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> {t('insights.title')}
                 </MenuItem>
               </Menu>
 

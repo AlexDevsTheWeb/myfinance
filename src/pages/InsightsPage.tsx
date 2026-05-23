@@ -4,6 +4,9 @@ import dayjs, { Dayjs } from 'dayjs';
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../store/useFinanceStore';
+import AnalysisTables from '../components/analysis/AnalysisTables';
+import FinancialTrendChart from '../components/analysis/FinancialTrendChart';
+import { YearSelector } from '../components/common/YearSelector.component';
 import {
   CategoryPieChart,
   CategoryBarChart,
@@ -19,7 +22,15 @@ import {
 
 const InsightsPage: React.FC = () => {
   const { t } = useTranslation();
-  const { categories } = useFinanceStore();
+
+  const { transactions, categories } = useFinanceStore();
+  const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
+
+  const availableYears = useMemo(() => {
+    const years = new Set(transactions.map((t) => dayjs(t.date).year()));
+    years.add(dayjs().year());
+    return Array.from(years).sort((a, b) => b - a);
+  }, [transactions]);
 
   const allCategories = useMemo(() =>
     categories.map(c => c.name).sort(),
@@ -58,13 +69,35 @@ const InsightsPage: React.FC = () => {
 
   return (
     <Box sx={{ pb: 6 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <BarChartIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-          {t('insights.title')}
-        </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.6 }}>
-          Deep analytics and visualizations of your financial data.
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <BarChartIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+            {t('insights.title')}
+          </Typography>
+          <Typography variant="body1" sx={{ opacity: 0.6 }}>
+            Deep dive into your financial performance and trends.
+          </Typography>
+        </Box>
+        <YearSelector
+          availableYears={availableYears}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+        />
+      </Box>
+
+      <Grid container spacing={3} sx={{ mb: 6 }}>
+        <Grid size={{ xs: 12, lg: 7 }}>
+          <AnalysisTables selectedYear={selectedYear} />
+        </Grid>
+        <Grid size={{ xs: 12, lg: 5 }}>
+          <FinancialTrendChart selectedYear={selectedYear} />
+        </Grid>
+      </Grid>
+
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: -1, mb: 1 }}>
+          Charts
         </Typography>
       </Box>
 
