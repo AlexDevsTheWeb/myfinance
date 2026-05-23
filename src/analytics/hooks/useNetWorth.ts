@@ -30,7 +30,7 @@ export function useNetWorth(dateRange: IDateRange): INetWorthPoint[] {
       const monthEnd = cursor.endOf('month');
       const monthTx = allTx.filter(t => {
         const d = dayjs(t.date);
-        return d.isAfter(start.subtract(1, 'day')) && d.isBefore(monthEnd.add(1, 'day'));
+        return d.isAfter(cursor.subtract(1, 'day')) && d.isBefore(monthEnd.add(1, 'day'));
       });
       monthTx.forEach(t => {
         const isAfterBalanceStart = dayjs(t.date).isAfter(dayjs(balanceStartDate).subtract(1, 'day'));
