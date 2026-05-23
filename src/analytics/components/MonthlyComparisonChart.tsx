@@ -68,7 +68,7 @@ const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, t
                 borderRadius: 2,
               }}
               itemStyle={{ fontWeight: 600 }}
-              formatter={(value: number) => `€ ${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
+              formatter={(value: any) => `€ ${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
             />
             <Legend verticalAlign="top" height={36} iconType="circle" />
             <Bar dataKey="current" name={`${monthLabel} ${data.year}`} fill="#6366f1" radius={[4, 4, 0, 0]} />

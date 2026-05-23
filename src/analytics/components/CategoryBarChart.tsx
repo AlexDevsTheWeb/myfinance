@@ -47,7 +47,7 @@ const CategoryBarChart: React.FC<CategoryBarChartProps> = ({ data, title }) => {
                 borderRadius: 2,
               }}
               itemStyle={{ fontWeight: 600 }}
-              formatter={(value: number) => `€ ${value.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
+              formatter={(value: any) => `€ ${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
             />
             <Bar dataKey="amount" fill="#6366f1" radius={[0, 4, 4, 0]} />
           </BarChart>
