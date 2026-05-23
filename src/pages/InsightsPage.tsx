@@ -86,62 +86,57 @@ const InsightsPage: React.FC = () => {
         />
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 6 }}>
-        <Grid size={{ xs: 12, lg: 7 }}>
-          <AnalysisTables selectedYear={selectedYear} />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 5 }}>
-          <FinancialTrendChart selectedYear={selectedYear} />
-        </Grid>
-      </Grid>
-
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, letterSpacing: -1, mb: 1 }}>
-          Charts
-        </Typography>
-      </Box>
-
-      <AnalyticsFilters
-        startDate={startDate}
-        endDate={endDate}
-        granularity={granularity}
-        category={category}
-        categories={allCategories}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-        onGranularityChange={setGranularity}
-        onCategoryChange={(c) => setCategory(c)}
-        onClear={handleClear}
-      />
-
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <CategoryPieChart
-            data={categoryData.breakdown}
-            title={t('insights.spendingByCategory')}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <CategoryBarChart
-            data={categoryData.breakdown}
-            title={t('insights.categoryTotals')}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <MonthlyComparisonChart
-            data={comparisonData}
-            title={t('insights.monthlyComparison')}
-          />
+        <Grid size={{ xs: 12, lg: 6 }}>
+          <AnalysisTables selectedYear={selectedYear} />
+          <Box sx={{ mt: 3 }}>
+            <FinancialTrendChart selectedYear={selectedYear} />
+          </Box>
         </Grid>
 
-        <Grid size={{ xs: 12, md: 8 }}>
-          <NetWorthChart
-            data={netWorthData}
-            title={t('insights.netWorth')}
+        <Grid size={{ xs: 12, lg: 6 }}>
+          <AnalyticsFilters
+            startDate={startDate}
+            endDate={endDate}
+            granularity={granularity}
+            category={category}
+            categories={allCategories}
+            onStartDateChange={setStartDate}
+            onEndDateChange={setEndDate}
+            onGranularityChange={setGranularity}
+            onCategoryChange={(c) => setCategory(c)}
+            onClear={handleClear}
           />
-        </Grid>
 
-        <Grid size={{ xs: 12, md: 4 }}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <CategoryPieChart
+                data={categoryData.breakdown}
+                title={t('insights.spendingByCategory')}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <CategoryBarChart
+                data={categoryData.breakdown}
+                title={t('insights.categoryTotals')}
+              />
+            </Grid>
+          </Grid>
+
+          <Box sx={{ mb: 2 }}>
+            <MonthlyComparisonChart
+              data={comparisonData}
+              title={t('insights.monthlyComparison')}
+            />
+          </Box>
+
+          <Box sx={{ mb: 2 }}>
+            <NetWorthChart
+              data={netWorthData}
+              title={t('insights.netWorth')}
+            />
+          </Box>
+
           <AccountBreakdownChart
             data={accountData}
             title={t('insights.accountBreakdown')}
