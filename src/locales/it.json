@@ -225,5 +225,13 @@
     "october": "Ottobre",
     "november": "Novembre",
     "december": "Dicembre"
+  },
+  "insights": {
+    "title": "Analisi",
+    "spendingByCategory": "Spese per Categoria",
+    "categoryTotals": "Totali per Categoria",
+    "monthlyComparison": "Confronto Mensile",
+    "netWorth": "Patrimonio Netto",
+    "accountBreakdown": "Distribuzione Conti"
   }
 }
