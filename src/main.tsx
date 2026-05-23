@@ -10,11 +10,13 @@ import './index.css'
 import { theme } from './theme/theme'
 import i18n from './lib/i18n'
 
+const dayjsLocale = i18n.language === 'it' ? 'it' : 'en'
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={dayjsLocale}>
         <I18nextProvider i18n={i18n}>
           <App />
         </I18nextProvider>

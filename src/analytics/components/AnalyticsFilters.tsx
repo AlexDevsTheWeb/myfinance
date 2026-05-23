@@ -1,6 +1,5 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers';
 import { Dayjs } from 'dayjs';
 import type { Granularity } from '../types';
 
@@ -23,7 +22,6 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
   onCategoryChange, onClear,
 }) => {
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 3 }}>
         <DatePicker
           label="From"
@@ -71,7 +69,6 @@ const AnalyticsFilters: React.FC<AnalyticsFiltersProps> = ({
           </Button>
         )}
       </Box>
-    </LocalizationProvider>
   );
 };
 

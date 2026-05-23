@@ -1,7 +1,6 @@
 import { ArrowDownward, ArrowUpward, FilterList, ReceiptLong, Search } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, FormControl, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -131,7 +130,6 @@ const TransactionsPage: React.FC = () => {
   const spendingData = useCategoryBreakdown(transactionFilters);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ pb: 6 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 8 }}>
@@ -281,7 +279,6 @@ const TransactionsPage: React.FC = () => {
           transaction={transactionToEdit}
         />
       </Box>
-    </LocalizationProvider>
   );
 };
 

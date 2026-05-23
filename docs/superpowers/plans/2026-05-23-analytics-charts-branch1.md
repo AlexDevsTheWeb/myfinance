@@ -20,48 +20,59 @@
 - [ ] **Step 1: Write the types file**
 
 ```ts
-export interface DateRange {
-  startDate: string; // YYYY-MM-DD
-  endDate: string;   // YYYY-MM-DD
+export interface IDateRange {
+  startDate: string;
+  endDate: string;
 }
 
 export type Granularity = 'monthly' | 'yearly' | 'total';
 
-export interface CategoryBreakdown {
+export interface ISubcategoryTotal {
+  name: string;
+  total: number;
+}
+
+export interface ICategoryBreakdown {
   category: string;
   total: number;
   percentage: number;
-  subcategories: { name: string; total: number }[];
+  subcategories: ISubcategoryTotal[];
 }
 
-export interface CategoryBreakdownData {
-  breakdown: CategoryBreakdown[];
+export interface ICategoryBreakdownData {
+  breakdown: ICategoryBreakdown[];
   totalExpense: number;
   totalIncome: number;
 }
 
-export interface MonthlyComparisonData {
-  current: { income: number; expense: number; net: number };
-  previousMonth: { income: number; expense: number; net: number };
-  lastYear: { income: number; expense: number; net: number };
+export interface IMonthlyTotals {
+  income: number;
+  expense: number;
+  net: number;
+}
+
+export interface IMonthlyComparisonData {
+  current: IMonthlyTotals;
+  previousMonth: IMonthlyTotals;
+  lastYear: IMonthlyTotals;
   month: number;
   year: number;
 }
 
-export interface NetWorthPoint {
+export interface INetWorthPoint {
   date: string;
   balance: number;
 }
 
-export interface AccountBreakdown {
+export interface IAccountBreakdown {
   accountId: string;
   accountName: string;
   balance: number;
   percentage: number;
 }
 
-export interface AnalyticsFilters {
-  dateRange: DateRange;
+export interface IAnalyticsFilters {
+  dateRange: IDateRange;
   granularity: Granularity;
   category?: string;
 }
@@ -87,9 +98,9 @@ git commit -m "feat(analytics): add analytics types"
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import type { CategoryBreakdownData, AnalyticsFilters } from '../types';
+import type { ICategoryBreakdownData, IAnalyticsFilters } from '../types';
 
-export function useCategoryBreakdown(filters: AnalyticsFilters): CategoryBreakdownData {
+export function useCategoryBreakdown(filters: IAnalyticsFilters): ICategoryBreakdownData {
   const { transactions, categories } = useFinanceStore();
 
   return useMemo(() => {
@@ -160,9 +171,9 @@ git commit -m "feat(analytics): add useCategoryBreakdown hook"
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import type { MonthlyComparisonData } from '../types';
+import type { IMonthlyComparisonData } from '../types';
 
-export function useMonthlyComparison(month: number, year: number): MonthlyComparisonData {
+export function useMonthlyComparison(month: number, year: number): IMonthlyComparisonData {
   const { transactions } = useFinanceStore();
 
   return useMemo(() => {
@@ -210,9 +221,9 @@ git commit -m "feat(analytics): add useMonthlyComparison hook"
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import type { NetWorthPoint, DateRange } from '../types';
+import type { INetWorthPoint, IDateRange } from '../types';
 
-export function useNetWorth(dateRange: DateRange): NetWorthPoint[] {
+export function useNetWorth(dateRange: IDateRange): INetWorthPoint[] {
   const { transactions, initialBalance, balanceStartDate } = useFinanceStore();
 
   return useMemo(() => {
@@ -242,7 +253,7 @@ export function useNetWorth(dateRange: DateRange): NetWorthPoint[] {
       const monthEnd = cursor.endOf('month');
       const monthTx = allTx.filter(t => {
         const d = dayjs(t.date);
-        return d.isAfter(start.subtract(1, 'day')) && d.isBefore(monthEnd.add(1, 'day'));
+        return d.isAfter(cursor.subtract(1, 'day')) && d.isBefore(monthEnd.add(1, 'day'));
       });
       monthTx.forEach(t => {
         const isAfterBalanceStart = dayjs(t.date).isAfter(dayjs(balanceStartDate).subtract(1, 'day'));
@@ -278,9 +289,9 @@ git commit -m "feat(analytics): add useNetWorth hook"
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import type { AccountBreakdown } from '../types';
+import type { IAccountBreakdown } from '../types';
 
-export function useAccountBreakdown(): AccountBreakdown[] {
+export function useAccountBreakdown(): IAccountBreakdown[] {
   const { transactions, accounts, initialBalance, balanceStartDate } = useFinanceStore();
 
   return useMemo(() => {
@@ -357,7 +368,7 @@ git commit -m "chore(analytics): add hooks barrel export"
 ```tsx
 import { Box, Paper, Typography } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import type { CategoryBreakdown } from '../types';
+import type { ICategoryBreakdown } from '../types';
 
 const COLORS = [
   '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6',
@@ -366,7 +377,7 @@ const COLORS = [
 ];
 
 interface CategoryPieChartProps {
-  data: CategoryBreakdown[];
+  data: ICategoryBreakdown[];
   title?: string;
 }
 
@@ -445,10 +456,10 @@ git commit -m "feat(analytics): add CategoryPieChart component"
 ```tsx
 import { Box, Paper, Typography } from '@mui/material';
 import { BarChart, Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import type { CategoryBreakdown } from '../types';
+import type { ICategoryBreakdown } from '../types';
 
 interface CategoryBarChartProps {
-  data: CategoryBreakdown[];
+  data: ICategoryBreakdown[];
   title?: string;
 }
 
@@ -524,10 +535,10 @@ git commit -m "feat(analytics): add CategoryBarChart component"
 ```tsx
 import { Box, Paper, Typography } from '@mui/material';
 import { BarChart, Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
-import type { MonthlyComparisonData } from '../types';
+import type { IMonthlyComparisonData } from '../types';
 
 interface MonthlyComparisonChartProps {
-  data: MonthlyComparisonData;
+  data: IMonthlyComparisonData;
   title?: string;
 }
 
@@ -627,10 +638,10 @@ git commit -m "feat(analytics): add MonthlyComparisonChart component"
 ```tsx
 import { Box, Paper, Typography } from '@mui/material';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import type { NetWorthPoint } from '../types';
+import type { INetWorthPoint } from '../types';
 
 interface NetWorthChartProps {
-  data: NetWorthPoint[];
+  data: INetWorthPoint[];
   title?: string;
 }
 
@@ -716,12 +727,12 @@ git commit -m "feat(analytics): add NetWorthChart component"
 ```tsx
 import { Box, Paper, Typography } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import type { AccountBreakdown } from '../types';
+import type { IAccountBreakdown } from '../types';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
 
 interface AccountBreakdownChartProps {
-  data: AccountBreakdown[];
+  data: IAccountBreakdown[];
   title?: string;
 }
 
