@@ -4,14 +4,14 @@ import { useFinanceStore } from '../../store/useFinanceStore';
 import type { ICategoryBreakdownData, IAnalyticsFilters } from '../types';
 
 export function useCategoryBreakdown(filters: IAnalyticsFilters): ICategoryBreakdownData {
-  const { transactions, categories } = useFinanceStore();
+  const { transactions } = useFinanceStore();
 
   return useMemo(() => {
     const { dateRange, category } = filters;
     const start = dayjs(dateRange.startDate);
     const end = dayjs(dateRange.endDate);
 
-    let filtered = transactions.filter(t => {
+    const filtered = transactions.filter(t => {
       const d = dayjs(t.date);
       return d.isAfter(start.subtract(1, 'day')) && d.isBefore(end.add(1, 'day'));
     });
@@ -47,5 +47,5 @@ export function useCategoryBreakdown(filters: IAnalyticsFilters): ICategoryBreak
       .sort((a, b) => b.total - a.total);
 
     return { breakdown, totalExpense, totalIncome };
-  }, [transactions, filters, categories]);
+  }, [transactions, filters]);
 }
