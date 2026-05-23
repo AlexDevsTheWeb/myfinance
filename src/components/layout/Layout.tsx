@@ -73,6 +73,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
     'config': t('navigation.config'),
     'salary': t('salary.title'),
     'analysis': t('analysis.title'),
+    'insights': 'Insights',
     'car': t('car.title'),
     'utilities': t('utilities.title'),
   };
@@ -95,6 +96,10 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
         <ListItemButton onClick={() => { navigate('/analysis'); }}>
           <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
           <ListItemText primary={t('analysis.title')} sx={{ color: 'white' }} />
+        </ListItemButton>
+        <ListItemButton onClick={() => { navigate('/insights'); }}>
+          <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+          <ListItemText primary="Insights" sx={{ color: 'white' }} />
         </ListItemButton>
         {enabledModules?.carManagement && (
           <ListItemButton component={Link} to="/car">
@@ -179,6 +184,9 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                 </MenuItem>
                 <MenuItem onClick={() => { navigate('/analysis'); handleCloseFinance(); }}>
                   <BarChartIcon sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> {t('analysis.title')}
+                </MenuItem>
+                <MenuItem onClick={() => { navigate('/insights'); handleCloseFinance(); }}>
+                  <BarChartIcon sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> Insights
                 </MenuItem>
               </Menu>
 
