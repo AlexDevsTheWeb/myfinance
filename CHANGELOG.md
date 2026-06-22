@@ -1,4 +1,14 @@
 
+## [2026.6.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.5.0...v2026.6.0) (2026-06-22)
+
+
+* add dedicated branch-strategy wiki page ([fc331f0](https://github.com/AlexDevsTheWeb/myfinance/commit/fc331f0204885bc51f9149b352bd58d5a575d8b1))
+* add design spec for transaction layout improvement (YATF-80) ([84f63fe](https://github.com/AlexDevsTheWeb/myfinance/commit/84f63fe13789b6db80d669004202a7ce1239a8d0))
+* add LLM Wiki for persistent project knowledge base ([687ada0](https://github.com/AlexDevsTheWeb/myfinance/commit/687ada0555dba55f03cd0650218e5936d1e57cab))
+* make pie chart height dynamic to prevent legend clipping (YATF-80) ([5d5098b](https://github.com/AlexDevsTheWeb/myfinance/commit/5d5098b3cf84d21ce356e13cf1d1e74206321e3d))
+* restrict PR preview deploys to main-only; document CI/CD and versioning ([0d7f518](https://github.com/AlexDevsTheWeb/myfinance/commit/0d7f5182e53cb37cd7ff5221831550f0390274e4))
+* restructure transactions page into two-column layout (YATF-80) ([63fca9f](https://github.com/AlexDevsTheWeb/myfinance/commit/63fca9f960de44e6bbac3ea8524dc312e455199f))
+
 ## [2026.5.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.4.2...v2026.5.0) (2026-05-23)
 
 
