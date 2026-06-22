@@ -77,7 +77,13 @@
     "goToCar": "Go to Car Management",
     "mileageReminder": "Mileage Reminder",
     "mileageReminderText": "It's the first of the month! Don't forget to record the mileage reading from your car dashboard.",
-    "accountsDetail": "Accounts Detail"
+    "accountsDetail": "Accounts Detail",
+    "currentBalance": "Current Balance",
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "incomeMonth": "Income (Month)",
+    "expensesMonth": "Expenses (Month)",
+    "netDeltaMonth": "Net Delta (Month)"
   },
   "salary": {
     "title": "Salary",
@@ -208,6 +214,13 @@
     "categoryTotals": "Category Totals",
     "monthlyComparison": "Monthly Comparison",
     "netWorth": "Net Worth Over Time",
-    "accountBreakdown": "Account Breakdown"
+    "accountBreakdown": "Account Breakdown",
+    "net": "Net",
+    "vsPrevMonth": "vs Prev Month",
+    "financialTrendTitle": "Yearly Financial Trend ({year})",
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "netEarnings": "Net Earnings",
+    "accountBalance": "Account Balance"
   }
 }

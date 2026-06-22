@@ -2,6 +2,7 @@ import { Box, Grid, Paper, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import AccountCard from './AccountCard.component';
 
@@ -23,6 +24,7 @@ interface RecapCardsProps {
 }
 
 const RecapCards: React.FC<RecapCardsProps> = ({ onToggleAccountDetails, accountDetails: externalAccountDetails, accountsDetail: externalAccountsDetail, hideAccountDetails }) => {
+  const { t } = useTranslation();
   const { transactions, accounts, balanceStartDate } = useFinanceStore();
   const [internalAccountDetails, setInternalAccountDetails] = React.useState<boolean>(false);
 
@@ -88,19 +90,22 @@ const RecapCards: React.FC<RecapCardsProps> = ({ onToggleAccountDetails, account
 
   const cardData = [
     {
-      title: 'Current Balance',
+      id: 'currentBalance',
+      title: t('dashboard.currentBalance'),
       amount: currentBalance,
       icon: <Wallet size={24} />,
-      color: '#5b6cb8', // Muted indigo
+      color: '#5b6cb8',
     },
     {
-      title: 'Total Income',
+      id: 'totalIncome',
+      title: t('dashboard.totalIncome'),
       amount: totalIncome,
       icon: <TrendingUp size={24} />,
       color: '#10b981',
     },
     {
-      title: 'Total Expenses',
+      id: 'totalExpenses',
+      title: t('dashboard.totalExpenses'),
       amount: totalExpenses,
       icon: <TrendingDown size={24} />,
       color: '#ef4444',
@@ -109,17 +114,20 @@ const RecapCards: React.FC<RecapCardsProps> = ({ onToggleAccountDetails, account
 
   const monthlyCardData = [
     {
-      title: 'Income (Month)',
+      id: 'incomeMonth',
+      title: t('dashboard.incomeMonth'),
       amount: monthlyStats.income,
       color: '#10b981',
     },
     {
-      title: 'Expenses (Month)',
+      id: 'expensesMonth',
+      title: t('dashboard.expensesMonth'),
       amount: monthlyStats.expense,
       color: '#ef4444',
     },
     {
-      title: 'Net Delta (Month)',
+      id: 'netDeltaMonth',
+      title: t('dashboard.netDeltaMonth'),
       amount: monthlyStats.delta,
       color: monthlyStats.delta >= 0 ? '#10b981' : '#ef4444',
     },
@@ -131,7 +139,7 @@ const RecapCards: React.FC<RecapCardsProps> = ({ onToggleAccountDetails, account
       {cardData.map((card) => (
         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={card.title}>
           <Paper
-            onClick={() => card.title === 'Current Balance' && handleToggle()}
+            onClick={() => card.id === 'currentBalance' && handleToggle()}
             sx={{
               p: 1.5,
               background: '#161b2e',
@@ -139,7 +147,7 @@ const RecapCards: React.FC<RecapCardsProps> = ({ onToggleAccountDetails, account
               display: 'flex',
               alignItems: 'center',
               gap: 1.5,
-              cursor: card.title === 'Current Balance' ? 'pointer' : 'default',
+              cursor: card.id === 'currentBalance' ? 'pointer' : 'default',
             }}
           >
             <Box sx={{ p: 1, background: card.color, color: '#fff', display: 'flex' }}>
@@ -181,7 +189,7 @@ const RecapCards: React.FC<RecapCardsProps> = ({ onToggleAccountDetails, account
 
       {showAccountDetails && !shouldHide && (
         <Box sx={{ mt: 1, width: '100%' }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Accounts Detail</Typography>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>{t('dashboard.accountsDetail')}</Typography>
           <Grid container spacing={2}>
             {accountsDetail.map(acc => (
               <Grid size={{ xs: 12, sm: 6 }} key={acc.id}>

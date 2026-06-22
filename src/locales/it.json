@@ -45,6 +45,7 @@
     "income": "Entrata",
     "expense": "Uscita",
     "noTransactions": "Nessuna transazione",
+    "noTransactionsPeriod": "Nessuna transazione per questo periodo.",
     "addFirst": "Aggiungi la tua prima transazione",
     "headers": {
       "date": "Data",
@@ -76,23 +77,13 @@
     "goToCar": "Vai alla gestione auto",
     "mileageReminder": "Promemoria Chilometri",
     "mileageReminderText": "È il primo del mese! Non dimenticare di registrare il valore dei km letti sul cruscotto dell'auto.",
-    "accountsDetail": "Dettagli Conti"
-  },
-  "transactions": {
-    "title": "Transazioni",
-    "addNew": "Nuova transazione",
-    "date": "Data",
-    "description": "Descrizione",
-    "category": "Categoria",
-    "subcategory": "Sottocategoria",
-    "amount": "Importo",
-    "type": "Tipo",
-    "account": "Conto",
-    "income": "Entrata",
-    "expense": "Uscita",
-    "noTransactions": "Nessuna transazione",
-    "noTransactionsPeriod": "Nessuna transazione per questo periodo.",
-    "addFirst": "Aggiungi la tua prima transazione"
+    "accountsDetail": "Dettagli Conti",
+    "currentBalance": "Saldo Corrente",
+    "totalIncome": "Entrate Totali",
+    "totalExpenses": "Uscite Totali",
+    "incomeMonth": "Entrate (Mese)",
+    "expensesMonth": "Uscite (Mese)",
+    "netDeltaMonth": "Delta Netto (Mese)"
   },
   "salary": {
     "title": "Stipendio",
@@ -223,6 +214,13 @@
     "categoryTotals": "Totali per Categoria",
     "monthlyComparison": "Confronto Mensile",
     "netWorth": "Patrimonio Netto",
-    "accountBreakdown": "Distribuzione Conti"
+    "accountBreakdown": "Distribuzione Conti",
+    "net": "Netto",
+    "vsPrevMonth": "vs Mese Prec.",
+    "financialTrendTitle": "Andamento Finanziario Annuale ({year})",
+    "totalIncome": "Entrate Totali",
+    "totalExpenses": "Uscite Totali",
+    "netEarnings": "Guadagno Netto",
+    "accountBalance": "Saldo Conto"
   }
 }
