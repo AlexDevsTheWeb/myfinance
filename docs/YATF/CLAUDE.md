@@ -195,13 +195,9 @@ Periodically (or on request), health-check the wiki:
 - **Missing cross-references** — pages that should link to each other but don't.
 - Suggest new sources or questions to investigate.
 
-### Branch Strategy (from project AGENTS.md)
+### Branch Strategy
 
-Cross-reference these conventions in `conventions/branch-strategy.md`:
-
-1. Feature branches branch off `development`, merge into `development`
-2. Only PR from `development` → `main` when explicitly requested
-3. Never PR directly to `main` from a feature branch
+See [[conventions/branch-strategy]] for full rules. The dedicated page in the wiki is the authoritative source.
 
 ---
 

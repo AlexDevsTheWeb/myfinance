@@ -99,9 +99,9 @@ const ComponentName: React.FC<Props> = ({ prop1, prop2 }) => {
 
 ## Branch Strategy
 
-1. Feature branches branch off `development`, merge into `development`
-2. Only PR from `development` → `main` when explicitly requested
-3. Never PR directly to `main` from a feature branch
+See [[conventions/branch-strategy.md]] for full rules.
+
+TL;DR: Never commit to `development`/`main` directly. Branch as `feat/YATF-{n}` or `fix/YATF-{n}`. PR to `development`.
 
 ## Related
 

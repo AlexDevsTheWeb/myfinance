@@ -34,6 +34,7 @@
 
 | Page | Summary | Sources |
 |------|---------|---------|
+| [[conventions/branch-strategy]] | Git branch rules, naming, PR workflow | — |
 | [[conventions/coding-conventions]] | Naming, imports, error handling, code style | [`raw/codebase/CONVENTIONS.md`](raw/codebase/CONVENTIONS.md) |
 
 ## References

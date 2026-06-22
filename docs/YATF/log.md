@@ -15,6 +15,12 @@
 - Created [[references/llm-wiki-pattern]] from `raw/original LLM Wiki.md`
 - Created index.md and log.md
 
+## [2026-06-22] docs | Conventions | Created branch-strategy page
+- Created [[conventions/branch-strategy]] with new branch rules
+- Updated AGENTS.md to reference the wiki page as source of truth
+- Updated [[conventions/coding-conventions]] to point to the dedicated page
+- Updated CLAUDE.md branch strategy section to reference the wiki
+
 ## [2026-06-22] re-map | Codebase | Full mapping via gsd-map-codebase (4 parallel agents)
 - Re-mapped codebase with tech, arch, quality, and concerns focus agents
 - Updated raw files from `.planning/codebase/*.md` → `raw/codebase/*.md`
