@@ -13,11 +13,20 @@ interface CategoryPieChartProps {
   title?: string;
 }
 
+const ITEMS_PER_ROW = 2;
+const BASE_HEIGHT = 300;
+const LEGEND_ROW_HEIGHT = 24;
+
 const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
   const chartData = data.map(d => ({
     name: d.category,
     value: d.total,
   }));
+
+  const chartHeight = Math.max(
+    BASE_HEIGHT,
+    BASE_HEIGHT + Math.ceil(chartData.length / ITEMS_PER_ROW) * LEGEND_ROW_HEIGHT
+  );
 
   return (
     <Paper sx={{ p: 2 }}>
@@ -26,7 +35,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
           {title}
         </Typography>
       )}
-      <Box sx={{ height: 320, width: '100%' }}>
+      <Box sx={{ height: chartHeight, width: '100%' }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -53,7 +62,6 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
             />
             <Legend
               verticalAlign="bottom"
-              height={36}
               iconType="circle"
               formatter={(value: string) => (
                 <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem' }}>{value}</span>

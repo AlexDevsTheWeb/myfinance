@@ -10,6 +10,7 @@
 | Page | Summary | Sources |
 |------|---------|---------|
 | [[features/car-management-redesign]] | Car page bento grid redesign with monthly averages | [`raw/SPEC.md`](raw/SPEC.md) |
+| [[features/transaction-layout-improvement]] | Two-column transaction layout with filter + chart on left | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 
 ## Plans
 
@@ -17,6 +18,7 @@
 |------|---------|---------|
 | [[plans/roadmap]] | Project roadmap with phases, status, and priorities | [`raw/ROADMAP.md`](raw/ROADMAP.md) |
 | [[plans/car-redesign-implementation]] | Step-by-step implementation plan for car management redesign | [`raw/PLANS.md`](raw/PLANS.md) |
+| [[plans/transaction-layout-implementation]] | Implementation plan for transaction page layout restructure | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 
 ## Architecture
 
