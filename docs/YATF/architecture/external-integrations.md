@@ -25,7 +25,15 @@ related: ["architecture/tech-stack", "architecture/system-architecture"]
 **GitHub Actions** — Two workflows in `.github/workflows/`:
 
 1. **`version-bump.yml`** (push to `main`): Ubuntu + Node 24, conventional commit parsing, `standard-version` for version bump + git tag + GitHub Release, builds with Firebase secrets, deploys to Firebase Hosting
-2. **`firebase-hosting-pull-request.yml`** (PR): Builds and deploys PR preview to Firebase Hosting
+2. **`firebase-hosting-pull-request.yml`** (PR → `main` only): Builds and deploys PR preview to Firebase Hosting. Restricted to PRs targeting `main` — PRs to `development` produce no deployment.
+
+### Deployment rules
+
+| Event | Action |
+|-------|--------|
+| PR opened against `development` | Skip — no deployment |
+| PR opened against `main` | Build + deploy PR preview to Firebase Hosting |
+| Push / merge to `main` | Version bump (if conventional commits), tag, GitHub Release, build + deploy to Firebase Hosting live channel |
 
 ## i18n
 
