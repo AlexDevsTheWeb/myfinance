@@ -29,5 +29,4 @@ dist-ssr
 .agents/*
 .config/
 .config/*
-AGENTS.md
 src/version.ts
