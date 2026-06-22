@@ -21,6 +21,11 @@
 - Updated [[conventions/coding-conventions]] to point to the dedicated page
 - Updated CLAUDE.md branch strategy section to reference the wiki
 
+## [2026-06-22] spec | Feature | Transaction Layout Improvement
+- Created [[features/transaction-layout-improvement]] from [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80)
+- Created [[plans/transaction-layout-implementation]] with step-by-step tasks
+- Updated index.md
+
 ## [2026-06-22] re-map | Codebase | Full mapping via gsd-map-codebase (4 parallel agents)
 - Re-mapped codebase with tech, arch, quality, and concerns focus agents
 - Updated raw files from `.planning/codebase/*.md` → `raw/codebase/*.md`
