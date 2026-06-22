@@ -29,6 +29,7 @@
 | [[architecture/codebase-structure]] | Directory layout and file conventions | [`raw/codebase/STRUCTURE.md`](raw/codebase/STRUCTURE.md) |
 | [[architecture/system-architecture]] | System overview, component responsibilities, data flow | [`raw/codebase/ARCHITECTURE.md`](raw/codebase/ARCHITECTURE.md) |
 | [[architecture/external-integrations]] | Firebase, environment config, CI/CD status | [`raw/codebase/INTEGRATIONS.md`](raw/codebase/INTEGRATIONS.md) |
+| [[architecture/versioning]] | Versioning scheme, conventional commits, release pipeline | [`.versionrc`](../../.versionrc) |
 | [[architecture/testing-status]] | Testing infrastructure (none exists) | [`raw/codebase/TESTING.md`](raw/codebase/TESTING.md) |
 | [[architecture/concerns-and-tech-debt]] | Tech debt, known bugs, security, performance issues | [`raw/codebase/CONCERNS.md`](raw/codebase/CONCERNS.md) |
 

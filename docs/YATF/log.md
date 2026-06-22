@@ -21,6 +21,12 @@
 - Updated [[conventions/coding-conventions]] to point to the dedicated page
 - Updated CLAUDE.md branch strategy section to reference the wiki
 
+## [2026-06-22] docs | CI/CD + Versioning | Audit and documentation
+- Fixed `firebase-hosting-pull-request.yml` — restricted to PRs targeting `main` only (was triggering on all PRs including to `development`)
+- Updated [[architecture/external-integrations]] with deployment rules table
+- Created [[architecture/versioning]] with version scheme, .versionrc mapping, and release pipeline
+- Updated index.md
+
 ## [2026-06-22] spec | Feature | Transaction Layout Improvement
 - Created [[features/transaction-layout-improvement]] from [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80)
 - Created [[plans/transaction-layout-implementation]] with step-by-step tasks
