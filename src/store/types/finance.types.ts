@@ -22,7 +22,7 @@ export interface ITransaction {
   category: string;
   subcategory: string;
   amount: number;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'transfer';
   accountId: string;
   recurringLinkId?: string;
   consumption?: number;
@@ -36,7 +36,7 @@ export interface IRecurringTransaction {
   category: string;
   subcategory: string;
   amount: number;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'transfer';
   dayOfMonth: number;
   accountId: string;
   startDate: string;
@@ -49,6 +49,7 @@ export interface IAppModules {
   financeTracker: boolean;
   carManagement: boolean;
   utilityTracker: boolean;
+  investmentTracking: boolean;
 }
 
 export interface ICarMileageRecord {

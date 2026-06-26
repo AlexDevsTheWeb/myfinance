@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 
 interface TransactionFormProps {
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'transfer';
   formData: {
     date?: string;
     description: string;

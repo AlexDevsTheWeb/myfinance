@@ -20,6 +20,9 @@ export function getDefaultUserConfig(): UserDoc {
     tireChanges: [],
     enabledModules: Defaults.DEFAULT_ENABLED_MODULES,
     balanceStartDate: firstDayOfMonth,
+    etfTransactions: [],
+    portfolioSnapshots: [],
+    brokerConfig: Defaults.DEFAULT_BROKER_CONFIG,
   };
 }
 

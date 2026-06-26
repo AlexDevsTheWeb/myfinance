@@ -188,7 +188,7 @@ const ConfigPage: React.FC = () => {
     dayOfMonth: 1,
     startDate: dayjs().format('YYYY-MM-DD'),
     endDate: '',
-    type: 'expense' as 'income' | 'expense',
+    type: 'expense' as 'income' | 'expense' | 'transfer',
     accountId: '',
     frequency: 'monthly' as 'monthly' | 'yearly',
     monthOfYear: 1

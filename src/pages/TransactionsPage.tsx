@@ -16,7 +16,7 @@ const TransactionsPage: React.FC = () => {
   const { transactions, categories, incomeCategories } = useFinanceStore();
   const { t } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
+  const [modalType, setModalType] = useState<'income' | 'expense' | 'transfer'>('expense');
   const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
 
   // Filter States

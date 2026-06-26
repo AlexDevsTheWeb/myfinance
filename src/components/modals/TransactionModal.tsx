@@ -8,7 +8,7 @@ import TransactionForm from '../forms/TransactionForm';
 interface TransactionModalProps {
   open: boolean;
   onClose: () => void;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'transfer';
   transaction?: Transaction | null;
 }
 

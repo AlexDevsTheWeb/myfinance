@@ -64,7 +64,7 @@ const DashboardPage: React.FC = () => {
 
   const [editModalOpen, setEditModalOpen] = React.useState(false);
   const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
-  const [editType, setEditType] = React.useState<'income' | 'expense'>('expense');
+  const [editType, setEditType] = React.useState<'income' | 'expense' | 'transfer'>('expense');
 
   const handleEditTransaction = (transaction: Transaction) => {
     setEditTransaction(transaction);

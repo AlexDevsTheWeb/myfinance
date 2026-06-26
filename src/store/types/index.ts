@@ -12,3 +12,10 @@ export type {
   ITireSettings,
   IFinanceState,
 } from './finance.types';
+
+export type {
+  IETFTransaction,
+  IPortfolioSnapshot,
+  IBrokerConfig,
+  IInvestmentHolding,
+} from './investment.types';
