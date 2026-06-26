@@ -1,10 +1,10 @@
 ---
 title: "Financial Projections Architecture"
-tags: [architecture, projections, data-flow, planned]
+tags: [architecture, projections, data-flow, active]
 created: 2026-06-26
 updated: 2026-06-26
-status: planned
-sources: ["raw/83-financial-projections/issue.md"]
+status: active
+sources: ["raw/83-financial-projections/issue.md", "raw/83-financial-projections/implementation.md"]
 related: ["features/financial-projections", "plans/financial-projections-implementation", "architecture/investment-tracking-architecture"]
 ---
 
@@ -20,7 +20,7 @@ A purely client-side simulation module. No Firestore writes, no server calls —
 User adjusts Slider
        │
        ▼
-React state (useState/use ProjectionForm hook)
+React state (useProjections hook)
        │
        ▼
 generateFinancialProjection(input)  ← pure utility function
@@ -95,8 +95,8 @@ App.tsx
 ## Integration Points
 
 - **Investment Store** (optional): pre-fill lump-sum, PAC, interest rate from `brokerConfig`
-- **Nav / Routing**: add `/projections` route and nav link (gated behind `investmentTracking` module flag or always visible)
-- **i18n**: ~15 new translation keys (EN/IT) for labels, tooltips, summary cards
+- **Nav / Routing**: `/projections` route with `React.lazy` (29 kB chunk), nav link in top AppBar + mobile drawer
+- **i18n**: 15 new translation keys (EN/IT) under `projections` namespace
 
 ## Related
 

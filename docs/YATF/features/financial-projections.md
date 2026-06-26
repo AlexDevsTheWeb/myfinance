@@ -1,16 +1,16 @@
 ---
 title: "Financial Projections & Compound Interest Simulator"
-tags: [feature, projections, charting, simulated]
+tags: [feature, projections, charting, implemented]
 created: 2026-06-26
 updated: 2026-06-26
-status: planned
-sources: ["raw/83-financial-projections/issue.md"]
+status: implemented
+sources: ["raw/83-financial-projections/issue.md", "raw/83-financial-projections/implementation.md"]
 related: ["architecture/financial-projections-architecture", "plans/financial-projections-implementation", "features/investment-tracking"]
 ---
 
 # Feature: Financial Projections & Compound Interest Simulator
 
-Status: planned
+Status: implemented
 Priority: medium
 
 ## Description
@@ -42,9 +42,30 @@ A predictive charting module that lets users simulate the long-term growth (10�
 
 - Pure computation — no Firestore writes or server persistence needed. All simulation is client-side
 - The engine is a pure function (no I/O, no state) making it trivially testable
-- Pre-populate input defaults from `useInvestmentStore.brokerConfig` if available (PAC amount, lump sum, interest rate, ticker)
+- Pre-populate input defaults from `useInvestmentStore.brokerConfig` if available (PAC amount, lump sum, interest rate)
 - No new npm packages needed — recharts, MUI, zustand, dayjs all already available
 - Dark theme chart styling consistent with existing portfolio charts (`#5b6cb8` for net worth, `#10b981` for total invested)
+- Feature always visible — no module gate
+- `npm run build` passes with zero type errors
+
+## Files Created
+
+### Wave 1 — Types + Engine
+- `src/store/types/projection.types.ts` — `IProjectionInput` (6 fields), `IMonthlySnapshot` (7 fields)
+- `src/lib/compoundInterestUtils.ts` — `generateFinancialProjection()` pure function
+
+### Wave 2 — UI Shell
+- `src/components/projections/ProjectionControls.tsx` — 3 sliders + 3 text fields
+- `src/components/projections/ProjectionChart.tsx` — Recharts AreaChart with gradient fills
+- `src/components/projections/ProjectionSummary.tsx` — 3 metric Paper cards
+- `src/components/projections/ProjectionsHeader.tsx` — Page title
+- `src/pages/ProjectionsPage.tsx` — Responsive grid layout
+
+### Wave 3 — Hook, Routing, i18n
+- `src/hooks/useProjections.ts` — State + computation hook with optional broker prefill
+- Route `/projections` added with `React.lazy` code-splitting (29 kB chunk)
+- Nav link in Layout top AppBar (desktop) + drawer (mobile)
+- 15 EN + 15 IT translation keys under `projections` namespace
 
 ## Related
 
@@ -52,4 +73,4 @@ A predictive charting module that lets users simulate the long-term growth (10�
 - [[architecture/financial-projections-architecture]]
 - [[features/investment-tracking]]
 - [[architecture/project-state]]
-- Source: [raw/83-financial-projections/issue.md](raw/83-financial-projections/issue.md)
+- Sources: [raw/83-financial-projections/issue.md](raw/83-financial-projections/issue.md), [raw/83-financial-projections/implementation.md](raw/83-financial-projections/implementation.md)
