@@ -5,3 +5,8 @@ export {
   validateTransaction,
   validateRecurringTransaction,
 } from './finance.validation';
+
+export {
+  validateEtfTransaction,
+  validateBrokerConfig,
+} from './investment.validation';
