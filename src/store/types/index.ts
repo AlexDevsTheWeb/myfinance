@@ -18,4 +18,5 @@ export type {
   IPortfolioSnapshot,
   IBrokerConfig,
   IInvestmentHolding,
+  IPortfolioPoint,
 } from './investment.types';
