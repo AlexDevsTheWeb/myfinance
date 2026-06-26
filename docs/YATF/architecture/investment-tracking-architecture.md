@@ -1,9 +1,9 @@
 ---
 title: "Investment Tracking Architecture"
-tags: [architecture, investment, data-flow, firestore, planned]
+tags: [architecture, investment, data-flow, firestore, active]
 created: 2026-06-26
 updated: 2026-06-26
-status: planned
+status: active
 sources: [".planning/phases/10-investment-tracking/10-RESEARCH.md"]
 related: ["features/investment-tracking", "plans/investment-tracking-implementation", "architecture/system-architecture"]
 ---

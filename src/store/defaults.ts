@@ -1,4 +1,4 @@
-import type { IAccount, ICategory, IAppModules, ITireSettings } from './types';
+import type { IAccount, IBrokerConfig, ICategory, IAppModules, ITireSettings } from './types';
 
 export const DEFAULT_ACCOUNT: IAccount = {
   id: 'default-main',
@@ -26,6 +26,7 @@ export const DEFAULT_CATEGORIES: ICategory[] = [
 export const DEFAULT_INCOME_CATEGORIES: ICategory[] = [
   { name: 'Salario', subcategories: ['Busta paga', 'Mance', 'Bonus', 'Commissioni', '13-esima', '14-esima'] },
   { name: 'Altro', subcategories: ['Risparmi', 'Interessi', 'Dividendi', 'Regali', 'Rimborsi', 'Rimborso 730'] },
+  { name: 'Extraordinary Income', subcategories: ['Bonus', 'Rimborsi', 'Vendite', 'Altro'] },
 ];
 
 export const DEFAULT_TIRE_SETTINGS: ITireSettings = {
@@ -38,6 +39,7 @@ export const DEFAULT_ENABLED_MODULES: IAppModules = {
   financeTracker: true,
   carManagement: false,
   utilityTracker: false,
+  investmentTracking: false,
 };
 
 export const DEFAULT_BALANCE_START_DATE = '2026-01-01';
@@ -47,3 +49,11 @@ export const DEFAULT_LANGUAGE = 'it';
 export const DEFAULT_INITIAL_BALANCE = 0;
 
 export const DEFAULT_CAR_INITIAL_MILEAGE = 0;
+
+export const DEFAULT_BROKER_CONFIG: IBrokerConfig = {
+  brokerName: 'Trade Republic',
+  lumpSumAmount: 0,
+  monthlyPacAmount: 0,
+  ticker: 'SWDA.MI',
+  interestRate: 0,
+};

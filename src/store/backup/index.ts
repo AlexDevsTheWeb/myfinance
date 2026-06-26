@@ -1,4 +1,5 @@
-import type { IFinanceState } from '../types';
+import type { IBrokerConfig, IETFTransaction, IFinanceState, IPortfolioSnapshot } from '../types';
+import { DEFAULT_BROKER_CONFIG } from '../defaults';
 import { validateTransaction, validateRecurringTransaction } from '../validation';
 
 export interface BackupValidationError {
@@ -102,6 +103,9 @@ export interface BackupPayload {
   carInitialMileage?: number;
   tireSettings?: IFinanceState['tireSettings'];
   tireChanges?: IFinanceState['tireChanges'];
+  etfTransactions?: IETFTransaction[];
+  portfolioSnapshots?: IPortfolioSnapshot[];
+  brokerConfig?: IBrokerConfig;
 }
 
 export interface BackupPreview {
@@ -135,6 +139,9 @@ export function createBackup(state: IFinanceState): BackupData {
       carInitialMileage: state.carInitialMileage,
       tireSettings: state.tireSettings,
       tireChanges: state.tireChanges,
+      etfTransactions: (state as any).etfTransactions ?? [],
+      portfolioSnapshots: (state as any).portfolioSnapshots ?? [],
+      brokerConfig: (state as any).brokerConfig ?? DEFAULT_BROKER_CONFIG,
     },
   };
 }

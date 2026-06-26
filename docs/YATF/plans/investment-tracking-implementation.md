@@ -1,16 +1,16 @@
 ---
 title: "Investment Tracking Implementation Plan"
-tags: [plans, implementation, investment, broker, frontend]
+tags: [plans, implementation, investment, broker, frontend, completed]
 created: 2026-06-26
 updated: 2026-06-26
-status: planned
+status: completed
 sources: [".planning/phases/10-investment-tracking/"]
 related: ["features/investment-tracking", "architecture/investment-tracking-architecture", "architecture/project-state"]
 ---
 
 # Plan: Investment Tracking Implementation
 
-Status: planned
+Status: completed
 
 ## Goal
 
@@ -76,6 +76,7 @@ The phase is organized in 4 waves with 6 execution plans:
 - Add "Investments" nav link in `Layout.tsx`
 - Call `useInvestmentSync()` in `App.tsx`
 - Add ~30 EN/IT translation keys for investment UI
+- Add `investmentTracking` toggle switch to `ConfigPage.tsx` (module disabled by default)
 
 ## Key Design Decisions
 

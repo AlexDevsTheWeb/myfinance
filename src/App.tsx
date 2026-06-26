@@ -15,6 +15,8 @@ import SalaryPage from './pages/SalaryPage';
 import TransactionsPage from './pages/TransactionsPage';
 import UtilitiesPage from './pages/UtilitiesPage';
 import InsightsPage from './pages/InsightsPage';
+import InvestmentPage from './pages/InvestmentPage';
+import { useInvestmentSync } from './hooks/useInvestmentSync';
 import { useAuthStore } from './store/useAuthStore';
 import { useFinanceStore } from './store/useFinanceStore';
 
@@ -40,6 +42,7 @@ function App() {
   const { setUser, setLoading } = useAuthStore();
   const { _migrateToMultiAccount } = useFinanceStore();
   useSyncFinance();
+  useInvestmentSync();
 
   useEffect(() => {
     _migrateToMultiAccount();
@@ -95,6 +98,11 @@ function App() {
         <Route path="/insights" element={
           <ProtectedRoute>
             <InsightsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/invest" element={
+          <ProtectedRoute>
+            <InvestmentPage />
           </ProtectedRoute>
         } />
       </Routes>

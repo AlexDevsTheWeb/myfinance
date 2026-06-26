@@ -1,0 +1,45 @@
+export interface IETFTransaction {
+  id: string;
+  date: string;
+  ticker: string;
+  description: string;
+  type: 'buy' | 'sell';
+  units: number;
+  price: number;
+  totalAmount: number;
+  accountId: string;
+  notes?: string;
+}
+
+export interface IPortfolioSnapshot {
+  id: string;
+  date: string;
+  totalInvested: number;
+  currentValue: number;
+  cashBalance: number;
+  accruedInterest: number;
+  holdings: IInvestmentHolding[];
+}
+
+export interface IBrokerConfig {
+  brokerName: string;
+  lumpSumAmount: number;
+  monthlyPacAmount: number;
+  ticker: string;
+  interestRate: number;
+}
+
+export interface IInvestmentHolding {
+  ticker: string;
+  units: number;
+  avgCost: number;
+  currentPrice: number;
+  value: number;
+  returnPercent: number;
+}
+
+export interface IPortfolioPoint {
+  date: string;
+  value: number;
+  invested: number;
+}
