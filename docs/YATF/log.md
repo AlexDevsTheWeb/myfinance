@@ -73,3 +73,21 @@
 - Created [[architecture/financial-projections-architecture]] — simulation data flow, component tree, design decisions
 - Created [[plans/financial-projections-implementation]] — 3 plans for engine, UI shell, routing + i18n
 - Updated index.md
+
+## [2026-06-26] plan | Feature | Financial Projections — Phase 11 planning
+- Created `.planning/phases/11-financial-projections/`
+- Created `11-CONTEXT.md` — 20 locked decisions, canonical refs, domain boundary
+- Created `11-RESEARCH.md` — architecture patterns, pitfalls, code examples, standard stack
+- Created `11-01-PLAN.md` — Simulation engine + types (wave 1)
+- Created `11-02-PLAN.md` — UI shell: controls, chart, summary cards (wave 2)
+- Created `11-03-PLAN.md` — Hook, routing, i18n, optional prefill (wave 3)
+- Updated [[plans/financial-projections-implementation]]
+
+## [2026-06-26] implement | Feature | Financial Projections — Phase 11 complete (PR #88)
+- Implemented all 3 plans across 3 waves on `feat/YATF-83`
+- 9 files created, 5 files modified (types, engine, UI shell, hook, routing, nav, i18n)
+- Created [[features/financial-projections]] status → **implemented**
+- Updated [[plans/financial-projections-implementation]] status → **completed**
+- Updated [[architecture/financial-projections-architecture]] status → **active**
+- Updated index.md
+- Source: [raw/83-financial-projections/implementation.md](raw/83-financial-projections/implementation.md)

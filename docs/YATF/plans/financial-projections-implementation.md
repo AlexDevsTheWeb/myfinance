@@ -1,17 +1,17 @@
 ---
 title: "Financial Projections Implementation Plan"
-tags: [plans, implementation, projections, charting, planned]
+tags: [plans, implementation, projections, charting, completed]
 created: 2026-06-26
 updated: 2026-06-26
-status: planned
-sources: ["raw/83-financial-projections/issue.md"]
+status: completed
+sources: ["raw/83-financial-projections/issue.md", "raw/83-financial-projections/implementation.md"]
 related: ["features/financial-projections", "architecture/financial-projections-architecture", "architecture/project-state"]
 ---
 
 # Plan: Financial Projections & Compound Interest Simulator
 
-Status: planned
-Branch: `feat/83-financial-projections`
+Status: completed
+Branch: `feat/YATF-83`
 
 ## Goal
 
@@ -19,26 +19,24 @@ Build a pure client-side simulation module that lets users model long-term inves
 
 ## Implementation Plan
 
-### Plan 83-01: Simulation Engine + Types
+### ✅ Plan 83-01: Simulation Engine + Types (DONE)
 
-**Files to create:**
+**Files created:**
 - `src/lib/compoundInterestUtils.ts` — pure `generateFinancialProjection()` function
-- `src/store/types/projection.types.ts` — `ProjectionInput`, `MonthlySnapshot` interfaces
+- `src/store/types/projection.types.ts` — `IProjectionInput`, `IMonthlySnapshot` interfaces
 
 **Details:**
-- Implement the deterministic monthly-loop algorithm from the issue spec
+- Deterministic monthly-loop algorithm implemented
 - Monthly equivalent rates: `Math.pow(1 + annualRate, 1/12) - 1`
 - Annual inflow credited at month 1 of each year (after year 1)
 - Cash interest accrued before PAC deduction each month
 - PAC caps at available cash balance
 - ETF growth applied after PAC execution
 - All monetary values `Math.round()` to integers
-- TypeScript strict types with no `any`
-- Unit-testable pure function (no I/O, no state)
 
-### Plan 83-02: Projection Page UI Shell
+### ✅ Plan 83-02: Projection Page UI Shell (DONE)
 
-**Files to create:**
+**Files created:**
 - `src/pages/ProjectionsPage.tsx` — main page layout
 - `src/components/projections/ProjectionControls.tsx` — slider + input panel
 - `src/components/projections/ProjectionChart.tsx` — Recharts area chart
@@ -46,34 +44,30 @@ Build a pure client-side simulation module that lets users model long-term inves
 - `src/components/projections/ProjectionsHeader.tsx` — page header
 
 **Details:**
-- MUI `<Slider />` components for: Horizon (1–50), ETF Return (0–20%), Cash Rate (0–10%)
-- MUI `<TextField type="number" />` for: Lump Sum, Monthly PAC, Annual Inflow
-- Sliders update state on `onChange` (no debounce — pure computation is fast)
-- Recharts `<AreaChart />` with two `<Area>` series:
-  - Total Invested: `#10b981` (green), filled with gradient
-  - Net Worth: `#5b6cb8` (indigo), filled with gradient
-- Three summary `<Paper>` cards showing final values from last snapshot
-- Dark theme styling via `sx` prop, consistent with existing pages
-- `Box` + `Grid` responsive layout (left: controls, right: chart on desktop)
+- MUI `<Slider />` for Horizon (1–50), ETF Return (0–20%), Cash Rate (0–10%)
+- MUI `<TextField type="number" />` for Lump Sum, Monthly PAC, Annual Inflow
+- Recharts `<AreaChart />` with two `<Area>` series (green invested, indigo net worth)
+- Three summary `<Paper>` cards with EUR formatting
+- Dark theme styling via `sx` prop
+- Responsive `Grid` layout
 
-### Plan 83-03: Custom Hook + Routing + i18n
+### ✅ Plan 83-03: Custom Hook + Routing + i18n (DONE)
 
-**Files to create:**
-- `src/hooks/useProjections.ts` — encapsulates all slider state + engine call
+**Files created:**
+- `src/hooks/useProjections.ts` — encapsulates all state + computation
 
-**Files to modify:**
-- `src/App.tsx` — add `/projections` route
-- `src/components/layout/Layout.tsx` — add nav link
-- `src/i18n/en.json` — add ~15 EN translation keys
-- `src/i18n/it.json` — add ~15 IT translation keys
+**Files modified:**
+- `src/App.tsx` — `/projections` route with lazy loading
+- `src/components/layout/Layout.tsx` — nav link in desktop AppBar + mobile drawer
+- `src/locales/en.json` — 15 EN translation keys
+- `src/locales/it.json` — 15 IT translation keys
 
 **Details:**
-- `useProjections` hook returns: `input`, `snapshots`, `setParam(key, value)`, `summary`
-- Summary computed via `useMemo` from last snapshot: `finalCapital`, `totalInterests`, `estimatedTaxes`
-- Pre-fill defaults from `useInvestmentStore.brokerConfig` (optional enhancement)
-- Route: `/projections` protected by `<ProtectedRoute>`
-- Nav link in Layout — place under "Investments" or as standalone entry
-- Feature gating: always visible or gated behind `investmentTracking` module toggle
+- `useProjections` hook returns `input`, `snapshots`, `setParam`, `resetToDefaults`, `summary`, `chartData`
+- Summary computed via `useMemo`: `finalCapital`, `totalInterests`, `estimatedTaxes`
+- Pre-fill from `useInvestmentStore.brokerConfig` with try/catch fallback
+- Route: `/projections` protected by `<ProtectedRoute>`, lazy-loaded (29 kB chunk)
+- Feature always visible — no module gate
 
 ## Verification
 

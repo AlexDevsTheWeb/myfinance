@@ -20,3 +20,8 @@ export type {
   IInvestmentHolding,
   IPortfolioPoint,
 } from './investment.types';
+
+export type {
+  IProjectionInput,
+  IMonthlySnapshot,
+} from './projection.types';

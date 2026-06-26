@@ -1,6 +1,6 @@
 import { Box, CircularProgress } from '@mui/material';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'; // This line is already correct.
 import Layout from './components/layout/Layout';
 import { TransactionError } from './components/TransactionError';
@@ -16,6 +16,7 @@ import TransactionsPage from './pages/TransactionsPage';
 import UtilitiesPage from './pages/UtilitiesPage';
 import InsightsPage from './pages/InsightsPage';
 import InvestmentPage from './pages/InvestmentPage';
+const ProjectionsPage = React.lazy(() => import('./pages/ProjectionsPage'));
 import { useInvestmentSync } from './hooks/useInvestmentSync';
 import { useAuthStore } from './store/useAuthStore';
 import { useFinanceStore } from './store/useFinanceStore';
@@ -103,6 +104,13 @@ function App() {
         <Route path="/invest" element={
           <ProtectedRoute>
             <InvestmentPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/projections" element={
+          <ProtectedRoute>
+            <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>}>
+              <ProjectionsPage />
+            </Suspense>
           </ProtectedRoute>
         } />
       </Routes>

@@ -10,6 +10,9 @@
     "utilities": "Utenze",
     "config": "Configurazione"
   },
+  "nav": {
+    "projections": "Proiezioni"
+  },
 "common": {
     "save": "Salva",
     "cancel": "Annulla",
@@ -223,6 +226,23 @@
     "totalExpenses": "Uscite Totali",
     "netEarnings": "Guadagno Netto",
     "accountBalance": "Saldo Conto"
+  },
+  "projections": {
+    "title": "Proiezioni Finanziarie",
+    "subtitle": "Simula la crescita degli investimenti a lungo termine con interesse composto",
+    "horizon": "Orizzonte d'Investimento",
+    "horizonSuffix": "anni",
+    "etfReturn": "Rendimento Annuo ETF",
+    "cashRate": "Tasso di Interesse Liquidità",
+    "lumpSum": "Capitale Iniziale",
+    "monthlyPac": "PAC Mensile",
+    "annualInflow": "Flusso Annuale",
+    "chartTitle": "Crescita Proiettata",
+    "seriesNetWorth": "Patrimonio Netto Proiettato",
+    "seriesInvested": "Totale Investito",
+    "finalCapital": "Capitale Finale",
+    "totalInterests": "Interessi Totali Maturati",
+    "estimatedTaxes": "Tasse Stimate (26%)"
   },
   "investment": {
     "title": "Investimenti",

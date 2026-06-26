@@ -10,6 +10,9 @@
     "utilities": "Utilities",
     "config": "Settings"
   },
+  "nav": {
+    "projections": "Projections"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -223,6 +226,23 @@
     "totalExpenses": "Total Expenses",
     "netEarnings": "Net Earnings",
     "accountBalance": "Account Balance"
+  },
+  "projections": {
+    "title": "Financial Projections",
+    "subtitle": "Simulate long-term investment growth based on compound interest",
+    "horizon": "Investment Horizon",
+    "horizonSuffix": "years",
+    "etfReturn": "ETF Annual Return",
+    "cashRate": "Cash Interest Rate",
+    "lumpSum": "Initial Lump-Sum",
+    "monthlyPac": "Monthly PAC",
+    "annualInflow": "Annual Inflow",
+    "chartTitle": "Projected Growth",
+    "seriesNetWorth": "Projected Net Worth",
+    "seriesInvested": "Total Invested",
+    "finalCapital": "Final Capital",
+    "totalInterests": "Total Interests Earned",
+    "estimatedTaxes": "Estimated Taxes (26%)"
   },
   "investment": {
     "title": "Investments",
