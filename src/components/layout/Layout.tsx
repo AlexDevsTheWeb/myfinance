@@ -76,6 +76,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
     'car': t('car.title'),
     'utilities': t('utilities.title'),
     'invest': t('investment.navInvestments'),
+    'projections': t('nav.projections'),
   };
 
   const drawer = (
@@ -115,6 +116,10 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
             <ListItemText primary={t('investment.navInvestments')} sx={{ color: 'white' }} />
           </ListItemButton>
         )}
+        <ListItemButton component={Link} to="/projections">
+          <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+          <ListItemText primary={t('nav.projections')} sx={{ color: 'white' }} />
+        </ListItemButton>
         <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
         <ListItemButton onClick={() => { navigate('/config'); }}>
           <ListItemIcon><SettingsIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
@@ -223,6 +228,15 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                   {t('investment.navInvestments')}
                 </Button>
               )}
+              <Button
+                color="inherit"
+                component={Link}
+                to="/projections"
+                startIcon={<BarChartIcon />}
+                sx={{ borderRadius: 2, px: 2 }}
+              >
+                {t('nav.projections')}
+              </Button>
 
               {/* User Profile Avatar */}
               <IconButton onClick={handleOpenUser} sx={{ ml: 1, p: 0.5 }}>
