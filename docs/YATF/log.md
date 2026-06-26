@@ -67,3 +67,9 @@
 - Added `investmentTracking` toggle switch to `ConfigPage.tsx` (module was `false` by default with no UI to enable it)
 - Added `config.investmentTracking` translation key to `en.json` and `it.json`
 - Updated [[features/investment-tracking]] with note about Settings toggle requirement
+
+## [2026-06-26] ingest | Feature | Financial Projections & Compound Interest Simulator
+- Created [[features/financial-projections]] from [#83](https://github.com/AlexDevsTheWeb/myfinance/issues/83)
+- Created [[architecture/financial-projections-architecture]] — simulation data flow, component tree, design decisions
+- Created [[plans/financial-projections-implementation]] — 3 plans for engine, UI shell, routing + i18n
+- Updated index.md

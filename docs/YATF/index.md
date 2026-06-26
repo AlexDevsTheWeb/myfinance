@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-06-26* (updated after Phase 10 implementation)
-*Total pages: 16*
+*Last updated: 2026-06-26* (added Financial Projections feature)
+*Total pages: 19*
 
 ---
 
@@ -12,6 +12,7 @@
 | [[features/car-management-redesign]] | Car page bento grid redesign with monthly averages | [`raw/SPEC.md`](raw/SPEC.md) |
 | [[features/transaction-layout-improvement]] | Two-column transaction layout with filter + chart on left | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[features/investment-tracking]] | ✅ ETF portfolio tracking, broker integration, PAC strategy, and asset-vs-expense separation | [`raw/81-tax-refund/`](raw/81-tax-refund/) |
+| [[features/financial-projections]] | 📈 Compound interest simulator with parametric sliders and real-time chart | [`#83`](https://github.com/AlexDevsTheWeb/myfinance/issues/83) |
 
 ## Plans
 
@@ -21,6 +22,7 @@
 | [[plans/car-redesign-implementation]] | Step-by-step implementation plan for car management redesign | [`raw/PLANS.md`](raw/PLANS.md) |
 | [[plans/transaction-layout-implementation]] | Implementation plan for transaction page layout restructure | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[plans/investment-tracking-implementation]] | 6-plan implementation for ETF tracking, broker integration, PAC strategy | [`.planning/phases/10-investment-tracking/`](.planning/phases/10-investment-tracking/) |
+| [[plans/financial-projections-implementation]] | 3-plan implementation for simulation engine, UI shell, routing + i18n | [`raw/83-financial-projections/issue.md`](raw/83-financial-projections/issue.md) |
 
 ## Architecture
 
@@ -35,6 +37,7 @@
 | [[architecture/testing-status]] | Testing infrastructure (none exists) | [`raw/codebase/TESTING.md`](raw/codebase/TESTING.md) |
 | [[architecture/concerns-and-tech-debt]] | Tech debt, known bugs, security, performance issues | [`raw/codebase/CONCERNS.md`](raw/codebase/CONCERNS.md) |
 | [[architecture/investment-tracking-architecture]] | ✅ Investment data flow, Firestore schema, store architecture, component tree | [`.planning/phases/10-investment-tracking/10-RESEARCH.md`](.planning/phases/10-investment-tracking/10-RESEARCH.md) |
+| [[architecture/financial-projections-architecture]] | 📈 Simulation data flow, component tree, design decisions, integration points | [`raw/83-financial-projections/issue.md`](raw/83-financial-projections/issue.md) |
 
 ## Conventions
 

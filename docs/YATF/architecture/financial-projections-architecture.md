@@ -1,0 +1,106 @@
+---
+title: "Financial Projections Architecture"
+tags: [architecture, projections, data-flow, planned]
+created: 2026-06-26
+updated: 2026-06-26
+status: planned
+sources: ["raw/83-financial-projections/issue.md"]
+related: ["features/financial-projections", "plans/financial-projections-implementation", "architecture/investment-tracking-architecture"]
+---
+
+# Architecture: Financial Projections & Compound Interest Simulator
+
+## Overview
+
+A purely client-side simulation module. No Firestore writes, no server calls — all computation happens in a pure utility function driven by UI slider state. The feature integrates with the existing investment module by reading broker defaults but does not depend on it.
+
+## Data Flow
+
+```
+User adjusts Slider
+       │
+       ▼
+React state (useState/use ProjectionForm hook)
+       │
+       ▼
+generateFinancialProjection(input)  ← pure utility function
+       │
+       ├─► MonthlySnapshot[]  (array of 12×years data points)
+       │
+       ▼
+Recharts AreaChart (two series)
+    ├─ Total Invested (linear, green)
+    └─ Projected Net Worth (exponential, indigo)
+
+Final summary cards (computed from last snapshot)
+```
+
+## Input → Output Contract
+
+```typescript
+interface ProjectionInput {
+  years: number;
+  initialLumpSum: number;
+  annualInflow: number;
+  monthlyPac: number;
+  etfAnnualReturn: number;
+  cashAnnualRate: number;
+}
+
+interface MonthlySnapshot {
+  monthIndex: number;
+  year: number;
+  monthNum: number;
+  totalInvested: number;
+  brokerCash: number;
+  etfValue: number;
+  netWorth: number;
+}
+```
+
+## Component Tree
+
+```
+App.tsx
+  └── Layout.tsx
+        └── ProjectionsPage.tsx (route: /projections)
+              ├── ProjectionsHeader.tsx — title + description
+              ├── ProjectionControls.tsx — MUI Sliders + input fields
+              │     ├── Slider: Horizon (years, 1–50)
+              │     ├── Slider: ETF Return (0–20%)
+              │     ├── Slider: Cash Interest Rate (0–10%)
+              │     ├── NumberField: Initial Lump-Sum
+              │     ├── NumberField: Monthly PAC
+              │     └── NumberField: Annual Inflow
+              ├── ProjectionChart.tsx — Recharts AreaChart
+              │     ├── Series 1: Total Invested (green #10b981)
+              │     └── Series 2: Net Worth (indigo #5b6cb8)
+              └── ProjectionSummary.tsx — 3 metric cards
+                    ├── Final Capital
+                    ├── Total Interests Earned
+                    └── Estimated Taxes
+```
+
+## Key Design Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Storage | None (pure client-side) | No need to persist projections — they're what-if simulations |
+| State | React local state / custom hook | No global store needed — single-page feature |
+| Engine | Pure function in `src/lib/` | Trivially testable, no side effects, simple to verify |
+| Chart | Recharts AreaChart | Already in project, consistent with portfolio charts |
+| Input prefill | Optional read from `useInvestmentStore.brokerConfig` | Reduces friction if user has configured broker settings |
+| No persistence | By design | Projections are ephemeral exploratory tools |
+
+## Integration Points
+
+- **Investment Store** (optional): pre-fill lump-sum, PAC, interest rate from `brokerConfig`
+- **Nav / Routing**: add `/projections` route and nav link (gated behind `investmentTracking` module flag or always visible)
+- **i18n**: ~15 new translation keys (EN/IT) for labels, tooltips, summary cards
+
+## Related
+
+- [[features/financial-projections]]
+- [[plans/financial-projections-implementation]]
+- [[architecture/investment-tracking-architecture]]
+- [[architecture/tech-stack]]
