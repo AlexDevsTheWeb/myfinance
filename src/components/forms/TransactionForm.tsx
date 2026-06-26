@@ -90,7 +90,8 @@ function validateTransactionForm(
 
 const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFormData, isRecurring = false }) => {
   const { categories, incomeCategories, transactions, accounts } = useFinanceStore();
-  const currentCategories = type === 'income' ? incomeCategories : categories;
+  const transferCategory = { name: 'Internal Transfer', subcategories: ['Bonifico', 'Trasferimento'] };
+  const currentCategories = type === 'income' ? incomeCategories : type === 'transfer' ? [transferCategory] : categories;
   const { t } = useTranslation();
 
   // Form validation errors

@@ -89,7 +89,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: '#161b2e' } } }}>
       <DialogTitle sx={{ fontWeight: 700 }}>
-        {transaction ? 'Edit' : 'New'} {type === 'income' ? 'Income' : 'Expense'}
+        {transaction ? 'Edit' : 'New'} {type === 'income' ? 'Income' : type === 'transfer' ? 'Transfer' : 'Expense'}
       </DialogTitle>
       <DialogContent>
         <TransactionForm
@@ -103,10 +103,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
         <Button
           onClick={handleSubmit}
           variant="contained"
-          color={type === 'income' ? 'success' : 'error'}
+          color={type === 'income' ? 'success' : type === 'transfer' ? 'info' : 'error'}
           disabled={!formData.amount || !formData.category || !formData.subcategory || !formData.accountId}
         >
-          {transaction ? 'Update' : 'Add'} {type === 'income' ? 'Income' : 'Expense'}
+          {transaction ? 'Update' : 'Add'} {type === 'income' ? 'Income' : type === 'transfer' ? 'Transfer' : 'Expense'}
         </Button>
       </DialogActions>
     </Dialog >
