@@ -51,6 +51,15 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring multi
 
 ## Related
 
+### Phase 10: Investment Tracking & Broker Integration
+- **Priority:** Medium — new feature
+- **Requirements:** ETF portfolio tracking, broker internal transfers, PAC allocation, portfolio charts, live market data
+- **Plan:** [[plans/investment-tracking-implementation]]
+- **Branch:** `feat/81-tax-refund`
+
+## Related
+
+- [[features/investment-tracking]]
 - [[features/car-management-redesign]]
 - [[architecture/concerns-and-tech-debt]]
 - [[architecture/project-state]]

@@ -42,3 +42,15 @@
 - Re-ingested [[conventions/coding-conventions]] — import patterns, ESLint config, component structure, barrel exports
 - Re-ingested [[architecture/testing-status]] — comprehensive test candidate tables, recommended Vitest setup
 - Re-ingested [[architecture/concerns-and-tech-debt]] — 15+ issues, 3 new bugs, dnd-kit version mismatch, pro license risk
+
+## [2026-06-26] ingest | Feature | Investment Tracking & Broker Integration
+- Created [[features/investment-tracking]] from `raw/81-tax-refund/import.md` and `raw/81-tax-refund/tr-code.md`
+- Renamed `raw/81-rax-refund` → `raw/81-tax-refund` (fix typo)
+- Updated index.md
+
+## [2026-06-26] plan | Feature | Investment Tracking — Phase 10 planning
+- Updated [[features/investment-tracking]] to status: in-progress with planning details
+- Created [[plans/investment-tracking-implementation]] — 6 plans across 4 waves
+- Created [[architecture/investment-tracking-architecture]] — data flow, Firestore schema, component tree
+- Updated [[plans/roadmap]] with Phase 10 entry
+- Updated index.md
