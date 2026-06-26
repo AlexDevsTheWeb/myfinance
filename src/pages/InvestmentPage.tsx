@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AccountBalance, Settings, TrendingUp } from '@mui/icons-material';
+import { AccountBalance, Refresh, Settings, TrendingUp } from '@mui/icons-material';
 import { Box, Button, Grid, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import AllocationDonutChart from '../components/investment/AllocationDonutChart';
@@ -10,6 +10,7 @@ import HoldingsTable from '../components/investment/HoldingsTable';
 import PortfolioLineChart from '../components/investment/PortfolioLineChart';
 import PortfolioStats from '../components/investment/PortfolioStats';
 import { usePortfolio } from '../analytics/hooks/usePortfolio';
+import { useMarketData } from '../hooks/useMarketData';
 import { useInvestmentStore } from '../store/useInvestmentStore';
 
 function TabPanel(props: { children?: React.ReactNode; index: number; value: number }) {
@@ -29,6 +30,7 @@ const InvestmentPage: React.FC = () => {
 
   const { brokerConfig } = useInvestmentStore();
   const portfolio = usePortfolio();
+  const { refreshPrices, isUpdating } = useMarketData();
 
   const chartData = portfolio.chartData;
   const donutData = portfolio.holdings.map(h => ({
@@ -48,9 +50,14 @@ const InvestmentPage: React.FC = () => {
             Track ETF portfolio and broker cash.
           </Typography>
         </Box>
-        <Button variant="outlined" startIcon={<Settings />} onClick={() => setSettingsOpen(true)}>
-          Settings
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button variant="outlined" startIcon={<Refresh />} onClick={refreshPrices} disabled={isUpdating}>
+            {isUpdating ? 'Updating...' : 'Refresh Prices'}
+          </Button>
+          <Button variant="outlined" startIcon={<Settings />} onClick={() => setSettingsOpen(true)}>
+            Settings
+          </Button>
+        </Box>
       </Box>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 3 }}>

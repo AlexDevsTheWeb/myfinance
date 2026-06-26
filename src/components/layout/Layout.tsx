@@ -75,6 +75,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
     'insights': t('insights.title'),
     'car': t('car.title'),
     'utilities': t('utilities.title'),
+    'invest': t('investment.navInvestments'),
   };
 
   const drawer = (
@@ -106,6 +107,12 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
           <ListItemButton component={Link} to="/utilities">
             <ListItemIcon><ElecIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
             <ListItemText primary={t('utilities.title')} sx={{ color: 'white' }} />
+          </ListItemButton>
+        )}
+        {enabledModules?.investmentTracking && (
+          <ListItemButton component={Link} to="/invest">
+            <ListItemIcon><TrendingUp sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+            <ListItemText primary={t('investment.navInvestments')} sx={{ color: 'white' }} />
           </ListItemButton>
         )}
         <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
@@ -203,6 +210,17 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                   sx={{ borderRadius: 2, px: 2 }}
                 >
                   {t('utilities.title')}
+                </Button>
+              )}
+              {enabledModules?.investmentTracking && (
+                <Button
+                  color="inherit"
+                  component={Link}
+                  to="/invest"
+                  startIcon={<TrendingUp />}
+                  sx={{ borderRadius: 2, px: 2 }}
+                >
+                  {t('investment.navInvestments')}
                 </Button>
               )}
 
