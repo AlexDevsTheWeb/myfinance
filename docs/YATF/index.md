@@ -1,6 +1,6 @@
 # Wiki Index
 
-*Last updated: 2026-06-26*
+*Last updated: 2026-06-26* (updated after Phase 10 implementation)
 *Total pages: 16*
 
 ---
@@ -11,7 +11,7 @@
 |------|---------|---------|
 | [[features/car-management-redesign]] | Car page bento grid redesign with monthly averages | [`raw/SPEC.md`](raw/SPEC.md) |
 | [[features/transaction-layout-improvement]] | Two-column transaction layout with filter + chart on left | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
-| [[features/investment-tracking]] | ETF portfolio tracking, broker integration, PAC strategy, and asset-vs-expense separation | [`raw/81-tax-refund/`](raw/81-tax-refund/) |
+| [[features/investment-tracking]] | ✅ ETF portfolio tracking, broker integration, PAC strategy, and asset-vs-expense separation | [`raw/81-tax-refund/`](raw/81-tax-refund/) |
 
 ## Plans
 
@@ -34,7 +34,7 @@
 | [[architecture/versioning]] | Versioning scheme, conventional commits, release pipeline | [`.versionrc`](../../.versionrc) |
 | [[architecture/testing-status]] | Testing infrastructure (none exists) | [`raw/codebase/TESTING.md`](raw/codebase/TESTING.md) |
 | [[architecture/concerns-and-tech-debt]] | Tech debt, known bugs, security, performance issues | [`raw/codebase/CONCERNS.md`](raw/codebase/CONCERNS.md) |
-| [[architecture/investment-tracking-architecture]] | Investment data flow, Firestore schema, store architecture, component tree | [`.planning/phases/10-investment-tracking/10-RESEARCH.md`](.planning/phases/10-investment-tracking/10-RESEARCH.md) |
+| [[architecture/investment-tracking-architecture]] | ✅ Investment data flow, Firestore schema, store architecture, component tree | [`.planning/phases/10-investment-tracking/10-RESEARCH.md`](.planning/phases/10-investment-tracking/10-RESEARCH.md) |
 
 ## Conventions
 

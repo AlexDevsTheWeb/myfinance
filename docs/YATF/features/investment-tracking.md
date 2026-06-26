@@ -1,16 +1,16 @@
 ---
 title: "Investment Tracking & Broker Integration"
-tags: [feature, investment, broker, in-progress]
+tags: [feature, investment, broker, implemented]
 created: 2026-06-26
 updated: 2026-06-26
-status: in-progress
+status: implemented
 sources: ["raw/81-tax-refund/import.md", "raw/81-tax-refund/tr-code.md"]
 related: ["architecture/project-state", "architecture/tech-stack", "plans/investment-tracking-implementation", "architecture/investment-tracking-architecture"]
 ---
 
 # Feature: Investment Tracking & Broker Integration
 
-Status: in-progress (Planned)
+Status: implemented
 Priority: medium
 
 ## Description
@@ -60,6 +60,7 @@ Track ETF portfolio holdings, render performance charts, and manage a dynamic in
 - Implement PMC (Prezzo Medio di Carico) — average cost basis calculation for ETF units
 - Database schema / Zustand store slices needed for `etf_transactions` and `portfolio_snapshots`
 - Internal transfer must be handled atomically in the Zustand store
+- Feature is gated behind `IAppModules.investmentTracking` (disabled by default). Enable it in **Settings → Active Modules → Investment Tracking** to reveal the nav link
 
 ## Planning (Phase 10)
 
@@ -70,7 +71,7 @@ Phase 10 implements this feature in 6 plans across 4 waves:
 | 1 | 10-01 | **Data Foundation** — Types, Firestore schema extension, converter fix, defaults |
 | 2 | 10-02, 10-03 | **Store + Transaction Flow** — Zustand store, 'transfer' type transaction forms |
 | 3 | 10-04, 10-05 | **Broker Config + Portfolio Page** — Settings modal, ETF entry form, charts, tabbed dashboard |
-| 4 | 10-06 | **Integration** — Market data API, routing, nav, analytics filter, i18n |
+| 4 | 10-06 | **Integration** — Market data API, routing, nav, analytics filter, i18n, ConfigPage toggle |
 
 ### Architecture Highlights
 

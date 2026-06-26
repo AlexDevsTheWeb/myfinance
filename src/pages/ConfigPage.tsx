@@ -537,18 +537,29 @@ const ConfigPage: React.FC = () => {
                       color="primary"
                     />
                   </ListItem>
-                  <ListItem sx={{ px: 0 }}>
-                    <ListItemText
-                      primary={<Typography sx={{ fontWeight: 600 }}>{t('config.utilityTracker')}</Typography>}
-                      secondary={t('utilities.title')}
-                    />
-                    <Switch
-                      checked={enabledModules.utilityTracker}
-                      onChange={() => toggleModule('utilityTracker')}
-                      color="primary"
-                    />
-                  </ListItem>
-                </List>
+                    <ListItem sx={{ px: 0 }}>
+                      <ListItemText
+                        primary={<Typography sx={{ fontWeight: 600 }}>{t('config.utilityTracker')}</Typography>}
+                        secondary={t('utilities.title')}
+                      />
+                      <Switch
+                        checked={enabledModules.utilityTracker}
+                        onChange={() => toggleModule('utilityTracker')}
+                        color="primary"
+                      />
+                    </ListItem>
+                    <ListItem sx={{ px: 0 }}>
+                      <ListItemText
+                        primary={<Typography sx={{ fontWeight: 600 }}>{t('config.investmentTracking')}</Typography>}
+                        secondary={t('investment.title')}
+                      />
+                      <Switch
+                        checked={enabledModules.investmentTracking}
+                        onChange={() => toggleModule('investmentTracking')}
+                        color="primary"
+                      />
+                    </ListItem>
+                  </List>
               </Paper>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>

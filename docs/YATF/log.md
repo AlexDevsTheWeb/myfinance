@@ -54,3 +54,16 @@
 - Created [[architecture/investment-tracking-architecture]] — data flow, Firestore schema, component tree
 - Updated [[plans/roadmap]] with Phase 10 entry
 - Updated index.md
+
+## [2026-06-26] implement | Feature | Investment Tracking — Phase 10 complete
+- Implemented all 6 plans across 4 waves on `feat/investment-tracking`
+- 17 files created, 15 files modified (types, store, transaction flow, broker modal, portfolio page, market data, routing, i18n)
+- Updated [[features/investment-tracking]] to status: **implemented**
+- Updated [[plans/investment-tracking-implementation]] to status: **completed**
+- Updated [[architecture/investment-tracking-architecture]] to status: **active**
+- Updated index.md
+
+## [2026-06-26] implement | Feature | Investment Tracking — ConfigPage toggle
+- Added `investmentTracking` toggle switch to `ConfigPage.tsx` (module was `false` by default with no UI to enable it)
+- Added `config.investmentTracking` translation key to `en.json` and `it.json`
+- Updated [[features/investment-tracking]] with note about Settings toggle requirement

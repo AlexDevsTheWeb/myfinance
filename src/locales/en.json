@@ -154,6 +154,7 @@
     "financeTracker": "Finance Management",
     "carManagement": "Car Management",
     "utilityTracker": "Utilities Management",
+    "investmentTracking": "Investment Tracking",
     "calculationStartDate": "Calculation Start Date",
     "calculationStartDateDescription": "Totals are calculated from this date onwards",
     "accounts": "Manage Accounts",
