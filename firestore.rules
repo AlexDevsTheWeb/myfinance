@@ -15,6 +15,11 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner(userId);
       allow write: if isOwner(userId);
+
+      // Portfolio history subcollection: only the authenticated owner can read/write their snapshot data
+      match /portfolio_history/{snapshotId} {
+        allow read, write: if isOwner(userId);
+      }
     }
   }
 }

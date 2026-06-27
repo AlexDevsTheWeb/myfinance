@@ -6,6 +6,7 @@ import { useAuthStore } from './useAuthStore';
 import type { IBrokerConfig, IETFTransaction, IPortfolioSnapshot, IInvestmentHolding, BrokerAccount, AssetHolding } from './types';
 import { validateEtfTransaction, validateBrokerConfig, validateBrokerAccount } from './validation';
 import { sanitizeEtfTransaction, sanitizeBrokerConfig, sanitizeBrokerAccounts } from './sanitization';
+import { recordPortfolioSnapshot } from '../hooks/useHistoricalSnapshots';
 import * as Defaults from './defaults';
 
 export interface InvestmentState {
@@ -142,6 +143,11 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
         holdings: s.holdings,
       }));
       await updateDoc(docRef, { portfolioSnapshots: sanitizedSnapshots });
+
+      // Fire-and-forget subcollection snapshot write
+      recordPortfolioSnapshot(userId).catch((err) => {
+        console.error('Failed to record historical snapshot:', err);
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to add ETF transaction';
       set((state) => {
@@ -221,6 +227,11 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
         accruedInterest: s.accruedInterest, holdings: s.holdings,
       }));
       await updateDoc(docRef, { portfolioSnapshots: sanitizedSnapshots });
+
+      // Fire-and-forget subcollection snapshot write
+      recordPortfolioSnapshot(userId).catch((err) => {
+        console.error('Failed to record historical snapshot:', err);
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete ETF transaction';
       set({ saveError: errorMessage, isSaving: false });
