@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AccountBalance, Refresh, Settings, TrendingUp } from '@mui/icons-material';
-import { Box, Button, Grid, Tab, Tabs, Typography } from '@mui/material';
+import { Badge, Box, Button, Grid, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import AllocationDonutChart from '../components/investment/AllocationDonutChart';
 import BrokerSelect from '../components/investment/BrokerSelect';
@@ -8,8 +8,10 @@ import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import CashInterestCard from '../components/investment/CashInterestCard';
 import EtfTransactionModal from '../components/investment/EtfTransactionModal';
 import HoldingsTable from '../components/investment/HoldingsTable';
+import PacConfirmationDialog from '../components/investment/PacConfirmationDialog';
 import PortfolioLineChart from '../components/investment/PortfolioLineChart';
 import PortfolioStats from '../components/investment/PortfolioStats';
+import { usePacAutomation } from '../hooks/usePacAutomation';
 import { usePortfolio } from '../analytics/hooks/usePortfolio';
 import { useMarketData } from '../hooks/useMarketData';
 import { useInvestmentStore } from '../store/useInvestmentStore';
@@ -30,8 +32,11 @@ const InvestmentPage: React.FC = () => {
   const [etfModalOpen, setEtfModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState('1Y');
   const [editingTransaction, setEditingTransaction] = useState<IETFTransaction | null>(null);
+  const [pacDialogOpen, setPacDialogOpen] = useState(false);
 
-  const { brokerAccounts, selectedBrokerId, setSelectedBroker, etfTransactions } = useInvestmentStore();
+  usePacAutomation(); // Initialize PAC check on mount
+
+  const { brokerAccounts, selectedBrokerId, setSelectedBroker, etfTransactions, pendingPacTransaction } = useInvestmentStore();
   const portfolio = usePortfolio();
   const { refreshPrices, isUpdating } = useMarketData();
 
@@ -86,6 +91,13 @@ const InvestmentPage: React.FC = () => {
             selected={selectedBrokerId}
             onChange={setSelectedBroker}
           />
+          {pendingPacTransaction && (
+            <Badge badgeContent="!" color="warning" onClick={() => setPacDialogOpen(true)} sx={{ cursor: 'pointer' }}>
+              <Button variant="outlined" color="warning">
+                PAC Pending
+              </Button>
+            </Badge>
+          )}
           <Button variant="outlined" startIcon={<Refresh />} onClick={refreshPrices} disabled={isUpdating}>
             {isUpdating ? 'Updating...' : 'Refresh Prices'}
           </Button>
@@ -152,6 +164,7 @@ const InvestmentPage: React.FC = () => {
 
       <EtfTransactionModal open={etfModalOpen} onClose={handleCloseModal} editTransaction={editingTransaction} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
       <BrokerSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <PacConfirmationDialog open={pacDialogOpen} onClose={() => setPacDialogOpen(false)} />
     </Box>
   );
 };
