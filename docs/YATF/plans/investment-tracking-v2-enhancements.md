@@ -3,7 +3,10 @@ title: "Investment Tracking V2 — UX & Architecture Enhancements"
 tags: [plan, investment, architecture, ux]
 created: 2026-06-27
 updated: 2026-06-27
-status: draft
+status: active
+gsd_phase: 12
+plan_count: 6
+github_issues: ["#89", "#90", "#91", "#92", "#93", "#94"]
 sources: ["raw/ux-improvments.md"]
 related: ["features/investment-tracking", "features/financial-projections", "architecture/investment-tracking-architecture", "plans/investment-tracking-implementation"]
 ---
@@ -69,6 +72,30 @@ Evolve the investment tracking module from a single-broker, single-ETF tool into
 - Historical chart persists across page reloads
 - Projections page shows inflation-adjusted values when toggle is on
 - Invalid Yahoo tickers are rejected at config save time
+
+## GitHub Issues
+
+| # | Title | Wiki Page |
+|---|-------|-----------|
+| [#89](https://github.com/AlexDevsTheWeb/myfinance/issues/89) | PAC Automation | [[features/pac-automation]] |
+| [#90](https://github.com/AlexDevsTheWeb/myfinance/issues/90) | CRUD Transactions & Settings | [[features/crud-etf-transactions]] |
+| [#91](https://github.com/AlexDevsTheWeb/myfinance/issues/91) | Multi-Broker & Multi-Asset | [[features/multi-broker-architecture]] |
+| [#92](https://github.com/AlexDevsTheWeb/myfinance/issues/92) | Historical Snapshots | [[features/historical-snapshots]] |
+| [#93](https://github.com/AlexDevsTheWeb/myfinance/issues/93) | Tax & Inflation Modeling | [[features/tax-inflation-modeling]] |
+| [#94](https://github.com/AlexDevsTheWeb/myfinance/issues/94) | Ticker Validation | [[features/ticker-validation]] |
+
+## GSD Phase 12 Plans
+
+| Plan | Wave | Description |
+|------|------|-------------|
+| `12-01-PLAN.md` | 1 | Multi-Broker Schema Refactor — types, store, Firestore migration |
+| `12-02-PLAN.md` | 2 | Multi-Broker UI — BrokerSelect, settings modal, multi-ticker |
+| `12-03-PLAN.md` | 2 | Transaction CRUD — Edit/Delete, safe cascade, PAC state |
+| `12-04-PLAN.md` | 3 | Historical Snapshots — Firestore subcollection, daily debounce |
+| `12-05-PLAN.md` | 4 | PAC Automation UI + Ticker Validation |
+| `12-06-PLAN.md` | 5 | Projections Inflation Toggle |
+
+See `.planning/phases/12-investment-tracking-v2/` for full plan details.
 
 ## Related
 

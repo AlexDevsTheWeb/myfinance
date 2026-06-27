@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-06-27* (Feature guides + V2 enhancements added)
-*Total pages: 22*
+*Last updated: 2026-06-27* (V2 GitHub issues ingested)
+*Total pages: 28*
 
 ---
 
@@ -15,6 +15,12 @@
 | [[features/financial-projections]] | ✅ Compound interest simulator with parametric sliders and real-time chart | [`#83`](https://github.com/AlexDevsTheWeb/myfinance/issues/83) |
 | [[features/investment-tracking-guide]] | 📘 User guide — Investment Tracking & Financial Projections (EN) | [`raw/FEATURES-GUIDE.md`](raw/FEATURES-GUIDE.md) |
 | [[features/guida-investimenti]] | 📘 Guida utente — Monitoraggio Investimenti e Proiezioni (IT) | [`raw/FEATURES-GUIDE.it.md`](raw/FEATURES-GUIDE.it.md) |
+| [[features/pac-automation]] | 🤖 Automated recurring PAC transactions | [`#89`](https://github.com/AlexDevsTheWeb/myfinance/issues/89) |
+| [[features/crud-etf-transactions]] | ✏️ Edit/delete ETF transactions + settings persistence | [`#90`](https://github.com/AlexDevsTheWeb/myfinance/issues/90) |
+| [[features/multi-broker-architecture]] | 🏦 Multi-broker & multi-asset schema refactor | [`#91`](https://github.com/AlexDevsTheWeb/myfinance/issues/91) |
+| [[features/historical-snapshots]] | 💾 Persistent portfolio history in Firestore | [`#92`](https://github.com/AlexDevsTheWeb/myfinance/issues/92) |
+| [[features/tax-inflation-modeling]] | 📊 Inflation-adjusted projections with real vs nominal | [`#93`](https://github.com/AlexDevsTheWeb/myfinance/issues/93) |
+| [[features/ticker-validation]] | ✅ Yahoo Finance ticker validation at config save | [`#94`](https://github.com/AlexDevsTheWeb/myfinance/issues/94) |
 
 ## Plans
 
@@ -25,7 +31,7 @@
 | [[plans/transaction-layout-implementation]] | Implementation plan for transaction page layout restructure | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[plans/investment-tracking-implementation]] | 6-plan implementation for ETF tracking, broker integration, PAC strategy | [`.planning/phases/10-investment-tracking/`](.planning/phases/10-investment-tracking/) |
 | [[plans/financial-projections-implementation]] | ✅ 3-plan implementation for simulation engine, UI shell, routing + i18n | [`raw/83-financial-projections/issue.md`](raw/83-financial-projections/issue.md) |
-| [[plans/investment-tracking-v2-enhancements]] | 📋 V2 roadmap — PAC automation, CRUD, multi-broker, snapshots, tax modeling | [`raw/ux-improvments.md`](raw/ux-improvments.md) |
+| [[plans/investment-tracking-v2-enhancements]] | 📋 V2 roadmap — 6 GitHub issues (#89–#94) with wiki pages | [`raw/ux-improvments.md`](raw/ux-improvments.md) |
 
 ## Architecture
 

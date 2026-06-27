@@ -1,5 +1,21 @@
 # Wiki Log
 
+## [2026-06-27] plan | Phase 12 | Investment Tracking V2 — GSD planning complete
+- Created `.planning/ROADMAP.md` with all phases (1–12) in GSD format
+- Created `.planning/phases/12-investment-tracking-v2/12-CONTEXT.md` with 15 locked decisions
+- Spawned `gsd-phase-researcher` → `12-RESEARCH.md` (1058 lines, multi-broker migration path, codebase analysis)
+- Spawned `gsd-planner` → 6 plans across 5 waves (12-01 through 12-06)
+- Spawned `gsd-plan-checker` → `12-VERIFICATION.md` — 2 blockers found and resolved
+- Updated [[plans/investment-tracking-v2-enhancements]] with GSD plan table
+- Updated `.planning/ROADMAP.md` with plan list and progress table
+
+## [2026-06-27] ingest | Feature | 6 V2 GitHub issues ingested into wiki
+- Created 6 GitHub issues from `raw/ux-improvments.md`: [#89](https://github.com/AlexDevsTheWeb/myfinance/issues/89) PAC Automation, [#90](https://github.com/AlexDevsTheWeb/myfinance/issues/90) CRUD Transactions, [#91](https://github.com/AlexDevsTheWeb/myfinance/issues/91) Multi-Broker, [#92](https://github.com/AlexDevsTheWeb/myfinance/issues/92) Historical Snapshots, [#93](https://github.com/AlexDevsTheWeb/myfinance/issues/93) Tax & Inflation, [#94](https://github.com/AlexDevsTheWeb/myfinance/issues/94) Ticker Validation
+- Saved issue files to `raw/89-pac-automation/`, `raw/90-crud-transactions/`, `raw/91-multi-broker/`, `raw/92-historical-snapshots/`, `raw/93-tax-inflation/`, `raw/94-ticker-validation/`
+- Created [[features/pac-automation]], [[features/crud-etf-transactions]], [[features/multi-broker-architecture]], [[features/historical-snapshots]], [[features/tax-inflation-modeling]], [[features/ticker-validation]]
+- Updated [[plans/investment-tracking-v2-enhancements]] with issue cross-reference table
+- Updated index.md (28 pages) and log.md
+
 ## [2026-06-27] ingest | Guide | Investment Tracking & Financial Projections User Guides
 - Created [[features/investment-tracking-guide]] from `raw/FEATURES-GUIDE.md`
 - Created [[features/guida-investimenti]] from `raw/FEATURES-GUIDE.it.md` (Italian, linked to EN version)

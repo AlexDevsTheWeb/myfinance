@@ -143,4 +143,4 @@ Plans:
 | 9. Language i18n | 0/4 | Not started | - |
 | 10. Investment Tracking | 6/6 | Complete | 2026-06-26 |
 | 11. Financial Projections | 3/3 | Complete | 2026-06-26 |
-| 12. Investment Tracking V2 | 0/0 | Not started | - |
+| 12. Investment Tracking V2 | 0/6 | Not started | - |
