@@ -3,15 +3,21 @@ import { create } from 'zustand';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from './useAuthStore';
-import type { IBrokerConfig, IETFTransaction, IPortfolioSnapshot, IInvestmentHolding } from './types';
-import { validateEtfTransaction, validateBrokerConfig } from './validation';
-import { sanitizeEtfTransaction, sanitizeBrokerConfig } from './sanitization';
+import type { IBrokerConfig, IETFTransaction, IPortfolioSnapshot, IInvestmentHolding, BrokerAccount, AssetHolding } from './types';
+import { validateEtfTransaction, validateBrokerConfig, validateBrokerAccount } from './validation';
+import { sanitizeEtfTransaction, sanitizeBrokerConfig, sanitizeBrokerAccounts } from './sanitization';
 import * as Defaults from './defaults';
 
 export interface InvestmentState {
   etfTransactions: IETFTransaction[];
   portfolioSnapshots: IPortfolioSnapshot[];
   brokerConfig: IBrokerConfig;
+  brokerAccounts: BrokerAccount[];
+  assetHoldings: AssetHolding[];
+  selectedBrokerId: string | 'all';
+  brokerTransactions: Record<string, IETFTransaction[]>;
+  pendingPacTransaction: { brokerId: string; amount: number; date: string; status: 'pending' | 'confirmed' | 'executed' } | null;
+  lastPacGenerationDate: string | null;
   currentPrice: number | null;
   lastPriceUpdate: string | null;
   isSaving: boolean;
@@ -25,6 +31,14 @@ export interface InvestmentState {
   setCurrentPrice: (price: number) => void;
   setAll: (data: Partial<InvestmentState>) => void;
   clearSaveError: () => void;
+
+  setSelectedBroker: (id: string | 'all') => void;
+  addBrokerAccount: (account: BrokerAccount) => Promise<void>;
+  updateBrokerAccount: (account: BrokerAccount) => Promise<void>;
+  deleteBrokerAccount: (id: string) => Promise<void>;
+  addPendingPacTransaction: (pending: { brokerId: string; amount: number; date: string; status: 'pending' }) => void;
+  confirmPacTransaction: (selectedAccountId: string) => Promise<void>;
+  dismissPacTransaction: () => void;
 }
 
 export function calcAccruedInterest(cashBalance: number, annualRate: number): number {
@@ -79,6 +93,12 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
   etfTransactions: [],
   portfolioSnapshots: [],
   brokerConfig: Defaults.DEFAULT_BROKER_CONFIG,
+  brokerAccounts: Defaults.DEFAULT_BROKER_ACCOUNTS,
+  assetHoldings: [],
+  selectedBrokerId: 'all',
+  brokerTransactions: {},
+  pendingPacTransaction: null,
+  lastPacGenerationDate: null,
   currentPrice: null,
   lastPriceUpdate: null,
   isSaving: false,
@@ -181,6 +201,11 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
     }
   },
 
+  /**
+   * Legacy single-broker setter — maps to brokerAccounts[0] and is kept
+   * for backward compat during migration (the existing BrokerSettingsModal
+   * still calls this).
+   */
   setBrokerConfig: async (config) => {
     const userId = useAuthStore.getState().user?.uid;
     if (!userId) return;
@@ -193,10 +218,18 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
 
     set({ saveError: null, isSaving: true });
     try {
-      set({ brokerConfig: config, isSaving: false });
+      const migratedAccount: BrokerAccount = {
+        id: 'broker-1',
+        name: config.brokerName,
+        baseLumpSum: config.lumpSumAmount,
+        monthlyPacAmount: config.monthlyPacAmount,
+        interestRate: config.interestRate,
+      };
+      set({ brokerConfig: config, brokerAccounts: [migratedAccount], isSaving: false });
       const docRef = doc(db, 'users', userId);
       const sanitizedConfig = sanitizeBrokerConfig(config);
-      await updateDoc(docRef, { brokerConfig: sanitizedConfig });
+      const sanitizedAccounts = sanitizeBrokerAccounts(get().brokerAccounts);
+      await updateDoc(docRef, { brokerConfig: sanitizedConfig, brokerAccounts: sanitizedAccounts });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to set broker config';
       set({ saveError: errorMessage, isSaving: false });
@@ -242,6 +275,12 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       etfTransactions,
       portfolioSnapshots,
       brokerConfig,
+      brokerAccounts,
+      assetHoldings,
+      selectedBrokerId,
+      brokerTransactions,
+      pendingPacTransaction,
+      lastPacGenerationDate,
       currentPrice,
       lastPriceUpdate,
       isSaving,
@@ -252,6 +291,12 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       etfTransactions: etfTransactions ?? get().etfTransactions,
       portfolioSnapshots: portfolioSnapshots ?? get().portfolioSnapshots,
       brokerConfig: brokerConfig ?? get().brokerConfig,
+      brokerAccounts: brokerAccounts ?? get().brokerAccounts,
+      assetHoldings: assetHoldings ?? get().assetHoldings,
+      selectedBrokerId: selectedBrokerId ?? get().selectedBrokerId,
+      brokerTransactions: brokerTransactions ?? get().brokerTransactions,
+      pendingPacTransaction: pendingPacTransaction !== undefined ? pendingPacTransaction : get().pendingPacTransaction,
+      lastPacGenerationDate: lastPacGenerationDate !== undefined ? lastPacGenerationDate : get().lastPacGenerationDate,
       currentPrice: currentPrice !== undefined ? currentPrice : get().currentPrice,
       lastPriceUpdate: lastPriceUpdate !== undefined ? lastPriceUpdate : get().lastPriceUpdate,
       isSaving: isSaving ?? get().isSaving,
@@ -260,4 +305,126 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
   },
 
   clearSaveError: () => set({ saveError: null }),
+
+  setSelectedBroker: (id) => {
+    set({ selectedBrokerId: id });
+  },
+
+  addBrokerAccount: async (account) => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    const validation = validateBrokerAccount(account);
+    if (!validation.valid) {
+      set({ saveError: validation.error, isSaving: false });
+      return;
+    }
+
+    set({ saveError: null, isSaving: true });
+    try {
+      set((state) => ({ brokerAccounts: [...state.brokerAccounts, account], isSaving: false }));
+      const docRef = doc(db, 'users', userId);
+      const sanitized = sanitizeBrokerAccounts(get().brokerAccounts);
+      await updateDoc(docRef, { brokerAccounts: sanitized });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to add broker account';
+      set((state) => ({
+        saveError: errorMessage,
+        isSaving: false,
+        brokerAccounts: state.brokerAccounts.filter(a => a.id !== account.id),
+      }));
+      console.error('addBrokerAccount error:', err);
+    }
+  },
+
+  updateBrokerAccount: async (account) => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    const validation = validateBrokerAccount(account);
+    if (!validation.valid) {
+      set({ saveError: validation.error, isSaving: false });
+      return;
+    }
+
+    set({ saveError: null, isSaving: true });
+    try {
+      set((state) => ({
+        brokerAccounts: state.brokerAccounts.map(a => (a.id === account.id ? account : a)),
+        isSaving: false,
+      }));
+      const docRef = doc(db, 'users', userId);
+      const sanitized = sanitizeBrokerAccounts(get().brokerAccounts);
+      await updateDoc(docRef, { brokerAccounts: sanitized });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update broker account';
+      set({ saveError: errorMessage, isSaving: false });
+      console.error('updateBrokerAccount error:', err);
+    }
+  },
+
+  deleteBrokerAccount: async (id) => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    set({ saveError: null, isSaving: true });
+    try {
+      set((state) => ({
+        brokerAccounts: state.brokerAccounts.filter(a => a.id !== id),
+        isSaving: false,
+      }));
+      const docRef = doc(db, 'users', userId);
+      const sanitized = sanitizeBrokerAccounts(get().brokerAccounts);
+      await updateDoc(docRef, { brokerAccounts: sanitized });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete broker account';
+      set({ saveError: errorMessage, isSaving: false });
+      console.error('deleteBrokerAccount error:', err);
+    }
+  },
+
+  addPendingPacTransaction: (pending) => {
+    set({ pendingPacTransaction: { ...pending, status: 'pending' } });
+  },
+
+  confirmPacTransaction: async (selectedAccountId) => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    const pending = get().pendingPacTransaction;
+    if (!pending) return;
+
+    set({ saveError: null, isSaving: true });
+    try {
+      // Create IETFTransaction from pending PAC
+      const tx: IETFTransaction = {
+        id: crypto.randomUUID(),
+        date: pending.date,
+        ticker: selectedAccountId, // Using accountId as ticker reference — the caller resolves the ticker
+        description: 'System-Generated Buy',
+        type: 'buy',
+        units: 0,
+        price: 0,
+        totalAmount: pending.amount,
+        accountId: selectedAccountId,
+      };
+
+      // Add the transaction to etfTransactions
+      const prevTxs = get().etfTransactions;
+      const sorted = [tx, ...prevTxs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      set({ etfTransactions: sorted, pendingPacTransaction: null, lastPacGenerationDate: pending.date, isSaving: false });
+
+      const docRef = doc(db, 'users', userId);
+      const sanitizedTxs = get().etfTransactions.map(sanitizeEtfTransaction);
+      await updateDoc(docRef, { etfTransactions: sanitizedTxs });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to confirm PAC transaction';
+      set({ saveError: errorMessage, isSaving: false });
+      console.error('confirmPacTransaction error:', err);
+    }
+  },
+
+  dismissPacTransaction: () => {
+    set({ pendingPacTransaction: null });
+  },
 }));
