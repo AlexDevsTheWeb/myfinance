@@ -159,6 +159,13 @@ No new security-relevant surface introduced beyond what the plan's threat model 
 
 Ready for Plan 2 (Broker Management UI) — the data layer is now multi-broker capable. Plan 2 will build the Settings UI that manages brokerAccounts directly instead of the legacy single-broker BrokerSettingsModal.
 
+## Self-Check: PASSED
+
+- SUMMARY.md exists ✅
+- All 4 commits verified in git history ✅
+- `npm run build` passes with no TypeScript errors ✅
+- All 16 must-have checks passed ✅
+
 ---
 *Phase: 12-investment-tracking-v2*
 *Completed: 2026-06-27*
