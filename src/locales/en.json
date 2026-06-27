@@ -285,6 +285,15 @@
     "internalTransfer": "Internal Transfer",
     "transfer": "Transfer",
     "newTransfer": "New Transfer",
-    "addTransfer": "Add Transfer"
+    "addTransfer": "Add Transfer",
+    "addBroker": "Add Broker Account",
+    "editBroker": "Edit Broker",
+    "deleteBroker": "Delete Broker",
+    "brokerList": "Broker Accounts",
+    "allBrokers": "All Brokers (Aggregated)",
+    "noBrokers": "No broker accounts",
+    "confirmDeleteBroker": "Delete \"{name}\"? Transactions linked to this broker will remain.",
+    "brokerSaved": "Broker account saved",
+    "brokerDeleted": "Broker account deleted"
   }
 }

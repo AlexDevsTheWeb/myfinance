@@ -12,6 +12,7 @@ import type { IETFTransaction } from '../../store/types';
 interface EtfTransactionModalProps {
   open: boolean;
   onClose: () => void;
+  defaultBrokerId?: string;
 }
 
 const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose }) => {

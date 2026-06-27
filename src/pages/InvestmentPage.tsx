@@ -3,6 +3,7 @@ import { AccountBalance, Refresh, Settings, TrendingUp } from '@mui/icons-materi
 import { Box, Button, Grid, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import AllocationDonutChart from '../components/investment/AllocationDonutChart';
+import BrokerSelect from '../components/investment/BrokerSelect';
 import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import CashInterestCard from '../components/investment/CashInterestCard';
 import EtfTransactionModal from '../components/investment/EtfTransactionModal';
@@ -28,7 +29,7 @@ const InvestmentPage: React.FC = () => {
   const [etfModalOpen, setEtfModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState('1Y');
 
-  const { brokerConfig } = useInvestmentStore();
+  const { brokerAccounts, selectedBrokerId, setSelectedBroker } = useInvestmentStore();
   const portfolio = usePortfolio();
   const { refreshPrices, isUpdating } = useMarketData();
 
@@ -50,7 +51,12 @@ const InvestmentPage: React.FC = () => {
             Track ETF portfolio and broker cash.
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <BrokerSelect
+            brokers={brokerAccounts}
+            selected={selectedBrokerId}
+            onChange={setSelectedBroker}
+          />
           <Button variant="outlined" startIcon={<Refresh />} onClick={refreshPrices} disabled={isUpdating}>
             {isUpdating ? 'Updating...' : 'Refresh Prices'}
           </Button>
@@ -72,9 +78,9 @@ const InvestmentPage: React.FC = () => {
           <Grid size={{ xs: 12, md: 3 }}>
             <CashInterestCard
               cashBalance={portfolio.cashBalance}
-              interestRate={brokerConfig.interestRate}
+              interestRate={portfolio.interestRate}
               accruedInterest={portfolio.accruedInterest}
-              brokerName={brokerConfig.brokerName}
+              brokerName={portfolio.brokerName}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 9 }}>
@@ -115,7 +121,7 @@ const InvestmentPage: React.FC = () => {
         </Grid>
       </TabPanel>
 
-      <EtfTransactionModal open={etfModalOpen} onClose={() => setEtfModalOpen(false)} />
+      <EtfTransactionModal open={etfModalOpen} onClose={() => setEtfModalOpen(false)} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
       <BrokerSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </Box>
   );

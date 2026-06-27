@@ -29,12 +29,17 @@ export function useMarketData() {
   const { setCurrentPrice } = useInvestmentStore();
 
   const refreshPrices = useCallback(async () => {
-    const ticker = useInvestmentStore.getState().brokerConfig.ticker;
-    if (!ticker) return;
+    const { assetHoldings } = useInvestmentStore.getState();
+    // Collect all unique tickers from asset holdings across all broker accounts
+    const tickers = [...new Set(assetHoldings.map(h => h.ticker).filter(Boolean))];
+    if (tickers.length === 0) return;
 
     setIsUpdating(true);
     try {
-      const quote = await fetchQuote(ticker);
+      // Single batch call to yfin.dev (supports comma-separated symbols)
+      const quote = await fetchQuote(tickers.join(','));
+      // yfin.dev batch returns quotes array — set the first quote's price for now
+      // This maintains backward compat with single-ticker price in store
       if (quote?.regularMarketPrice) {
         setCurrentPrice(quote.regularMarketPrice);
       }

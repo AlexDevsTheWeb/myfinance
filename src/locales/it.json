@@ -285,6 +285,15 @@
     "internalTransfer": "Bonifico Interno",
     "transfer": "Trasferimento",
     "newTransfer": "Nuovo Trasferimento",
-    "addTransfer": "Aggiungi Trasferimento"
+    "addTransfer": "Aggiungi Trasferimento",
+    "addBroker": "Aggiungi Conto Broker",
+    "editBroker": "Modifica Broker",
+    "deleteBroker": "Elimina Broker",
+    "brokerList": "Conti Broker",
+    "allBrokers": "Tutti i Broker (Aggregato)",
+    "noBrokers": "Nessun conto broker",
+    "confirmDeleteBroker": "Eliminare \"{name}\"? Le transazioni collegate rimarranno.",
+    "brokerSaved": "Conto broker salvato",
+    "brokerDeleted": "Conto broker eliminato"
   }
 }
