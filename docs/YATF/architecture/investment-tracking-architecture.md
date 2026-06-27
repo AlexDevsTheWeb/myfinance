@@ -5,7 +5,7 @@ created: 2026-06-26
 updated: 2026-06-26
 status: active
 sources: [".planning/phases/10-investment-tracking/10-RESEARCH.md"]
-related: ["features/investment-tracking", "plans/investment-tracking-implementation", "architecture/system-architecture"]
+related: ["features/investment-tracking", "features/investment-tracking-guide", "plans/investment-tracking-implementation", "plans/investment-tracking-v2-enhancements", "architecture/system-architecture"]
 ---
 
 # Architecture: Investment Tracking
@@ -107,9 +107,32 @@ App.tsx
 | Portfolio value line | `PortfolioLineChart` | Recharts AreaChart | `portfolioSnapshots[]` filtered by time range |
 | Asset allocation donut | `AllocationDonutChart` | Recharts PieChart | Computed from `etfTransactions[]` aggregated by ticker |
 
+## V2 Schema Direction (Multi-Broker / Multi-Asset)
+
+A future iteration will refactor the current single-object schema into collection-based types:
+
+```typescript
+interface BrokerAccount {
+  id: string;
+  name: string;          // e.g. Trade Republic, Degiro, Fineco
+  baseLumpSum: number;
+  interestRate: number;
+}
+
+interface AssetHolding {
+  ticker: string;        // e.g. SWDA.MI, VWCE.DE
+  brokerId: string;      // Linked to the specific broker account
+  units: number;
+}
+```
+
+This will enable account filtering via `<Select />` dropdown, dynamic donut chart scaling for multi-ETF allocation, and an aggregated "All Brokers" net worth view. See [[plans/investment-tracking-v2-enhancements]] for the full roadmap.
+
 ## Related
 
 - [[features/investment-tracking]]
+- [[features/investment-tracking-guide]]
 - [[plans/investment-tracking-implementation]]
+- [[plans/investment-tracking-v2-enhancements]]
 - [[architecture/system-architecture]]
 - [[architecture/tech-stack]]

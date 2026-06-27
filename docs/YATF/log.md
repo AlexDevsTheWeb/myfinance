@@ -1,5 +1,15 @@
 # Wiki Log
 
+## [2026-06-27] ingest | Guide | Investment Tracking & Financial Projections User Guides
+- Created [[features/investment-tracking-guide]] from `raw/FEATURES-GUIDE.md`
+- Created [[features/guida-investimenti]] from `raw/FEATURES-GUIDE.it.md` (Italian, linked to EN version)
+- Created [[plans/investment-tracking-v2-enhancements]] from `raw/ux-improvments.md` — PAC automation, CRUD, multi-broker, historical snapshots, tax modeling, ticker validation
+- Updated [[features/investment-tracking]] — added cross-refs to guides and V2 plan
+- Updated [[features/financial-projections]] — added cross-refs to guides and V2 plan
+- Updated [[architecture/investment-tracking-architecture]] — added V2 schema direction section with `BrokerAccount`/`AssetHolding` types
+- Updated index.md (3 new pages)
+- Source: [raw/FEATURES-GUIDE.md](raw/FEATURES-GUIDE.md), [raw/FEATURES-GUIDE.it.md](raw/FEATURES-GUIDE.it.md), [raw/ux-improvments.md](raw/ux-improvments.md)
+
 ## [2026-06-22] ingest | Bulk | Initial wiki population (12 sources)
 - Created [[features/car-management-redesign]] from `raw/SPEC.md`
 - Created [[plans/roadmap]] from `raw/ROADMAP.md`

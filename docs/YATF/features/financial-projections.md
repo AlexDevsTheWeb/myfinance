@@ -4,8 +4,8 @@ tags: [feature, projections, charting, implemented]
 created: 2026-06-26
 updated: 2026-06-26
 status: implemented
-sources: ["raw/83-financial-projections/issue.md", "raw/83-financial-projections/implementation.md"]
-related: ["architecture/financial-projections-architecture", "plans/financial-projections-implementation", "features/investment-tracking"]
+sources: ["raw/83-financial-projections/issue.md", "raw/83-financial-projections/implementation.md", "raw/FEATURES-GUIDE.md", "raw/ux-improvments.md"]
+related: ["features/investment-tracking-guide", "features/guida-investimenti", "plans/investment-tracking-v2-enhancements", "architecture/financial-projections-architecture", "plans/financial-projections-implementation", "features/investment-tracking"]
 ---
 
 # Feature: Financial Projections & Compound Interest Simulator
@@ -74,3 +74,6 @@ A predictive charting module that lets users simulate the long-term growth (10�
 - [[features/investment-tracking]]
 - [[architecture/project-state]]
 - Sources: [raw/83-financial-projections/issue.md](raw/83-financial-projections/issue.md), [raw/83-financial-projections/implementation.md](raw/83-financial-projections/implementation.md)
+- [[features/investment-tracking-guide]] — User guide (EN)
+- [[features/guida-investimenti]] — User guide (IT)
+- [[plans/investment-tracking-v2-enhancements]] — V2 improvements plan (tax modeling)

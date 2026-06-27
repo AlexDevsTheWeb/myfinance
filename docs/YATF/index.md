@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-06-26* (Financial Projections implemented)
-*Total pages: 19*
+*Last updated: 2026-06-27* (Feature guides + V2 enhancements added)
+*Total pages: 22*
 
 ---
 
@@ -13,6 +13,8 @@
 | [[features/transaction-layout-improvement]] | Two-column transaction layout with filter + chart on left | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[features/investment-tracking]] | ✅ ETF portfolio tracking, broker integration, PAC strategy, and asset-vs-expense separation | [`raw/81-tax-refund/`](raw/81-tax-refund/) |
 | [[features/financial-projections]] | ✅ Compound interest simulator with parametric sliders and real-time chart | [`#83`](https://github.com/AlexDevsTheWeb/myfinance/issues/83) |
+| [[features/investment-tracking-guide]] | 📘 User guide — Investment Tracking & Financial Projections (EN) | [`raw/FEATURES-GUIDE.md`](raw/FEATURES-GUIDE.md) |
+| [[features/guida-investimenti]] | 📘 Guida utente — Monitoraggio Investimenti e Proiezioni (IT) | [`raw/FEATURES-GUIDE.it.md`](raw/FEATURES-GUIDE.it.md) |
 
 ## Plans
 
@@ -23,6 +25,7 @@
 | [[plans/transaction-layout-implementation]] | Implementation plan for transaction page layout restructure | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[plans/investment-tracking-implementation]] | 6-plan implementation for ETF tracking, broker integration, PAC strategy | [`.planning/phases/10-investment-tracking/`](.planning/phases/10-investment-tracking/) |
 | [[plans/financial-projections-implementation]] | ✅ 3-plan implementation for simulation engine, UI shell, routing + i18n | [`raw/83-financial-projections/issue.md`](raw/83-financial-projections/issue.md) |
+| [[plans/investment-tracking-v2-enhancements]] | 📋 V2 roadmap — PAC automation, CRUD, multi-broker, snapshots, tax modeling | [`raw/ux-improvments.md`](raw/ux-improvments.md) |
 
 ## Architecture
 

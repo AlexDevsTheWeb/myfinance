@@ -4,8 +4,8 @@ tags: [feature, investment, broker, implemented]
 created: 2026-06-26
 updated: 2026-06-26
 status: implemented
-sources: ["raw/81-tax-refund/import.md", "raw/81-tax-refund/tr-code.md"]
-related: ["architecture/project-state", "architecture/tech-stack", "plans/investment-tracking-implementation", "architecture/investment-tracking-architecture"]
+sources: ["raw/81-tax-refund/import.md", "raw/81-tax-refund/tr-code.md", "raw/FEATURES-GUIDE.md", "raw/ux-improvments.md"]
+related: ["features/investment-tracking-guide", "features/guida-investimenti", "plans/investment-tracking-v2-enhancements", "architecture/project-state", "architecture/tech-stack", "plans/investment-tracking-implementation", "architecture/investment-tracking-architecture"]
 ---
 
 # Feature: Investment Tracking & Broker Integration
@@ -87,5 +87,8 @@ Phase 10 implements this feature in 6 plans across 4 waves:
 - [[plans/investment-tracking-implementation]]
 - [[architecture/investment-tracking-architecture]]
 - [[architecture/project-state]]
+- [[features/investment-tracking-guide]] — User guide (EN)
+- [[features/guida-investimenti]] — User guide (IT)
+- [[plans/investment-tracking-v2-enhancements]] — V2 improvements plan
 - [[architecture/tech-stack]]
 - [[conventions/coding-conventions]]
