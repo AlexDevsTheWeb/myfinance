@@ -304,6 +304,9 @@
     "confirmDeleteTransaction": "Delete this transaction? Units and PMC will be recalculated.",
     "transactionDeleted": "Transaction deleted",
     "transactionUpdated": "Transaction updated",
-    "brokerId": "Broker Account"
+    "brokerId": "Broker Account",
+    "snapshotRecorded": "Portfolio snapshot recorded",
+    "snapshotError": "Failed to record portfolio snapshot",
+    "portfolioHistory": "Portfolio History"
   }
 }

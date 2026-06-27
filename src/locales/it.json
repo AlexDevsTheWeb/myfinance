@@ -304,6 +304,9 @@
     "confirmDeleteTransaction": "Eliminare questa transazione? Quote e PMC verranno ricalcolati.",
     "transactionDeleted": "Transazione eliminata",
     "transactionUpdated": "Transazione aggiornata",
-    "brokerId": "Conto Broker"
+    "brokerId": "Conto Broker",
+    "snapshotRecorded": "Snapshot del portafoglio registrato",
+    "snapshotError": "Errore nella registrazione dello snapshot",
+    "portfolioHistory": "Cronologia Portafoglio"
   }
 }
