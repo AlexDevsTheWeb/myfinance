@@ -1,6 +1,6 @@
 # Wiki Index
 
-*Last updated: 2026-06-27* (V2 GitHub issues ingested)
+*Last updated: 2026-06-27* (Phase 12 GSD plans ingested)
 *Total pages: 28*
 
 ---
@@ -31,7 +31,7 @@
 | [[plans/transaction-layout-implementation]] | Implementation plan for transaction page layout restructure | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[plans/investment-tracking-implementation]] | 6-plan implementation for ETF tracking, broker integration, PAC strategy | [`.planning/phases/10-investment-tracking/`](.planning/phases/10-investment-tracking/) |
 | [[plans/financial-projections-implementation]] | ✅ 3-plan implementation for simulation engine, UI shell, routing + i18n | [`raw/83-financial-projections/issue.md`](raw/83-financial-projections/issue.md) |
-| [[plans/investment-tracking-v2-enhancements]] | 📋 V2 roadmap — 6 GitHub issues (#89–#94) with wiki pages | [`raw/ux-improvments.md`](raw/ux-improvments.md) |
+| [[plans/investment-tracking-v2-enhancements]] | 🚧 Phase 12 — 6 GSD plans across 5 waves (multi-broker, CRUD, PAC, snapshots, tax, ticker) | [`.planning/phases/12-investment-tracking-v2/`](.planning/phases/12-investment-tracking-v2/) |
 
 ## Architecture
 

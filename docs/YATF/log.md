@@ -16,6 +16,15 @@
 - Updated [[plans/investment-tracking-v2-enhancements]] with issue cross-reference table
 - Updated index.md (28 pages) and log.md
 
+## [2026-06-27] plan | Phase 12 | Investment Tracking V2 — GSD planning complete
+- Created `.planning/ROADMAP.md` with all phases (1–12) in GSD format
+- Created `.planning/phases/12-investment-tracking-v2/12-CONTEXT.md` with 15 locked decisions
+- Spawned `gsd-phase-researcher` → `12-RESEARCH.md` (1058 lines, multi-broker migration path, codebase analysis)
+- Spawned `gsd-planner` → 6 plans across 5 waves (12-01 through 12-06)
+- Spawned `gsd-plan-checker` → `12-VERIFICATION.md` — 2 blockers found and resolved
+- Updated [[plans/investment-tracking-v2-enhancements]] with GSD plan table and Phase 12 reference
+- Updated index.md
+
 ## [2026-06-27] ingest | Guide | Investment Tracking & Financial Projections User Guides
 - Created [[features/investment-tracking-guide]] from `raw/FEATURES-GUIDE.md`
 - Created [[features/guida-investimenti]] from `raw/FEATURES-GUIDE.it.md` (Italian, linked to EN version)
