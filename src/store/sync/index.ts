@@ -22,6 +22,8 @@ export function getDefaultUserConfig(): UserDoc {
     balanceStartDate: firstDayOfMonth,
     etfTransactions: [],
     portfolioSnapshots: [],
+    brokerAccounts: Defaults.DEFAULT_BROKER_ACCOUNTS,
+    assetHoldings: [],
     brokerConfig: Defaults.DEFAULT_BROKER_CONFIG,
   };
 }
