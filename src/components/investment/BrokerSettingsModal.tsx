@@ -1,116 +1,240 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
-import { AccountBalance } from '@mui/icons-material';
-import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { AccountBalance, Add, Delete, Edit } from '@mui/icons-material';
+import React, { useState } from 'react';
 import { useInvestmentStore } from '../../store/useInvestmentStore';
-import type { IBrokerConfig } from '../../store/types';
 
 interface BrokerSettingsModalProps {
   open: boolean;
   onClose: () => void;
 }
 
+type ModalMode = 'list' | 'form';
+
+interface BrokerFormData {
+  name: string;
+  baseLumpSum: string;
+  monthlyPacAmount: string;
+  interestRate: string;
+}
+
+const emptyFormData: BrokerFormData = {
+  name: '',
+  baseLumpSum: '0',
+  monthlyPacAmount: '0',
+  interestRate: '0',
+};
+
 const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose }) => {
-  const { brokerConfig, setBrokerConfig } = useInvestmentStore();
-  const [formData, setFormData] = useState({
-    brokerName: brokerConfig.brokerName,
-    lumpSumAmount: brokerConfig.lumpSumAmount.toString(),
-    monthlyPacAmount: brokerConfig.monthlyPacAmount.toString(),
-    ticker: brokerConfig.ticker,
-    interestRate: brokerConfig.interestRate.toString(),
-  });
+  const { brokerAccounts, addBrokerAccount, updateBrokerAccount, deleteBrokerAccount } = useInvestmentStore();
 
-  useEffect(() => {
-    if (open) {
-      setFormData({
-        brokerName: brokerConfig.brokerName,
-        lumpSumAmount: brokerConfig.lumpSumAmount.toString(),
-        monthlyPacAmount: brokerConfig.monthlyPacAmount.toString(),
-        ticker: brokerConfig.ticker,
-        interestRate: brokerConfig.interestRate.toString(),
-      });
-    }
-  }, [open, brokerConfig]);
+  const [mode, setMode] = useState<ModalMode>('list');
+  const [editingBrokerId, setEditingBrokerId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<BrokerFormData>(emptyFormData);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  const handleSave = () => {
-    const config: IBrokerConfig = {
-      brokerName: formData.brokerName.trim(),
-      lumpSumAmount: Number(formData.lumpSumAmount) || 0,
+  const handleAdd = () => {
+    setEditingBrokerId(null);
+    setFormData(emptyFormData);
+    setMode('form');
+  };
+
+  const handleEdit = (id: string) => {
+    const broker = brokerAccounts.find(b => b.id === id);
+    if (!broker) return;
+    setEditingBrokerId(id);
+    setFormData({
+      name: broker.name,
+      baseLumpSum: broker.baseLumpSum.toString(),
+      monthlyPacAmount: broker.monthlyPacAmount.toString(),
+      interestRate: broker.interestRate.toString(),
+    });
+    setMode('form');
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteBrokerAccount(id);
+    setDeleteConfirmId(null);
+  };
+
+  const handleSave = async () => {
+    const name = formData.name.trim();
+    if (!name) return;
+
+    const account = {
+      id: editingBrokerId || crypto.randomUUID(),
+      name,
+      baseLumpSum: Number(formData.baseLumpSum) || 0,
       monthlyPacAmount: Number(formData.monthlyPacAmount) || 0,
-      ticker: formData.ticker.trim().toUpperCase(),
       interestRate: Number(formData.interestRate) || 0,
     };
-    setBrokerConfig(config);
+
+    if (editingBrokerId) {
+      await updateBrokerAccount(account);
+    } else {
+      await addBrokerAccount(account);
+    }
+
+    setMode('list');
+    setEditingBrokerId(null);
+    setFormData(emptyFormData);
+  };
+
+  const handleCancel = () => {
+    setMode('list');
+    setEditingBrokerId(null);
+    setFormData(emptyFormData);
+  };
+
+  const handleClose = () => {
+    setMode('list');
+    setEditingBrokerId(null);
+    setFormData(emptyFormData);
+    setDeleteConfirmId(null);
     onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: '#1e293b' } } }}>
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: '#1e293b' } } }}>
       <DialogTitle sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
         <AccountBalance sx={{ opacity: 0.7 }} />
-        Broker Settings
+        {mode === 'list' ? 'Broker Accounts' : editingBrokerId ? 'Edit Broker' : 'Add Broker Account'}
       </DialogTitle>
-      <DialogContent>
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid size={{ xs: 12 }}>
-            <TextField
-              fullWidth
-              label="Broker Name"
-              variant="filled"
-              value={formData.brokerName}
-              onChange={(e: any) => setFormData({ ...formData, brokerName: e.target.value })}
-            />
+
+      {mode === 'list' ? (
+        <DialogContent>
+          {brokerAccounts.length === 0 ? (
+            <Typography sx={{ opacity: 0.6, textAlign: 'center', py: 4 }}>
+              No broker accounts configured.
+            </Typography>
+          ) : (
+            <List>
+              {brokerAccounts.map(broker => (
+                <ListItem
+                  key={broker.id}
+                  sx={{
+                    borderRadius: 2,
+                    mb: 1,
+                    bgcolor: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                  }}
+                  secondaryAction={
+                    <>
+                      <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(broker.id)} sx={{ mr: 1 }}>
+                        <Edit fontSize="small" />
+                      </IconButton>
+                      <IconButton edge="end" aria-label="delete" onClick={() => setDeleteConfirmId(broker.id)}>
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </>
+                  }
+                >
+                  <ListItemText
+                    primary={broker.name}
+                    secondary={`Lump: €${broker.baseLumpSum.toLocaleString()} · PAC: €${broker.monthlyPacAmount.toLocaleString()} · Rate: ${broker.interestRate}%`}
+                    slotProps={{ primary: { fontWeight: 700 } as any }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+
+          <Button
+            variant="outlined"
+            startIcon={<Add />}
+            onClick={handleAdd}
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Add Broker Account
+          </Button>
+
+          {/* Delete confirmation */}
+          {deleteConfirmId && (
+            <Typography sx={{ mt: 2, p: 2, borderRadius: 2, bgcolor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              Delete "{brokerAccounts.find(b => b.id === deleteConfirmId)?.name}"? Transactions linked to this broker will remain.
+              <Box sx={{ display: 'flex', gap: 1, mt: 1, justifyContent: 'flex-end' }}>
+                <Button size="small" onClick={() => setDeleteConfirmId(null)} color="inherit">Cancel</Button>
+                <Button size="small" onClick={() => handleDelete(deleteConfirmId)} color="error" variant="contained">Delete</Button>
+              </Box>
+            </Typography>
+          )}
+        </DialogContent>
+      ) : (
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="Broker Name"
+                variant="filled"
+                value={formData.name}
+                onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <TextField
+                fullWidth
+                label="Lump Sum (€)"
+                type="number"
+                variant="filled"
+                value={formData.baseLumpSum}
+                onChange={(e: any) => setFormData({ ...formData, baseLumpSum: e.target.value })}
+                slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }}
+              />
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <TextField
+                fullWidth
+                label="Monthly PAC (€)"
+                type="number"
+                variant="filled"
+                value={formData.monthlyPacAmount}
+                onChange={(e: any) => setFormData({ ...formData, monthlyPacAmount: e.target.value })}
+                slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }}
+              />
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <TextField
+                fullWidth
+                label="Interest Rate (%)"
+                type="number"
+                variant="filled"
+                value={formData.interestRate}
+                onChange={(e: any) => setFormData({ ...formData, interestRate: e.target.value })}
+                slotProps={{ input: { endAdornment: <Typography sx={{ ml: 1, opacity: 0.5 }}>%</Typography> } }}
+                helperText="Annual percentage yield on uninvested cash"
+              />
+            </Grid>
           </Grid>
-          <Grid size={{ xs: 6 }}>
-            <TextField
-              fullWidth
-              label="Lump Sum (€)"
-              type="number"
-              variant="filled"
-              value={formData.lumpSumAmount}
-              onChange={(e: any) => setFormData({ ...formData, lumpSumAmount: e.target.value })}
-              slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }}
-            />
-          </Grid>
-          <Grid size={{ xs: 6 }}>
-            <TextField
-              fullWidth
-              label="Monthly PAC (€)"
-              type="number"
-              variant="filled"
-              value={formData.monthlyPacAmount}
-              onChange={(e: any) => setFormData({ ...formData, monthlyPacAmount: e.target.value })}
-              slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }}
-            />
-          </Grid>
-          <Grid size={{ xs: 6 }}>
-            <TextField
-              fullWidth
-              label="ETF Ticker"
-              variant="filled"
-              value={formData.ticker}
-              onChange={(e: any) => setFormData({ ...formData, ticker: e.target.value })}
-              placeholder="e.g. SWDA.MI"
-              helperText="Enter Yahoo Finance symbol format"
-            />
-          </Grid>
-          <Grid size={{ xs: 6 }}>
-            <TextField
-              fullWidth
-              label="Interest Rate (%)"
-              type="number"
-              variant="filled"
-              value={formData.interestRate}
-              onChange={(e: any) => setFormData({ ...formData, interestRate: e.target.value })}
-              slotProps={{ input: { endAdornment: <Typography sx={{ ml: 1, opacity: 0.5 }}>%</Typography> } }}
-              helperText="Annual percentage yield on uninvested cash"
-            />
-          </Grid>
-        </Grid>
-      </DialogContent>
+        </DialogContent>
+      )}
+
       <DialogActions sx={{ p: 3 }}>
-        <Button onClick={onClose} color="inherit">Cancel</Button>
-        <Button onClick={handleSave} variant="contained">Save</Button>
+        {mode === 'list' ? (
+          <Button onClick={handleClose} color="inherit">Close</Button>
+        ) : (
+          <>
+            <Button onClick={handleCancel} color="inherit">Cancel</Button>
+            <Button onClick={handleSave} variant="contained" disabled={!formData.name.trim()}>
+              {editingBrokerId ? 'Save' : 'Add'}
+            </Button>
+          </>
+        )}
       </DialogActions>
     </Dialog>
   );
