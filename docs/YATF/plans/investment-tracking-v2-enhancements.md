@@ -1,20 +1,22 @@
 ---
 title: "Investment Tracking V2 — UX & Architecture Enhancements"
-tags: [plan, investment, architecture, ux]
+tags: [plan, investment, architecture, ux, completed]
 created: 2026-06-27
 updated: 2026-06-27
-status: active
+status: completed
 gsd_phase: 12
 plan_count: 6
 github_issues: ["#89", "#90", "#91", "#92", "#93", "#94"]
-sources: ["raw/ux-improvments.md"]
-related: ["features/investment-tracking", "features/financial-projections", "architecture/investment-tracking-architecture", "plans/investment-tracking-implementation"]
+sources: ["raw/ux-improvments.md", "raw/12-investment-tracking-v2/implementation.md"]
+related: ["features/investment-tracking", "features/financial-projections", "architecture/investment-tracking-architecture", "plans/investment-tracking-implementation", "features/multi-broker-architecture", "features/crud-etf-transactions", "features/historical-snapshots", "features/pac-automation", "features/tax-inflation-modeling", "features/ticker-validation"]
 ---
 
 # Plan: Investment Tracking V2 — UX & Architecture Enhancements
 
-Status: draft
+Status: completed
 Priority: medium
+Completed: 2026-06-27
+Branch: [feat/phase-12-investment-tracking-v2](https://github.com/AlexDevsTheWeb/myfinance/pull/95)
 
 ## Goal
 

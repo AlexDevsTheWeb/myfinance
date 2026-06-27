@@ -126,3 +126,17 @@
 - Updated [[architecture/financial-projections-architecture]] status → **active**
 - Updated index.md
 - Source: [raw/83-financial-projections/implementation.md](raw/83-financial-projections/implementation.md)
+
+## [2026-06-27] implement | Feature | Investment Tracking V2 — Phase 12 complete (PR #95)
+- Implemented 6 plans across 4 waves on `feat/phase-12-investment-tracking-v2`
+- 24 execution commits, 4 files created, ~30 files modified
+- Created [[features/multi-broker-architecture]] status → **implemented**
+- Created [[features/crud-etf-transactions]] status → **implemented**
+- Created [[features/historical-snapshots]] status → **implemented**
+- Created [[features/pac-automation]] status → **implemented**
+- Created [[features/tax-inflation-modeling]] status → **implemented**
+- Created [[features/ticker-validation]] status → **implemented**
+- Updated [[plans/investment-tracking-v2-enhancements]] status → **completed**
+- Updated [[architecture/investment-tracking-architecture]] with V2 schema, store, component tree, migration layer
+- Updated index.md
+- Source: [raw/12-investment-tracking-v2/implementation.md](raw/12-investment-tracking-v2/implementation.md)
