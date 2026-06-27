@@ -6,7 +6,7 @@ import ProjectionSummary from '../components/projections/ProjectionSummary';
 import { useProjections } from '../hooks/useProjections';
 
 const ProjectionsPage: React.FC = () => {
-  const { input, summary, chartData, setParam } = useProjections();
+  const { input, summary, chartData, setParam, setInflationToggle } = useProjections();
   const { t } = useTranslation();
 
   return (
@@ -22,7 +22,11 @@ const ProjectionsPage: React.FC = () => {
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 4 }}>
-          <ProjectionControls input={input} onChange={setParam} />
+          <ProjectionControls
+            input={input}
+            onChange={setParam}
+            onInflationToggle={setInflationToggle}
+          />
         </Grid>
         <Grid size={{ xs: 12, md: 8 }}>
           <ProjectionChart data={chartData} />
