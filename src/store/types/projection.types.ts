@@ -5,6 +5,8 @@ export interface IProjectionInput {
   monthlyPac: number;
   etfAnnualReturn: number;
   cashAnnualRate: number;
+  adjustForInflation?: boolean;  // default false (D-08)
+  inflationRate?: number;        // default 0.02 (2%)
 }
 
 export interface IMonthlySnapshot {
