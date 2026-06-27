@@ -186,14 +186,41 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
 
     set({ saveError: null, isSaving: true });
     try {
-      set((state) => ({
-        etfTransactions: state.etfTransactions.filter(t => t.id !== id),
+      // 1. Find the transaction being deleted (guard: T-12-06)
+      const state = get();
+      const txToDelete = state.etfTransactions.find(t => t.id === id);
+      if (!txToDelete) {
+        set({ saveError: 'Transaction not found', isSaving: false });
+        return;
+      }
+
+      // 2. Optimistic: remove from state
+      set((s) => ({
+        etfTransactions: s.etfTransactions.filter(t => t.id !== id),
         isSaving: false,
       }));
 
+      // 3. Persist
       const docRef = doc(db, 'users', userId);
       const sanitizedTxs = useInvestmentStore.getState().etfTransactions.map(sanitizeEtfTransaction);
       await updateDoc(docRef, { etfTransactions: sanitizedTxs });
+
+      // 4. Compute new portfolio snapshot after deletion
+      const freshState = useInvestmentStore.getState();
+      const computed = computeSnapshot(freshState.etfTransactions, freshState.currentPrice);
+      const snapshot: IPortfolioSnapshot = {
+        id: crypto.randomUUID(),
+        date: dayjs().format('YYYY-MM-DD'),
+        ...computed,
+      };
+      const prevSnapshots = get().portfolioSnapshots;
+      set({ portfolioSnapshots: [...prevSnapshots, snapshot] });
+      const sanitizedSnapshots = useInvestmentStore.getState().portfolioSnapshots.map(s => ({
+        id: s.id, date: s.date, totalInvested: s.totalInvested,
+        currentValue: s.currentValue, cashBalance: s.cashBalance,
+        accruedInterest: s.accruedInterest, holdings: s.holdings,
+      }));
+      await updateDoc(docRef, { portfolioSnapshots: sanitizedSnapshots });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete ETF transaction';
       set({ saveError: errorMessage, isSaving: false });

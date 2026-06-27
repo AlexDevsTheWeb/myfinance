@@ -294,6 +294,12 @@
     "noBrokers": "Nessun conto broker",
     "confirmDeleteBroker": "Eliminare \"{name}\"? Le transazioni collegate rimarranno.",
     "brokerSaved": "Conto broker salvato",
-    "brokerDeleted": "Conto broker eliminato"
+    "brokerDeleted": "Conto broker eliminato",
+    "editTransaction": "Modifica Transazione ETF",
+    "deleteTransaction": "Elimina Transazione",
+    "confirmDeleteTransaction": "Eliminare questa transazione? Quote e PMC verranno ricalcolati.",
+    "transactionDeleted": "Transazione eliminata",
+    "transactionUpdated": "Transazione aggiornata",
+    "brokerId": "Conto Broker"
   }
 }

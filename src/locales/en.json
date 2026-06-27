@@ -294,6 +294,12 @@
     "noBrokers": "No broker accounts",
     "confirmDeleteBroker": "Delete \"{name}\"? Transactions linked to this broker will remain.",
     "brokerSaved": "Broker account saved",
-    "brokerDeleted": "Broker account deleted"
+    "brokerDeleted": "Broker account deleted",
+    "editTransaction": "Edit ETF Transaction",
+    "deleteTransaction": "Delete Transaction",
+    "confirmDeleteTransaction": "Delete this transaction? Units and PMC will be recalculated.",
+    "transactionDeleted": "Transaction deleted",
+    "transactionUpdated": "Transaction updated",
+    "brokerId": "Broker Account"
   }
 }
