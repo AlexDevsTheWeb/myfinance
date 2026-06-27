@@ -1,6 +1,6 @@
 # Wiki Index
 
-*Last updated: 2026-06-27* (Phase 12 implemented)
+*Last updated: 2026-06-27* (Phase 12 complete — guides updated)
 *Total pages: 28*
 
 ---

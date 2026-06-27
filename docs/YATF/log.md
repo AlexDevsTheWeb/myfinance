@@ -1,5 +1,12 @@
 # Wiki Log
 
+## [2026-06-27] ingest | Guide | Investment Tracking & Financial Projections guides updated with Phase 12 enhancements
+- Updated [[features/investment-tracking-guide]] from `raw/FEATURES-GUIDE.md` — added multi-broker, CRUD transactions, PAC automation, historical snapshots, ticker validation, inflation adjustment
+- Updated [[features/guida-investimenti]] from `raw/FEATURES-GUIDE.it.md` — Italian version with same enhancements
+- Added cross-references to 6 new V2 feature pages in both guides
+- Updated index.md cross-references
+- Source: [raw/FEATURES-GUIDE.md](raw/FEATURES-GUIDE.md), [raw/FEATURES-GUIDE.it.md](raw/FEATURES-GUIDE.it.md)
+
 ## [2026-06-27] plan | Phase 12 | Investment Tracking V2 — GSD planning complete
 - Created `.planning/ROADMAP.md` with all phases (1–12) in GSD format
 - Created `.planning/phases/12-investment-tracking-v2/12-CONTEXT.md` with 15 locked decisions

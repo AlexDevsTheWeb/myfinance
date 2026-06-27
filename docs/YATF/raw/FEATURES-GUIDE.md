@@ -2,17 +2,25 @@
 
 ## 1. Investment Tracking (`/invest`)
 
-Track a single-ETF portfolio with broker cash management, buy/sell transactions, and market price refresh.
+Track a multi-broker ETF portfolio with cash management, buy/sell transactions, automated PAC, and market price refresh.
 
 ### Getting Started
 
 1. **Enable the module**: Go to **Settings** (`/config`) → *Active Modules* → toggle **Investment Tracking** on.
-2. **Configure your broker**: On the Investment page, click **Settings** and fill in:
-   - **Broker Name** — e.g. *Trade Republic*, *Degiro*
+2. **Configure your broker(s)**: On the Investment page, click **Settings** to add one or more broker accounts. For each broker fill in:
+   - **Broker Name** — e.g. *Trade Republic*, *Degiro*, *Fineco*
    - **Lump Sum (€)** — the total cash you initially deposited at the broker
-   - **Monthly PAC (€)** — your recurring monthly investment amount (for reference, not yet automated)
-   - **ETF Ticker** — your ETF ticker in Yahoo Finance format, e.g. `SWDA.MI` (Milan), `VWCE.DE` (Xetra)
+   - **Monthly PAC (€)** — your recurring monthly investment amount (the system will prompt you to execute it each month)
+   - **ETF Ticker** — your ETF ticker in Yahoo Finance format, e.g. `SWDA.MI` (Milan), `VWCE.DE` (Xetra). The system validates the ticker format when you save.
    - **Interest Rate (%)** — the annual interest your broker pays on uninvested cash (e.g. 2.0 for 2% APY)
+
+You can add, edit, or delete broker accounts at any time via the same Settings modal.
+
+### Filtering by Broker
+
+Use the **Broker Select** dropdown in the page header to filter the dashboard:
+- **All Brokers (Aggregated)** — view your total net worth across all accounts
+- **Individual broker** — view per-broker cash balance, holdings, and returns
 
 ### Adding Transactions
 
@@ -20,6 +28,7 @@ Switch to the **Invested Capital** tab and click **Add Transaction**:
 
 | Field | Notes |
 |-------|-------|
+| **Broker Account** | Select which broker this transaction belongs to |
 | **Ticker** | Auto-filled from your broker config, editable |
 | **Type** | `Buy` (you purchased units) or `Sell` (you sold units) |
 | **Units** | Supports fractional shares (e.g. `0.523`) |
@@ -32,28 +41,47 @@ Switch to the **Invested Capital** tab and click **Add Transaction**:
 
 After saving, the portfolio view updates instantly.
 
+### Editing & Deleting Transactions
+
+- **Edit**: Click the ✏️ icon in the Holdings Table to modify an existing transaction. The modal opens pre-filled with the transaction data. Change any field and save.
+- **Delete**: Click the 🗑️ icon to remove a transaction. After confirmation, the system automatically recalculates your portfolio (reverts units, recalculates average cost, updates cash balance, and records a new portfolio snapshot).
+
+### PAC Automation
+
+When you configure a **Monthly PAC (€)** on a broker account, the system automatically detects when a new month starts and the configured PAC day (default: 1st of the month) has passed:
+
+1. A **PAC Pending** badge appears in the Investment page header with a warning indicator
+2. Click the badge to open the **PAC Confirmation Dialog**
+3. Review the details (broker name, amount, date)
+4. Choose:
+   - **Confirm & Execute** — the system fetches the current market price and creates a `System-Generated Buy` transaction
+   - **Dismiss** — skips this month's PAC (the badge disappears, next month will trigger again)
+
+The system checks once per month per broker and never duplicates.
+
 ### Understanding the Dashboard
 
 **Tab 1 — "Cash Balance"** (AccountBalance icon):
-- **Cash Interest Card**: Shows your broker name, cash balance (lump sum minus total invested), monthly accrued interest, and APY.
+- **Cash Interest Card**: Shows broker name(s), cash balance (lump sum minus total invested), monthly accrued interest, and APY. When a specific broker is selected, shows per-broker data.
 - **Portfolio Value Chart**: Area chart showing portfolio value vs total invested over time. Use `1M` / `6M` / `1Y` / `ALL` buttons to change the time range.
 
 **Tab 2 — "Invested Capital"** (TrendingUp icon):
 - **Summary cards**: Total Invested, Current Value (highlighted), Total Return (€ and %).
-- **Holdings Table**: Ticker, Units, Avg Cost, Current Price, Value, Return %. Returns color-coded green/red.
+- **Holdings Table**: Ticker, Units, Avg Cost, Current Price, Value, Return %, and Actions (edit/delete).
 - **Allocation Donut Chart**: Visual breakdown by ticker.
 - **Portfolio Line Chart**: Full-width chart below.
 
 ### Refreshing Prices
 
-Click **Refresh Prices** in the page header to fetch the latest market price via Yahoo Finance. The button shows *"Updating…"* while loading. Note that prices are delayed up to 15 minutes (standard Yahoo Finance limitation).
+Click **Refresh Prices** in the page header to fetch the latest market prices for all held tickers via Yahoo Finance. The button shows *"Updating…"* while loading. Note that prices are delayed up to 15 minutes (standard Yahoo Finance limitation).
 
-### Notes & Limitations
+### Notes
 
-- Designed for a **single broker / single ETF** setup
-- There is no transaction edit or delete UI yet (requires Firestore console for removal)
-- The **PAC (Monthly Investment Plan)** amount is stored for reference but does not drive any automation — you must manually record each buy transaction
-- Cash balance = lump sum − total invested across all buy transactions
+- Supports **multiple broker accounts** — add as many as you need
+- Transactions can be **edited and deleted** at any time with automatic portfolio recalculation
+- **PAC automation** handles recurring monthly buys — no need to manually record each transaction
+- Cash balance = lump sum − total invested across all buy transactions (per-broker or aggregated)
+- Portfolio snapshots are persisted to Firestore for cross-device charting
 - Historic prices are not stored; the chart uses the value at the time each snapshot was recorded
 
 ---
@@ -77,6 +105,15 @@ Navigate to **Projections** via the top navigation bar (or `/projections`). Adju
 | **Monthly PAC (€)** | Text | ≥ 0 | 200 | Amount invested every month |
 | **Annual Inflow (€)** | Text | ≥ 0 | 0 | Yearly additional deposit (from year 2) |
 
+### Inflation Adjustment
+
+Toggle **"Adjust for Inflation (2%)"** to see how inflation affects your purchasing power over time:
+
+- **When OFF** (default): The chart shows nominal (face-value) projections
+- **When ON**: The main `Net Worth` line shows real (inflation-adjusted) value. A dashed red **Nominal Value** overlay line appears so you can compare both. A **Real Final Capital** card appears in the summary showing the inflation-adjusted final amount.
+
+The inflation adjustment uses a 2% annual rate with per-month compounding for accuracy. Tax estimates remain on nominal gains (Italian 26% capital gains tax applies to nominal profits, not inflation-adjusted ones).
+
 ### Understanding the Simulation
 
 The engine runs a **monthly loop** for the full horizon:
@@ -85,28 +122,33 @@ The engine runs a **monthly loop** for the full horizon:
 2. Cash earns interest at the configured cash rate (compounded monthly)
 3. The PAC amount is transferred from cash to ETF (capped at available cash)
 4. The ETF position grows at the configured return rate (compounded monthly)
-5. All values are rounded to integers
+5. If inflation adjustment is on, each month's values are divided by the cumulative inflation factor
+6. All values are rounded to integers
 
 ### Reading the Chart
 
-- **Indigo area** (solid line) — Projected Net Worth (cash + ETF value)
+- **Indigo area** (solid line) — Net Worth: real value when inflation is on, nominal when off
 - **Green area** (dashed line) — Total Invested (cumulative capital you put in)
+- **Red dashed line** (only when inflation is on) — Nominal Value overlay showing what the same projection looks like without inflation
 - Hover over the chart to see exact values at any year
 - Y-axis shows € with k/M suffixes (e.g. €50k, €1.2M)
 
 ### Summary Cards
 
-The three cards below the chart show the **final year** metrics:
+The cards below the chart show the **final year** metrics:
 
 | Card | Color | What it shows |
 |------|-------|---------------|
 | **Final Capital** | Indigo | Total net worth at end of horizon |
 | **Total Interests Earned** | Green | Net worth minus total invested = profit |
 | **Estimated Taxes (26%)** | Red | 26% Italian capital gains tax on the profit |
+| **Real Final Capital** | Red (when enabled) | Inflation-adjusted final capital, shown only when inflation toggle is on |
 
 ### Smart Prefill
 
 If you have configured your broker settings in the Investment page, the Projections page automatically pulls in your PAC amount, lump sum, and cash interest rate as defaults. You can override them at any time — prefill only sets the initial values.
+
+With multiple broker accounts, the prefill uses aggregated values.
 
 ### Example Scenarios
 
@@ -119,18 +161,21 @@ If you have configured your broker settings in the Investment page, the Projecti
 - All computation happens in your browser — no data is saved to Firestore or any server
 - Projections are deterministic (same inputs always produce same output)
 - Tax estimate is a flat 26% on capital gains (Italian regime). No deductions or allowances are modelled
-- Inflation is not factored in — returns are nominal
+- Inflation adjustment is off by default; toggle it on to see real purchasing power
 
 ---
 
 ## Data Flow Between Features
 
-The two features integrate at one point:
+The two features integrate at two points:
 
 ```
 Broker Settings  ──prefill──►  Projections Page
 (lump sum, PAC,                 (initial defaults)
  interest rate)
+
+ETF Transactions ──snapshot──►  Firestore Subcollection
+(buy/sell records)              (persistent portfolio history)
 ```
 
-Setting up your broker in Investments means you don't have to re-enter your numbers when testing projections. The prefill is read-only — changing values on the Projections page does not modify your broker settings.
+Setting up your broker in Investments means you don't have to re-enter your numbers when testing projections. The prefill is read-only — changing values on the Projections page does not modify your broker settings. Portfolio snapshots from your transactions are automatically persisted for cross-device charting.
