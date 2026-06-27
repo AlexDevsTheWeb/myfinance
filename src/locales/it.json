@@ -242,7 +242,11 @@
     "seriesInvested": "Totale Investito",
     "finalCapital": "Capitale Finale",
     "totalInterests": "Interessi Totali Maturati",
-    "estimatedTaxes": "Tasse Stimate (26%)"
+    "estimatedTaxes": "Tasse Stimate (26%)",
+    "adjustForInflation": "Adequa all'inflazione",
+    "inflationRate": "Tasso d'inflazione",
+    "seriesNominalValue": "Valore Nominale",
+    "realFinalCapital": "Capitale Finale Reale"
   },
   "investment": {
     "title": "Investimenti",

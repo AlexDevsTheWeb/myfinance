@@ -242,7 +242,11 @@
     "seriesInvested": "Total Invested",
     "finalCapital": "Final Capital",
     "totalInterests": "Total Interests Earned",
-    "estimatedTaxes": "Estimated Taxes (26%)"
+    "estimatedTaxes": "Estimated Taxes (26%)",
+    "adjustForInflation": "Adjust for Inflation",
+    "inflationRate": "Inflation Rate",
+    "seriesNominalValue": "Nominal Value",
+    "realFinalCapital": "Real Final Capital"
   },
   "investment": {
     "title": "Investments",

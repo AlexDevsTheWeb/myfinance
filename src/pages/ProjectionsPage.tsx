@@ -6,8 +6,13 @@ import ProjectionSummary from '../components/projections/ProjectionSummary';
 import { useProjections } from '../hooks/useProjections';
 
 const ProjectionsPage: React.FC = () => {
-  const { input, summary, chartData, setParam, setInflationToggle } = useProjections();
+  const { input, snapshots, summary, chartData, setParam, setInflationToggle } = useProjections();
   const { t } = useTranslation();
+
+  const realFinalCapital =
+    input.adjustForInflation && snapshots.length > 0
+      ? snapshots[snapshots.length - 1].netWorth
+      : null;
 
   return (
     <Box sx={{ pb: 10 }}>
@@ -29,7 +34,7 @@ const ProjectionsPage: React.FC = () => {
           />
         </Grid>
         <Grid size={{ xs: 12, md: 8 }}>
-          <ProjectionChart data={chartData} />
+          <ProjectionChart data={chartData} showRealValue={input.adjustForInflation} />
         </Grid>
       </Grid>
 
@@ -38,6 +43,8 @@ const ProjectionsPage: React.FC = () => {
           finalCapital={summary?.finalCapital ?? null}
           totalInterests={summary?.totalInterests ?? null}
           estimatedTaxes={summary?.estimatedTaxes ?? null}
+          showRealValue={input.adjustForInflation}
+          realFinalCapital={realFinalCapital}
         />
       </Box>
     </Box>

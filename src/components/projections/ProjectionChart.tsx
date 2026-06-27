@@ -6,10 +6,12 @@ interface ChartDataPoint {
   label: string;
   netWorth: number;
   totalInvested: number;
+  nominalValue?: number;
 }
 
 interface ProjectionChartProps {
   data: ChartDataPoint[];
+  showRealValue?: boolean;
 }
 
 const formatEuro = (v: number) => {
@@ -45,7 +47,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
+const ProjectionChart: React.FC<ProjectionChartProps> = ({ data, showRealValue }) => {
   const { t } = useTranslation();
   return (
     <Paper sx={{ p: 2 }}>
@@ -109,6 +111,18 @@ const ProjectionChart: React.FC<ProjectionChartProps> = ({ data }) => {
               fill="url(#investedGradient)"
               dot={false}
             />
+            {showRealValue && (
+              <Area
+                type="monotone"
+                dataKey="nominalValue"
+                name={t('projections.seriesNominalValue')}
+                stroke="#ef4444"
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                fillOpacity={0}
+                dot={false}
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </Box>
