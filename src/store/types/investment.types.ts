@@ -21,6 +21,21 @@ export interface IPortfolioSnapshot {
   holdings: IInvestmentHolding[];
 }
 
+export interface BrokerAccount {
+  id: string;
+  name: string;
+  baseLumpSum: number;
+  monthlyPacAmount: number;
+  interestRate: number;
+}
+
+export interface AssetHolding {
+  ticker: string;
+  brokerId: string;
+  units: number;
+}
+
+/** @deprecated Use BrokerAccount[] instead. Kept for backward-compatible migration. */
 export interface IBrokerConfig {
   brokerName: string;
   lumpSumAmount: number;

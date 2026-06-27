@@ -19,6 +19,8 @@ export type {
   IBrokerConfig,
   IInvestmentHolding,
   IPortfolioPoint,
+  BrokerAccount,
+  AssetHolding,
 } from './investment.types';
 
 export type {

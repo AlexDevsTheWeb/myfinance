@@ -2,6 +2,7 @@
 import { Box, FormHelperText, Grid, MenuItem, TextField } from '@mui/material';
 import React from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
+import { useInvestmentStore } from '../../store/useInvestmentStore';
 
 interface EtfTransactionFormData {
   ticker: string;
@@ -13,6 +14,7 @@ interface EtfTransactionFormData {
   accountId: string;
   description: string;
   notes: string;
+  brokerId?: string;
 }
 
 interface EtfTransactionFormProps {
@@ -23,6 +25,7 @@ interface EtfTransactionFormProps {
 
 const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFormData, errors }) => {
   const { accounts } = useFinanceStore();
+  const { brokerAccounts } = useInvestmentStore();
   const units = Number(formData.units) || 0;
   const price = Number(formData.price) || 0;
   const autoTotal = units * price;
@@ -120,6 +123,21 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             ))}
           </TextField>
           {errors.accountId && <FormHelperText error>{errors.accountId}</FormHelperText>}
+        </Grid>
+        <Grid size={{ xs: 6 }}>
+          <TextField
+            fullWidth
+            select
+            label="Broker Account"
+            variant="filled"
+            value={formData.brokerId ?? ''}
+            onChange={(e: any) => setFormData({ ...formData, brokerId: e.target.value })}
+          >
+            <MenuItem value="">None</MenuItem>
+            {brokerAccounts.map((ba) => (
+              <MenuItem key={ba.id} value={ba.id}>{ba.name}</MenuItem>
+            ))}
+          </TextField>
         </Grid>
         <Grid size={{ xs: 12 }}>
           <TextField

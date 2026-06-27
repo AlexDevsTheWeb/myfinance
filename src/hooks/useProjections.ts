@@ -9,6 +9,8 @@ const DEFAULT_INPUT: IProjectionInput = {
   monthlyPac: 200,
   etfAnnualReturn: 0.07,
   cashAnnualRate: 0.02,
+  adjustForInflation: false,  // default off
+  inflationRate: 0.02,        // 2%
 };
 
 export interface ProjectionSummary {
@@ -21,9 +23,10 @@ export interface UseProjectionsReturn {
   input: IProjectionInput;
   snapshots: IMonthlySnapshot[];
   summary: ProjectionSummary | null;
-  chartData: { label: string; netWorth: number; totalInvested: number }[];
+  chartData: { label: string; netWorth: number; totalInvested: number; nominalValue?: number }[];
   setParam: (key: keyof IProjectionInput, value: number) => void;
   resetToDefaults: () => void;
+  setInflationToggle: (enabled: boolean) => void;
 }
 
 export function useProjections(): UseProjectionsReturn {
@@ -51,20 +54,29 @@ export function useProjections(): UseProjectionsReturn {
 
   const snapshots = useMemo(() => generateFinancialProjection(input), [input]);
 
+  // Compute nominal snapshots for the real/nominal comparison chart
+  const nominalSnapshots = useMemo(
+    () => generateFinancialProjection({ ...input, adjustForInflation: false }),
+    [input]
+  );
+
   const chartData = useMemo(() => {
     if (snapshots.length === 0) return [];
-    const yearlyData = new Map<number, { netWorth: number; totalInvested: number }>();
-    for (const snap of snapshots) {
+    const yearlyData = new Map<number, { netWorth: number; totalInvested: number; nominalValue?: number }>();
+    for (let i = 0; i < snapshots.length; i++) {
+      const snap = snapshots[i];
+      const nominalSnap = input.adjustForInflation ? nominalSnapshots[i] : null;
       yearlyData.set(snap.year, {
         netWorth: snap.netWorth,
         totalInvested: snap.totalInvested,
+        ...(nominalSnap ? { nominalValue: nominalSnap.netWorth } : {}),
       });
     }
     return Array.from(yearlyData.entries()).map(([year, values]) => ({
       label: `Year ${year}`,
       ...values,
     }));
-  }, [snapshots]);
+  }, [snapshots, nominalSnapshots, input.adjustForInflation]);
 
   const summary = useMemo(() => {
     const last = snapshots[snapshots.length - 1];
@@ -85,5 +97,9 @@ export function useProjections(): UseProjectionsReturn {
     setInput(DEFAULT_INPUT);
   };
 
-  return { input, snapshots, summary, chartData, setParam, resetToDefaults };
+  const setInflationToggle = (enabled: boolean) => {
+    setInput(prev => ({ ...prev, adjustForInflation: enabled }));
+  };
+
+  return { input, snapshots, summary, chartData, setParam, resetToDefaults, setInflationToggle };
 }

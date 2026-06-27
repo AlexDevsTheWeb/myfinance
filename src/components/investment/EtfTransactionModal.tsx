@@ -12,12 +12,15 @@ import type { IETFTransaction } from '../../store/types';
 interface EtfTransactionModalProps {
   open: boolean;
   onClose: () => void;
+  editTransaction?: IETFTransaction | null;
+  defaultBrokerId?: string;
 }
 
-const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose }) => {
+const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose, editTransaction }) => {
   const { accounts } = useFinanceStore();
-  const { addEtfTransaction } = useInvestmentStore();
+  const { addEtfTransaction, updateEtfTransaction } = useInvestmentStore();
   const defaultAccountId = accounts.find(a => a.isDefault)?.id || accounts[0]?.id || '';
+  const isEditMode = !!editTransaction;
 
   const [formData, setFormData] = useState<EtfTransactionFormData>({
     ticker: '',
@@ -35,20 +38,34 @@ const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose
 
   useEffect(() => {
     if (open) {
-      setFormData({
-        ticker: '',
-        type: 'buy',
-        units: '',
-        price: '',
-        totalAmount: '',
-        date: dayjs().format('YYYY-MM-DD'),
-        accountId: defaultAccountId,
-        description: '',
-        notes: '',
-      });
+      if (editTransaction) {
+        setFormData({
+          ticker: editTransaction.ticker,
+          type: editTransaction.type,
+          units: editTransaction.units.toString(),
+          price: editTransaction.price.toString(),
+          totalAmount: editTransaction.totalAmount.toString(),
+          date: editTransaction.date,
+          accountId: editTransaction.accountId,
+          description: editTransaction.description,
+          notes: editTransaction.notes || '',
+        });
+      } else {
+        setFormData({
+          ticker: '',
+          type: 'buy',
+          units: '',
+          price: '',
+          totalAmount: '',
+          date: dayjs().format('YYYY-MM-DD'),
+          accountId: defaultAccountId,
+          description: '',
+          notes: '',
+        });
+      }
       setErrors({});
     }
-  }, [open, defaultAccountId]);
+  }, [open, editTransaction, defaultAccountId]);
 
   const handleSubmit = async () => {
     const units = Number(formData.units) || 0;
@@ -74,13 +91,17 @@ const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose
     }
 
     setErrors({});
-    await addEtfTransaction({ ...tx, id: crypto.randomUUID() });
+    if (editTransaction) {
+      await updateEtfTransaction({ ...tx, id: editTransaction.id });
+    } else {
+      await addEtfTransaction({ ...tx, id: crypto.randomUUID() });
+    }
     onClose();
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: '#1e293b' } } }}>
-      <DialogTitle sx={{ fontWeight: 700 }}>Add ETF Transaction</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 700 }}>{isEditMode ? 'Edit ETF Transaction' : 'Add ETF Transaction'}</DialogTitle>
       <DialogContent>
         <EtfTransactionForm formData={formData} setFormData={setFormData} errors={errors} />
       </DialogContent>

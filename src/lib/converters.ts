@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions } from 'firebase/firestore';
-import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type ITransaction } from '../store/types';
+import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type ITransaction, type BrokerAccount, type AssetHolding } from '../store/types';
 
 export interface UserDoc {
   transactions: ITransaction[];
@@ -19,7 +19,10 @@ export interface UserDoc {
   deletedRecurringInstances?: { recurringLinkId: string; date: string }[];
   etfTransactions: IETFTransaction[];
   portfolioSnapshots: IPortfolioSnapshot[];
-  brokerConfig: IBrokerConfig;
+  brokerAccounts: BrokerAccount[];
+  assetHoldings: AssetHolding[];
+  /** @deprecated Legacy field — kept for backward-compatible reads during migration. Will be removed after all users migrate. */
+  brokerConfig?: IBrokerConfig;
 }
 
 export const userDocConverter: FirestoreDataConverter<UserDoc> = {
@@ -65,6 +68,9 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       deletedRecurringInstances: userDoc.deletedRecurringInstances || [],
       etfTransactions: userDoc.etfTransactions || [],
       portfolioSnapshots: userDoc.portfolioSnapshots || [],
+      brokerAccounts: userDoc.brokerAccounts || [{ id: 'broker-1', name: 'Trade Republic', baseLumpSum: 0, monthlyPacAmount: 0, interestRate: 0 }],
+      assetHoldings: userDoc.assetHoldings || [],
+      // Legacy brokerConfig — kept for backward-compatible reads during migration window
       brokerConfig: userDoc.brokerConfig || { brokerName: 'Trade Republic', lumpSumAmount: 0, monthlyPacAmount: 0, ticker: 'SWDA.MI', interestRate: 0 },
     };
   },
@@ -187,13 +193,28 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       })) : [],
     })) : [];
 
-    const brokerConfig: IBrokerConfig = {
+    const brokerAccounts: BrokerAccount[] = Array.isArray(data.brokerAccounts) ? data.brokerAccounts.map((b: any) => ({
+      id: b.id ?? '',
+      name: b.name ?? '',
+      baseLumpSum: typeof b.baseLumpSum === 'number' ? b.baseLumpSum : 0,
+      monthlyPacAmount: typeof b.monthlyPacAmount === 'number' ? b.monthlyPacAmount : 0,
+      interestRate: typeof b.interestRate === 'number' ? b.interestRate : 0,
+    })) : [];
+
+    const assetHoldings: AssetHolding[] = Array.isArray(data.assetHoldings) ? data.assetHoldings.map((h: any) => ({
+      ticker: h.ticker ?? '',
+      brokerId: h.brokerId ?? '',
+      units: typeof h.units === 'number' ? h.units : 0,
+    })) : [];
+
+    // Legacy brokerConfig — kept for backward-compatible reads during migration
+    const brokerConfig: IBrokerConfig | undefined = data.brokerConfig ? {
       brokerName: data.brokerConfig?.brokerName ?? 'Trade Republic',
       lumpSumAmount: typeof data.brokerConfig?.lumpSumAmount === 'number' ? data.brokerConfig.lumpSumAmount : 0,
       monthlyPacAmount: typeof data.brokerConfig?.monthlyPacAmount === 'number' ? data.brokerConfig.monthlyPacAmount : 0,
       ticker: data.brokerConfig?.ticker ?? 'SWDA.MI',
       interestRate: typeof data.brokerConfig?.interestRate === 'number' ? data.brokerConfig.interestRate : 0,
-    };
+    } : undefined;
 
     return {
       transactions,
@@ -211,6 +232,8 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       deletedRecurringInstances,
       etfTransactions,
       portfolioSnapshots,
+      brokerAccounts,
+      assetHoldings,
       brokerConfig,
     };
   }

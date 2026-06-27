@@ -45,5 +45,22 @@ export function generateFinancialProjection(
     });
   }
 
+  // Apply inflation adjustment if enabled (D-08)
+  if (input.adjustForInflation) {
+    const annualInflation = input.inflationRate ?? 0.02;
+    // Per-month compounding for more accuracy (Pitfall 5 fix)
+    const monthlyInflation = Math.pow(1 + annualInflation, 1 / 12) - 1;
+
+    return snapshots.map(snapshot => {
+      const inflationFactor = Math.pow(1 + monthlyInflation, snapshot.monthIndex);
+      return {
+        ...snapshot,
+        netWorth: Math.round(snapshot.netWorth / inflationFactor),
+        etfValue: Math.round(snapshot.etfValue / inflationFactor),
+        brokerCash: Math.round(snapshot.brokerCash / inflationFactor),
+      };
+    });
+  }
+
   return snapshots;
 }

@@ -1,13 +1,14 @@
-import { Grid, Paper, Slider, Stack, TextField, Typography } from '@mui/material';
+import { FormControlLabel, Grid, Paper, Slider, Stack, Switch, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { IProjectionInput } from '../../store/types';
 
 interface ProjectionControlsProps {
   input: IProjectionInput;
   onChange: (key: keyof IProjectionInput, value: number) => void;
+  onInflationToggle?: (enabled: boolean) => void;
 }
 
-const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange }) => {
+const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange, onInflationToggle }) => {
   const { t } = useTranslation();
   return (
     <Paper sx={{ p: 3 }}>
@@ -113,6 +114,17 @@ const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange
             />
           </Grid>
         </Grid>
+
+        <FormControlLabel
+          control={
+            <Switch
+              checked={input.adjustForInflation ?? false}
+              onChange={(e) => onInflationToggle?.(e.target.checked)}
+              sx={{ color: '#5b6cb8' }}
+            />
+          }
+          label={`${t('projections.adjustForInflation')} (${((input.inflationRate ?? 0.02) * 100).toFixed(0)}%)`}
+        />
       </Stack>
     </Paper>
   );

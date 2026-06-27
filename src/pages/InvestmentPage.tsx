@@ -1,17 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AccountBalance, Refresh, Settings, TrendingUp } from '@mui/icons-material';
-import { Box, Button, Grid, Tab, Tabs, Typography } from '@mui/material';
+import { Badge, Box, Button, Grid, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import AllocationDonutChart from '../components/investment/AllocationDonutChart';
+import BrokerSelect from '../components/investment/BrokerSelect';
 import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import CashInterestCard from '../components/investment/CashInterestCard';
 import EtfTransactionModal from '../components/investment/EtfTransactionModal';
 import HoldingsTable from '../components/investment/HoldingsTable';
+import PacConfirmationDialog from '../components/investment/PacConfirmationDialog';
 import PortfolioLineChart from '../components/investment/PortfolioLineChart';
 import PortfolioStats from '../components/investment/PortfolioStats';
+import { usePacAutomation } from '../hooks/usePacAutomation';
 import { usePortfolio } from '../analytics/hooks/usePortfolio';
 import { useMarketData } from '../hooks/useMarketData';
 import { useInvestmentStore } from '../store/useInvestmentStore';
+import type { IETFTransaction, IInvestmentHolding } from '../store/types';
 
 function TabPanel(props: { children?: React.ReactNode; index: number; value: number }) {
   const { children, value, index, ...other } = props;
@@ -27,10 +31,41 @@ const InvestmentPage: React.FC = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [etfModalOpen, setEtfModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState('1Y');
+  const [editingTransaction, setEditingTransaction] = useState<IETFTransaction | null>(null);
+  const [pacDialogOpen, setPacDialogOpen] = useState(false);
 
-  const { brokerConfig } = useInvestmentStore();
+  usePacAutomation(); // Initialize PAC check on mount
+
+  const { brokerAccounts, selectedBrokerId, setSelectedBroker, etfTransactions, pendingPacTransaction } = useInvestmentStore();
   const portfolio = usePortfolio();
   const { refreshPrices, isUpdating } = useMarketData();
+
+  const handleEdit = (holding: IInvestmentHolding) => {
+    const tx = etfTransactions
+      .filter(t => t.ticker === holding.ticker)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    if (tx) {
+      setEditingTransaction(tx);
+      setEtfModalOpen(true);
+    }
+  };
+
+  const handleDelete = (holding: IInvestmentHolding) => {
+    const tx = etfTransactions
+      .filter(t => t.ticker === holding.ticker)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    if (tx) {
+      // Delete single latest transaction for this ticker
+      window.confirm('Delete this transaction? Units and PMC will be recalculated.')
+        ? useInvestmentStore.getState().deleteEtfTransaction(tx.id)
+        : null;
+    }
+  };
+
+  const handleCloseModal = () => {
+    setEtfModalOpen(false);
+    setEditingTransaction(null);
+  };
 
   const chartData = portfolio.chartData;
   const donutData = portfolio.holdings.map(h => ({
@@ -50,7 +85,19 @@ const InvestmentPage: React.FC = () => {
             Track ETF portfolio and broker cash.
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <BrokerSelect
+            brokers={brokerAccounts}
+            selected={selectedBrokerId}
+            onChange={setSelectedBroker}
+          />
+          {pendingPacTransaction && (
+            <Badge badgeContent="!" color="warning" onClick={() => setPacDialogOpen(true)} sx={{ cursor: 'pointer' }}>
+              <Button variant="outlined" color="warning">
+                PAC Pending
+              </Button>
+            </Badge>
+          )}
           <Button variant="outlined" startIcon={<Refresh />} onClick={refreshPrices} disabled={isUpdating}>
             {isUpdating ? 'Updating...' : 'Refresh Prices'}
           </Button>
@@ -72,9 +119,9 @@ const InvestmentPage: React.FC = () => {
           <Grid size={{ xs: 12, md: 3 }}>
             <CashInterestCard
               cashBalance={portfolio.cashBalance}
-              interestRate={brokerConfig.interestRate}
+              interestRate={portfolio.interestRate}
               accruedInterest={portfolio.accruedInterest}
-              brokerName={brokerConfig.brokerName}
+              brokerName={portfolio.brokerName}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 9 }}>
@@ -104,7 +151,7 @@ const InvestmentPage: React.FC = () => {
             />
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>
-            <HoldingsTable holdings={portfolio.holdings} />
+            <HoldingsTable holdings={portfolio.holdings} onEdit={handleEdit} onDelete={handleDelete} />
           </Grid>
           <Grid size={{ xs: 12, md: 5 }}>
             <AllocationDonutChart data={donutData} title="Allocation" />
@@ -115,8 +162,9 @@ const InvestmentPage: React.FC = () => {
         </Grid>
       </TabPanel>
 
-      <EtfTransactionModal open={etfModalOpen} onClose={() => setEtfModalOpen(false)} />
+      <EtfTransactionModal open={etfModalOpen} onClose={handleCloseModal} editTransaction={editingTransaction} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
       <BrokerSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <PacConfirmationDialog open={pacDialogOpen} onClose={() => setPacDialogOpen(false)} />
     </Box>
   );
 };

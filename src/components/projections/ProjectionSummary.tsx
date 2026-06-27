@@ -6,6 +6,8 @@ interface ProjectionSummaryProps {
   finalCapital: number | null;
   totalInterests: number | null;
   estimatedTaxes: number | null;
+  showRealValue?: boolean;
+  realFinalCapital?: number | null;
 }
 
 const formatCurrency = (v: number) =>
@@ -34,6 +36,8 @@ const ProjectionSummary: React.FC<ProjectionSummaryProps> = ({
   finalCapital,
   totalInterests,
   estimatedTaxes,
+  showRealValue,
+  realFinalCapital,
 }) => {
   const { t } = useTranslation();
   return (
@@ -62,6 +66,16 @@ const ProjectionSummary: React.FC<ProjectionSummaryProps> = ({
           color="#ef4444"
         />
       </Grid>
+      {showRealValue && realFinalCapital != null && (
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <MetricCard
+            icon={<AccountBalance />}
+            label={t('projections.realFinalCapital')}
+            value={formatCurrency(realFinalCapital!)}
+            color="#ef4444"
+          />
+        </Grid>
+      )}
     </Grid>
   );
 };

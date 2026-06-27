@@ -121,12 +121,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — Multi-broker schema refactor (types, store, migration, validation)
-- [ ] 12-02-PLAN.md — Multi-broker UI components (BrokerSelect, BrokerSettingsModal, usePortfolio, i18n)
-- [ ] 12-03-PLAN.md — Transaction CRUD (Edit/Delete, safe cascade, PAC state)
-- [ ] 12-04-PLAN.md — Historical snapshots subcollection (Firestore + trigger + rules)
-- [ ] 12-05-PLAN.md — PAC automation UI + ticker validation
-- [ ] 12-06-PLAN.md — Projections inflation toggle (types, engine, chart, summary)
+- [x] 12-01-PLAN.md — Multi-broker schema refactor (types, store, migration, validation) ✅
+- [x] 12-02-PLAN.md — Multi-broker UI components (BrokerSelect, BrokerSettingsModal, usePortfolio, i18n) ✅
+- [x] 12-03-PLAN.md — Transaction CRUD (Edit/Delete, safe cascade, PAC state) ✅
+- [x] 12-04-PLAN.md — Historical snapshots subcollection (Firestore + trigger + rules) ✅
+- [x] 12-05-PLAN.md — PAC automation UI + ticker validation ✅
+- [x] 12-06-PLAN.md — Projections inflation toggle (types, engine, chart, summary) ✅
 
 ## Progress
 
@@ -143,4 +143,4 @@ Plans:
 | 9. Language i18n | 0/4 | Not started | - |
 | 10. Investment Tracking | 6/6 | Complete | 2026-06-26 |
 | 11. Financial Projections | 3/3 | Complete | 2026-06-26 |
-| 12. Investment Tracking V2 | 0/6 | Not started | - |
+| 12. Investment Tracking V2 | 6/6 | Complete | 2026-06-27 |

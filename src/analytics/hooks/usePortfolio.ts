@@ -3,14 +3,20 @@ import { useInvestmentStore, calcAccruedInterest } from '../../store/useInvestme
 import type { IPortfolioPoint, IInvestmentHolding } from '../../store/types';
 
 export function usePortfolio() {
-  const { etfTransactions, portfolioSnapshots, brokerConfig, currentPrice } = useInvestmentStore();
+  const { etfTransactions, portfolioSnapshots, brokerAccounts, currentPrice, selectedBrokerId } = useInvestmentStore();
 
   return useMemo(() => {
+    // Filter by selected broker
+    const filteredTxs = selectedBrokerId === 'all'
+      ? etfTransactions
+      : etfTransactions.filter(tx => tx.accountId === selectedBrokerId || (tx as any).brokerId === selectedBrokerId);
+
+    // If no broker selected or filtered, show aggregated from all
     let totalInvested = 0;
     let totalUnits = 0;
     const holdingsMap = new Map<string, { units: number; totalCost: number }>();
 
-    for (const tx of etfTransactions) {
+    for (const tx of filteredTxs) {
       if (tx.type === 'buy') {
         totalInvested += tx.totalAmount;
         totalUnits += tx.units;
@@ -47,9 +53,6 @@ export function usePortfolio() {
     const totalReturnPercent = totalInvested > 0 ? (totalReturn / totalInvested) * 100 : 0;
     const isPositive = currentValue >= totalInvested;
 
-    const cashBalance = brokerConfig.lumpSumAmount - totalInvested;
-    const accruedInterest = calcAccruedInterest(cashBalance, brokerConfig.interestRate);
-
     const chartData: IPortfolioPoint[] = [...portfolioSnapshots]
       .sort((a, b) => a.date.localeCompare(b.date))
       .map(s => ({
@@ -57,6 +60,20 @@ export function usePortfolio() {
         value: s.currentValue,
         invested: s.totalInvested,
       }));
+
+    // Compute cash balance: aggregated or per-broker
+    const activeBrokers = selectedBrokerId === 'all'
+      ? brokerAccounts
+      : brokerAccounts.filter(b => b.id === selectedBrokerId);
+
+    // For aggregated: sum of all broker baseLumpSum - totalInvested
+    // For per-broker: use the broker's own baseLumpSum
+    const totalBaseLumpSum = activeBrokers.reduce((sum, b) => sum + b.baseLumpSum, 0);
+    const cashBalance = Math.max(0, totalBaseLumpSum - totalInvested);
+    const weightedRate = activeBrokers.length > 0
+      ? activeBrokers.reduce((sum, b) => sum + b.interestRate, 0) / activeBrokers.length
+      : 0;
+    const accruedInterest = calcAccruedInterest(cashBalance, weightedRate);
 
     const holdings: IInvestmentHolding[] = [];
     for (const [ticker, h] of holdingsMap.entries()) {
@@ -74,6 +91,10 @@ export function usePortfolio() {
       });
     }
 
+    const brokerName = selectedBrokerId === 'all'
+      ? 'All Accounts'
+      : activeBrokers[0]?.name ?? 'Broker';
+
     return {
       totalInvested,
       totalUnits,
@@ -81,10 +102,12 @@ export function usePortfolio() {
       totalReturn,
       totalReturnPercent,
       cashBalance,
+      interestRate: weightedRate,
       accruedInterest,
       chartData,
       holdings,
       isPositive,
+      brokerName,
     };
-  }, [etfTransactions, portfolioSnapshots, brokerConfig, currentPrice]);
+  }, [etfTransactions, portfolioSnapshots, brokerAccounts, currentPrice, selectedBrokerId]);
 }

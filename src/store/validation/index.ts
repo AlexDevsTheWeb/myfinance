@@ -9,4 +9,7 @@ export {
 export {
   validateEtfTransaction,
   validateBrokerConfig,
+  validateBrokerAccount,
+  validateTicker,
+  validateTickerWithApi,
 } from './investment.validation';

@@ -1,32 +1,60 @@
 ---
 title: "PAC Automation — Recurring Transactions"
-tags: [feature, investment, automation, planned]
+tags: [feature, investment, automation, implemented]
 created: 2026-06-27
 updated: 2026-06-27
-status: planned
-sources: ["raw/89-pac-automation/issue.md"]
-related: ["features/investment-tracking", "plans/investment-tracking-v2-enhancements"]
+status: implemented
+sources: ["raw/89-pac-automation/issue.md", "raw/12-investment-tracking-v2/implementation.md"]
+related: ["features/investment-tracking", "plans/investment-tracking-v2-enhancements", "features/crud-etf-transactions"]
 ---
 
 # Feature: PAC Automation — Recurring Transactions
 
-Status: planned
+Status: implemented
 Priority: medium
 
 ## Description
 
-Automate the monthly PAC buy transactions so the user doesn't have to manually log a `Buy` transaction every month.
+Automate the monthly PAC buy transactions with user confirmation workflow. Implemented in Plan 12-05 (hook + dialog + notification).
 
-## Requirements
+## What Was Built
 
-- **Deterministic Automated Generation:** Background worker or initialization hook (Zustand/Firestore) checks current date against configured PAC day
-- **Virtual Ledger:** Auto-generate `System-Generated Buy` transaction when execution day has passed
-- **Cash Balance Impact:** Auto-decrement Broker Cash Balance, increment Invested Capital (or pending status)
-- **User Confirmation UI:** Badge: *"1 automated PAC transaction pending confirmation"* — user approves/adjusts price
+### usePacAutomation Hook
+
+- **Init hook** checks each broker's `monthlyPacAmount > 0` on mount.
+- Compares current date vs configured PAC day (default: 1st of month).
+- **Triple guard** prevents duplicate generation:
+  - `useRef` guard (`hasChecked.current`) — prevents HMR duplicate (Pitfall 2 fix)
+  - `localStorage` per-broker tracking (`pac_last_{id}`) — persists across sessions
+  - Store `lastPacGenerationDate` — secondary in-memory check
+- Only one pending PAC generated at a time (break after first match).
+
+### PacConfirmationDialog
+
+- MUI Dialog showing broker name, amount, date with Confirm/Dismiss buttons.
+- Confirm calls `confirmPacTransaction` (stub in Plan 12-03, creates buy with "System-Generated Buy" description).
+- Dismiss calls `dismissPacTransaction` — clears pending state for the month.
+
+### PAC Badge Notification (D-07)
+
+- InvestmentPage shows "PAC Pending" button with MUI `Badge` (warning `!`) when `pendingPacTransaction` is set.
+- Clicking opens `PacConfirmationDialog`.
+
+## Implementation Notes
+
+- PAC day default = 1st of month; per-broker config deferred to future.
+- `confirmPacTransaction` is wired in Plan 12-03 store actions — fetches current price and creates buy transaction.
+- Tax on nominal gains only (inflation adjustment does not affect tax computation).
+
+## Files
+
+- **Created:** `src/hooks/usePacAutomation.ts`, `src/components/investment/PacConfirmationDialog.tsx`
+- **Modified:** `InvestmentPage.tsx`, `useInvestmentStore.ts`, `en.json`, `it.json`
 
 ## Related
 
 - [[features/investment-tracking]]
+- [[features/crud-etf-transactions]]
 - [[plans/investment-tracking-v2-enhancements]]
 - GitHub: [#89](https://github.com/AlexDevsTheWeb/myfinance/issues/89)
-- Source: [raw/89-pac-automation/issue.md](raw/89-pac-automation/issue.md)
+- Source: [raw/12-investment-tracking-v2/implementation.md](raw/12-investment-tracking-v2/implementation.md)

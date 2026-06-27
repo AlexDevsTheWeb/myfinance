@@ -31,23 +31,46 @@ User Action → React Component → useInvestmentStore (Zustand)
                               UI Re-render
 ```
 
-## Firestore Schema
+## Firestore Schema (V1 — Phase 10)
 
-Extends the existing `users/{userId}` document with three new fields:
+V1 stored investment data in the `users/{userId}` document:
 
 ```typescript
 interface UserDoc {
-  // ... existing fields (transactions, accounts, categories, etc.)
-
   etfTransactions: IETFTransaction[];
   portfolioSnapshots: IPortfolioSnapshot[];
-  brokerConfig: IBrokerConfig;
+  brokerConfig: IBrokerConfig;           // V1: single broker
 }
 ```
 
-- **`etfTransactions[]`** — Array of ETF buy/sell records (same pattern as `transactions[]`)
-- **`portfolioSnapshots[]`** — Time-series snapshots for portfolio value charting (1 per ETF transaction)
-- **`brokerConfig`** — Single map object with broker settings
+## Firestore Schema (V2 — Phase 12)
+
+V2 refactored to collection-based types with subcollection persistence:
+
+```typescript
+interface UserDoc {
+  etfTransactions: IETFTransaction[];
+  portfolioSnapshots: IPortfolioSnapshot[];  // Still written (dual-write)
+  brokerConfig?: IBrokerConfig;              // @deprecated — kept for migration reads
+  brokerAccounts: BrokerAccount[];           // V2: multi-broker
+  assetHoldings: AssetHolding[];             // V2: multi-asset
+}
+
+// /users/{uid}/portfolio_history/ subcollection
+interface HistorySnapshot {
+  date: string;
+  totalInvested: number;
+  currentValue: number;
+  cashBalance: number;
+  netWorth: number;
+  holdings: { ticker: string; units: number; avgCost: number; price: number; value: number }[];
+  createdAt: Timestamp;
+}
+```
+
+- **`brokerAccounts[]`** — Array of `BrokerAccount` objects (id, name, baseLumpSum, monthlyPacAmount, interestRate)
+- **`assetHoldings[]`** — Array of `AssetHolding` objects (ticker, brokerId, units)
+- **`portfolio_history/`** — Firestore subcollection for persistent historical chart data (daily debounced, max 1 per day)
 
 ## Transaction Classification
 
@@ -59,20 +82,20 @@ interface UserDoc {
 
 Key rule: Transfers are pure asset reallocation. Money moves between accounts within the same user's net worth — balance changes must cancel out.
 
-## Store Architecture
+## Store Architecture (V2)
 
 **`useInvestmentStore.ts`** (standalone, matching `useFinanceStore.ts` pattern):
-- State: `etfTransactions[]`, `portfolioSnapshots[]`, `brokerConfig`, `currentPrice`, `lastPriceUpdate`
-- CRUD: `addEtfTransaction`, `updateEtfTransaction`, `deleteEtfTransaction`, `addPortfolioSnapshot`, `setBrokerConfig`, `setCurrentPrice`
-- Each write: validate → optimistic update → Firestore `updateDoc` → rollback on error
-- Auto-record portfolio snapshot after each ETF transaction
+- State: `etfTransactions[]`, `portfolioSnapshots[]`, `brokerAccounts[]`, `assetHoldings[]`, `selectedBrokerId`, `currentPrice`, `lastPriceUpdate`, `pendingPacTransaction`, `lastPacGenerationDate`
+- CRUD: `addEtfTransaction`, `updateEtfTransaction`, `deleteEtfTransaction` (safe cascade), `addPortfolioSnapshot`, `setBrokerConfig` (legacy), `setCurrentPrice`, `setSelectedBroker`, `addBrokerAccount`, `updateBrokerAccount`, `deleteBrokerAccount`, `addPendingPacTransaction`, `confirmPacTransaction`, `dismissPacTransaction`
+- Each write: validate → optimistic update → Firestore `updateDoc` → rollback on error (or safe cascade for delete)
+- Dual-write: existing `portfolioSnapshots[]` array + fire-and-forget `portfolio_history/` subcollection write via [[features/historical-snapshots]]
 
 **`useInvestmentSync.ts`** (Firestore real-time sync):
 - `onSnapshot` subscription to user document
 - Syncs only investment fields (not all finance fields)
 - Skips pending writes to avoid overwriting optimistic updates
 
-## Component Tree
+## Component Tree (V2)
 
 ```
 App.tsx
@@ -80,14 +103,21 @@ App.tsx
         └── InvestmentPage.tsx (route: /invest)
               ├── Tabs: Cash Balance | Invested Capital
               │
+              ├── BrokerSelect (MUI Select filter — new in V2)
+              │   options: "All Brokers (Aggregated)" | per-broker
+              │
+              ├── PAC Badge (conditionally shown — new in V2)
+              │   └── PacConfirmationDialog (Confirm/Dismiss)
+              │
               ├── Cash Balance Tab ──────────────┬── CashInterestCard
               │                                   └── PortfolioLineChart
               │
               └── Invested Capital Tab ─┬── "Add Transaction" Button
-                                         ├── EtfTransactionModal
-                                         │     └── EtfTransactionForm
+                                         ├── EtfTransactionModal (supports Edit mode in V2)
+                                         │     └── EtfTransactionForm (brokerId select in V2)
+                                         ├── BrokerSettingsModal (multi-broker CRUD in V2)
                                          ├── PortfolioStats (3 metric cards)
-                                         ├── HoldingsTable
+                                         ├── HoldingsTable (Edit/Delete actions in V2)
                                          ├── AllocationDonutChart
                                          └── PortfolioLineChart
 ```
@@ -107,31 +137,35 @@ App.tsx
 | Portfolio value line | `PortfolioLineChart` | Recharts AreaChart | `portfolioSnapshots[]` filtered by time range |
 | Asset allocation donut | `AllocationDonutChart` | Recharts PieChart | Computed from `etfTransactions[]` aggregated by ticker |
 
-## V2 Schema Direction (Multi-Broker / Multi-Asset)
+## V2 Migration Layer
 
-A future iteration will refactor the current single-object schema into collection-based types:
+The `useInvestmentSync.ts` hook includes `migrateBrokerConfig()` that detects old `brokerConfig` objects on first load and converts them to `brokerAccounts[]`. Key design:
 
-```typescript
-interface BrokerAccount {
-  id: string;
-  name: string;          // e.g. Trade Republic, Degiro, Fineco
-  baseLumpSum: number;
-  interestRate: number;
-}
+- **Run-once guard:** `migrationAttempted` ref prevents duplicate migration within a session.
+- **Idempotent:** Checks `Array.isArray(data.brokerAccounts)` first — if already migrated, skips.
+- **Fire-and-forget:** Writes migrated data to Firestore asynchronously.
+- **Legacy field:** `brokerConfig` kept as optional field in converters for backward-compatible reads.
 
-interface AssetHolding {
-  ticker: string;        // e.g. SWDA.MI, VWCE.DE
-  brokerId: string;      // Linked to the specific broker account
-  units: number;
-}
-```
+## Integration with Other Phase 12 Features
 
-This will enable account filtering via `<Select />` dropdown, dynamic donut chart scaling for multi-ETF allocation, and an aggregated "All Brokers" net worth view. See [[plans/investment-tracking-v2-enhancements]] for the full roadmap.
+| Feature | Connection |
+|---------|------------|
+| [[features/multi-broker-architecture]] | Foundation — types, store, migration |
+| [[features/crud-etf-transactions]] | Edit/delete on V2 store, safe cascade |
+| [[features/historical-snapshots]] | Firestore subcollection triggers from store actions |
+| [[features/pac-automation]] | PAC state in V2 store, confirmation dialog |
+| [[features/tax-inflation-modeling]] | Independent — pure projection computation |
+| [[features/ticker-validation]] | Validation at broker config save time |
 
 ## Related
 
 - [[features/investment-tracking]]
 - [[features/investment-tracking-guide]]
+- [[features/multi-broker-architecture]]
+- [[features/crud-etf-transactions]]
+- [[features/historical-snapshots]]
+- [[features/pac-automation]]
+- [[features/ticker-validation]]
 - [[plans/investment-tracking-implementation]]
 - [[plans/investment-tracking-v2-enhancements]]
 - [[architecture/system-architecture]]

@@ -1,53 +1,57 @@
 ---
 title: "Multi-Broker & Multi-Asset Architecture"
-tags: [feature, investment, architecture, planned]
+tags: [feature, investment, architecture, implemented]
 created: 2026-06-27
 updated: 2026-06-27
-status: planned
-sources: ["raw/91-multi-broker/issue.md"]
-related: ["features/investment-tracking", "architecture/investment-tracking-architecture", "plans/investment-tracking-v2-enhancements"]
+status: implemented
+sources: ["raw/91-multi-broker/issue.md", "raw/12-investment-tracking-v2/implementation.md"]
+related: ["features/investment-tracking", "architecture/investment-tracking-architecture", "plans/investment-tracking-v2-enhancements", "features/crud-etf-transactions"]
 ---
 
 # Feature: Multi-Broker & Multi-Asset Architecture
 
-Status: planned
+Status: implemented
 Priority: high
 
 ## Description
 
-Refactor the current single-broker, single-ETF schema to support multiple broker accounts and multiple assets (portfolio diversification).
+Refactor the current single-broker, single-ETF schema to support multiple broker accounts and multiple assets (portfolio diversification). Implemented in Plan 12-01 (data layer) and Plan 12-02 (UI layer).
 
-## Requirements
+## What Was Built
 
-- **Database Schema Refactor:** Transform from single-object config to collections:
+### Data Layer (12-01)
 
-  ```typescript
-  interface BrokerAccount {
-    id: string;
-    name: string;
-    baseLumpSum: number;
-    interestRate: number;
-  }
+- **Types:** `BrokerAccount` and `AssetHolding` interfaces in `investment.types.ts`. `IBrokerConfig` marked `@deprecated`.
+- **Defaults:** `DEFAULT_BROKER_ACCOUNTS` array replaces `DEFAULT_BROKER_CONFIG` (kept for migration).
+- **Store:** `brokerAccounts[]`, `assetHoldings[]`, `selectedBrokerId`, `brokerTransactions` state fields. CRUD actions: `addBrokerAccount`, `updateBrokerAccount`, `deleteBrokerAccount`, `setSelectedBroker`.
+- **Migration:** `migrateBrokerConfig()` in `useInvestmentSync.ts` detects old `brokerConfig`, converts to `BrokerAccount[]`, fire-and-forget Firestore write. `migrationAttempted` ref ensures run-once.
+- **Validation:** `validateBrokerAccount()` validates name, amounts, interest rate range.
+- **Sanitization:** `sanitizeBrokerAccount`/`sanitizeBrokerAccounts` for Firestore-safe writes.
 
-  interface AssetHolding {
-    ticker: string;
-    brokerId: string;
-    units: number;
-  }
-  ```
+### UI Layer (12-02)
 
-- **Account Filtering:** `<Select />` dropdown to filter dashboard by broker or "All Brokers (Aggregated)" net worth
-- **Dynamic Distribution:** Donut chart scales from single-asset to multi-ETF percentage breakdown
-- **TypeScript Types:** Refactor from single object to `BrokerAccount[]` and `AssetHolding[]`
+- **BrokerSelect.tsx:** MUI Select with "All Brokers (Aggregated)" default + per-broker items.
+- **BrokerSettingsModal.tsx:** Dual-mode (list ↔ form) for add/edit/delete broker accounts with confirmation dialog.
+- **usePortfolio.ts:** Refactored to filter by `selectedBrokerId`, returns per-broker or aggregated metrics.
+- **useMarketData.ts:** Multi-ticker batch call to yfin.dev for all held tickers.
 
 ## Implementation Notes
 
-This is the foundational change that the other V2 features depend on. The schema refactor must be planned carefully to avoid breaking existing user data.
+- Plain-object naming (no `I-` prefix) distinguishes V2 types from legacy `I-prefixed` interfaces.
+- Legacy `setBrokerConfig` action also writes to `brokerAccounts[0]` for backward compat during transition.
+- `converters.ts` keeps `brokerConfig` as optional legacy field during migration window.
+- Single aggregated price kept in store — multi-ticker price storage deferred to future.
+
+## Files
+
+- **Created:** `src/components/investment/BrokerSelect.tsx`
+- **Modified:** `investment.types.ts`, `defaults.ts`, `converters.ts`, `useInvestmentStore.ts`, `useInvestmentSync.ts`, `BrokerSettingsModal.tsx`, `usePortfolio.ts`, `InvestmentPage.tsx`, `useMarketData.ts`, validation/sanitization modules, i18n files
 
 ## Related
 
 - [[features/investment-tracking]]
+- [[features/crud-etf-transactions]]
 - [[architecture/investment-tracking-architecture]]
 - [[plans/investment-tracking-v2-enhancements]]
 - GitHub: [#91](https://github.com/AlexDevsTheWeb/myfinance/issues/91)
-- Source: [raw/91-multi-broker/issue.md](raw/91-multi-broker/issue.md)
+- Source: [raw/12-investment-tracking-v2/implementation.md](raw/12-investment-tracking-v2/implementation.md)
