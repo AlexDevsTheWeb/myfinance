@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "75cade1c846a9743",
+        "id": "c5029343ea18be86",
         "type": "tabs",
         "children": [
           {
-            "id": "ee6f90c3afea53ee",
+            "id": "d83c4f0840b094ae",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "index.md",
+                "file": "features/guida-investimenti.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "index"
+              "title": "guida-investimenti"
             }
           }
         ]
@@ -180,14 +180,17 @@
       "bases:Create new base": false
     }
   },
-  "active": "ee6f90c3afea53ee",
+  "active": "d83c4f0840b094ae",
   "lastOpenFiles": [
+    "raw/12-investment-tracking-v2/implementation.md",
+    "raw/12-investment-tracking-v2",
+    "index.md",
+    "features/guida-investimenti.md",
     "features/investment-tracking.md",
     "architecture/versioning.md",
     "plans/transaction-layout-implementation.md",
     "features/transaction-layout-improvement.md",
     "raw/codebase/CONCERNS.md",
-    "conventions/branch-strategy.md",
-    "index.md"
+    "conventions/branch-strategy.md"
   ]
 }
