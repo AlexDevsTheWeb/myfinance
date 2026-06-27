@@ -13,6 +13,7 @@ import PortfolioStats from '../components/investment/PortfolioStats';
 import { usePortfolio } from '../analytics/hooks/usePortfolio';
 import { useMarketData } from '../hooks/useMarketData';
 import { useInvestmentStore } from '../store/useInvestmentStore';
+import type { IETFTransaction, IInvestmentHolding } from '../store/types';
 
 function TabPanel(props: { children?: React.ReactNode; index: number; value: number }) {
   const { children, value, index, ...other } = props;
@@ -28,10 +29,38 @@ const InvestmentPage: React.FC = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [etfModalOpen, setEtfModalOpen] = useState(false);
   const [timeRange, setTimeRange] = useState('1Y');
+  const [editingTransaction, setEditingTransaction] = useState<IETFTransaction | null>(null);
 
-  const { brokerAccounts, selectedBrokerId, setSelectedBroker } = useInvestmentStore();
+  const { brokerAccounts, selectedBrokerId, setSelectedBroker, etfTransactions } = useInvestmentStore();
   const portfolio = usePortfolio();
   const { refreshPrices, isUpdating } = useMarketData();
+
+  const handleEdit = (holding: IInvestmentHolding) => {
+    const tx = etfTransactions
+      .filter(t => t.ticker === holding.ticker)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    if (tx) {
+      setEditingTransaction(tx);
+      setEtfModalOpen(true);
+    }
+  };
+
+  const handleDelete = (holding: IInvestmentHolding) => {
+    const tx = etfTransactions
+      .filter(t => t.ticker === holding.ticker)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+    if (tx) {
+      // Delete single latest transaction for this ticker
+      window.confirm('Delete this transaction? Units and PMC will be recalculated.')
+        ? useInvestmentStore.getState().deleteEtfTransaction(tx.id)
+        : null;
+    }
+  };
+
+  const handleCloseModal = () => {
+    setEtfModalOpen(false);
+    setEditingTransaction(null);
+  };
 
   const chartData = portfolio.chartData;
   const donutData = portfolio.holdings.map(h => ({
@@ -110,7 +139,7 @@ const InvestmentPage: React.FC = () => {
             />
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>
-            <HoldingsTable holdings={portfolio.holdings} />
+            <HoldingsTable holdings={portfolio.holdings} onEdit={handleEdit} onDelete={handleDelete} />
           </Grid>
           <Grid size={{ xs: 12, md: 5 }}>
             <AllocationDonutChart data={donutData} title="Allocation" />
@@ -121,7 +150,7 @@ const InvestmentPage: React.FC = () => {
         </Grid>
       </TabPanel>
 
-      <EtfTransactionModal open={etfModalOpen} onClose={() => setEtfModalOpen(false)} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
+      <EtfTransactionModal open={etfModalOpen} onClose={handleCloseModal} editTransaction={editingTransaction} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
       <BrokerSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </Box>
   );
