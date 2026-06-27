@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "features/investment-tracking.md",
+                "file": "index.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "investment-tracking"
+              "title": "index"
             }
           }
         ]
@@ -182,6 +182,7 @@
   },
   "active": "ee6f90c3afea53ee",
   "lastOpenFiles": [
+    "features/investment-tracking.md",
     "architecture/versioning.md",
     "plans/transaction-layout-implementation.md",
     "features/transaction-layout-improvement.md",
