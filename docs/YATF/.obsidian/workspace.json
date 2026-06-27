@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "75cade1c846a9743",
+        "id": "c5029343ea18be86",
         "type": "tabs",
         "children": [
           {
-            "id": "ee6f90c3afea53ee",
+            "id": "d83c4f0840b094ae",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "plans/transaction-layout-implementation.md",
+                "file": "features/guida-investimenti.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "transaction-layout-implementation"
+              "title": "guida-investimenti"
             }
           }
         ]
@@ -94,7 +94,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "plans/transaction-layout-implementation.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +103,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for transaction-layout-implementation"
+              "title": "Backlinks"
             }
           },
           {
@@ -113,12 +112,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "plans/transaction-layout-implementation.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from transaction-layout-implementation"
+              "title": "Outgoing links"
             }
           },
           {
@@ -156,13 +154,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "plans/transaction-layout-implementation.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of transaction-layout-implementation"
+              "title": "Outline"
             }
           }
         ]
@@ -183,12 +180,17 @@
       "bases:Create new base": false
     }
   },
-  "active": "ee6f90c3afea53ee",
+  "active": "d83c4f0840b094ae",
   "lastOpenFiles": [
+    "raw/12-investment-tracking-v2/implementation.md",
+    "raw/12-investment-tracking-v2",
+    "index.md",
+    "features/guida-investimenti.md",
+    "features/investment-tracking.md",
+    "architecture/versioning.md",
+    "plans/transaction-layout-implementation.md",
     "features/transaction-layout-improvement.md",
     "raw/codebase/CONCERNS.md",
-    "plans/transaction-layout-implementation.md",
-    "conventions/branch-strategy.md",
-    "index.md"
+    "conventions/branch-strategy.md"
   ]
 }

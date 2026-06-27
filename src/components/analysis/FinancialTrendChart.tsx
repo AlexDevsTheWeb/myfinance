@@ -3,6 +3,7 @@ import { BarChart as BarChartIcon } from '@mui/icons-material';
 import { Box, Paper, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useFinanceStore } from '../../store/useFinanceStore';
 
@@ -11,6 +12,7 @@ interface FinancialTrendChartProps {
 }
 
 const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear }) => {
+  const { t } = useTranslation();
   const { transactions, initialBalance, balanceStartDate } = useFinanceStore();
 
   const chartData = useMemo(() => {
@@ -81,7 +83,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
   return (
     <Paper>
       <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <BarChartIcon /> Yearly Financial Trend ({selectedYear})
+        <BarChartIcon /> {t('insights.financialTrendTitle', { year: selectedYear })}
       </Typography>
       <Box sx={{ height: 400, mt: 2 }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -129,7 +131,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
             <Line
               type="monotone"
               dataKey="income"
-              name="Total Income"
+              name={t('insights.totalIncome')}
               stroke="#10b981"
               strokeWidth={3}
               dot={{ r: 4, strokeWidth: 2, fill: '#1e293b' }}
@@ -138,7 +140,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
             <Line
               type="monotone"
               dataKey="expense"
-              name="Total Expenses"
+              name={t('insights.totalExpenses')}
               stroke="#ef4444"
               strokeWidth={3}
               dot={{ r: 4, strokeWidth: 2, fill: '#1e293b' }}
@@ -147,7 +149,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
             <Line
               type="monotone"
               dataKey="netGain"
-              name="Net Earnings"
+              name={t('insights.netEarnings')}
               stroke="#f59e0b"
               strokeWidth={3}
               strokeDasharray="5 5"
@@ -157,7 +159,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
             <Line
               type="monotone"
               dataKey="balance"
-              name="Account Balance"
+              name={t('insights.accountBalance')}
               stroke="#6366f1"
               strokeWidth={4}
               dot={{ r: 5, strokeWidth: 2, fill: '#1e293b' }}

@@ -1,5 +1,7 @@
 import { Box, Paper, Typography } from '@mui/material';
 import { BarChart, Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
+import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import type { IMonthlyComparisonData } from '../types';
 
 interface MonthlyComparisonChartProps {
@@ -7,31 +9,31 @@ interface MonthlyComparisonChartProps {
   title?: string;
 }
 
-const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
 const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, title }) => {
+  const { t } = useTranslation();
+
   const chartData = [
     {
-      name: 'Income',
+      name: t('dashboard.income'),
       current: data.current.income,
       previous: data.previousMonth.income,
       lastYear: data.lastYear.income,
     },
     {
-      name: 'Expense',
+      name: t('dashboard.expense'),
       current: data.current.expense,
       previous: data.previousMonth.expense,
       lastYear: data.lastYear.expense,
     },
     {
-      name: 'Net',
+      name: t('insights.net'),
       current: data.current.net,
       previous: data.previousMonth.net,
       lastYear: data.lastYear.net,
     },
   ];
 
-  const monthLabel = months[data.month];
+  const monthLabel = dayjs().month(data.month).format('MMM');
 
   return (
     <Paper sx={{ p: 2 }}>
@@ -41,7 +43,7 @@ const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, t
         </Typography>
       )}
       <Typography variant="body2" sx={{ opacity: 0.6, mb: 2 }}>
-        {monthLabel} {data.year} vs Prev Month vs {monthLabel} {data.year - 1}
+        {monthLabel} {data.year} {t('insights.vsPrevMonth')} vs {monthLabel} {data.year - 1}
       </Typography>
       <Box sx={{ height: 300, width: '100%' }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -72,7 +74,7 @@ const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, t
             />
             <Legend verticalAlign="top" height={36} iconType="circle" />
             <Bar dataKey="current" name={`${monthLabel} ${data.year}`} fill="#6366f1" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="previous" name="Prev Month" fill="#10b981" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="previous" name={t('insights.vsPrevMonth')} fill="#10b981" radius={[4, 4, 0, 0]} />
             <Bar dataKey="lastYear" name={`${monthLabel} ${data.year - 1}`} fill="#f59e0b" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>

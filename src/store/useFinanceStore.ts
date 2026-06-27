@@ -134,7 +134,7 @@ export const useFinanceStore = create<FinanceState>()(
       isCheckingRecurring: false,
       hasLocalChanges: false,
       saveError: null,
-      language: Defaults.DEFAULT_LANGUAGE,
+      language: localStorage.getItem('myfinance_language') || i18n.language || Defaults.DEFAULT_LANGUAGE,
 
       setLanguage: (lang) => {
         localStorage.setItem('myfinance_language', lang);
