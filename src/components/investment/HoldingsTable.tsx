@@ -1,13 +1,16 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
+import { IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import type { IInvestmentHolding } from '../../store/types';
 
 const formatEur = (v: number) => `€${v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 interface HoldingsTableProps {
   holdings: IInvestmentHolding[];
+  onEdit?: (holding: IInvestmentHolding) => void;
+  onDelete?: (holding: IInvestmentHolding) => void;
 }
 
-const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings }) => {
+const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings, onEdit, onDelete }) => {
   if (holdings.length === 0) {
     return (
       <Paper sx={{ p: 3, textAlign: 'center' }}>
@@ -15,6 +18,8 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings }) => {
       </Paper>
     );
   }
+
+  const hasActions = !!(onEdit || onDelete);
 
   return (
     <TableContainer component={Paper}>
@@ -27,6 +32,9 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings }) => {
             <TableCell sx={{ fontWeight: 700 }}>Price (€)</TableCell>
             <TableCell sx={{ fontWeight: 700 }}>Value (€)</TableCell>
             <TableCell sx={{ fontWeight: 700 }}>Return (%)</TableCell>
+            {hasActions && (
+              <TableCell sx={{ fontWeight: 700 }}>Actions</TableCell>
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -40,6 +48,20 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings }) => {
               <TableCell sx={{ color: h.returnPercent >= 0 ? '#10b981' : '#ef4444', fontWeight: 700 }}>
                 {h.returnPercent >= 0 ? '+' : ''}{h.returnPercent.toFixed(2)}%
               </TableCell>
+              {hasActions && (
+                <TableCell>
+                  {onEdit && (
+                    <IconButton size="small" onClick={() => onEdit(h)} title="Edit">
+                      <Edit fontSize="small" />
+                    </IconButton>
+                  )}
+                  {onDelete && (
+                    <IconButton size="small" onClick={() => onDelete(h)} title="Delete">
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  )}
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
