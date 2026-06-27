@@ -1,4 +1,4 @@
-import type { IETFTransaction, IBrokerConfig } from '../types/investment.types';
+import type { IETFTransaction, IBrokerConfig, BrokerAccount } from '../types/investment.types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sanitizeEtfTransaction = (tx: IETFTransaction): any => {
@@ -25,4 +25,20 @@ export const sanitizeBrokerConfig = (config: IBrokerConfig): any => {
     ticker: config.ticker.toUpperCase(),
     interestRate: Number(config.interestRate) || 0,
   };
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const sanitizeBrokerAccount = (account: BrokerAccount): Record<string, unknown> => {
+  return {
+    id: account.id.trim(),
+    name: account.name.trim(),
+    baseLumpSum: Number(account.baseLumpSum) || 0,
+    monthlyPacAmount: Number(account.monthlyPacAmount) || 0,
+    interestRate: Number(account.interestRate) || 0,
+  };
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const sanitizeBrokerAccounts = (accounts: BrokerAccount[]): Record<string, unknown>[] => {
+  return accounts.map(sanitizeBrokerAccount);
 };

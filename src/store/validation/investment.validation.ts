@@ -1,4 +1,4 @@
-import type { IETFTransaction, IBrokerConfig } from '../types/investment.types';
+import type { IETFTransaction, IBrokerConfig, BrokerAccount } from '../types/investment.types';
 
 export function validateEtfTransaction(tx: IETFTransaction): { valid: boolean; error?: string } {
   if (!tx.ticker?.trim()) {
@@ -15,6 +15,22 @@ export function validateEtfTransaction(tx: IETFTransaction): { valid: boolean; e
   }
   if (!tx.accountId) {
     return { valid: false, error: 'Account is required' };
+  }
+  return { valid: true };
+}
+
+export function validateBrokerAccount(account: BrokerAccount): { valid: boolean; error?: string } {
+  if (!account.name?.trim()) {
+    return { valid: false, error: 'Broker name is required' };
+  }
+  if (typeof account.baseLumpSum !== 'number' || account.baseLumpSum < 0) {
+    return { valid: false, error: 'Base lump sum must be 0 or greater' };
+  }
+  if (typeof account.monthlyPacAmount !== 'number' || account.monthlyPacAmount < 0) {
+    return { valid: false, error: 'PAC amount must be 0 or greater' };
+  }
+  if (typeof account.interestRate !== 'number' || account.interestRate < 0 || account.interestRate > 100) {
+    return { valid: false, error: 'Interest rate must be between 0 and 100' };
   }
   return { valid: true };
 }
