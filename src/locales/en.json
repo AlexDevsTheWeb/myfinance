@@ -307,6 +307,19 @@
     "brokerId": "Broker Account",
     "snapshotRecorded": "Portfolio snapshot recorded",
     "snapshotError": "Failed to record portfolio snapshot",
-    "portfolioHistory": "Portfolio History"
+    "portfolioHistory": "Portfolio History",
+    "pacPending": "PAC Pending",
+    "pacConfirmTitle": "PAC Transaction Pending",
+    "pacConfirmBroker": "Broker",
+    "pacConfirmAmount": "Amount",
+    "pacConfirmDate": "Date",
+    "pacConfirmNote": "On confirm, the current market price will be fetched and a buy transaction created.",
+    "pacConfirmExecute": "Confirm & Execute",
+    "pacDismiss": "Dismiss",
+    "pacExecuted": "PAC buy executed",
+    "pacDismissed": "PAC skipped for this month",
+    "tickerValidationError": "Invalid ticker format. Expected format: SYMBOL or SYMBOL.EXCHANGE (e.g., SWDA.MI)",
+    "tickerValidationWarning": "Ticker could not be verified on Yahoo Finance",
+    "tickerPlaceholder": "e.g. SWDA.MI"
   }
 }

@@ -307,6 +307,19 @@
     "brokerId": "Conto Broker",
     "snapshotRecorded": "Snapshot del portafoglio registrato",
     "snapshotError": "Errore nella registrazione dello snapshot",
-    "portfolioHistory": "Cronologia Portafoglio"
+    "portfolioHistory": "Cronologia Portafoglio",
+    "pacPending": "PAC in Sospeso",
+    "pacConfirmTitle": "Transazione PAC in Sospeso",
+    "pacConfirmBroker": "Broker",
+    "pacConfirmAmount": "Importo",
+    "pacConfirmDate": "Data",
+    "pacConfirmNote": "Alla conferma, verrà recuperato il prezzo di mercato e creata una transazione di acquisto.",
+    "pacConfirmExecute": "Conferma & Esegui",
+    "pacDismiss": "Ignora",
+    "pacExecuted": "Acquisto PAC eseguito",
+    "pacDismissed": "PAC saltato per questo mese",
+    "tickerValidationError": "Formato ticker non valido. Formato atteso: SIMBOLO o SIMBOLO.BORSA (es. SWDA.MI)",
+    "tickerValidationWarning": "Il ticker non può essere verificato su Yahoo Finance",
+    "tickerPlaceholder": "es. SWDA.MI"
   }
 }

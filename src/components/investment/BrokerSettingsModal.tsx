@@ -17,6 +17,7 @@ import {
 import { AccountBalance, Add, Delete, Edit } from '@mui/icons-material';
 import React, { useState } from 'react';
 import { useInvestmentStore } from '../../store/useInvestmentStore';
+import { validateTicker, validateTickerWithApi } from '../../store/validation/investment.validation';
 
 interface BrokerSettingsModalProps {
   open: boolean;
@@ -30,6 +31,7 @@ interface BrokerFormData {
   baseLumpSum: string;
   monthlyPacAmount: string;
   interestRate: string;
+  ticker: string;
 }
 
 const emptyFormData: BrokerFormData = {
@@ -37,6 +39,7 @@ const emptyFormData: BrokerFormData = {
   baseLumpSum: '0',
   monthlyPacAmount: '0',
   interestRate: '0',
+  ticker: '',
 };
 
 const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose }) => {
@@ -46,6 +49,8 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
   const [editingBrokerId, setEditingBrokerId] = useState<string | null>(null);
   const [formData, setFormData] = useState<BrokerFormData>(emptyFormData);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [tickerError, setTickerError] = useState<string | null>(null);
+  const [tickerWarning, setTickerWarning] = useState<string | null>(null);
 
   const handleAdd = () => {
     setEditingBrokerId(null);
@@ -62,6 +67,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
       baseLumpSum: broker.baseLumpSum.toString(),
       monthlyPacAmount: broker.monthlyPacAmount.toString(),
       interestRate: broker.interestRate.toString(),
+      ticker: '',
     });
     setMode('form');
   };
@@ -74,6 +80,21 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
   const handleSave = async () => {
     const name = formData.name.trim();
     if (!name) return;
+
+    // Validate ticker (blocking regex check — D-11)
+    const tickerValidation = validateTicker(formData.ticker);
+    if (!tickerValidation.valid) {
+      setTickerError(tickerValidation.error ?? null);
+      return; // Block save
+    }
+    setTickerError(null);
+
+    // Optional API test-fetch (non-blocking warning — D-11)
+    validateTickerWithApi(formData.ticker).then(result => {
+      if (result.warning) {
+        setTickerWarning(result.warning);
+      }
+    });
 
     const account = {
       id: editingBrokerId || crypto.randomUUID(),
@@ -92,12 +113,16 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
     setMode('list');
     setEditingBrokerId(null);
     setFormData(emptyFormData);
+    setTickerError(null);
+    setTickerWarning(null);
   };
 
   const handleCancel = () => {
     setMode('list');
     setEditingBrokerId(null);
     setFormData(emptyFormData);
+    setTickerError(null);
+    setTickerWarning(null);
   };
 
   const handleClose = () => {
@@ -105,6 +130,8 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
     setEditingBrokerId(null);
     setFormData(emptyFormData);
     setDeleteConfirmId(null);
+    setTickerError(null);
+    setTickerWarning(null);
     onClose();
   };
 
@@ -184,6 +211,22 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
                 variant="filled"
                 value={formData.name}
                 onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="ETF Ticker"
+                variant="filled"
+                value={formData.ticker}
+                onChange={(e: any) => {
+                  setFormData({ ...formData, ticker: e.target.value });
+                  setTickerError(null);
+                  setTickerWarning(null);
+                }}
+                error={!!tickerError}
+                helperText={tickerError || tickerWarning || 'Enter Yahoo Finance symbol format'}
+                placeholder="e.g. SWDA.MI"
               />
             </Grid>
             <Grid size={{ xs: 6 }}>
