@@ -219,3 +219,82 @@ If you have portfolio history, you can toggle **"Use Real Performance"** to base
 Portfolio snapshots from your transactions are automatically persisted for cross-device charting.
 
 Cash adjustments and dividend entries let you track external cash flows and investment income separately from ETF buy/sell activity.
+
+---
+
+## 3. Budget & Savings Rate (`/budget`)
+
+Track your spending against configurable budget targets and monitor your savings rate in real time. The `/budget` page shows how much you're spending per category, how that compares to your targets, and what your overall savings rate is.
+
+### Getting Started
+
+1. **Enable the module**: Go to **Settings** (`/config`) → *Active Modules* → toggle **Budget Tracking** on.
+2. **Add budget targets**: On the Budget page, click **Add Budget** to create your first target. For each target fill in:
+   - **Name (optional)** — a readable label (defaults to the category name)
+   - **Category** — the expense category this budget applies to (e.g. *Casa*, *Trasporti*, *Spese quotidiane*)
+   - **Period** — how often the target resets: **Monthly**, **Semiannual**, or **Annual**
+   - **Target Amount (€)** — how much you plan to spend in this category per period
+   - **Color** — pick a colour for chart display
+
+You can add, edit, or delete targets at any time.
+
+### Period Selector
+
+Use the **Period** dropdown at the top of the page to switch between Monthly, Semiannual, and Annual views. All metrics and charts update in real time to reflect the selected period.
+
+### Understanding the Dashboard
+
+**Savings Rate Gauge** (top of page):
+A circular gauge showing your current savings rate: `(Total Income − Total Expenses) / Total Income` for the selected period. Coloured:
+- **Green** (≥20%) — healthy savings rate
+- **Amber** (10–19%) — moderate
+- **Red** (<10%) — needs attention
+
+**Summary Cards** (below the gauge):
+Four metric cards showing at a glance:
+| Card | What it shows |
+|------|---------------|
+| **Total Budgeted** | Sum of all target amounts for the period |
+| **Total Spent** | Sum of actual expenses in budgeted categories |
+| **Remaining** | Total Budgeted minus Total Spent |
+| **Savings Rate** | Overall savings rate percentage (highlighted) |
+
+**Progress by Category** (bullet chart):
+For each budget target you set, a horizontal progress bar shows:
+- **Green** (<70%) — on track, safe zone
+- **Amber** (71–99%) — approaching limit, warning zone
+- **Red** (≥100%) — over budget, breach zone
+
+Each bar shows the category name, actual amount vs target amount, and percentage used.
+
+**Target vs Actual** (grouped bar chart):
+A Recharts bar chart comparing each category's target amount (ghost bar) against actual spending (filled bar). Helps you spot which categories consistently over- or under-perform.
+
+**Burn-up Trend** (area chart):
+An area chart showing cumulative spending over time (actual line) compared to the ideal linear burn rate (dashed line). The ideal line assumes you spend your total budget evenly across the period. If the actual line is above the ideal line, you're spending faster than planned.
+
+**Budget Targets** (list):
+At the bottom of the page, a list of all your configured targets with edit/delete controls. Each item shows the category, period, amount, and colour indicator.
+
+### How the Savings Rate is Calculated
+
+```
+Savings Rate = (Total Income − Total Expenses) / Total Income
+
+Where:
+  Total Income   = Sum of all income transactions in the period
+  Total Expenses = Sum of all expense transactions in the period
+```
+
+The rate is displayed as a percentage. A rate of 25% means you save €1 for every €4 you earn.
+
+### Integration with Investments
+
+The surplus (Total Budgeted − Total Spent) and savings rate are displayed on the Budget page. These values give you an indication of how much is available for investing — a direct bridge between day-to-day budgeting and your investment pipeline in `/invest`.
+
+### Notes
+
+- Budget progress is computed live from your existing transactions — adding a transaction in `/transactions` immediately updates all budget metrics
+- Budget targets are stored in your Firestore account and synced across devices
+- The savings rate is a pure computation from income/expense data — no additional setup needed
+- A target with no matching expenses shows 0% spent (green)

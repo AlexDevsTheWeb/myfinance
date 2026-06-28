@@ -1,4 +1,4 @@
-import type { IAccount, IBrokerConfig, ICategory, IAppModules, ITireSettings, BrokerAccount } from './types';
+import type { IAccount, IBrokerConfig, ICategory, IAppModules, ITireSettings, BrokerAccount, BudgetTarget } from './types';
 
 export const DEFAULT_ACCOUNT: IAccount = {
   id: 'default-main',
@@ -40,7 +40,10 @@ export const DEFAULT_ENABLED_MODULES: IAppModules = {
   carManagement: false,
   utilityTracker: false,
   investmentTracking: false,
+  budgetTracking: false,
 };
+
+export const DEFAULT_BUDGET_TARGETS: BudgetTarget[] = [];
 
 export const DEFAULT_BALANCE_START_DATE = '2026-01-01';
 

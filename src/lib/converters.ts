@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions } from 'firebase/firestore';
-import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type ITransaction, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry } from '../store/types';
+import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type ITransaction, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
 
 export interface UserDoc {
   transactions: ITransaction[];
@@ -23,6 +23,7 @@ export interface UserDoc {
   assetHoldings: AssetHolding[];
   cashAdjustments: CashAdjustment[];
   dividendEntries: DividendEntry[];
+  budgetTargets: BudgetTarget[];
   /** @deprecated Legacy field — kept for backward-compatible reads during migration. Will be removed after all users migrate. */
   brokerConfig?: IBrokerConfig;
 }
@@ -74,6 +75,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       assetHoldings: userDoc.assetHoldings || [],
       cashAdjustments: userDoc.cashAdjustments || [],
       dividendEntries: userDoc.dividendEntries || [],
+      budgetTargets: userDoc.budgetTargets || [],
       // Legacy brokerConfig — kept for backward-compatible reads during migration window
       brokerConfig: userDoc.brokerConfig || { brokerName: 'Trade Republic', lumpSumAmount: 0, monthlyPacAmount: 0, ticker: 'SWDA.MI', interestRate: 0 },
     };
@@ -158,6 +160,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       carManagement: !!data.enabledModules?.carManagement,
       utilityTracker: !!data.enabledModules?.utilityTracker,
       investmentTracking: !!data.enabledModules?.investmentTracking,
+      budgetTracking: !!data.enabledModules?.budgetTracking,
     };
 
     const balanceStartDate: string = data.balanceStartDate || '2026-01-01';
@@ -258,6 +261,16 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       assetHoldings,
       cashAdjustments,
       dividendEntries,
+      budgetTargets: Array.isArray(data.budgetTargets) ? data.budgetTargets.map((b: any) => ({
+        id: b.id ?? '',
+        category: b.category ?? '',
+        period: b.period === 'semiannual' || b.period === 'annual' ? b.period : 'monthly',
+        targetAmount: typeof b.targetAmount === 'number' ? b.targetAmount : 0,
+        color: b.color ?? '#6366f1',
+        name: b.name ?? undefined,
+        createdAt: b.createdAt ?? '',
+        updatedAt: b.updatedAt ?? '',
+      })) : [],
       brokerConfig,
     };
   }

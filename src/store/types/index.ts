@@ -29,3 +29,11 @@ export type {
   IProjectionInput,
   IMonthlySnapshot,
 } from './projection.types';
+
+export type {
+  BudgetTarget,
+  BudgetProgressSnapshot,
+  BudgetPeriodSummary,
+  BurnUpPoint,
+  HistoricalSavingsRate,
+} from './budget.types';

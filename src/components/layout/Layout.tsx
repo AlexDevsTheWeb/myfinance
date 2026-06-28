@@ -1,4 +1,4 @@
-import { BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event as DateIcon, Bolt as ElecIcon, AccountBalance as FinanceIcon, Home, KeyboardArrowDown, ExitToApp as LogoutIcon, Menu as MenuIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
+import { AccountBalanceWallet as BudgetIcon, BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event as DateIcon, Bolt as ElecIcon, AccountBalance as FinanceIcon, Home, KeyboardArrowDown, ExitToApp as LogoutIcon, Menu as MenuIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
 import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
 import dayjs from 'dayjs';
@@ -116,6 +116,12 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
             <ListItemText primary={t('investment.navInvestments')} sx={{ color: 'white' }} />
           </ListItemButton>
         )}
+        {enabledModules?.budgetTracking && (
+          <ListItemButton component={Link} to="/budget">
+            <ListItemIcon><BudgetIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
+            <ListItemText primary={t('nav.budget')} sx={{ color: 'white' }} />
+          </ListItemButton>
+        )}
         <ListItemButton component={Link} to="/projections">
           <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
           <ListItemText primary={t('nav.projections')} sx={{ color: 'white' }} />
@@ -226,6 +232,17 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                   sx={{ borderRadius: 2, px: 2 }}
                 >
                   {t('investment.navInvestments')}
+                </Button>
+              )}
+              {enabledModules?.budgetTracking && (
+                <Button
+                  color="inherit"
+                  component={Link}
+                  to="/budget"
+                  startIcon={<BudgetIcon />}
+                  sx={{ borderRadius: 2, px: 2 }}
+                >
+                  {t('nav.budget')}
                 </Button>
               )}
               <Button

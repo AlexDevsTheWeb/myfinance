@@ -11,7 +11,8 @@
     "config": "Configurazione"
   },
   "nav": {
-    "projections": "Proiezioni"
+    "projections": "Proiezioni",
+    "budget": "Budget"
   },
 "common": {
     "save": "Salva",
@@ -157,6 +158,7 @@
     "carManagement": "Gestione auto",
     "utilityTracker": "Gestione utenze",
     "investmentTracking": "Gestione investimenti",
+    "budgetTracking": "Gestione budget",
     "calculationStartDate": "Data inizio calcolo",
     "calculationStartDateDescription": "Da questa data in poi vengono calcolati i totali",
     "accounts": "Gestione Conti",
@@ -343,5 +345,33 @@
     "noTaxEvents": "Nessun evento tassabile",
     "useRealPerformance": "Usa Performance Reali",
     "manualParameters": "Parametri Manuali"
+  },
+  "budget": {
+    "title": "Budget",
+    "subtitle": "Monitora le spese rispetto agli obiettivi",
+    "savingsRate": "Tasso di Risparmio",
+    "totalBudgeted": "Budget Totale",
+    "totalSpent": "Totale Speso",
+    "remaining": "Rimanente",
+    "targetVsActual": "Obiettivo vs Reale",
+    "burnUp": "Andamento Progressivo",
+    "progressByCategory": "Progresso per Categoria",
+    "period": "Periodo",
+    "periodMonthly": "Mensile",
+    "periodSemiannual": "Semestrale",
+    "periodAnnual": "Annuale",
+    "addBudget": "Aggiungi Budget",
+    "editBudget": "Modifica Obiettivo Budget",
+    "deleteBudget": "Elimina Obiettivo Budget",
+    "category": "Categoria",
+    "name": "Nome (opzionale)",
+    "targetAmount": "Importo Obiettivo",
+    "noTargets": "Nessun obiettivo di budget",
+    "noTargetsDescription": "Imposta il tuo primo obiettivo di budget per iniziare a monitorare le spese.",
+    "addFirst": "Aggiungi il primo obiettivo",
+    "budgetTargets": "Obiettivi di Budget",
+    "idealBurnRate": "Spesa Ideale",
+    "actualSpend": "Spesa Reale",
+    "noBurnUpData": "Nessun dato di spesa per questo periodo"
   }
 }

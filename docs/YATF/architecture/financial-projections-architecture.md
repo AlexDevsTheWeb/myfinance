@@ -98,9 +98,24 @@ App.tsx
 - **Nav / Routing**: `/projections` route with `React.lazy` (29 kB chunk), nav link in top AppBar + mobile drawer
 - **i18n**: 15 new translation keys (EN/IT) under `projections` namespace
 
+## Integration with Budget & Savings Rate Engine
+
+The upcoming [[features/budget-savings-engine]] can feed the projections simulator:
+
+| Budget Feature | Projections Integration |
+|----------------|------------------------|
+| Real savings rate | Replace manual income/expense assumptions with actual savings rate from budget engine |
+| Historical rate trend | Prefill projection CAGR-like inputs from computed historical savings rate |
+| Budget surplus projection | Show "what if" scenarios: save X% more → investment growth impact |
+
+See [[plans/budget-savings-engine-implementation#wave-6]] for the savings rate → investment bridge.
+
 ## Related
 
+- [[features/budget-savings-engine]] — Budget module (savings rate data source)
+- [[features/budget-savings-architecture]] — Budget architecture
 - [[features/financial-projections]]
 - [[plans/financial-projections-implementation]]
+- [[plans/budget-savings-engine-implementation]]
 - [[architecture/investment-tracking-architecture]]
 - [[architecture/tech-stack]]
