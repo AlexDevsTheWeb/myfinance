@@ -1,4 +1,27 @@
-import type { IProjectionInput, IMonthlySnapshot } from '../store/types';
+import dayjs from 'dayjs';
+import type { IProjectionInput, IMonthlySnapshot, IPortfolioSnapshot } from '../store/types';
+
+export function computeCAGR(snapshots: IPortfolioSnapshot[]): number | null {
+  const sorted = [...snapshots]
+    .filter(s => s.totalInvested > 0)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  if (sorted.length < 2) return null;
+
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  const years = dayjs(last.date).diff(dayjs(first.date), 'year', true);
+
+  if (years < 1 / 12) return null;
+
+  const startValue = first.totalInvested;
+  const endValue = last.currentValue + last.cashBalance;
+
+  if (startValue <= 0 || endValue <= 0) return null;
+
+  const cagr = Math.pow(endValue / startValue, 1 / years) - 1;
+  return Math.max(0, Math.min(0.20, cagr));
+}
 
 export function generateFinancialProjection(
   input: IProjectionInput

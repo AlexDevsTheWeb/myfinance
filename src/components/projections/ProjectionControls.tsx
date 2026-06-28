@@ -1,4 +1,4 @@
-import { FormControlLabel, Grid, Paper, Slider, Stack, Switch, TextField, Typography } from '@mui/material';
+import { Box, FormControlLabel, Grid, Paper, Slider, Stack, Switch, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { IProjectionInput } from '../../store/types';
 
@@ -6,10 +6,14 @@ interface ProjectionControlsProps {
   input: IProjectionInput;
   onChange: (key: keyof IProjectionInput, value: number) => void;
   onInflationToggle?: (enabled: boolean) => void;
+  useRealPerformance?: boolean;
+  onRealPerformanceToggle?: (enabled: boolean) => void;
+  realCagr?: number | null;
 }
 
-const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange, onInflationToggle }) => {
+const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange, onInflationToggle, useRealPerformance, onRealPerformanceToggle, realCagr }) => {
   const { t } = useTranslation();
+  const hasRealData = realCagr != null && realCagr > 0;
   return (
     <Paper sx={{ p: 3 }}>
       <Stack spacing={3}>
@@ -37,12 +41,16 @@ const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange
         <Stack spacing={1}>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             {t('projections.etfReturn')}: {(input.etfAnnualReturn * 100).toFixed(1)}%
+            {useRealPerformance && realCagr != null && (
+              <Box component="span" sx={{ ml: 1, opacity: 0.6, fontWeight: 400 }}>({(realCagr * 100).toFixed(1)}% real)</Box>
+            )}
           </Typography>
           <Slider
-            value={input.etfAnnualReturn * 100}
+            value={(useRealPerformance && realCagr != null ? realCagr : input.etfAnnualReturn) * 100}
             min={0}
             max={20}
             step={0.5}
+            disabled={useRealPerformance && hasRealData}
             marks={[
               { value: 0, label: '0%' },
               { value: 5, label: '5%' },
@@ -53,6 +61,20 @@ const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange
             onChange={(_, v) => onChange('etfAnnualReturn', (v as number) / 100)}
             sx={{ color: '#5b6cb8' }}
           />
+          {hasRealData && (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={useRealPerformance ?? false}
+                  onChange={(e) => onRealPerformanceToggle?.(e.target.checked)}
+                  size="small"
+                  sx={{ color: '#5b6cb8' }}
+                />
+              }
+              label={t('investment.useRealPerformance') || 'Use Real Performance'}
+              sx={{ '& .MuiTypography-root': { fontSize: '0.85rem', opacity: 0.8 } }}
+            />
+          )}
         </Stack>
 
         <Stack spacing={1}>

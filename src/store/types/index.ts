@@ -21,6 +21,8 @@ export type {
   IPortfolioPoint,
   BrokerAccount,
   AssetHolding,
+  CashAdjustment,
+  DividendEntry,
 } from './investment.types';
 
 export type {

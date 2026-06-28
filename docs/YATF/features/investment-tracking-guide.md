@@ -2,10 +2,10 @@
 title: "Investment Tracking & Financial Projections — User Guide"
 tags: [feature, investment, projections, guide]
 created: 2026-06-27
-updated: 2026-06-27
+updated: 2026-06-28
 status: active
 sources: ["raw/FEATURES-GUIDE.md"]
-related: ["features/guida-investimenti", "features/investment-tracking", "features/financial-projections", "features/multi-broker-architecture", "features/crud-etf-transactions", "features/pac-automation", "features/historical-snapshots", "features/tax-inflation-modeling", "features/ticker-validation", "architecture/investment-tracking-architecture", "architecture/financial-projections-architecture"]
+related: ["features/guida-investimenti", "features/investment-tracking", "features/investment-tracking-v3", "features/financial-projections", "features/multi-broker-architecture", "features/crud-etf-transactions", "features/pac-automation", "features/historical-snapshots", "features/tax-inflation-modeling", "features/ticker-validation", "architecture/investment-tracking-architecture", "architecture/financial-projections-architecture"]
 ---
 
 # User Guide: Investment Tracking & Financial Projections

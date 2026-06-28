@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-06-27* (Phase 12 complete — guides updated)
-*Total pages: 28*
+*Last updated: 2026-06-28* (V3 complete — all 4 sub-features implemented)
+*Total pages: 30*
 
 ---
 
@@ -21,6 +21,7 @@
 | [[features/historical-snapshots]] | ✅ Persistent portfolio history in Firestore subcollection | [`#92`](https://github.com/AlexDevsTheWeb/myfinance/issues/92) |
 | [[features/tax-inflation-modeling]] | ✅ Inflation-adjusted projections with real vs nominal toggle | [`#93`](https://github.com/AlexDevsTheWeb/myfinance/issues/93) |
 | [[features/ticker-validation]] | ✅ Yahoo Finance ticker validation at broker config save | [`#94`](https://github.com/AlexDevsTheWeb/myfinance/issues/94) |
+| [[features/investment-tracking-v3]] | ✅ V3: Dividend ledger, capital gains tax, cash adjustments, performance prefill | [`#98`](https://github.com/AlexDevsTheWeb/myfinance/issues/98) |
 
 ## Plans
 
@@ -32,6 +33,7 @@
 | [[plans/investment-tracking-implementation]] | 6-plan implementation for ETF tracking, broker integration, PAC strategy | [`.planning/phases/10-investment-tracking/`](.planning/phases/10-investment-tracking/) |
 | [[plans/financial-projections-implementation]] | ✅ 3-plan implementation for simulation engine, UI shell, routing + i18n | [`raw/83-financial-projections/issue.md`](raw/83-financial-projections/issue.md) |
 | [[plans/investment-tracking-v2-enhancements]] | ✅ Phase 12 complete — 6 GSD plans implemented (multi-broker, CRUD, PAC, snapshots, inflation, ticker) | [`.planning/phases/12-investment-tracking-v2/`](.planning/phases/12-investment-tracking-v2/) |
+| [[plans/investment-tracking-v3-implementation]] | ✅ V3 implementation: dividend, tax, cash adjustments, performance prefill | [`#98`](https://github.com/AlexDevsTheWeb/myfinance/issues/98) |
 
 ## Architecture
 

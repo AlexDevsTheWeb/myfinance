@@ -24,6 +24,8 @@ export function getDefaultUserConfig(): UserDoc {
     portfolioSnapshots: [],
     brokerAccounts: Defaults.DEFAULT_BROKER_ACCOUNTS,
     assetHoldings: [],
+    cashAdjustments: [],
+    dividendEntries: [],
     brokerConfig: Defaults.DEFAULT_BROKER_CONFIG,
   };
 }

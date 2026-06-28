@@ -134,6 +134,13 @@
 - Updated index.md
 - Source: [raw/83-financial-projections/implementation.md](raw/83-financial-projections/implementation.md)
 
+## [2026-06-28] ingest | Feature | Investment Tracking V3 — Dividend, Tax, Performance
+- Created [[raw/98-investment-tracking-v3/issue.md]] from GitHub [Issue #98](https://github.com/AlexDevsTheWeb/myfinance/issues/98)
+- Created [[features/investment-tracking-v3]] — 4 sub-features (dividend ledger, capital gains tax, performance prefill, cash adjustments)
+- Created [[plans/investment-tracking-v3-implementation]] — architecture analysis and recommended implementation order
+- Updated [[architecture/investment-tracking-architecture]] — added V3 section, new transaction types in classification table
+- Updated index.md (30 pages) and log.md
+
 ## [2026-06-27] implement | Feature | Investment Tracking V2 — Phase 12 complete (PR #95)
 - Implemented 6 plans across 4 waves on `feat/phase-12-investment-tracking-v2`
 - 24 execution commits, 4 files created, ~30 files modified
@@ -147,3 +154,33 @@
 - Updated [[architecture/investment-tracking-architecture]] with V2 schema, store, component tree, migration layer
 - Updated index.md
 - Source: [raw/12-investment-tracking-v2/implementation.md](raw/12-investment-tracking-v2/implementation.md)
+
+## [2026-06-28] implement | Feature | Investment Tracking V3 — Wave 1+2+3
+- Implemented V3 data layer: `CashAdjustment`, `DividendEntry` types, store actions, validation, sanitization, Firestore sync + rules
+- Updated cash balance formula in `usePortfolio` to include adjustments and dividends
+- Created components: `CashAdjustmentDialog`, `DividendDialog`, `DividendBadge`, `TaxPocketWidget`
+- Created `useTaxTracking` hook with 26% Italian capital gains computation per year
+- Integrated all new components into `InvestmentPage`
+- Added i18n keys (EN/IT) for dividends, cash adjustments, and tax tracking
+- Updated [[features/investment-tracking-v3]] status → **in-progress**
+- Updated [[plans/investment-tracking-v3-implementation]] status → **in-progress**
+- Updated [[architecture/investment-tracking-architecture]] with V3 section and new transaction types
+
+## [2026-06-28] plan | Feature | Dynamic Performance Prefill — Wave 4 analysis
+- Added CAGR analysis to [[plans/investment-tracking-v3-implementation]] — computation logic, UX flow, layer breakdown
+- Updated [[features/investment-tracking-v3]] with Wave 4 implementation notes
+- Updated index.md
+
+## [2026-06-28] implement | Feature | Dynamic Performance Prefill — Wave 4 complete
+- Added `computeCAGR()` to `compoundInterestUtils.ts` — annualized return from portfolio snapshot time series
+- Extended `useProjections` with `useRealPerformance` toggle — overrides `etfAnnualReturn` with real CAGR when active
+- Updated `ProjectionControls` — "Use Real Performance" switch disables ETF slider, shows computed CAGR
+- Wired toggle through `ProjectionsPage`
+- Updated [[plans/investment-tracking-v3-implementation]] status → **completed**
+- Updated [[features/investment-tracking-v3]] status → **implemented**
+
+## [2026-06-28] docs | Guide | V3 features added to FEATURES-GUIDE (EN/IT)
+- Updated `raw/FEATURES-GUIDE.md` — added Cash Adjustments, Dividends, Tax Pocket, and Use Real Performance sections
+- Updated `raw/FEATURES-GUIDE.it.md` — Italian version with same V3 additions
+- Updated data flow diagram in both guides with new V3 integration points
+- Updated [[features/investment-tracking-guide]] and [[features/guida-investimenti]]

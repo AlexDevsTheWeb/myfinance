@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { generateFinancialProjection } from '../lib/compoundInterestUtils';
+import { computeCAGR, generateFinancialProjection } from '../lib/compoundInterestUtils';
 import type { IMonthlySnapshot, IProjectionInput } from '../store/types';
 
 const DEFAULT_INPUT: IProjectionInput = {
@@ -27,16 +27,26 @@ export interface UseProjectionsReturn {
   setParam: (key: keyof IProjectionInput, value: number) => void;
   resetToDefaults: () => void;
   setInflationToggle: (enabled: boolean) => void;
+  useRealPerformance: boolean;
+  setUseRealPerformance: (enabled: boolean) => void;
+  realCagr: number | null;
 }
 
 export function useProjections(): UseProjectionsReturn {
   const [input, setInput] = useState<IProjectionInput>(DEFAULT_INPUT);
+  const [useRealPerformance, setUseRealPerformance] = useState(false);
+  const [realCagr, setRealCagr] = useState<number | null>(null);
 
   useEffect(() => {
     const prefetch = async () => {
       try {
         const { useInvestmentStore } = await import('../store/useInvestmentStore');
-        const brokerConfig = useInvestmentStore.getState().brokerConfig;
+        const state = useInvestmentStore.getState();
+        const { brokerConfig, portfolioSnapshots } = state;
+
+        const cagr = computeCAGR(portfolioSnapshots);
+        setRealCagr(cagr);
+
         if (brokerConfig) {
           setInput(prev => ({
             ...prev,
@@ -52,12 +62,18 @@ export function useProjections(): UseProjectionsReturn {
     prefetch();
   }, []);
 
-  const snapshots = useMemo(() => generateFinancialProjection(input), [input]);
+  const effectiveInput = useMemo(() => {
+    if (useRealPerformance && realCagr != null) {
+      return { ...input, etfAnnualReturn: realCagr };
+    }
+    return input;
+  }, [input, useRealPerformance, realCagr]);
 
-  // Compute nominal snapshots for the real/nominal comparison chart
+  const snapshots = useMemo(() => generateFinancialProjection(effectiveInput), [effectiveInput]);
+
   const nominalSnapshots = useMemo(
-    () => generateFinancialProjection({ ...input, adjustForInflation: false }),
-    [input]
+    () => generateFinancialProjection({ ...effectiveInput, adjustForInflation: false }),
+    [effectiveInput]
   );
 
   const chartData = useMemo(() => {
@@ -65,7 +81,7 @@ export function useProjections(): UseProjectionsReturn {
     const yearlyData = new Map<number, { netWorth: number; totalInvested: number; nominalValue?: number }>();
     for (let i = 0; i < snapshots.length; i++) {
       const snap = snapshots[i];
-      const nominalSnap = input.adjustForInflation ? nominalSnapshots[i] : null;
+      const nominalSnap = effectiveInput.adjustForInflation ? nominalSnapshots[i] : null;
       yearlyData.set(snap.year, {
         netWorth: snap.netWorth,
         totalInvested: snap.totalInvested,
@@ -76,7 +92,7 @@ export function useProjections(): UseProjectionsReturn {
       label: `Year ${year}`,
       ...values,
     }));
-  }, [snapshots, nominalSnapshots, input.adjustForInflation]);
+  }, [snapshots, nominalSnapshots, effectiveInput.adjustForInflation]);
 
   const summary = useMemo(() => {
     const last = snapshots[snapshots.length - 1];
@@ -95,11 +111,12 @@ export function useProjections(): UseProjectionsReturn {
 
   const resetToDefaults = () => {
     setInput(DEFAULT_INPUT);
+    setUseRealPerformance(false);
   };
 
   const setInflationToggle = (enabled: boolean) => {
     setInput(prev => ({ ...prev, adjustForInflation: enabled }));
   };
 
-  return { input, snapshots, summary, chartData, setParam, resetToDefaults, setInflationToggle };
+  return { input, snapshots, summary, chartData, setParam, resetToDefaults, setInflationToggle, useRealPerformance, setUseRealPerformance, realCagr };
 }
