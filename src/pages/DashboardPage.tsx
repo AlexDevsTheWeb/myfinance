@@ -1,4 +1,4 @@
-import { DirectionsCar as CarIcon } from '@mui/icons-material';
+import { DirectionsCar as CarIcon, TrendingUp, AccountBalance as BudgetIcon, Bolt as ElecIcon } from '@mui/icons-material';
 import { Alert, AlertTitle, Box, Button, Grid, Paper, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
@@ -14,6 +14,35 @@ import { useFinanceStore } from '../store/useFinanceStore';
 import { useBudgetStore } from '../store/useBudgetStore';
 import { usePortfolio } from '../analytics/hooks/usePortfolio';
 import { computeBudgetProgress } from '../lib/budgetEngine';
+
+function StatCard({ icon, label, value, color, onClick }: { icon: React.ReactNode; label: string; value: React.ReactNode; color?: string; onClick?: () => void }) {
+  return (
+    <Paper
+      onClick={onClick}
+      sx={{
+        p: 1.5,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 0.2s',
+        '&:hover': onClick ? { borderColor: 'rgba(99, 102, 241, 0.5)', bgcolor: 'rgba(255,255,255,0.03)' } : undefined,
+      }}
+    >
+      <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: `${color}20`, color, display: 'flex' }}>
+        {icon}
+      </Box>
+      <Box sx={{ minWidth: 0 }}>
+        <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>
+          {label}
+        </Typography>
+        <Typography variant="body2" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {value}
+        </Typography>
+      </Box>
+    </Paper>
+  );
+}
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,6 +63,16 @@ const DashboardPage: React.FC = () => {
     () => computeBudgetProgress(transactions, budgetTargets, currentDateRange),
     [transactions, budgetTargets, currentDateRange],
   );
+
+  const monthlyUtilities = React.useMemo(() =>
+    transactions
+      .filter(t => t.type === 'expense' && (t.category === 'Bollette' || t.category === 'Bills') && t.date >= currentDateRange.start && t.date <= currentDateRange.end)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0),
+  [transactions, currentDateRange]);
+
+  const carLatestKm = carMileage.length > 0
+    ? [...carMileage].sort((a, b) => b.year - a.year || b.month - a.month)[0].reading
+    : null;
 
   const isFirstOfMonth = dayjs().date() === 1;
   const hasReadingThisMonth = carMileage.some(m => m.month === (dayjs().month() + 1) && m.year === dayjs().year());
@@ -65,6 +104,61 @@ const DashboardPage: React.FC = () => {
           {t('dashboard.mileageReminderText')}
         </Alert>
       )}
+
+      {/* Overview stat cards */}
+      <Grid container spacing={1.5} sx={{ mb: 3 }}>
+        {enabledModules?.investmentTracking && (
+          <Grid size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              icon={<TrendingUp fontSize="small" />}
+              label={t('investment.title')}
+              value={
+                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  €{portfolio.currentValue.toLocaleString('it-IT', { minimumFractionDigits: 0 })}
+                  <Typography component="span" variant="caption" sx={{ color: portfolio.isPositive ? '#10b981' : '#ef4444', fontWeight: 700 }}>
+                    {portfolio.totalReturnPercent >= 0 ? '+' : ''}{portfolio.totalReturnPercent.toFixed(1)}%
+                  </Typography>
+                </Box>
+              }
+              color="#5b6cb8"
+              onClick={() => navigate('/invest')}
+            />
+          </Grid>
+        )}
+        {enabledModules?.budgetTracking && budgetTargets.length > 0 && (
+          <Grid size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              icon={<BudgetIcon fontSize="small" />}
+              label={t('budget.title')}
+              value={`${Math.round(budgetSummary.savingsRate * 100)}% ${t('budget.savingsRate').toLowerCase()}`}
+              color={budgetSummary.savingsRate >= 0.2 ? '#22c55e' : budgetSummary.savingsRate >= 0.1 ? '#f59e0b' : '#ef4444'}
+              onClick={() => navigate('/budget')}
+            />
+          </Grid>
+        )}
+        {enabledModules?.carManagement && (
+          <Grid size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              icon={<CarIcon fontSize="small" />}
+              label={t('car.title')}
+              value={carLatestKm !== null ? `${carLatestKm.toLocaleString()} km` : '—'}
+              color="#3b82f6"
+              onClick={() => navigate('/car')}
+            />
+          </Grid>
+        )}
+        {enabledModules?.utilityTracker && (
+          <Grid size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              icon={<ElecIcon fontSize="small" />}
+              label={t('utilities.title')}
+              value={`€${monthlyUtilities.toLocaleString('it-IT', { minimumFractionDigits: 0 })}`}
+              color="#f59e0b"
+              onClick={() => navigate('/utilities')}
+            />
+          </Grid>
+        )}
+      </Grid>
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: 7 }}>
