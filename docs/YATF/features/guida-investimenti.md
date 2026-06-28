@@ -2,10 +2,10 @@
 title: "Monitoraggio Investimenti e Proiezioni Finanziarie — Guida Utente"
 tags: [feature, investment, projections, guide, italiano]
 created: 2026-06-27
-updated: 2026-06-27
+updated: 2026-06-28
 status: active
 sources: ["raw/FEATURES-GUIDE.it.md"]
-related: ["features/investment-tracking-guide", "features/investment-tracking", "features/financial-projections", "features/multi-broker-architecture", "features/crud-etf-transactions", "features/pac-automation", "features/historical-snapshots", "features/tax-inflation-modeling", "features/ticker-validation"]
+related: ["features/investment-tracking-guide", "features/investment-tracking", "features/investment-tracking-v3", "features/financial-projections", "features/multi-broker-architecture", "features/crud-etf-transactions", "features/pac-automation", "features/historical-snapshots", "features/tax-inflation-modeling", "features/ticker-validation"]
 ---
 
 # Guida Utente: Monitoraggio Investimenti e Proiezioni Finanziarie

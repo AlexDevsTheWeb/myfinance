@@ -178,3 +178,9 @@
 - Wired toggle through `ProjectionsPage`
 - Updated [[plans/investment-tracking-v3-implementation]] status → **completed**
 - Updated [[features/investment-tracking-v3]] status → **implemented**
+
+## [2026-06-28] docs | Guide | V3 features added to FEATURES-GUIDE (EN/IT)
+- Updated `raw/FEATURES-GUIDE.md` — added Cash Adjustments, Dividends, Tax Pocket, and Use Real Performance sections
+- Updated `raw/FEATURES-GUIDE.it.md` — Italian version with same V3 additions
+- Updated data flow diagram in both guides with new V3 integration points
+- Updated [[features/investment-tracking-guide]] and [[features/guida-investimenti]]

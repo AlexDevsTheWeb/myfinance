@@ -59,10 +59,26 @@ When you configure a **Monthly PAC (€)** on a broker account, the system autom
 
 The system checks once per month per broker and never duplicates.
 
+### Cash Adjustments & Dividends
+
+In the **Cash Balance** tab you can record cash events that don't involve buying or selling ETF units:
+
+**Cash Adjustment** (Cash Deposit / Withdrawal):
+Track external cash flows to/from your broker — e.g. a bank transfer you made to top up your broker, or a withdrawal back to your bank. This adjusts the broker cash balance without creating ETF transactions.
+
+To add one: click **Cash Adjustment** in the Cash Balance tab, select the broker, enter the amount (positive for deposits, negative for withdrawals), and the date.
+
+**Dividend / Interest Entry**:
+Record dividend payouts or interest credits from your broker. This increases the broker cash balance without affecting your ETF unit count. A green badge in the sidebar shows your total dividends for the current month.
+
+To add one: click **Add Dividend** in the Cash Balance tab, select the broker, ticker, type (Dividend or Interest), amount, and date.
+
 ### Understanding the Dashboard
 
 **Tab 1 — "Cash Balance"** (AccountBalance icon):
-- **Cash Interest Card**: Shows broker name(s), cash balance (lump sum minus total invested), monthly accrued interest, and APY. When a specific broker is selected, shows per-broker data.
+- **Cash Interest Card**: Shows broker name(s), cash balance (lump sum minus total invested, plus adjustments and dividends), monthly accrued interest, and APY. When a specific broker is selected, shows per-broker data.
+- **Dividend Badge**: Green chip showing total dividends/interest received this month.
+- **Cash Adjustment & Dividend Buttons**: Quick-action buttons to add cash deposits, withdrawals, or dividend entries.
 - **Portfolio Value Chart**: Area chart showing portfolio value vs total invested over time. Use `1M` / `6M` / `1Y` / `ALL` buttons to change the time range.
 
 **Tab 2 — "Invested Capital"** (TrendingUp icon):
@@ -70,6 +86,7 @@ The system checks once per month per broker and never duplicates.
 - **Holdings Table**: Ticker, Units, Avg Cost, Current Price, Value, Return %, and Actions (edit/delete).
 - **Allocation Donut Chart**: Visual breakdown by ticker.
 - **Portfolio Line Chart**: Full-width chart below.
+- **Tax Pocket**: Year-over-year capital gains tax card at the bottom. Shows realized gains and 26% Italian tax due per tax year when you sell ETF positions at a profit.
 
 ### Refreshing Prices
 
@@ -80,7 +97,9 @@ Click **Refresh Prices** in the page header to fetch the latest market prices fo
 - Supports **multiple broker accounts** — add as many as you need
 - Transactions can be **edited and deleted** at any time with automatic portfolio recalculation
 - **PAC automation** handles recurring monthly buys — no need to manually record each transaction
-- Cash balance = lump sum − total invested across all buy transactions (per-broker or aggregated)
+- Cash balance = lump sum − total invested + cash adjustments + dividends (per-broker or aggregated)
+- **Cash adjustments** and **dividend entries** modify the cash balance without affecting ETF unit counts
+- The **Tax Pocket** widget computes 26% Italian capital gains tax on realized gains per year
 - Portfolio snapshots are persisted to Firestore for cross-device charting
 - Historic prices are not stored; the chart uses the value at the time each snapshot was recorded
 
@@ -150,6 +169,10 @@ If you have configured your broker settings in the Investment page, the Projecti
 
 With multiple broker accounts, the prefill uses aggregated values.
 
+### Use Real Performance
+
+If you have been tracking investments with at least 2 portfolio snapshots, a **"Use Real Performance"** toggle appears below the ETF return slider. Flipping it on replaces the manual ETF return estimate with the **Compound Annual Growth Rate (CAGR)** computed from your actual portfolio history. The slider becomes read-only, showing your real CAGR value. Toggle it off to return to manual control.
+
 ### Example Scenarios
 
 **Conservative:** 10 years, 4% ETF return, €10k lump sum, €200/mo PAC
@@ -174,8 +197,25 @@ Broker Settings  ──prefill──►  Projections Page
 (lump sum, PAC,                 (initial defaults)
  interest rate)
 
+Portfolio Snapshots ──CAGR──►  Projections Page
+(historical value               ("Use Real Performance" toggle,
+  time series)                   replaces manual ETF return)
+
+Cash Adjustments &    ──store──►  Broker Cash Balance
+Dividend Entries                  (modify cash without
+                                  affecting ETF units)
+
 ETF Transactions ──snapshot──►  Firestore Subcollection
 (buy/sell records)              (persistent portfolio history)
+
+ETF Sell          ──compute──►  Tax Pocket
+transactions                     (26% capital gains per year)
 ```
 
-Setting up your broker in Investments means you don't have to re-enter your numbers when testing projections. The prefill is read-only — changing values on the Projections page does not modify your broker settings. Portfolio snapshots from your transactions are automatically persisted for cross-device charting.
+Setting up your broker in Investments means you don't have to re-enter your numbers when testing projections. The prefill is read-only — changing values on the Projections page does not modify your broker settings.
+
+If you have portfolio history, you can toggle **"Use Real Performance"** to base projections on your actual CAGR instead of a manual estimate.
+
+Portfolio snapshots from your transactions are automatically persisted for cross-device charting.
+
+Cash adjustments and dividend entries let you track external cash flows and investment income separately from ETF buy/sell activity.
