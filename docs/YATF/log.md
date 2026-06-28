@@ -165,3 +165,8 @@
 - Updated [[features/investment-tracking-v3]] status → **in-progress**
 - Updated [[plans/investment-tracking-v3-implementation]] status → **in-progress**
 - Updated [[architecture/investment-tracking-architecture]] with V3 section and new transaction types
+
+## [2026-06-28] plan | Feature | Dynamic Performance Prefill — Wave 4 analysis
+- Added CAGR analysis to [[plans/investment-tracking-v3-implementation]] — computation logic, UX flow, layer breakdown
+- Updated [[features/investment-tracking-v3]] with Wave 4 implementation notes
+- Updated index.md

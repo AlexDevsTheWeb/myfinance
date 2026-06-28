@@ -94,6 +94,49 @@ The V3 features build on the existing V2 foundation. Key integration points:
 - [[features/financial-projections]] — Projections engine (prefill target)
 - [[architecture/investment-tracking-architecture]] — Current architecture reference
 
+## Wave 4 Analysis: Dynamic Performance Prefill
+
+This bridges real portfolio returns into the Financial Projections simulator, completing the 4th V3 sub-feature.
+
+### Current State
+
+- `useProjections` already has a prefill `useEffect` that reads `brokerConfig` from the investment store — it prefills `monthlyPac`, `initialLumpSum`, `cashAnnualRate`
+- It does **not** prefill `etfAnnualReturn` — that's the remaining gap
+- `usePortfolio` returns `totalReturnPercent` and `portfolioSnapshots[]` (time series) but **no CAGR** or annualized return is computed anywhere
+
+### What's Needed
+
+| Layer | Change |
+|-------|--------|
+| `compoundInterestUtils.ts` | Add `computeCAGR(snapshots)` — annualized return from portfolio snapshot time series |
+| `useProjections.ts` | Add `useRealPerformance` toggle + CAGR prefill from `portfolioSnapshots`; when enabled, overrides `etfAnnualReturn` |
+| `ProjectionControls.tsx` | Add "Use Real Performance" switch, gray out ETF slider when active, show computed CAGR |
+| `ProjectionsPage.tsx` | Wire the toggle through |
+| i18n | Keys already exist in EN/IT from V3 commit (`useRealPerformance`, `manualParameters`) |
+
+### CAGR Computation Logic
+
+From sorted `portfolioSnapshots`, find earliest and latest entries with `totalInvested > 0`. Compute:
+
+```
+cagr = (endValue / startValue)^(1 / years) - 1
+```
+
+Where:
+- `startValue` = total invested at earliest snapshot
+- `endValue` = currentValue + cashBalance at latest snapshot
+- `years` = fractional years between earliest and latest snapshot dates
+
+Clamped to 0–20% range for sanity. Returns `null` if fewer than 2 snapshots or portfolio age < 1 month.
+
+### UX Flow
+
+1. User opens Projections page
+2. If portfolio has 2+ snapshots with `totalInvested > 0`, a "Use Real Performance" switch appears below the ETF return slider
+3. Switch OFF (default): everything works as before — manual slider control
+4. Switch ON: the ETF return slider value is locked to the computed CAGR, shown as "Using real portfolio: X.X%"
+5. User can toggle back to manual anytime
+
 ## Verification
 
 1. Manual: Add dividend entry → broker cash increases, units unchanged

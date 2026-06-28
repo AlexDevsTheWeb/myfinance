@@ -57,6 +57,16 @@ Support external cash deposits/withdrawals to/from broker accounts that are not 
 - Separate tracking from internal transfers
 - Audit trail for external cash flows
 
+### 5. Dynamic Performance Prefill (pending)
+
+Bridge real portfolio returns into the Financial Projections simulator. Computes CAGR from `portfolioSnapshots` time series and replaces the manual `etfAnnualReturn` slider when toggled on.
+
+**Implementation notes:**
+- `computeCAGR()` utility in `compoundInterestUtils.ts`
+- Toggle in `ProjectionControls` — gray out ETF slider when active
+- Reuses existing prefill pattern in `useProjections.ts`
+- See [[plans/investment-tracking-v3-implementation]] for full analysis
+
 ## Related
 
 - [[features/investment-tracking]] — V1 base feature (broker config, ETF tracking, strategy workflow)
