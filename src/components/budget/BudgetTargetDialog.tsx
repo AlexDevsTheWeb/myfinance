@@ -104,7 +104,7 @@ export default function BudgetTargetDialog({ open, onClose, onSave, editTarget }
           </Box>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: 1.5 }}>
         <Button onClick={onClose} sx={{ color: 'rgba(255,255,255,0.6)' }}>{t('common.cancel')}</Button>
         <Button onClick={handleSave} variant="contained" disabled={!category || targetAmount <= 0}>
           {t('common.save')}

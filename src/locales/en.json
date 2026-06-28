@@ -11,6 +11,7 @@
     "config": "Settings"
   },
   "nav": {
+    "finance": "Finance",
     "projections": "Projections",
     "budget": "Budget"
   },
@@ -32,6 +33,8 @@
     "logout": "Logout",
     "saveChanges": "Save Changes",
     "noData": "No data",
+    "newIncome": "New Income",
+    "newExpense": "New Expense",
     "warning": "Warning!",
     "headsUp": "Heads up!",
     "headsUpDescription": "Renaming this item will also update all your existing transactions and recurring templates associated with it."
@@ -109,7 +112,7 @@
     "save": "Save",
     "totalKm": "Total Km",
     "trend": "Mileage Trend",
-    "statistics": "Statistics {year}",
+    "statistics": "Statistics {{year}}",
     "month": "Month",
     "km": "Km",
     "tireUsage": "Tire Usage",
@@ -133,7 +136,7 @@
     "gas": "Gas",
     "water": "Water",
     "addReading": "Add Reading",
-    "total": "Total {title}",
+    "total": "Total {{title}}",
     "monthly": "Monthly",
     "totalConsumption": "Total Consumption",
     "unitCost": "Unit Cost",
@@ -223,7 +226,7 @@
     "accountBreakdown": "Account Breakdown",
     "net": "Net",
     "vsPrevMonth": "vs Prev Month",
-    "financialTrendTitle": "Yearly Financial Trend ({year})",
+    "financialTrendTitle": "Yearly Financial Trend ({{year}})",
     "totalIncome": "Total Income",
     "totalExpenses": "Total Expenses",
     "netEarnings": "Net Earnings",

@@ -71,7 +71,7 @@ const AnalysisTables: React.FC<AnalysisTablesProps> = ({ selectedYear }) => {
 
   const renderTable = (title: string, data: any[], rows: { label: string; key: string, color?: string }[]) => (
     <Paper>
-      <Box sx={{ p: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <Box sx={{ p: 1.5, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{title}</Typography>
       </Box>
       <TableContainer>
@@ -105,7 +105,7 @@ const AnalysisTables: React.FC<AnalysisTablesProps> = ({ selectedYear }) => {
 
   const renderCategoryTable = (title: string, data: any[]) => (
     <Paper>
-      <Box sx={{ p: 2, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <Box sx={{ p: 1.5, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{title}</Typography>
       </Box>
       <TableContainer>

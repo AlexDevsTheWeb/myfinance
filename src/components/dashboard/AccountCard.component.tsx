@@ -18,7 +18,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ name, currentBalance, initial
     <Paper
       elevation={0}
       sx={{
-        p: 2.5,
+        p: 1.5,
         borderRadius: 2,
         bgcolor: 'rgba(255, 255, 255, 0.03)',
         border: '1px solid rgba(255, 255, 255, 0.08)',

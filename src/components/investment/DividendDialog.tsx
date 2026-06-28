@@ -146,7 +146,7 @@ const DividendDialog: React.FC<DividendDialogProps> = ({ open, onClose, defaultB
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ p: 3 }}>
+      <DialogActions sx={{ p: 1.5 }}>
         <Button onClick={onClose} color="inherit">{t('common.cancel') || 'Cancel'}</Button>
         <Button onClick={handleSubmit} variant="contained">{t('common.submit') || 'Submit'}</Button>
       </DialogActions>

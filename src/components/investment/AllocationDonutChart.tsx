@@ -14,7 +14,7 @@ interface AllocationDonutChartProps {
 
 const AllocationDonutChart: React.FC<AllocationDonutChartProps> = ({ data, title }) => {
   return (
-    <Paper sx={{ p: 2 }}>
+    <Paper sx={{ p: 1.5 }}>
       {title && (
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
           {title}

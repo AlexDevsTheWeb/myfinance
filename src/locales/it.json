@@ -11,6 +11,7 @@
     "config": "Configurazione"
   },
   "nav": {
+    "finance": "Finanza",
     "projections": "Proiezioni",
     "budget": "Budget"
   },
@@ -32,6 +33,8 @@
     "logout": "Esci",
     "saveChanges": "Salva modifiche",
     "noData": "Nessun dato",
+    "newIncome": "Nuova Entrata",
+    "newExpense": "Nuova Uscita",
     "warning": "Attenzione!",
     "headsUp": "Attenzione!",
     "headsUpDescription": "La rinomina aggiornerà anche tutte le transazioni e i template ricorrenti associati."
@@ -109,7 +112,7 @@
     "save": "Salva",
     "totalKm": "Totale Km",
     "trend": "Andamento Chilometraggio",
-    "statistics": "Statistiche {year}",
+    "statistics": "Statistiche {{year}}",
     "month": "Mese",
     "km": "Km",
     "tireUsage": "Uso Pneumatici",
@@ -133,7 +136,7 @@
     "gas": "Gas",
     "water": "Acqua",
     "addReading": "Aggiungi lettura",
-    "total": "Totale {title}",
+    "total": "Totale {{title}}",
     "monthly": "Mensile",
     "totalConsumption": "Consumo Totale",
     "unitCost": "Costo Unitario",
@@ -223,7 +226,7 @@
     "accountBreakdown": "Distribuzione Conti",
     "net": "Netto",
     "vsPrevMonth": "vs Mese Prec.",
-    "financialTrendTitle": "Andamento Finanziario Annuale ({year})",
+    "financialTrendTitle": "Andamento Finanziario Annuale ({{year}})",
     "totalIncome": "Entrate Totali",
     "totalExpenses": "Uscite Totali",
     "netEarnings": "Guadagno Netto",

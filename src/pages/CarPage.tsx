@@ -314,7 +314,7 @@ const CarPage: React.FC = () => {
       </Box>
 
       <Collapse in={showSettings}>
-        <Paper sx={{ p: 3, mb: 3, background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <Paper sx={{ p: 1.5, mb: 3, background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>{t('car.settings')}</Typography>
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <TextField
@@ -337,7 +337,7 @@ const CarPage: React.FC = () => {
           {/* Column 1: Total Odometer + New Reading Form */}
           <Grid size={{ xs: 12, md: 3 }}>
             <Card sx={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', borderRadius: 4, boxShadow: '0 8px 32px rgba(37, 99, 235, 0.3)', mb: 3 }}>
-              <CardContent sx={{ p: 3 }}>
+              <CardContent sx={{ p: 1.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <SpeedIcon sx={{ mr: 1, opacity: 0.8 }} />
                   <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>{t('car.totalKm')}</Typography>
@@ -346,7 +346,7 @@ const CarPage: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 2 }}>
                 {editingId ? 'Edit Reading' : 'New Reading'}
               </Typography>
@@ -375,7 +375,7 @@ const CarPage: React.FC = () => {
               {/* Current year total */}
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{selectedYearFilter}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 800, color: '#6366f1' }}>{yearStats.totalKmYear.toLocaleString()} km</Typography>
                   </CardContent>
@@ -385,7 +385,7 @@ const CarPage: React.FC = () => {
               {/* Avg with data */}
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.avgData')}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>{yearStats.avgKmYear.toLocaleString()} km</Typography>
                   </CardContent>
@@ -395,7 +395,7 @@ const CarPage: React.FC = () => {
               {/* Avg full year */}
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.avg12')}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>{(yearStats.totalKmYear / 12).toLocaleString()} km</Typography>
                   </CardContent>
@@ -405,7 +405,7 @@ const CarPage: React.FC = () => {
               {/* Historical summary */}
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, display: 'block', mb: 1 }}>{t('car.history')}</Typography>
                     <Box sx={{ maxHeight: 50, overflow: 'auto' }}>
                       {historicalStats.slice(0, 3).map(h => (
@@ -421,7 +421,7 @@ const CarPage: React.FC = () => {
             </Grid>
 
             {/* Mileage Trend Chart */}
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.trend')}</Typography>
               <Box sx={{ height: 200, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -439,7 +439,7 @@ const CarPage: React.FC = () => {
 
           {/* Column 3: Statistics Table */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>{t('car.statistics', { year: selectedYearFilter })}</Typography>
               </Box>
@@ -480,7 +480,7 @@ const CarPage: React.FC = () => {
               {/* Summer Total */}
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(245, 158, 11, 0.1)', borderRadius: 4, border: '1px solid #f59e0b' }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.summer')}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#f59e0b' }}>{tireStats.summerTotal.toLocaleString()} km</Typography>
                   </CardContent>
@@ -490,7 +490,7 @@ const CarPage: React.FC = () => {
               {/* Winter Total */}
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(59, 130, 246, 0.1)', borderRadius: 4, border: '1px solid #3b82f6' }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.winter')}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#3b82f6' }}>{tireStats.winterTotal.toLocaleString()} km</Typography>
                   </CardContent>
@@ -500,7 +500,7 @@ const CarPage: React.FC = () => {
               {/* Current - spans 2 columns */}
               <Grid size={{ xs: 12 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4 }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.current')}</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900 }}>{tireStats.currentTire === 'summer' ? t('car.summer') : t('car.winter')}</Typography>
                     <Typography variant="body2" sx={{ opacity: 0.6 }}>{tireStats.currentRunKm.toLocaleString()} km</Typography>
@@ -510,7 +510,7 @@ const CarPage: React.FC = () => {
             </Grid>
 
             {/* New Tire Change Form */}
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.newTire')}</Typography>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6 }}>
@@ -534,7 +534,7 @@ const CarPage: React.FC = () => {
 
           {/* Column 2: History Table */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>History</Typography>
               <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
                 <Table size="small">
@@ -565,7 +565,7 @@ const CarPage: React.FC = () => {
 
           {/* Column 3: Tire Usage Chart */}
           <Grid size={{ xs: 12, md: 5 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.tireUsage')}</Typography>
               <Box sx={{ height: 250, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -592,7 +592,7 @@ const CarPage: React.FC = () => {
               {/* Total Spent */}
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: 4 }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700 }}>Total Spent</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900 }}>{costStats.totalCostYear.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
                   </CardContent>
@@ -602,7 +602,7 @@ const CarPage: React.FC = () => {
               {/* Efficiency */}
               <Grid size={{ xs: 6 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Efficiency</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#10b981' }}>{costStats.avgEfficiencyYear.toFixed(3)} €/km</Typography>
                   </CardContent>
@@ -612,7 +612,7 @@ const CarPage: React.FC = () => {
               {/* Total Km - spans 2 columns */}
               <Grid size={{ xs: 12 }}>
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 2 }}>
+                  <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Total Km</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900 }}>{costStats.totalKmYear.toLocaleString()}</Typography>
                   </CardContent>
@@ -623,7 +623,7 @@ const CarPage: React.FC = () => {
 
           {/* Column 2: Monthly Details Table */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Monthly Details</Typography>
               <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
                 <Table size="small">
@@ -655,7 +655,7 @@ const CarPage: React.FC = () => {
 
           {/* Column 3: Fuel Efficiency Trend Chart */}
           <Grid size={{ xs: 12, md: 5 }}>
-            <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Fuel Efficiency Trend</Typography>
               <Box sx={{ height: 250, width: '100%' }}>
                 <ResponsiveContainer width="100%" height="100%">

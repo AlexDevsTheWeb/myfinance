@@ -10,7 +10,7 @@ const TaxPocketWidget: React.FC = () => {
 
   return (
     <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4 }}>
-      <CardContent sx={{ p: 3 }}>
+      <CardContent sx={{ p: 1.5 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>
             {t('investment.taxPocket')}
@@ -22,7 +22,7 @@ const TaxPocketWidget: React.FC = () => {
           />
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 3, mb: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1.5, mb: 2 }}>
           <Box>
             <Typography variant="caption" sx={{ opacity: 0.6 }}>{t('investment.realizedGains')}</Typography>
             <Typography variant="h6" sx={{ fontWeight: 700, color: totalRealizedGains > 0 ? '#f59e0b' : 'inherit' }}>

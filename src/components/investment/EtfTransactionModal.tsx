@@ -105,7 +105,7 @@ const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose
       <DialogContent>
         <EtfTransactionForm formData={formData} setFormData={setFormData} errors={errors} />
       </DialogContent>
-      <DialogActions sx={{ p: 3 }}>
+      <DialogActions sx={{ p: 1.5 }}>
         <Button onClick={onClose} color="inherit">Cancel</Button>
         <Button onClick={handleSubmit} variant="contained">Submit</Button>
       </DialogActions>
