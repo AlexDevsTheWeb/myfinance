@@ -1,12 +1,11 @@
-import { ChevronRight, Event as DateIcon, AccountBalance as FinanceIcon, Home, Menu as MenuIcon, Settings as SettingsIcon, ExitToApp as LogoutIcon } from '@mui/icons-material';
+import { ChevronRight, AccountBalance as FinanceIcon, Home, Menu as MenuIcon } from '@mui/icons-material';
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
-import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, Menu, MenuItem, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery } from '@mui/material';
+import { AppBar, Box, Breadcrumbs, Button, Container, IconButton, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../lib/i18n';
-import { useLogout } from '../../hooks/useLogout';
 import { useAuthStore } from '../../store/useAuthStore';
 import type { Transaction } from '../../store/useFinanceStore';
 import { getEnvVar } from '../../utils/variables.utils';
@@ -20,14 +19,12 @@ dayjs.locale(i18n.language);
 const drawerWidth = 240;
 
 const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDescription?: string }> = ({ children, pageTitle, pageDescription }) => {
-  const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
   const isMobile = useMediaQuery('(max-width: 899.95px)');
   const { t } = useTranslation();
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
   const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
@@ -43,20 +40,10 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
 
   const handleCloseFab = () => setFabOpen(false);
 
-  const handleOpenUser = (event: React.MouseEvent<HTMLElement>) => setAnchorElUser(event.currentTarget);
-  const handleCloseUser = () => setAnchorElUser(null);
-
   const handleFabSelect = (type: 'income' | 'expense') => {
     setTransactionToEdit(null);
     setModalType(type);
     setModalOpen(true);
-  };
-
-  const logout = useLogout();
-
-  const handleLogout = () => {
-    handleCloseUser();
-    logout();
   };
 
   const appTitle = getEnvVar('VITE_REACT_APP_TITLE');
@@ -96,7 +83,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
 
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 }}>
         <AppBar position="sticky" elevation={0} sx={{ background: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <Toolbar sx={{ justifyContent: 'space-between' }}>
+          <Toolbar>
             {isMobile && (
               <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2 }}>
                 <MenuIcon />
@@ -111,57 +98,6 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
               <FinanceIcon />
               {appTitle}
             </Typography>
-
-            {user && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <IconButton onClick={handleOpenUser} sx={{ p: 0.5 }}>
-                  <Avatar
-                    src={user.photoURL || undefined}
-                    alt={user.displayName || 'User'}
-                    sx={{ width: 36, height: 36, border: '2px solid rgba(99, 102, 241, 0.5)' }}
-                  >
-                    {user.displayName?.charAt(0)}
-                  </Avatar>
-                </IconButton>
-                <Menu
-                  anchorEl={anchorElUser}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUser}
-                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                  slotProps={{
-                    paper: {
-                      sx: {
-                        background: '#1e293b',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        mt: 1.5,
-                        minWidth: 220,
-                        '& .MuiMenuItem-root': { fontSize: '0.9rem' }
-                      }
-                    }
-                  }}
-                >
-                  <Box sx={{ px: 2, py: 1.5 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#818cf8' }}>
-                      {user.displayName}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5, opacity: 0.6 }}>
-                      <DateIcon sx={{ fontSize: 14, mr: 0.5 }} />
-                      <Typography variant="caption" sx={{ textTransform: 'capitalize' }}>
-                        {dayjs().format('LLLL')}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)' }} />
-                  <MenuItem onClick={() => { navigate('/config'); handleCloseUser(); }}>
-                    <SettingsIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> {t('navigation.config')}
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout} sx={{ color: '#ef4444' }}>
-                    <LogoutIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> {t('common.logout')}
-                  </MenuItem>
-                </Menu>
-              </Box>
-            )}
           </Toolbar>
         </AppBar>
 
