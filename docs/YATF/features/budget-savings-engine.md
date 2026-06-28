@@ -3,14 +3,14 @@ title: "Budget & Savings Rate Engine"
 tags: [feature, budget, savings, planned]
 created: 2026-06-28
 updated: 2026-06-28
-status: planned
+status: implemented
 sources: ["raw/100-budget-savings-engine/issue.md"]
 related: ["features/investment-tracking", "features/financial-projections", "features/crud-etf-transactions", "architecture/budget-savings-architecture", "architecture/financial-projections-architecture", "architecture/investment-tracking-architecture"]
 ---
 
 # Feature: Budget & Savings Rate Engine
 
-Status: planned
+Status: implemented
 Priority: high
 
 ## Description

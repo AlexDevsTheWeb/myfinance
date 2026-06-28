@@ -219,3 +219,82 @@ Se hai una cronologia del portafoglio, puoi attivare **"Usa Performance Reali"**
 Gli snapshot del portafoglio dalle tue transazioni vengono automaticamente salvati per la visualizzazione dei grafici su più dispositivi.
 
 I movimenti di cassa e le registrazioni dividendi ti permettono di tracciare flussi di cassa esterni e redditi da investimenti separatamente dalle attività di acquisto/vendita ETF.
+
+---
+
+## 3. Budget e Tasso di Risparmio (`/budget`)
+
+Monitora le tue spese rispetto a obiettivi di budget configurabili e tieni traccia del tuo tasso di risparmio in tempo reale. La pagina `/budget` mostra quanto stai spendendo per categoria, come si confronta con i tuoi obiettivi e qual è il tuo tasso di risparmio complessivo.
+
+### Per Iniziare
+
+1. **Attiva il modulo**: Vai su **Impostazioni** (`/config`) → *Moduli Attivi* → attiva **Gestione Budget**.
+2. **Aggiungi obiettivi di budget**: Nella pagina Budget, clicca **Aggiungi Budget** per creare il tuo primo obiettivo. Per ogni obiettivo compila:
+   - **Nome (opzionale)** — un'etichetta leggibile (predefinito: il nome della categoria)
+   - **Categoria** — la categoria di spesa a cui si applica questo budget (es. *Casa*, *Trasporti*, *Spese quotidiane*)
+   - **Periodo** — ogni quanto si resetta l'obiettivo: **Mensile**, **Semestrale** o **Annuale**
+   - **Importo Obiettivo (€)** — quanto prevedi di spendere in questa categoria per periodo
+   - **Colore** — scegli un colore per i grafici
+
+Puoi aggiungere, modificare o eliminare obiettivi in qualsiasi momento.
+
+### Selettore Periodo
+
+Usa il menu a tendina **Periodo** nella parte superiore della pagina per passare tra vista Mensile, Semestrale e Annuale. Tutte le metriche e i grafici si aggiornano in tempo reale per riflettere il periodo selezionato.
+
+### Leggere la Dashboard
+
+**Indicatore Tasso di Risparmio** (in cima alla pagina):
+Un indicatore circolare che mostra il tuo tasso di risparmio corrente: `(Entrate Totali − Uscite Totali) / Entrate Totali` per il periodo selezionato. Colori:
+- **Verde** (≥20%) — tasso di risparmio sano
+- **Ambra** (10–19%) — moderato
+- **Rosso** (<10%) — necessita attenzione
+
+**Carte di Riepilogo** (sotto l'indicatore):
+Quattro carte metriche per una visione d'insieme:
+| Carta | Cosa Mostra |
+|-------|-------------|
+| **Budget Totale** | Somma di tutti gli importi obiettivo per il periodo |
+| **Totale Speso** | Somma delle spese effettive nelle categorie con budget |
+| **Rimanente** | Budget Totale meno Totale Speso |
+| **Tasso di Risparmio** | Percentuale del tasso di risparmio complessivo (evidenziata) |
+
+**Progresso per Categoria** (grafico a barre):
+Per ogni obiettivo di budget impostato, una barra di progresso orizzontale mostra:
+- **Verde** (<70%) — in linea, zona sicura
+- **Ambra** (71–99%) — in avvicinamento al limite, zona di avviso
+- **Rosso** (≥100%) — fuori budget, zona di superamento
+
+Ogni barra mostra il nome della categoria, l'importo effettivo rispetto all'obiettivo e la percentuale utilizzata.
+
+**Obiettivo vs Reale** (grafico a barre raggruppate):
+Un grafico a barre Recharts che confronta l'importo obiettivo di ogni categoria (barra trasparente) con la spesa effettiva (barra piena). Aiuta a individuare quali categorie sono costantemente sopra o sotto budget.
+
+**Andamento Progressivo** (grafico ad area):
+Un grafico ad area che mostra la spesa cumulativa nel tempo (linea effettiva) rispetto al tasso di consumo lineare ideale (linea tratteggiata). La linea ideale presuppone che tu spenda il budget totale in modo uniforme durante il periodo. Se la linea effettiva è sopra quella ideale, stai spendendo più velocemente del previsto.
+
+**Obiettivi di Budget** (elenco):
+In fondo alla pagina, un elenco di tutti i tuoi obiettivi configurati con controlli di modifica/eliminazione. Ogni elemento mostra la categoria, il periodo, l'importo e l'indicatore di colore.
+
+### Come Viene Calcolato il Tasso di Risparmio
+
+```
+Tasso di Risparmio = (Entrate Totali − Uscite Totali) / Entrate Totali
+
+Dove:
+  Entrate Totali = Somma di tutte le transazioni di entrata nel periodo
+  Uscite Totali  = Somma di tutte le transazioni di uscita nel periodo
+```
+
+Il tasso viene visualizzato come percentuale. Un tasso del 25% significa che risparmi €1 per ogni €4 guadagnati.
+
+### Integrazione con gli Investimenti
+
+Il surplus (Budget Totale − Totale Speso) e il tasso di risparmio vengono visualizzati nella pagina Budget. Questi valori ti danno un'indicazione di quanto è disponibile per gli investimenti — un ponte diretto tra la gestione del budget quotidiano e il tuo pipeline di investimenti in `/invest`.
+
+### Note
+
+- Il progresso del budget viene calcolato in tempo reale dalle tue transazioni esistenti — aggiungere una transazione in `/transactions` aggiorna immediatamente tutte le metriche del budget
+- Gli obiettivi di budget sono salvati nel tuo account Firestore e sincronizzati tra i dispositivi
+- Il tasso di risparmio è un calcolo puro a partire dai dati di entrate/uscite — nessuna configurazione aggiuntiva necessaria
+- Un obiettivo senza spese corrispondenti mostra 0% speso (verde)

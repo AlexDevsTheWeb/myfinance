@@ -188,6 +188,18 @@
 - Updated [[architecture/financial-projections-architecture]] — added savings rate bridge section
 - Updated index.md (33 pages) and log.md
 
+## [2026-06-28] implement | Feature | Budget & Savings Rate Engine V4 — Full /budget module
+- Implemented 6 waves across 29 files (1882 insertions)
+- Created [[features/budget-savings-engine]] status → **implemented**
+- Created [[architecture/budget-savings-architecture]] status → **active**
+- Created [[plans/budget-savings-engine-implementation]] status → **completed**
+- Updated [[features/investment-tracking-guide]] → added Budget section, renamed to include Budget
+- Updated [[features/guida-investimenti]] → added Budget section, renamed to include Budget
+- Updated [[architecture/investment-tracking-architecture]] — added budget integration section
+- Updated [[architecture/financial-projections-architecture]] — added savings rate bridge
+- Updated FEATURES-GUIDE.md and FEATURES-GUIDE.it.md with Budget section
+- Updated index.md and log.md
+
 ## [2026-06-28] docs | Guide | V3 features added to FEATURES-GUIDE (EN/IT)
 - Updated `raw/FEATURES-GUIDE.md` — added Cash Adjustments, Dividends, Tax Pocket, and Use Real Performance sections
 - Updated `raw/FEATURES-GUIDE.it.md` — Italian version with same V3 additions

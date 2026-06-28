@@ -3,7 +3,7 @@ title: "Budget & Savings Rate Architecture"
 tags: [architecture, budget, savings, data-flow, planned]
 created: 2026-06-28
 updated: 2026-06-28
-status: draft
+status: active
 sources: ["raw/100-budget-savings-engine/issue.md"]
 related: ["features/budget-savings-engine", "features/investment-tracking", "features/financial-projections", "architecture/investment-tracking-architecture", "architecture/financial-projections-architecture", "architecture/system-architecture"]
 ---

@@ -11,10 +11,14 @@
             "id": "d83c4f0840b094ae",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "features/guida-investimenti.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "guida-investimenti"
             }
           }
         ]
@@ -178,13 +182,18 @@
   },
   "active": "d83c4f0840b094ae",
   "lastOpenFiles": [
-    "plans/investment-tracking-v3-implementation.md",
-    "features/investment-tracking-v3.md",
+    "plans/budget-savings-engine-implementation.md",
+    "features/budget-savings-architecture.md",
+    "features/budget-savings-engine.md",
+    "raw/100-budget-savings-engine/issue.md",
+    "raw/100-budget-savings-engine",
     "raw/98-investment-tracking-v3/issue.md",
     "raw/98-investment-tracking-v3",
+    "plans/investment-tracking-v3-implementation.md",
+    "features/investment-tracking-v3.md",
+    "features/investment-tracking-guide.md",
     "features/historical-snapshots.md",
     "features/guida-investimenti.md",
-    "features/investment-tracking-guide.md",
     "index.md",
     "raw/12-investment-tracking-v2/implementation.md",
     "raw/12-investment-tracking-v2",
