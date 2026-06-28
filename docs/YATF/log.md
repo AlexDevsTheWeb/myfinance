@@ -134,6 +134,13 @@
 - Updated index.md
 - Source: [raw/83-financial-projections/implementation.md](raw/83-financial-projections/implementation.md)
 
+## [2026-06-28] ingest | Feature | Investment Tracking V3 — Dividend, Tax, Performance
+- Created [[raw/98-investment-tracking-v3/issue.md]] from GitHub [Issue #98](https://github.com/AlexDevsTheWeb/myfinance/issues/98)
+- Created [[features/investment-tracking-v3]] — 4 sub-features (dividend ledger, capital gains tax, performance prefill, cash adjustments)
+- Created [[plans/investment-tracking-v3-implementation]] — architecture analysis and recommended implementation order
+- Updated [[architecture/investment-tracking-architecture]] — added V3 section, new transaction types in classification table
+- Updated index.md (30 pages) and log.md
+
 ## [2026-06-27] implement | Feature | Investment Tracking V2 — Phase 12 complete (PR #95)
 - Implemented 6 plans across 4 waves on `feat/phase-12-investment-tracking-v2`
 - 24 execution commits, 4 files created, ~30 files modified
