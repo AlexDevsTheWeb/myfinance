@@ -1,5 +1,5 @@
 import { DirectionsCar as CarIcon } from '@mui/icons-material';
-import { Alert, AlertTitle, Box, Button, Grid, Typography } from '@mui/material';
+import { Alert, AlertTitle, Box, Button, Grid, Paper, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,29 +7,37 @@ import { useTranslation } from 'react-i18next';
 import AccountDetailDialog from '../components/dashboard/AccountDetailDialog';
 import Charts from '../components/dashboard/Charts';
 import RecapCards from '../components/dashboard/RecapCards';
-import TransactionTable from '../components/dashboard/TransactionTable';
-import TransactionModal from '../components/modals/TransactionModal';
-import { useFinanceStore, type Transaction } from '../store/useFinanceStore';
+import SavingsRateGauge from '../components/budget/SavingsRateGauge';
+import BulletChart from '../components/budget/BulletChart';
+import PortfolioLineChart from '../components/investment/PortfolioLineChart';
+import { useFinanceStore } from '../store/useFinanceStore';
+import { useBudgetStore } from '../store/useBudgetStore';
+import { usePortfolio } from '../analytics/hooks/usePortfolio';
+import { computeBudgetProgress } from '../lib/budgetEngine';
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { enabledModules, carMileage } = useFinanceStore();
+  const { enabledModules, carMileage, transactions } = useFinanceStore();
+  const { budgetTargets } = useBudgetStore();
   const { t } = useTranslation();
   const [accountDialogOpen, setAccountDialogOpen] = React.useState(false);
+  const [portfolioTimeRange, setPortfolioTimeRange] = React.useState('1Y');
+
+  const portfolio = usePortfolio();
+
+  const currentDateRange = React.useMemo(() => ({
+    start: dayjs().startOf('month').format('YYYY-MM-DD'),
+    end: dayjs().endOf('month').format('YYYY-MM-DD'),
+  }), []);
+
+  const { snapshots: budgetSnapshots, summary: budgetSummary } = React.useMemo(
+    () => computeBudgetProgress(transactions, budgetTargets, currentDateRange),
+    [transactions, budgetTargets, currentDateRange],
+  );
 
   const isFirstOfMonth = dayjs().date() === 1;
   const hasReadingThisMonth = carMileage.some(m => m.month === (dayjs().month() + 1) && m.year === dayjs().year());
   const showMileageReminder = enabledModules.carManagement && isFirstOfMonth && !hasReadingThisMonth;
-
-  const [editModalOpen, setEditModalOpen] = React.useState(false);
-  const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
-  const [editType, setEditType] = React.useState<'income' | 'expense' | 'transfer'>('expense');
-
-  const handleEditTransaction = (transaction: Transaction) => {
-    setEditTransaction(transaction);
-    setEditType(transaction.type);
-    setEditModalOpen(true);
-  };
 
   return (
     <Box sx={{ pb: 10 }}>
@@ -61,9 +69,34 @@ const DashboardPage: React.FC = () => {
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: 7 }}>
           <RecapCards onOpenAccountDialog={() => setAccountDialogOpen(true)} />
-          <Box sx={{ mt: 3 }}>
-            <TransactionTable onEdit={handleEditTransaction} limit={8} />
-          </Box>
+
+          {enabledModules?.investmentTracking && portfolio.chartData.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              <PortfolioLineChart
+                data={portfolio.chartData}
+                timeRange={portfolioTimeRange}
+                onTimeRangeChange={setPortfolioTimeRange}
+              />
+            </Box>
+          )}
+
+          {enabledModules?.budgetTracking && budgetTargets.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              <Paper sx={{ p: 1.5 }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ flex: { xs: 'none', sm: '0 0 auto' }, width: { xs: '100%', sm: 'auto' } }}>
+                    <SavingsRateGauge rate={budgetSummary.savingsRate} />
+                  </Box>
+                  <Box sx={{ flex: 1, width: '100%' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
+                      {t('budget.progressByCategory')}
+                    </Typography>
+                    <BulletChart snapshots={budgetSnapshots} />
+                  </Box>
+                </Box>
+              </Paper>
+            </Box>
+          )}
         </Grid>
         <Grid size={{ xs: 12, lg: 5 }}>
           <Charts />
@@ -71,13 +104,6 @@ const DashboardPage: React.FC = () => {
       </Grid>
 
       <AccountDetailDialog open={accountDialogOpen} onClose={() => setAccountDialogOpen(false)} />
-
-      <TransactionModal
-        open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        type={editType}
-        transaction={editTransaction}
-      />
     </Box>
   );
 };
