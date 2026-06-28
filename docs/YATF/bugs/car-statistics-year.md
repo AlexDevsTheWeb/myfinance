@@ -3,14 +3,14 @@ title: "Car Statistics Year Not Displaying"
 tags: [bug, frontend, resolved]
 created: 2026-06-28
 updated: 2026-06-28
-status: investigating
+status: fixed
 sources: ["raw/99-manual-review-2706.md"]
 related: ["plans/manual-review-99-implementation"]
 ---
 
 # Bug: Car Statistics Year Display
 
-Status: **investigating**
+Status: **fixed**
 Severity: **minor**
 
 ## Symptom

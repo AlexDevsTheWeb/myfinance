@@ -1,5 +1,18 @@
 # Wiki Log
 
+## [2026-06-28] complete | Implementation | Manual Review #99 — All 7 items implemented
+- ✅ Wave 1: i18n bugfix (car.statistics, utilities.total, insights.financialTrendTitle) + hardcoded strings → translations
+- ✅ Wave 2: Padding reduction (p:3→p:1.5) across 20+ component files
+- ✅ Wave 3: Account Detail Dialog (full-screen) + stripped account cards from dashboard
+- ✅ Wave 4: Added PortfolioLineChart, SavingsRateGauge, BulletChart to dashboard; removed TransactionTable
+- ✅ Wave 5: Vertical sidebar with collapsible mode, avatar at bottom, transactions link
+- ✅ Dashboard enrichment: module overview stat cards (investments, budget, car, utilities)
+- Updated [[features/dashboard-redesign]] → implemented
+- Updated [[features/sidebar-redesign]] → implemented
+- Updated [[bugs/car-statistics-year]] → fixed
+- Updated [[plans/manual-review-99-implementation]] → completed
+- Updated index.md and log.md
+
 ## [2026-06-28] ingest | Feature | Manual Review #99 — UI/UX, Bug Fixes & Polish
 - Created [[raw/99-manual-review-2706.md]] from GitHub [Issue #99](https://github.com/AlexDevsTheWeb/myfinance/issues/99)
 - Created [[features/dashboard-redesign]] — dashboard split, account detail dialog, additional charts

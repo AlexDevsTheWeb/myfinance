@@ -3,19 +3,19 @@ title: "Dashboard Redesign"
 tags: [feature, frontend, planned]
 created: 2026-06-28
 updated: 2026-06-28
-status: planned
+status: implemented
 sources: ["raw/99-manual-review-2706.md"]
 related: ["features/sidebar-redesign", "bugs/car-statistics-year", "plans/manual-review-99-implementation"]
 ---
 
 # Feature: Dashboard Redesign
 
-Status: **planned**
+Status: **implemented**
 Priority: **high**
 
 ## Description
 
-Split the overloaded dashboard into a focused overview page and move account details into a dedicated dialog. Add more useful charts (investment portfolio, budget progress).
+✅ Split the overloaded dashboard into a focused overview page and move account details into a dedicated dialog. Added more useful charts (investment portfolio, budget progress) and module overview stat cards.
 
 ## Sub-Features
 
@@ -43,7 +43,16 @@ Split the overloaded dashboard into a focused overview page and move account det
 **Target (conditional on enabled modules):**
 - Investment portfolio value over time (from `portfolio_history` snapshots)
 - Budget savings rate gauge and burn-up trend
-- Monthly income vs expense comparison (reuse from Insights)
+- Module overview stat cards (investments, budget, car mileage, utilities)
+
+### D. Module Overview Stat Cards
+
+**New:** A row of compact `StatCard` mini-components below the dashboard header, showing:
+- **Investments:** Current portfolio value + return % (links to `/invest`)
+- **Budget:** Savings rate % (links to `/budget`)
+- **Car:** Latest odometer reading (links to `/car`)
+- **Utilities:** Monthly bill total (links to `/utilities`)
+- Each card is conditionally rendered based on enabled modules
 
 ## Requirements
 
@@ -51,13 +60,15 @@ Split the overloaded dashboard into a focused overview page and move account det
 - AccountDetailDialog should be full-screen with close button
 - Conditional charts only render when their module is enabled
 - Remove the `accountDetails` toggle from RecapCards
+- Overview stat cards show key metrics for each enabled module with navigation links
 
 ## Implementation Notes
 
-- `DashboardPage.tsx` — strip `TransactionTable`, `AccountCard` blocks; add conditional chart sections
+- `DashboardPage.tsx` — strip `TransactionTable`, `AccountCard` blocks; add conditional chart sections and `StatCard` inline component
 - New file: `src/components/dashboard/AccountDetailDialog.tsx` — full-screen dialog
 - `RecapCards.tsx` — replace account details toggle with dialog trigger button
 - Reuse existing analytics hooks (`useNetWorth`, `useAccountBreakdown`) and budget components
+- StatCard computes investment return %, budget savings rate, car latest odometer, and monthly utility bills from store data
 
 ## Related
 

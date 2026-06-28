@@ -10,7 +10,7 @@ related: ["features/dashboard-redesign", "plans/manual-review-99-implementation"
 
 # Feature: Sidebar Navigation Redesign
 
-Status: **planned**
+Status: **implemented**
 Priority: **medium**
 
 ## Description
@@ -24,29 +24,32 @@ Replace the horizontal top navigation bar with a vertical left sidebar. Group Fi
 - A "Finance" dropdown for Salary and Insights sub-items
 - A mobile-only `SwipeableDrawer` with all items listed flat
 
-## Target
+## What Was Built
 
 ### Desktop Layout
-- **Left sidebar** (permanent `Drawer`, ~240px):
+- **Left sidebar** (permanent `Drawer`, ~240px expandable / 64px collapsed):
   - Logo/app title at top
   - **Dashboard** (always)
-  - **Finance group** (collapsible):
-    - Salary
-    - Insights
-  - **Investment group** (collapsible):
-    - Investments (if `investmentTracking` enabled)
-    - Projections
-  - Budget (if `budgetTracking` enabled)
-  - Car (if `carManagement` enabled)
-  - Utilities (if `utilityTracker` enabled)
+  - **Finance group** (collapsible): Salary, Insights, Transactions
+  - **Investment group** (collapsible): Investments (if enabled), Projections
+  - Budget (if enabled)
+  - Car (if enabled)
+  - Utilities (if enabled)
   - Separator
   - Settings
-  - Logout
-- **Top bar** (simplified): Just logo + user avatar with dropdown menu
+  - **Logout** (with user avatar + name at sidebar bottom)
+- **Top bar** (simplified): Just logo — avatar moved to sidebar
 
 ### Mobile
-- Keep the existing `SwipeableDrawer` pattern (already works well)
-- Update drawer content to match new grouping
+- Same `Sidebar` component used in a `temporary` Drawer
+- Same grouping and collapsible behavior
+
+### Key Features
+- **Collapsible mode:** Toggle button shrinks sidebar to 64px icon-only mode
+- **Active route highlighting** with accent color and subtle background
+- **Transactions link** added to sidebar (was missing before)
+- **Avatar + user name** moved from AppBar dropdown to sidebar bottom
+- CSS-animated width transitions (240px ↔ 64px)
 
 ## Requirements
 
