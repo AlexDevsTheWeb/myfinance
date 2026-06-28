@@ -2,10 +2,10 @@
 title: "Project State"
 tags: [architecture, state, project]
 created: 2026-06-22
-updated: 2026-06-22
+updated: 2026-06-28
 status: active
-sources: ["raw/STATE.md"]
-related: ["plans/roadmap", "architecture/concerns-and-tech-debt", "features/car-management-redesign"]
+sources: ["raw/STATE.md", "raw/99-manual-review-2706.md"]
+related: ["plans/roadmap", "architecture/concerns-and-tech-debt", "features/car-management-redesign", "features/dashboard-redesign", "features/sidebar-redesign", "plans/manual-review-99-implementation"]
 ---
 
 # Project State
@@ -42,6 +42,14 @@ related: ["plans/roadmap", "architecture/concerns-and-tech-debt", "features/car-
 2. **Missing Test Suite**: No Vitest/Jest configured
 3. **Duplicate Categories**: Defined in both store and sync hook
 4. **Race Condition**: `checkRecurring()` can generate duplicates
+
+## New Work Items (from Manual Review #99)
+
+1. **Dashboard Redesign** — Split dashboard into overview + enhanced transactions; move account details to full-screen dialog; add conditional charts
+2. **Sidebar Navigation** — Replace horizontal top bar with vertical left sidebar; group Finance and Investment items
+3. **Car Statistics Bug** — i18next interpolation syntax uses `{{year}}` but locale files have `{year}`
+4. **Translation Polish** — Several strings in Layout.tsx are hardcoded instead of using `t()`
+5. **Padding Reduction** — Reduce card/container padding from 24px/16px to 12px across ~20 components
 
 ## Bug Fixes Applied
 

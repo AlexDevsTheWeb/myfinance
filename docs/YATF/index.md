@@ -1,7 +1,7 @@
 # Wiki Index
 
 *Last updated: 2026-06-28* (V4 Budget & Savings Rate Engine implemented + guides updated)
-*Total pages: 33*
+*Total pages: 39*
 
 ---
 
@@ -23,6 +23,8 @@
 | [[features/ticker-validation]] | ✅ Yahoo Finance ticker validation at broker config save | [`#94`](https://github.com/AlexDevsTheWeb/myfinance/issues/94) |
 | [[features/investment-tracking-v3]] | ✅ V3: Dividend ledger, capital gains tax, cash adjustments, performance prefill | [`#98`](https://github.com/AlexDevsTheWeb/myfinance/issues/98) |
 | [[features/budget-savings-engine]] | ✅ V4: Budget targets, progress tracking, savings rate engine, investment bridge | [`#100`](https://github.com/AlexDevsTheWeb/myfinance/issues/100) |
+| [[features/dashboard-redesign]] | 📋 Dashboard split, account detail dialog, additional charts | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
+| [[features/sidebar-redesign]] | 📋 Vertical left sidebar with grouped navigation | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
 
 ## Plans
 
@@ -36,6 +38,13 @@
 | [[plans/investment-tracking-v2-enhancements]] | ✅ Phase 12 complete — 6 GSD plans implemented (multi-broker, CRUD, PAC, snapshots, inflation, ticker) | [`.planning/phases/12-investment-tracking-v2/`](.planning/phases/12-investment-tracking-v2/) |
 | [[plans/investment-tracking-v3-implementation]] | ✅ V3 implementation: dividend, tax, cash adjustments, performance prefill | [`#98`](https://github.com/AlexDevsTheWeb/myfinance/issues/98) |
 | [[plans/budget-savings-engine-implementation]] | ✅ V4 Budget & Savings Rate implementation: 6 waves, 11 new files, 10 modified | [`#100`](https://github.com/AlexDevsTheWeb/myfinance/issues/100) |
+| [[plans/manual-review-99-implementation]] | 📋 5-wave plan: bug fixes, padding, account dialog, dashboard charts, sidebar | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
+
+## Bugs
+
+| Page | Summary | Sources |
+|------|---------|---------|
+| [[bugs/car-statistics-year]] | 🐛 Car page "Statistics {year}" shows literal `{year}` instead of the year value | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
 
 ## Architecture
 

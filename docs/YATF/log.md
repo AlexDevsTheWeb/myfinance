@@ -1,5 +1,14 @@
 # Wiki Log
 
+## [2026-06-28] ingest | Feature | Manual Review #99 — UI/UX, Bug Fixes & Polish
+- Created [[raw/99-manual-review-2706.md]] from GitHub [Issue #99](https://github.com/AlexDevsTheWeb/myfinance/issues/99)
+- Created [[features/dashboard-redesign]] — dashboard split, account detail dialog, additional charts
+- Created [[features/sidebar-redesign]] — vertical left sidebar with grouped navigation
+- Created [[bugs/car-statistics-year]] — i18next interpolation syntax fix
+- Created [[plans/manual-review-99-implementation]] — 5-wave implementation plan
+- Updated [[architecture/project-state]] — added #99 work items to concerns
+- Updated index.md (38 pages) and log.md
+
 ## [2026-06-27] ingest | Guide | Investment Tracking & Financial Projections guides updated with Phase 12 enhancements
 - Updated [[features/investment-tracking-guide]] from `raw/FEATURES-GUIDE.md` — added multi-broker, CRUD transactions, PAC automation, historical snapshots, ticker validation, inflation adjustment
 - Updated [[features/guida-investimenti]] from `raw/FEATURES-GUIDE.it.md` — Italian version with same enhancements

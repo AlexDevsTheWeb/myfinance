@@ -68,7 +68,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   const breadcrumbNameMap: { [key: string]: string } = {
-    'dashboard': 'Dashboard',
+    'dashboard': t('navigation.dashboard'),
     'transactions': 'Transactions',
     'config': t('navigation.config'),
     'salary': t('salary.title'),
@@ -182,7 +182,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                 startIcon={<FinanceIcon />}
                 sx={{ borderRadius: 2, px: 2 }}
               >
-                Finance
+                {t('nav.finance')}
               </Button>
               <Menu
                 anchorEl={anchorElFinance}
@@ -296,10 +296,10 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                 </Box>
                 <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)' }} />
                 <MenuItem onClick={() => { navigate('/config'); handleCloseUser(); }}>
-                  <SettingsIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> Impostazioni
+                  <SettingsIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> {t('navigation.config')}
                 </MenuItem>
                 <MenuItem onClick={handleLogout} sx={{ color: '#ef4444' }}>
-                  <LogoutIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> Logout
+                  <LogoutIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> {t('common.logout')}
                 </MenuItem>
               </Menu>
             </Box>
@@ -347,7 +347,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
               }}
             >
               <Home sx={{ mr: 0.5, fontSize: '1.2rem' }} />
-              Dashboard
+              {t('navigation.dashboard')}
             </MuiLink>
             {pathnames.map((value, index) => {
               const last = index === pathnames.length - 1;
@@ -436,7 +436,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                   },
                 }}
               >
-                New Income
+                {t('common.newIncome')}
               </Button>
               <Button
                 variant="contained"
@@ -453,7 +453,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                   },
                 }}
               >
-                New Expense
+                {t('common.newExpense')}
               </Button>
             </>
           )}
