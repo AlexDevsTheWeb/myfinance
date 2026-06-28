@@ -1,6 +1,6 @@
-import { AccountBalanceWallet as BudgetIcon, BarChart as BarChartIcon, DirectionsCar as CarIcon, ChevronRight, Event as DateIcon, Bolt as ElecIcon, AccountBalance as FinanceIcon, Home, KeyboardArrowDown, ExitToApp as LogoutIcon, Menu as MenuIcon, Settings as SettingsIcon, TrendingUp } from '@mui/icons-material';
-import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { ChevronRight, Event as DateIcon, AccountBalance as FinanceIcon, Home, Menu as MenuIcon, Settings as SettingsIcon, ExitToApp as LogoutIcon } from '@mui/icons-material';
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
+import { AppBar, Avatar, Box, Breadcrumbs, Button, Container, Divider, IconButton, Menu, MenuItem, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -8,8 +8,9 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../../lib/i18n';
 import { useLogout } from '../../hooks/useLogout';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
+import type { Transaction } from '../../store/useFinanceStore';
 import { getEnvVar } from '../../utils/variables.utils';
+import Sidebar from './Sidebar';
 import TransactionModal from '../modals/TransactionModal';
 import { VersionFooter } from '../common/VersionFooter';
 
@@ -22,13 +23,10 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuthStore();
-  const { enabledModules } = useFinanceStore();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery('(max-width: 899.95px)');
   const { t } = useTranslation();
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorElFinance, setAnchorElFinance] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
@@ -44,9 +42,6 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   };
 
   const handleCloseFab = () => setFabOpen(false);
-
-  const handleOpenFinance = (event: React.MouseEvent<HTMLElement>) => setAnchorElFinance(event.currentTarget);
-  const handleCloseFinance = () => setAnchorElFinance(null);
 
   const handleOpenUser = (event: React.MouseEvent<HTMLElement>) => setAnchorElUser(event.currentTarget);
   const handleCloseUser = () => setAnchorElUser(null);
@@ -79,255 +74,98 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
     'projections': t('nav.projections'),
   };
 
-  const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <Typography variant="h6" sx={{ my: 2, color: '#6366f1', fontWeight: 800 }}>
-        {appTitle}
-      </Typography>
-      <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
-      <List>
-        <ListItemButton component={Link} to="/dashboard">
-          <ListItemIcon><Home sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary={t('navigation.dashboard')} sx={{ color: 'white' }} />
-        </ListItemButton>
-        <ListItemButton onClick={() => { navigate('/salary'); }}>
-          <ListItemIcon><TrendingUp sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary={t('salary.title')} sx={{ color: 'white' }} />
-        </ListItemButton>
-        <ListItemButton onClick={() => { navigate('/insights'); }}>
-          <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary={t('insights.title')} sx={{ color: 'white' }} />
-        </ListItemButton>
-        {enabledModules?.carManagement && (
-          <ListItemButton component={Link} to="/car">
-            <ListItemIcon><CarIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-            <ListItemText primary={t('car.title')} sx={{ color: 'white' }} />
-          </ListItemButton>
-        )}
-        {enabledModules?.utilityTracker && (
-          <ListItemButton component={Link} to="/utilities">
-            <ListItemIcon><ElecIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-            <ListItemText primary={t('utilities.title')} sx={{ color: 'white' }} />
-          </ListItemButton>
-        )}
-        {enabledModules?.investmentTracking && (
-          <ListItemButton component={Link} to="/invest">
-            <ListItemIcon><TrendingUp sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-            <ListItemText primary={t('investment.navInvestments')} sx={{ color: 'white' }} />
-          </ListItemButton>
-        )}
-        {enabledModules?.budgetTracking && (
-          <ListItemButton component={Link} to="/budget">
-            <ListItemIcon><BudgetIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-            <ListItemText primary={t('nav.budget')} sx={{ color: 'white' }} />
-          </ListItemButton>
-        )}
-        <ListItemButton component={Link} to="/projections">
-          <ListItemIcon><BarChartIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary={t('nav.projections')} sx={{ color: 'white' }} />
-        </ListItemButton>
-        <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
-        <ListItemButton onClick={() => { navigate('/config'); }}>
-          <ListItemIcon><SettingsIcon sx={{ color: 'rgba(255,255,255,0.7)' }} /></ListItemIcon>
-          <ListItemText primary={t('navigation.config')} sx={{ color: 'white' }} />
-        </ListItemButton>
-        <ListItemButton onClick={handleLogout}>
-          <ListItemIcon><LogoutIcon sx={{ color: '#ef4444' }} /></ListItemIcon>
-          <ListItemText primary={t('common.logout')} sx={{ color: '#ef4444' }} />
-        </ListItemButton>
-      </List>
-    </Box>
-  );
-
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
-      <AppBar position="sticky" elevation={0} sx={{ background: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-          <Typography
-            variant="h6"
-            component={Link}
-            to="/dashboard"
-            sx={{
-              fontWeight: 800,
-              letterSpacing: -1,
-              color: '#6366f1',
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}
-          >
-            <FinanceIcon />
-            {appTitle}
-          </Typography>
+    <Box sx={{ display: 'flex', minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' }}>
+      {/* Desktop Sidebar (permanent) */}
+      {!isMobile && <Sidebar />}
 
-          {user && !isMobile && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {/* Finance Dropdown */}
-              <Button
-                color="inherit"
-                onClick={handleOpenFinance}
-                endIcon={<KeyboardArrowDown />}
-                startIcon={<FinanceIcon />}
-                sx={{ borderRadius: 2, px: 2 }}
-              >
-                {t('nav.finance')}
-              </Button>
-              <Menu
-                anchorEl={anchorElFinance}
-                open={Boolean(anchorElFinance)}
-                onClose={handleCloseFinance}
-                slotProps={{
-                  paper: { sx: { background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', mt: 1.5, minWidth: 180 } }
-                }}
-              >
-                <MenuItem onClick={() => { navigate('/salary'); handleCloseFinance(); }}>
-                  <TrendingUp sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> {t('salary.title')}
-                </MenuItem>
-                <MenuItem onClick={() => { navigate('/insights'); handleCloseFinance(); }}>
-                  <BarChartIcon sx={{ mr: 1.5, fontSize: 20, opacity: 0.7 }} /> {t('insights.title')}
-                </MenuItem>
-              </Menu>
-
-              {/* Other direct links */}
-              {enabledModules?.carManagement && (
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/car"
-                  startIcon={<CarIcon />}
-                  sx={{ borderRadius: 2, px: 2 }}
-                >
-                  {t('car.title')}
-                </Button>
-              )}
-              {enabledModules?.utilityTracker && (
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/utilities"
-                  startIcon={<ElecIcon />}
-                  sx={{ borderRadius: 2, px: 2 }}
-                >
-                  {t('utilities.title')}
-                </Button>
-              )}
-              {enabledModules?.investmentTracking && (
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/invest"
-                  startIcon={<TrendingUp />}
-                  sx={{ borderRadius: 2, px: 2 }}
-                >
-                  {t('investment.navInvestments')}
-                </Button>
-              )}
-              {enabledModules?.budgetTracking && (
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/budget"
-                  startIcon={<BudgetIcon />}
-                  sx={{ borderRadius: 2, px: 2 }}
-                >
-                  {t('nav.budget')}
-                </Button>
-              )}
-              <Button
-                color="inherit"
-                component={Link}
-                to="/projections"
-                startIcon={<BarChartIcon />}
-                sx={{ borderRadius: 2, px: 2 }}
-              >
-                {t('nav.projections')}
-              </Button>
-
-              {/* User Profile Avatar */}
-              <IconButton onClick={handleOpenUser} sx={{ ml: 1, p: 0.5 }}>
-                <Avatar
-                  src={user.photoURL || undefined}
-                  alt={user.displayName || 'User'}
-                  sx={{ width: 36, height: 36, border: '2px solid rgba(99, 102, 241, 0.5)' }}
-                >
-                  {user.displayName?.charAt(0)}
-                </Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorElUser}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUser}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                slotProps={{
-                  paper: {
-                    sx: {
-                      background: '#1e293b',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      mt: 1.5,
-                      minWidth: 220,
-                      '& .MuiMenuItem-root': { fontSize: '0.9rem' }
-                    }
-                  }
-                }}
-              >
-                <Box sx={{ px: 2, py: 1.5 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#818cf8' }}>
-                    {user.displayName}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5, opacity: 0.6 }}>
-                    <DateIcon sx={{ fontSize: 14, mr: 0.5 }} />
-                    <Typography variant="caption" sx={{ textTransform: 'capitalize' }}>
-                      {dayjs().format('LLLL')}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)' }} />
-                <MenuItem onClick={() => { navigate('/config'); handleCloseUser(); }}>
-                  <SettingsIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> {t('navigation.config')}
-                </MenuItem>
-                <MenuItem onClick={handleLogout} sx={{ color: '#ef4444' }}>
-                  <LogoutIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> {t('common.logout')}
-                </MenuItem>
-              </Menu>
-            </Box>
-          )}
-        </Toolbar>
-      </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
-        aria-label="mailbox folders"
+      {/* Mobile Drawer (temporary) */}
+      <SwipeableDrawer
+        variant="temporary"
+        open={mobileOpen}
+        onOpen={handleDrawerToggle}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: 'block', md: 'none' },
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, background: '#0f172a', borderRight: '1px solid rgba(255,255,255,0.1)' },
+        }}
       >
-        <SwipeableDrawer
-          variant="temporary"
-          open={mobileOpen}
-          onOpen={handleDrawerToggle}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, background: '#0f172a', borderRight: '1px solid rgba(255,255,255,0.1)' },
-          }}
-        >
-          {drawer}
-        </SwipeableDrawer>
-      </Box>
-      <Container maxWidth={false} sx={{ mt: 3, mb: 3, px: { xs: 2, sm: 3, md: 5 }, flexGrow: 1, maxWidth: '100%' }}>
+        <Sidebar onNavClick={handleDrawerToggle} />
+      </SwipeableDrawer>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 }}>
+        <AppBar position="sticky" elevation={0} sx={{ background: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <Toolbar sx={{ justifyContent: 'space-between' }}>
+            {isMobile && (
+              <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2 }}>
+                <MenuIcon />
+              </IconButton>
+            )}
+            <Typography
+              variant="h6"
+              component={Link}
+              to="/dashboard"
+              sx={{ fontWeight: 800, letterSpacing: -1, color: '#6366f1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 1 }}
+            >
+              <FinanceIcon />
+              {appTitle}
+            </Typography>
+
+            {user && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <IconButton onClick={handleOpenUser} sx={{ p: 0.5 }}>
+                  <Avatar
+                    src={user.photoURL || undefined}
+                    alt={user.displayName || 'User'}
+                    sx={{ width: 36, height: 36, border: '2px solid rgba(99, 102, 241, 0.5)' }}
+                  >
+                    {user.displayName?.charAt(0)}
+                  </Avatar>
+                </IconButton>
+                <Menu
+                  anchorEl={anchorElUser}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUser}
+                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        background: '#1e293b',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        mt: 1.5,
+                        minWidth: 220,
+                        '& .MuiMenuItem-root': { fontSize: '0.9rem' }
+                      }
+                    }
+                  }}
+                >
+                  <Box sx={{ px: 2, py: 1.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#818cf8' }}>
+                      {user.displayName}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5, opacity: 0.6 }}>
+                      <DateIcon sx={{ fontSize: 14, mr: 0.5 }} />
+                      <Typography variant="caption" sx={{ textTransform: 'capitalize' }}>
+                        {dayjs().format('LLLL')}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)' }} />
+                  <MenuItem onClick={() => { navigate('/config'); handleCloseUser(); }}>
+                    <SettingsIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> {t('navigation.config')}
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout} sx={{ color: '#ef4444' }}>
+                    <LogoutIcon sx={{ mr: 1.5, fontSize: 18, opacity: 0.7 }} /> {t('common.logout')}
+                  </MenuItem>
+                </Menu>
+              </Box>
+            )}
+          </Toolbar>
+        </AppBar>
+
+        <Container maxWidth={false} sx={{ mt: 3, mb: 3, px: { xs: 2, sm: 3, md: 5 }, flexGrow: 1, maxWidth: '100%' }}>
         {user && pathnames.length > 0 && (
           <Breadcrumbs
             separator={<ChevronRight fontSize="small" sx={{ opacity: 0.5 }} />}
@@ -467,6 +305,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
         transaction={transactionToEdit}
       />
       <VersionFooter />
+      </Box>
     </Box>
   );
 };
