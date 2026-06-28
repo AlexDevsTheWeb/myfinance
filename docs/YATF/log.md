@@ -170,3 +170,11 @@
 - Added CAGR analysis to [[plans/investment-tracking-v3-implementation]] — computation logic, UX flow, layer breakdown
 - Updated [[features/investment-tracking-v3]] with Wave 4 implementation notes
 - Updated index.md
+
+## [2026-06-28] implement | Feature | Dynamic Performance Prefill — Wave 4 complete
+- Added `computeCAGR()` to `compoundInterestUtils.ts` — annualized return from portfolio snapshot time series
+- Extended `useProjections` with `useRealPerformance` toggle — overrides `etfAnnualReturn` with real CAGR when active
+- Updated `ProjectionControls` — "Use Real Performance" switch disables ETF slider, shows computed CAGR
+- Wired toggle through `ProjectionsPage`
+- Updated [[plans/investment-tracking-v3-implementation]] status → **completed**
+- Updated [[features/investment-tracking-v3]] status → **implemented**

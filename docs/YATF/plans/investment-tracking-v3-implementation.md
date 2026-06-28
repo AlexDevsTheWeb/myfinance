@@ -3,7 +3,7 @@ title: "Investment Tracking V3 — Implementation Plan"
 tags: [plan, investment, tax, dividend, draft]
 created: 2026-06-28
 updated: 2026-06-28
-status: in-progress
+status: completed
 sources: ["raw/98-investment-tracking-v3/issue.md"]
 related: ["features/investment-tracking-v3", "features/investment-tracking", "features/multi-broker-architecture", "features/historical-snapshots", "features/tax-inflation-modeling", "features/financial-projections", "architecture/investment-tracking-architecture"]
 ---
