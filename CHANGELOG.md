@@ -1,4 +1,24 @@
 
+## [2026.8.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.7.0...v2026.8.0) (2026-06-28)
+
+
+* add CAGR analysis for Dynamic Performance Prefill (Wave 4) ([df0e5f0](https://github.com/AlexDevsTheWeb/myfinance/commit/df0e5f0c4c475009dd8de7efbc4a76d1a10a3ae3))
+* add V3 planning artifacts (dividend, tax, performance) ([ac18909](https://github.com/AlexDevsTheWeb/myfinance/commit/ac18909e04bdd979b8b74c29317180c1d16a6cda))
+* implement Budget & Savings Rate Engine (V4) — full /budget module ([53970d4](https://github.com/AlexDevsTheWeb/myfinance/commit/53970d4c5e17d4dcf1cd1e6c948340fc04e61bd8)), closes [#100](https://github.com/AlexDevsTheWeb/myfinance/issues/100) [#100](https://github.com/AlexDevsTheWeb/myfinance/issues/100)
+* implement Dynamic Performance Prefill (Wave 4) ([11b5b49](https://github.com/AlexDevsTheWeb/myfinance/commit/11b5b496d798e064b0349a0b6ff5ef2f73848e35))
+* implement V3 dividend, cash adjustment, and tax tracking features ([e56819c](https://github.com/AlexDevsTheWeb/myfinance/commit/e56819cfb7890a40d9eaabfc3678c5e0686d2e1e))
+* update FEATURES-GUIDE (EN/IT) with V3 features - adjustments, dividends, tax, performance prefill ([0838521](https://github.com/AlexDevsTheWeb/myfinance/commit/083852186d67c05a65242fda0682a5dd0d2b3542))
+* update FEATURES-GUIDE and wiki with Budget module guide + implementation status ([4d9e715](https://github.com/AlexDevsTheWeb/myfinance/commit/4d9e7151d97d216ffd62c6f1c698149a0eee84b9))
+* update index.md with V3 implementation status ([642c10c](https://github.com/AlexDevsTheWeb/myfinance/commit/642c10c11533f788704aa0af5aa099b8b05b5bd7))
+* update wiki — mark manual review [#99](https://github.com/AlexDevsTheWeb/myfinance/issues/99) as completed ([06feb93](https://github.com/AlexDevsTheWeb/myfinance/commit/06feb930ac7e954726fca48d71cf00944719bc2b))
+* **YATF-99:** enrich dashboard with module overview stat cards ([b7cda29](https://github.com/AlexDevsTheWeb/myfinance/commit/b7cda295b1d9ae710a18ff83011b9bbd569a26c1))
+* **YATF-99:** sidebar improvements — transactions link, collapsible mode, avatar ([cac51e9](https://github.com/AlexDevsTheWeb/myfinance/commit/cac51e9e3b7f5fa8ff41dc571c070b12a053edac))
+* **YATF-99:** Wave 1 — i18n bugfix, hardcoded strings, wiki ingestion ([b6b7074](https://github.com/AlexDevsTheWeb/myfinance/commit/b6b70741c24e3388cd0aa2996c1fe11f95cc8863)), closes [#99](https://github.com/AlexDevsTheWeb/myfinance/issues/99)
+* **YATF-99:** Wave 2 — reduce card padding to 12px across all components ([5285b66](https://github.com/AlexDevsTheWeb/myfinance/commit/5285b661cdbe49b5c8e4f89084c7599821116fd2))
+* **YATF-99:** Wave 3 — Account Detail Dialog ([a6eb836](https://github.com/AlexDevsTheWeb/myfinance/commit/a6eb836fdce96d4c85bf19315db73187486c0064))
+* **YATF-99:** Wave 4 — dashboard charts, remove TransactionTable ([1c0d038](https://github.com/AlexDevsTheWeb/myfinance/commit/1c0d038e0d91fbd6aeda71b4407acc0a23edbc6f))
+* **YATF-99:** Wave 5 — vertical sidebar navigation ([212b8d8](https://github.com/AlexDevsTheWeb/myfinance/commit/212b8d85ec9baaf01cacdc82226637aaabc7b6ec))
+
 ## [2026.7.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.6.0...v2026.7.0) (2026-06-27)
 
 
