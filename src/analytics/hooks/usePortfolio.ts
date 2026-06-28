@@ -1,9 +1,22 @@
 import { useMemo } from 'react';
+import dayjs from 'dayjs';
 import { useInvestmentStore, calcAccruedInterest } from '../../store/useInvestmentStore';
-import type { IPortfolioPoint, IInvestmentHolding } from '../../store/types';
+import type { IPortfolioPoint, IInvestmentHolding, CashAdjustment, DividendEntry } from '../../store/types';
+
+function sumAdjustments(adjustments: CashAdjustment[], brokerIds: string[]): number {
+  return adjustments
+    .filter(a => brokerIds.includes(a.brokerId))
+    .reduce((sum, a) => sum + a.amount, 0);
+}
+
+function sumDividends(entries: DividendEntry[], brokerIds: string[]): number {
+  return entries
+    .filter(d => brokerIds.includes(d.brokerId))
+    .reduce((sum, d) => sum + d.amount, 0);
+}
 
 export function usePortfolio() {
-  const { etfTransactions, portfolioSnapshots, brokerAccounts, currentPrice, selectedBrokerId } = useInvestmentStore();
+  const { etfTransactions, portfolioSnapshots, brokerAccounts, currentPrice, selectedBrokerId, cashAdjustments, dividendEntries } = useInvestmentStore();
 
   return useMemo(() => {
     // Filter by selected broker
@@ -66,10 +79,12 @@ export function usePortfolio() {
       ? brokerAccounts
       : brokerAccounts.filter(b => b.id === selectedBrokerId);
 
-    // For aggregated: sum of all broker baseLumpSum - totalInvested
-    // For per-broker: use the broker's own baseLumpSum
+    const activeBrokerIds = activeBrokers.map(b => b.id);
+
     const totalBaseLumpSum = activeBrokers.reduce((sum, b) => sum + b.baseLumpSum, 0);
-    const cashBalance = Math.max(0, totalBaseLumpSum - totalInvested);
+    const totalCashAdjustments = sumAdjustments(cashAdjustments, activeBrokerIds);
+    const totalDividends = sumDividends(dividendEntries, activeBrokerIds);
+    const cashBalance = Math.max(0, totalBaseLumpSum - totalInvested + totalCashAdjustments + totalDividends);
     const weightedRate = activeBrokers.length > 0
       ? activeBrokers.reduce((sum, b) => sum + b.interestRate, 0) / activeBrokers.length
       : 0;
@@ -95,6 +110,10 @@ export function usePortfolio() {
       ? 'All Accounts'
       : activeBrokers[0]?.name ?? 'Broker';
 
+    const monthlyDividends = dividendEntries
+      .filter(d => activeBrokerIds.includes(d.brokerId) && dayjs(d.date).isSame(dayjs(), 'month'))
+      .reduce((sum, d) => sum + d.amount, 0);
+
     return {
       totalInvested,
       totalUnits,
@@ -108,6 +127,7 @@ export function usePortfolio() {
       holdings,
       isPositive,
       brokerName,
+      monthlyDividends,
     };
-  }, [etfTransactions, portfolioSnapshots, brokerAccounts, currentPrice, selectedBrokerId]);
+  }, [etfTransactions, portfolioSnapshots, brokerAccounts, currentPrice, selectedBrokerId, cashAdjustments, dividendEntries]);
 }

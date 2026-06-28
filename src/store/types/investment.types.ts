@@ -53,6 +53,24 @@ export interface IInvestmentHolding {
   returnPercent: number;
 }
 
+export interface CashAdjustment {
+  id: string;
+  brokerId: string;
+  amount: number;
+  date: string;
+  notes?: string;
+}
+
+export interface DividendEntry {
+  id: string;
+  brokerId: string;
+  ticker: string;
+  amount: number;
+  date: string;
+  type: 'dividend' | 'interest';
+  notes?: string;
+}
+
 export interface IPortfolioPoint {
   date: string;
   value: number;

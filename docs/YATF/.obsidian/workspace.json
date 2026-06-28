@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "features/guida-investimenti.md",
+                "file": "bugs/car-statistics-year.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "guida-investimenti"
+              "title": "car-statistics-year"
             }
           }
         ]
@@ -182,10 +182,26 @@
   },
   "active": "d83c4f0840b094ae",
   "lastOpenFiles": [
+    "features/guida-investimenti.md",
+    "plans/manual-review-99-implementation.md",
+    "bugs/car-statistics-year.md",
+    "features/sidebar-redesign.md",
+    "features/dashboard-redesign.md",
+    "raw/99-manual-review-2706.md",
+    "raw/100-budget-savings-engine/issue.md",
+    "raw/100-budget-savings-engine",
+    "plans/budget-savings-engine-implementation.md",
+    "features/budget-savings-engine.md",
+    "features/budget-savings-architecture.md",
+    "raw/98-investment-tracking-v3/issue.md",
+    "raw/98-investment-tracking-v3",
+    "plans/investment-tracking-v3-implementation.md",
+    "features/investment-tracking-v3.md",
+    "features/investment-tracking-guide.md",
+    "features/historical-snapshots.md",
+    "index.md",
     "raw/12-investment-tracking-v2/implementation.md",
     "raw/12-investment-tracking-v2",
-    "index.md",
-    "features/guida-investimenti.md",
     "features/investment-tracking.md",
     "architecture/versioning.md",
     "plans/transaction-layout-implementation.md",

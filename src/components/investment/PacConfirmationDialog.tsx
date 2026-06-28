@@ -52,7 +52,7 @@ const PacConfirmationDialog: React.FC<PacConfirmationDialogProps> = ({ open, onC
           On confirm, the current market price will be fetched and a buy transaction created.
         </Typography>
       </DialogContent>
-      <DialogActions sx={{ p: 3 }}>
+      <DialogActions sx={{ p: 1.5 }}>
         <Button onClick={handleDismiss} color="inherit">Dismiss</Button>
         <Button onClick={handleConfirm} variant="contained" color="primary">
           Confirm & Execute

@@ -559,6 +559,17 @@ const ConfigPage: React.FC = () => {
                         color="primary"
                       />
                     </ListItem>
+                    <ListItem sx={{ px: 0 }}>
+                      <ListItemText
+                        primary={<Typography sx={{ fontWeight: 600 }}>{t('config.budgetTracking')}</Typography>}
+                        secondary={t('budget.title')}
+                      />
+                      <Switch
+                        checked={enabledModules.budgetTracking}
+                        onChange={() => toggleModule('budgetTracking')}
+                        color="primary"
+                      />
+                    </ListItem>
                   </List>
               </Paper>
             </Grid>

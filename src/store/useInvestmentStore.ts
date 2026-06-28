@@ -3,9 +3,9 @@ import { create } from 'zustand';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from './useAuthStore';
-import type { IBrokerConfig, IETFTransaction, IPortfolioSnapshot, IInvestmentHolding, BrokerAccount, AssetHolding } from './types';
-import { validateEtfTransaction, validateBrokerConfig, validateBrokerAccount } from './validation';
-import { sanitizeEtfTransaction, sanitizeBrokerConfig, sanitizeBrokerAccounts } from './sanitization';
+import type { IBrokerConfig, IETFTransaction, IPortfolioSnapshot, IInvestmentHolding, BrokerAccount, AssetHolding, CashAdjustment, DividendEntry } from './types';
+import { validateEtfTransaction, validateBrokerConfig, validateBrokerAccount, validateCashAdjustment, validateDividendEntry } from './validation';
+import { sanitizeEtfTransaction, sanitizeBrokerConfig, sanitizeBrokerAccounts, sanitizeCashAdjustments, sanitizeDividendEntries } from './sanitization';
 import { recordPortfolioSnapshot } from '../hooks/useHistoricalSnapshots';
 import * as Defaults from './defaults';
 
@@ -23,6 +23,8 @@ export interface InvestmentState {
   lastPriceUpdate: string | null;
   isSaving: boolean;
   saveError: string | null;
+  cashAdjustments: CashAdjustment[];
+  dividendEntries: DividendEntry[];
 
   addEtfTransaction: (tx: IETFTransaction) => Promise<void>;
   updateEtfTransaction: (tx: IETFTransaction) => Promise<void>;
@@ -40,6 +42,10 @@ export interface InvestmentState {
   addPendingPacTransaction: (pending: { brokerId: string; amount: number; date: string; status: 'pending' }) => void;
   confirmPacTransaction: (selectedAccountId: string) => Promise<void>;
   dismissPacTransaction: () => void;
+  addCashAdjustment: (adj: CashAdjustment) => Promise<void>;
+  deleteCashAdjustment: (id: string) => Promise<void>;
+  addDividendEntry: (entry: DividendEntry) => Promise<void>;
+  deleteDividendEntry: (id: string) => Promise<void>;
 }
 
 export function calcAccruedInterest(cashBalance: number, annualRate: number): number {
@@ -104,6 +110,8 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
   lastPriceUpdate: null,
   isSaving: false,
   saveError: null,
+  cashAdjustments: [],
+  dividendEntries: [],
 
   addEtfTransaction: async (tx) => {
     const userId = useAuthStore.getState().user?.uid;
@@ -323,6 +331,8 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       lastPriceUpdate,
       isSaving,
       saveError,
+      cashAdjustments,
+      dividendEntries,
     } = data;
 
     set({
@@ -339,6 +349,8 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       lastPriceUpdate: lastPriceUpdate !== undefined ? lastPriceUpdate : get().lastPriceUpdate,
       isSaving: isSaving ?? get().isSaving,
       saveError: saveError !== undefined ? saveError : get().saveError,
+      cashAdjustments: cashAdjustments ?? get().cashAdjustments,
+      dividendEntries: dividendEntries ?? get().dividendEntries,
     });
   },
 
@@ -464,5 +476,105 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
 
   dismissPacTransaction: () => {
     set({ pendingPacTransaction: null });
+  },
+
+  addCashAdjustment: async (adj) => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    const validation = validateCashAdjustment(adj);
+    if (!validation.valid) {
+      set({ saveError: validation.error, isSaving: false });
+      return;
+    }
+
+    set({ saveError: null, isSaving: true });
+    try {
+      set((state) => ({
+        cashAdjustments: [...state.cashAdjustments, adj],
+        isSaving: false,
+      }));
+      const docRef = doc(db, 'users', userId);
+      const sanitized = sanitizeCashAdjustments(get().cashAdjustments);
+      await updateDoc(docRef, { cashAdjustments: sanitized });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to add cash adjustment';
+      set((state) => ({
+        saveError: errorMessage,
+        isSaving: false,
+        cashAdjustments: state.cashAdjustments.filter(a => a.id !== adj.id),
+      }));
+      console.error('addCashAdjustment error:', err);
+    }
+  },
+
+  deleteCashAdjustment: async (id) => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    set({ saveError: null, isSaving: true });
+    try {
+      set((state) => ({
+        cashAdjustments: state.cashAdjustments.filter(a => a.id !== id),
+        isSaving: false,
+      }));
+      const docRef = doc(db, 'users', userId);
+      const sanitized = sanitizeCashAdjustments(get().cashAdjustments);
+      await updateDoc(docRef, { cashAdjustments: sanitized });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete cash adjustment';
+      set({ saveError: errorMessage, isSaving: false });
+      console.error('deleteCashAdjustment error:', err);
+    }
+  },
+
+  addDividendEntry: async (entry) => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    const validation = validateDividendEntry(entry);
+    if (!validation.valid) {
+      set({ saveError: validation.error, isSaving: false });
+      return;
+    }
+
+    set({ saveError: null, isSaving: true });
+    try {
+      set((state) => ({
+        dividendEntries: [...state.dividendEntries, entry],
+        isSaving: false,
+      }));
+      const docRef = doc(db, 'users', userId);
+      const sanitized = sanitizeDividendEntries(get().dividendEntries);
+      await updateDoc(docRef, { dividendEntries: sanitized });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to add dividend entry';
+      set((state) => ({
+        saveError: errorMessage,
+        isSaving: false,
+        dividendEntries: state.dividendEntries.filter(e => e.id !== entry.id),
+      }));
+      console.error('addDividendEntry error:', err);
+    }
+  },
+
+  deleteDividendEntry: async (id) => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    set({ saveError: null, isSaving: true });
+    try {
+      set((state) => ({
+        dividendEntries: state.dividendEntries.filter(e => e.id !== id),
+        isSaving: false,
+      }));
+      const docRef = doc(db, 'users', userId);
+      const sanitized = sanitizeDividendEntries(get().dividendEntries);
+      await updateDoc(docRef, { dividendEntries: sanitized });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete dividend entry';
+      set({ saveError: errorMessage, isSaving: false });
+      console.error('deleteDividendEntry error:', err);
+    }
   },
 }));

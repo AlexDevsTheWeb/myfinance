@@ -98,7 +98,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
           setFormData={setFormData}
         />
       </DialogContent>
-      <DialogActions sx={{ p: 3 }}>
+      <DialogActions sx={{ p: 1.5 }}>
         <Button onClick={onClose} color="inherit">Cancel</Button>
         <Button
           onClick={handleSubmit}

@@ -59,10 +59,26 @@ Quando configuri un **PAC Mensile (€)** su un conto broker, il sistema rileva 
 
 Il sistema controlla una volta al mese per broker e non genera mai duplicati.
 
+### Movimenti di Cassa e Dividendi
+
+Nella scheda **Liquidità** puoi registrare eventi di cassa che non coinvolgono acquisto o vendita di quote ETF:
+
+**Movimento di Cassa** (Versamento / Prelievo):
+Traccia flussi di cassa esterni verso/dal tuo broker — ad esempio un bonifico per ricaricare il broker o un prelievo verso il tuo conto corrente. Questo regola il saldo di liquidità del broker senza creare transazioni ETF.
+
+Per aggiungerne uno: clicca **Movimento di Cassa** nella scheda Liquidità, seleziona il broker, inserisci l'importo (positivo per versamenti, negativo per prelievi) e la data.
+
+**Dividendi / Interessi**:
+Registra pagamenti di dividendi o accrediti di interessi dal tuo broker. Questo aumenta la liquidità del broker senza influenzare il numero di quote ETF. Un badge verde nella barra laterale mostra l'importo totale dei dividendi per il mese corrente.
+
+Per aggiungerne uno: clicca **Aggiungi Dividendo** nella scheda Liquidità, seleziona il broker, ticker, tipo (Dividendo o Interessi), importo e data.
+
 ### Leggere la Dashboard
 
 **Scheda 1 — "Liquidità"** (icona AccountBalance):
-- **Carta Liquidità e Interessi**: Mostra il nome del broker, il saldo di liquidità (capitale iniziale meno totale investito), gli interessi mensili maturati e il tasso APY. Quando è selezionato un broker specifico, mostra i dati per singolo broker.
+- **Carta Liquidità e Interessi**: Mostra il nome del broker, il saldo di liquidità (capitale iniziale meno totale investito + movimenti di cassa + dividendi), gli interessi mensili maturati e il tasso APY. Quando è selezionato un broker specifico, mostra i dati per singolo broker.
+- **Badge Dividendi**: Chip verde che mostra i dividendi/interessi ricevuti questo mese.
+- **Pulsanti Movimenti e Dividendi**: Pulsanti di azione rapida per aggiungere depositi, prelievi o dividendi.
 - **Grafico Valore Portafoglio**: Grafico ad area che mostra il valore del portafoglio rispetto al totale investito nel tempo. Usa i pulsanti `1M` / `6M` / `1A` / `TUTTO` per cambiare l'intervallo temporale.
 
 **Scheda 2 — "Capitale Investito"** (icona TrendingUp):
@@ -70,6 +86,7 @@ Il sistema controlla una volta al mese per broker e non genera mai duplicati.
 - **Tabella Posizioni**: Ticker, Quote, PMC, Prezzo Corrente, Valore, Rendimento % e Azioni (modifica/elimina).
 - **Grafico a Ciambella**: Ripartizione visiva per ticker.
 - **Grafico Portafoglio**: Grafico a linea a larghezza piena nella parte inferiore.
+- **Cassetto Fiscale**: Carta delle plusvalenze anno per anno in fondo. Mostra le plusvalenze realizzate e l'imposta del 26% dovuta per anno fiscale quando vendi posizioni ETF in profitto.
 
 ### Aggiornare i Prezzi
 
@@ -80,7 +97,9 @@ Clicca **Aggiorna Prezzi** nell'intestazione della pagina per ottenere gli ultim
 - Supporta **molteplici conti broker** — aggiungine quanti ne vuoi
 - Le transazioni possono essere **modificate ed eliminate** in qualsiasi momento con ricalcolo automatico del portafoglio
 - L'**automazione PAC** gestisce gli acquisti ricorrenti mensili — non è necessario registrare manualmente ogni transazione
-- Saldo di liquidità = capitale iniziale − totale investito in tutte le transazioni di acquisto (per broker o aggregato)
+- Saldo di liquidità = capitale iniziale − totale investito + movimenti di cassa + dividendi (per broker o aggregato)
+- I **movimenti di cassa** e le **registrazioni dividendi** modificano la liquidità senza influenzare le quote ETF
+- Il widget **Cassetto Fiscale** calcola l'imposta italiana del 26% sulle plusvalenze realizzate per anno fiscale
 - Gli snapshot del portafoglio sono salvati su Firestore per la visualizzazione dei grafici su più dispositivi
 - I prezzi storici non vengono memorizzati; il grafico utilizza il valore registrato al momento di ogni snapshot
 
@@ -150,6 +169,10 @@ Se hai configurato le impostazioni del broker nella pagina Investimenti, la pagi
 
 Con più conti broker, la precompilazione utilizza i valori aggregati.
 
+### Usa Performance Reali
+
+Se hai registrato investimenti con almeno 2 snapshot del portafoglio, appare un interruttore **"Usa Performance Reali"** sotto lo slider del rendimento ETF. Attivandolo, la stima manuale del rendimento ETF viene sostituita con il **CAGR (Tasso di Crescita Annuale Composto)** calcolato dalla tua cronologia di portafoglio reale. Lo slider diventa in sola lettura, mostrando il tuo CAGR reale. Disattivalo per tornare al controllo manuale.
+
 ### Scenari di Esempio
 
 **Conservativo:** 10 anni, 4% rendimento ETF, €10k capitale iniziale, €200/mese PAC
@@ -174,8 +197,104 @@ Impostazioni Broker  ──precompila──►  Pagina Proiezioni
 (capitale iniziale,                    (valori predefiniti iniziali)
  PAC, tasso interesse)
 
+Snapshot Portafoglio  ──CAGR──►  Pagina Proiezioni
+(serie storica valori              ("Usa Performance Reali",
+ nel tempo)                         sostituisce rendimento ETF manuale)
+
+Movimenti di Cassa &    ──store──►  Liquidità Broker
+Registrazioni Dividendi             (modificano liquidità senza
+                                     influenzare quote ETF)
+
 Transazioni ETF    ──snapshot──►  Sottocollezione Firestore
 (acquisti/vendite)                  (cronologia portafoglio persistente)
+
+Vendite ETF      ──calcola──►  Cassetto Fiscale
+transazioni                      (26% plusvalenze per anno)
 ```
 
-Configurare il broker nella sezione Investimenti significa che non devi reinserire i numeri quando testi le proiezioni. La precompilazione è in sola lettura — modificare i valori nella pagina Proiezioni non altera le impostazioni del broker. Gli snapshot del portafoglio dalle tue transazioni vengono automaticamente salvati per la visualizzazione dei grafici su più dispositivi.
+Configurare il broker nella sezione Investimenti significa che non devi reinserire i numeri quando testi le proiezioni. La precompilazione è in sola lettura — modificare i valori nella pagina Proiezioni non altera le impostazioni del broker.
+
+Se hai una cronologia del portafoglio, puoi attivare **"Usa Performance Reali"** per basare le proiezioni sul tuo CAGR effettivo invece di una stima manuale.
+
+Gli snapshot del portafoglio dalle tue transazioni vengono automaticamente salvati per la visualizzazione dei grafici su più dispositivi.
+
+I movimenti di cassa e le registrazioni dividendi ti permettono di tracciare flussi di cassa esterni e redditi da investimenti separatamente dalle attività di acquisto/vendita ETF.
+
+---
+
+## 3. Budget e Tasso di Risparmio (`/budget`)
+
+Monitora le tue spese rispetto a obiettivi di budget configurabili e tieni traccia del tuo tasso di risparmio in tempo reale. La pagina `/budget` mostra quanto stai spendendo per categoria, come si confronta con i tuoi obiettivi e qual è il tuo tasso di risparmio complessivo.
+
+### Per Iniziare
+
+1. **Attiva il modulo**: Vai su **Impostazioni** (`/config`) → *Moduli Attivi* → attiva **Gestione Budget**.
+2. **Aggiungi obiettivi di budget**: Nella pagina Budget, clicca **Aggiungi Budget** per creare il tuo primo obiettivo. Per ogni obiettivo compila:
+   - **Nome (opzionale)** — un'etichetta leggibile (predefinito: il nome della categoria)
+   - **Categoria** — la categoria di spesa a cui si applica questo budget (es. *Casa*, *Trasporti*, *Spese quotidiane*)
+   - **Periodo** — ogni quanto si resetta l'obiettivo: **Mensile**, **Semestrale** o **Annuale**
+   - **Importo Obiettivo (€)** — quanto prevedi di spendere in questa categoria per periodo
+   - **Colore** — scegli un colore per i grafici
+
+Puoi aggiungere, modificare o eliminare obiettivi in qualsiasi momento.
+
+### Selettore Periodo
+
+Usa il menu a tendina **Periodo** nella parte superiore della pagina per passare tra vista Mensile, Semestrale e Annuale. Tutte le metriche e i grafici si aggiornano in tempo reale per riflettere il periodo selezionato.
+
+### Leggere la Dashboard
+
+**Indicatore Tasso di Risparmio** (in cima alla pagina):
+Un indicatore circolare che mostra il tuo tasso di risparmio corrente: `(Entrate Totali − Uscite Totali) / Entrate Totali` per il periodo selezionato. Colori:
+- **Verde** (≥20%) — tasso di risparmio sano
+- **Ambra** (10–19%) — moderato
+- **Rosso** (<10%) — necessita attenzione
+
+**Carte di Riepilogo** (sotto l'indicatore):
+Quattro carte metriche per una visione d'insieme:
+| Carta | Cosa Mostra |
+|-------|-------------|
+| **Budget Totale** | Somma di tutti gli importi obiettivo per il periodo |
+| **Totale Speso** | Somma delle spese effettive nelle categorie con budget |
+| **Rimanente** | Budget Totale meno Totale Speso |
+| **Tasso di Risparmio** | Percentuale del tasso di risparmio complessivo (evidenziata) |
+
+**Progresso per Categoria** (grafico a barre):
+Per ogni obiettivo di budget impostato, una barra di progresso orizzontale mostra:
+- **Verde** (<70%) — in linea, zona sicura
+- **Ambra** (71–99%) — in avvicinamento al limite, zona di avviso
+- **Rosso** (≥100%) — fuori budget, zona di superamento
+
+Ogni barra mostra il nome della categoria, l'importo effettivo rispetto all'obiettivo e la percentuale utilizzata.
+
+**Obiettivo vs Reale** (grafico a barre raggruppate):
+Un grafico a barre Recharts che confronta l'importo obiettivo di ogni categoria (barra trasparente) con la spesa effettiva (barra piena). Aiuta a individuare quali categorie sono costantemente sopra o sotto budget.
+
+**Andamento Progressivo** (grafico ad area):
+Un grafico ad area che mostra la spesa cumulativa nel tempo (linea effettiva) rispetto al tasso di consumo lineare ideale (linea tratteggiata). La linea ideale presuppone che tu spenda il budget totale in modo uniforme durante il periodo. Se la linea effettiva è sopra quella ideale, stai spendendo più velocemente del previsto.
+
+**Obiettivi di Budget** (elenco):
+In fondo alla pagina, un elenco di tutti i tuoi obiettivi configurati con controlli di modifica/eliminazione. Ogni elemento mostra la categoria, il periodo, l'importo e l'indicatore di colore.
+
+### Come Viene Calcolato il Tasso di Risparmio
+
+```
+Tasso di Risparmio = (Entrate Totali − Uscite Totali) / Entrate Totali
+
+Dove:
+  Entrate Totali = Somma di tutte le transazioni di entrata nel periodo
+  Uscite Totali  = Somma di tutte le transazioni di uscita nel periodo
+```
+
+Il tasso viene visualizzato come percentuale. Un tasso del 25% significa che risparmi €1 per ogni €4 guadagnati.
+
+### Integrazione con gli Investimenti
+
+Il surplus (Budget Totale − Totale Speso) e il tasso di risparmio vengono visualizzati nella pagina Budget. Questi valori ti danno un'indicazione di quanto è disponibile per gli investimenti — un ponte diretto tra la gestione del budget quotidiano e il tuo pipeline di investimenti in `/invest`.
+
+### Note
+
+- Il progresso del budget viene calcolato in tempo reale dalle tue transazioni esistenti — aggiungere una transazione in `/transactions` aggiorna immediatamente tutte le metriche del budget
+- Gli obiettivi di budget sono salvati nel tuo account Firestore e sincronizzati tra i dispositivi
+- Il tasso di risparmio è un calcolo puro a partire dai dati di entrate/uscite — nessuna configurazione aggiuntiva necessaria
+- Un obiettivo senza spese corrispondenti mostra 0% speso (verde)

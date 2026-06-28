@@ -6,7 +6,7 @@ import ProjectionSummary from '../components/projections/ProjectionSummary';
 import { useProjections } from '../hooks/useProjections';
 
 const ProjectionsPage: React.FC = () => {
-  const { input, snapshots, summary, chartData, setParam, setInflationToggle } = useProjections();
+  const { input, snapshots, summary, chartData, setParam, setInflationToggle, useRealPerformance, setUseRealPerformance, realCagr } = useProjections();
   const { t } = useTranslation();
 
   const realFinalCapital =
@@ -31,6 +31,9 @@ const ProjectionsPage: React.FC = () => {
             input={input}
             onChange={setParam}
             onInflationToggle={setInflationToggle}
+            useRealPerformance={useRealPerformance}
+            onRealPerformanceToggle={setUseRealPerformance}
+            realCagr={realCagr}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 8 }}>

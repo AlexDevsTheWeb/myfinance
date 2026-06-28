@@ -59,10 +59,26 @@ When you configure a **Monthly PAC (€)** on a broker account, the system autom
 
 The system checks once per month per broker and never duplicates.
 
+### Cash Adjustments & Dividends
+
+In the **Cash Balance** tab you can record cash events that don't involve buying or selling ETF units:
+
+**Cash Adjustment** (Cash Deposit / Withdrawal):
+Track external cash flows to/from your broker — e.g. a bank transfer you made to top up your broker, or a withdrawal back to your bank. This adjusts the broker cash balance without creating ETF transactions.
+
+To add one: click **Cash Adjustment** in the Cash Balance tab, select the broker, enter the amount (positive for deposits, negative for withdrawals), and the date.
+
+**Dividend / Interest Entry**:
+Record dividend payouts or interest credits from your broker. This increases the broker cash balance without affecting your ETF unit count. A green badge in the sidebar shows your total dividends for the current month.
+
+To add one: click **Add Dividend** in the Cash Balance tab, select the broker, ticker, type (Dividend or Interest), amount, and date.
+
 ### Understanding the Dashboard
 
 **Tab 1 — "Cash Balance"** (AccountBalance icon):
-- **Cash Interest Card**: Shows broker name(s), cash balance (lump sum minus total invested), monthly accrued interest, and APY. When a specific broker is selected, shows per-broker data.
+- **Cash Interest Card**: Shows broker name(s), cash balance (lump sum minus total invested, plus adjustments and dividends), monthly accrued interest, and APY. When a specific broker is selected, shows per-broker data.
+- **Dividend Badge**: Green chip showing total dividends/interest received this month.
+- **Cash Adjustment & Dividend Buttons**: Quick-action buttons to add cash deposits, withdrawals, or dividend entries.
 - **Portfolio Value Chart**: Area chart showing portfolio value vs total invested over time. Use `1M` / `6M` / `1Y` / `ALL` buttons to change the time range.
 
 **Tab 2 — "Invested Capital"** (TrendingUp icon):
@@ -70,6 +86,7 @@ The system checks once per month per broker and never duplicates.
 - **Holdings Table**: Ticker, Units, Avg Cost, Current Price, Value, Return %, and Actions (edit/delete).
 - **Allocation Donut Chart**: Visual breakdown by ticker.
 - **Portfolio Line Chart**: Full-width chart below.
+- **Tax Pocket**: Year-over-year capital gains tax card at the bottom. Shows realized gains and 26% Italian tax due per tax year when you sell ETF positions at a profit.
 
 ### Refreshing Prices
 
@@ -80,7 +97,9 @@ Click **Refresh Prices** in the page header to fetch the latest market prices fo
 - Supports **multiple broker accounts** — add as many as you need
 - Transactions can be **edited and deleted** at any time with automatic portfolio recalculation
 - **PAC automation** handles recurring monthly buys — no need to manually record each transaction
-- Cash balance = lump sum − total invested across all buy transactions (per-broker or aggregated)
+- Cash balance = lump sum − total invested + cash adjustments + dividends (per-broker or aggregated)
+- **Cash adjustments** and **dividend entries** modify the cash balance without affecting ETF unit counts
+- The **Tax Pocket** widget computes 26% Italian capital gains tax on realized gains per year
 - Portfolio snapshots are persisted to Firestore for cross-device charting
 - Historic prices are not stored; the chart uses the value at the time each snapshot was recorded
 
@@ -150,6 +169,10 @@ If you have configured your broker settings in the Investment page, the Projecti
 
 With multiple broker accounts, the prefill uses aggregated values.
 
+### Use Real Performance
+
+If you have been tracking investments with at least 2 portfolio snapshots, a **"Use Real Performance"** toggle appears below the ETF return slider. Flipping it on replaces the manual ETF return estimate with the **Compound Annual Growth Rate (CAGR)** computed from your actual portfolio history. The slider becomes read-only, showing your real CAGR value. Toggle it off to return to manual control.
+
 ### Example Scenarios
 
 **Conservative:** 10 years, 4% ETF return, €10k lump sum, €200/mo PAC
@@ -174,8 +197,104 @@ Broker Settings  ──prefill──►  Projections Page
 (lump sum, PAC,                 (initial defaults)
  interest rate)
 
+Portfolio Snapshots ──CAGR──►  Projections Page
+(historical value               ("Use Real Performance" toggle,
+  time series)                   replaces manual ETF return)
+
+Cash Adjustments &    ──store──►  Broker Cash Balance
+Dividend Entries                  (modify cash without
+                                  affecting ETF units)
+
 ETF Transactions ──snapshot──►  Firestore Subcollection
 (buy/sell records)              (persistent portfolio history)
+
+ETF Sell          ──compute──►  Tax Pocket
+transactions                     (26% capital gains per year)
 ```
 
-Setting up your broker in Investments means you don't have to re-enter your numbers when testing projections. The prefill is read-only — changing values on the Projections page does not modify your broker settings. Portfolio snapshots from your transactions are automatically persisted for cross-device charting.
+Setting up your broker in Investments means you don't have to re-enter your numbers when testing projections. The prefill is read-only — changing values on the Projections page does not modify your broker settings.
+
+If you have portfolio history, you can toggle **"Use Real Performance"** to base projections on your actual CAGR instead of a manual estimate.
+
+Portfolio snapshots from your transactions are automatically persisted for cross-device charting.
+
+Cash adjustments and dividend entries let you track external cash flows and investment income separately from ETF buy/sell activity.
+
+---
+
+## 3. Budget & Savings Rate (`/budget`)
+
+Track your spending against configurable budget targets and monitor your savings rate in real time. The `/budget` page shows how much you're spending per category, how that compares to your targets, and what your overall savings rate is.
+
+### Getting Started
+
+1. **Enable the module**: Go to **Settings** (`/config`) → *Active Modules* → toggle **Budget Tracking** on.
+2. **Add budget targets**: On the Budget page, click **Add Budget** to create your first target. For each target fill in:
+   - **Name (optional)** — a readable label (defaults to the category name)
+   - **Category** — the expense category this budget applies to (e.g. *Casa*, *Trasporti*, *Spese quotidiane*)
+   - **Period** — how often the target resets: **Monthly**, **Semiannual**, or **Annual**
+   - **Target Amount (€)** — how much you plan to spend in this category per period
+   - **Color** — pick a colour for chart display
+
+You can add, edit, or delete targets at any time.
+
+### Period Selector
+
+Use the **Period** dropdown at the top of the page to switch between Monthly, Semiannual, and Annual views. All metrics and charts update in real time to reflect the selected period.
+
+### Understanding the Dashboard
+
+**Savings Rate Gauge** (top of page):
+A circular gauge showing your current savings rate: `(Total Income − Total Expenses) / Total Income` for the selected period. Coloured:
+- **Green** (≥20%) — healthy savings rate
+- **Amber** (10–19%) — moderate
+- **Red** (<10%) — needs attention
+
+**Summary Cards** (below the gauge):
+Four metric cards showing at a glance:
+| Card | What it shows |
+|------|---------------|
+| **Total Budgeted** | Sum of all target amounts for the period |
+| **Total Spent** | Sum of actual expenses in budgeted categories |
+| **Remaining** | Total Budgeted minus Total Spent |
+| **Savings Rate** | Overall savings rate percentage (highlighted) |
+
+**Progress by Category** (bullet chart):
+For each budget target you set, a horizontal progress bar shows:
+- **Green** (<70%) — on track, safe zone
+- **Amber** (71–99%) — approaching limit, warning zone
+- **Red** (≥100%) — over budget, breach zone
+
+Each bar shows the category name, actual amount vs target amount, and percentage used.
+
+**Target vs Actual** (grouped bar chart):
+A Recharts bar chart comparing each category's target amount (ghost bar) against actual spending (filled bar). Helps you spot which categories consistently over- or under-perform.
+
+**Burn-up Trend** (area chart):
+An area chart showing cumulative spending over time (actual line) compared to the ideal linear burn rate (dashed line). The ideal line assumes you spend your total budget evenly across the period. If the actual line is above the ideal line, you're spending faster than planned.
+
+**Budget Targets** (list):
+At the bottom of the page, a list of all your configured targets with edit/delete controls. Each item shows the category, period, amount, and colour indicator.
+
+### How the Savings Rate is Calculated
+
+```
+Savings Rate = (Total Income − Total Expenses) / Total Income
+
+Where:
+  Total Income   = Sum of all income transactions in the period
+  Total Expenses = Sum of all expense transactions in the period
+```
+
+The rate is displayed as a percentage. A rate of 25% means you save €1 for every €4 you earn.
+
+### Integration with Investments
+
+The surplus (Total Budgeted − Total Spent) and savings rate are displayed on the Budget page. These values give you an indication of how much is available for investing — a direct bridge between day-to-day budgeting and your investment pipeline in `/invest`.
+
+### Notes
+
+- Budget progress is computed live from your existing transactions — adding a transaction in `/transactions` immediately updates all budget metrics
+- Budget targets are stored in your Firestore account and synced across devices
+- The savings rate is a pure computation from income/expense data — no additional setup needed
+- A target with no matching expenses shows 0% spent (green)

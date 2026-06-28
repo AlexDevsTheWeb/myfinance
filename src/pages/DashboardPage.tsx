@@ -1,76 +1,82 @@
-import { DirectionsCar as CarIcon } from '@mui/icons-material';
-import { Alert, AlertTitle, Box, Button, Grid, Typography } from '@mui/material';
+import { DirectionsCar as CarIcon, TrendingUp, AccountBalance as BudgetIcon, Bolt as ElecIcon } from '@mui/icons-material';
+import { Alert, AlertTitle, Box, Button, Grid, Paper, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import AccountDetailDialog from '../components/dashboard/AccountDetailDialog';
 import Charts from '../components/dashboard/Charts';
 import RecapCards from '../components/dashboard/RecapCards';
-import TransactionTable from '../components/dashboard/TransactionTable';
-import TransactionModal from '../components/modals/TransactionModal';
-import AccountCard from '../components/dashboard/AccountCard.component';
-import { useFinanceStore, type Transaction } from '../store/useFinanceStore';
-import {
-  NetWorthChart,
-  AccountBreakdownChart,
-  useNetWorth,
-  useAccountBreakdown,
-} from '../analytics';
+import SavingsRateGauge from '../components/budget/SavingsRateGauge';
+import BulletChart from '../components/budget/BulletChart';
+import PortfolioLineChart from '../components/investment/PortfolioLineChart';
+import { useFinanceStore } from '../store/useFinanceStore';
+import { useBudgetStore } from '../store/useBudgetStore';
+import { usePortfolio } from '../analytics/hooks/usePortfolio';
+import { computeBudgetProgress } from '../lib/budgetEngine';
+
+function StatCard({ icon, label, value, color, onClick }: { icon: React.ReactNode; label: string; value: React.ReactNode; color?: string; onClick?: () => void }) {
+  return (
+    <Paper
+      onClick={onClick}
+      sx={{
+        p: 1.5,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'all 0.2s',
+        '&:hover': onClick ? { borderColor: 'rgba(99, 102, 241, 0.5)', bgcolor: 'rgba(255,255,255,0.03)' } : undefined,
+      }}
+    >
+      <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: `${color}20`, color, display: 'flex' }}>
+        {icon}
+      </Box>
+      <Box sx={{ minWidth: 0 }}>
+        <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>
+          {label}
+        </Typography>
+        <Typography variant="body2" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {value}
+        </Typography>
+      </Box>
+    </Paper>
+  );
+}
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { enabledModules, carMileage, transactions, accounts, balanceStartDate } = useFinanceStore();
-  const [accountDetails, setAccountDetails] = React.useState(false);
+  const { enabledModules, carMileage, transactions } = useFinanceStore();
+  const { budgetTargets } = useBudgetStore();
   const { t } = useTranslation();
+  const [accountDialogOpen, setAccountDialogOpen] = React.useState(false);
+  const [portfolioTimeRange, setPortfolioTimeRange] = React.useState('1Y');
 
-  const accountsDetail = React.useMemo(() => {
-    const startDateStr = dayjs(balanceStartDate).format('YYYY-MM-DD');
+  const portfolio = usePortfolio();
 
-    return accounts.map(acc => {
-      const periodTransactions = transactions
-        .filter(t => t.accountId === acc.id && dayjs(t.date).format('YYYY-MM-DD') >= startDateStr)
-        .sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());
+  const currentDateRange = React.useMemo(() => ({
+    start: dayjs().startOf('month').format('YYYY-MM-DD'),
+    end: dayjs().endOf('month').format('YYYY-MM-DD'),
+  }), []);
 
-      const income = periodTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-      const expense = periodTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  const { snapshots: budgetSnapshots, summary: budgetSummary } = React.useMemo(
+    () => computeBudgetProgress(transactions, budgetTargets, currentDateRange),
+    [transactions, budgetTargets, currentDateRange],
+  );
 
-      let runningBalance = acc.initialBalance;
-      const history = [{ date: startDateStr, amount: runningBalance }, ...periodTransactions.map(t => {
-        runningBalance += (t.type === 'income' ? t.amount : -t.amount);
-        return { date: t.date, amount: runningBalance };
-      })];
+  const monthlyUtilities = React.useMemo(() =>
+    transactions
+      .filter(t => t.type === 'expense' && (t.category === 'Bollette' || t.category === 'Bills') && t.date >= currentDateRange.start && t.date <= currentDateRange.end)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0),
+  [transactions, currentDateRange]);
 
-      return {
-        ...acc,
-        currentBalance: acc.initialBalance + income - expense,
-        periodIncome: income,
-        periodExpense: expense,
-        history
-      };
-    });
-  }, [transactions, accounts, balanceStartDate]);
-
-  const dashboardDateRange = React.useMemo(() => ({
-    startDate: dayjs(balanceStartDate).format('YYYY-MM-DD'),
-    endDate: dayjs().format('YYYY-MM-DD'),
-  }), [balanceStartDate]);
-
-  const netWorthData = useNetWorth(dashboardDateRange);
-  const accountData = useAccountBreakdown();
+  const carLatestKm = carMileage.length > 0
+    ? [...carMileage].sort((a, b) => b.year - a.year || b.month - a.month)[0].reading
+    : null;
 
   const isFirstOfMonth = dayjs().date() === 1;
   const hasReadingThisMonth = carMileage.some(m => m.month === (dayjs().month() + 1) && m.year === dayjs().year());
   const showMileageReminder = enabledModules.carManagement && isFirstOfMonth && !hasReadingThisMonth;
-
-  const [editModalOpen, setEditModalOpen] = React.useState(false);
-  const [editTransaction, setEditTransaction] = React.useState<Transaction | null>(null);
-  const [editType, setEditType] = React.useState<'income' | 'expense' | 'transfer'>('expense');
-
-  const handleEditTransaction = (transaction: Transaction) => {
-    setEditTransaction(transaction);
-    setEditType(transaction.type);
-    setEditModalOpen(true);
-  };
 
   return (
     <Box sx={{ pb: 10 }}>
@@ -99,55 +105,99 @@ const DashboardPage: React.FC = () => {
         </Alert>
       )}
 
+      {/* Overview stat cards */}
+      <Grid container spacing={1.5} sx={{ mb: 3 }}>
+        {enabledModules?.investmentTracking && (
+          <Grid size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              icon={<TrendingUp fontSize="small" />}
+              label={t('investment.title')}
+              value={
+                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  €{portfolio.currentValue.toLocaleString('it-IT', { minimumFractionDigits: 0 })}
+                  <Typography component="span" variant="caption" sx={{ color: portfolio.isPositive ? '#10b981' : '#ef4444', fontWeight: 700 }}>
+                    {portfolio.totalReturnPercent >= 0 ? '+' : ''}{portfolio.totalReturnPercent.toFixed(1)}%
+                  </Typography>
+                </Box>
+              }
+              color="#5b6cb8"
+              onClick={() => navigate('/invest')}
+            />
+          </Grid>
+        )}
+        {enabledModules?.budgetTracking && budgetTargets.length > 0 && (
+          <Grid size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              icon={<BudgetIcon fontSize="small" />}
+              label={t('budget.title')}
+              value={`${Math.round(budgetSummary.savingsRate * 100)}% ${t('budget.savingsRate').toLowerCase()}`}
+              color={budgetSummary.savingsRate >= 0.2 ? '#22c55e' : budgetSummary.savingsRate >= 0.1 ? '#f59e0b' : '#ef4444'}
+              onClick={() => navigate('/budget')}
+            />
+          </Grid>
+        )}
+        {enabledModules?.carManagement && (
+          <Grid size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              icon={<CarIcon fontSize="small" />}
+              label={t('car.title')}
+              value={carLatestKm !== null ? `${carLatestKm.toLocaleString()} km` : '—'}
+              color="#3b82f6"
+              onClick={() => navigate('/car')}
+            />
+          </Grid>
+        )}
+        {enabledModules?.utilityTracker && (
+          <Grid size={{ xs: 6, sm: 3 }}>
+            <StatCard
+              icon={<ElecIcon fontSize="small" />}
+              label={t('utilities.title')}
+              value={`€${monthlyUtilities.toLocaleString('it-IT', { minimumFractionDigits: 0 })}`}
+              color="#f59e0b"
+              onClick={() => navigate('/utilities')}
+            />
+          </Grid>
+        )}
+      </Grid>
+
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: 7 }}>
-          <RecapCards onToggleAccountDetails={() => setAccountDetails(!accountDetails)} accountDetails={accountDetails} accountsDetail={accountsDetail} hideAccountDetails />
-          <Box sx={{ mt: 3 }}>
-            <TransactionTable onEdit={handleEditTransaction} limit={8} />
-          </Box>
-        </Grid>
-        <Grid size={{ xs: 12, lg: 5 }}>
-          {accountDetails && (
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Accounts Detail</Typography>
-              <Grid container spacing={2}>
-                {accountsDetail.map(acc => (
-                  <Grid size={{ xs: 12, sm: 6 }} key={acc.id}>
-                    <AccountCard
-                      name={acc.name}
-                      currentBalance={acc.currentBalance}
-                      initialBalance={acc.initialBalance}
-                      history={acc.history}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
+          <RecapCards onOpenAccountDialog={() => setAccountDialogOpen(true)} />
+
+          {enabledModules?.investmentTracking && portfolio.chartData.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              <PortfolioLineChart
+                data={portfolio.chartData}
+                timeRange={portfolioTimeRange}
+                onTimeRangeChange={setPortfolioTimeRange}
+              />
             </Box>
           )}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid size={{ xs: 12, sm: 8 }}>
-              <NetWorthChart
-                data={netWorthData}
-                title="Net Worth"
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
-              <AccountBreakdownChart
-                data={accountData}
-                title="Accounts"
-              />
-            </Grid>
-          </Grid>
+
+          {enabledModules?.budgetTracking && budgetTargets.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              <Paper sx={{ p: 1.5 }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ flex: { xs: 'none', sm: '0 0 auto' }, width: { xs: '100%', sm: 'auto' } }}>
+                    <SavingsRateGauge rate={budgetSummary.savingsRate} />
+                  </Box>
+                  <Box sx={{ flex: 1, width: '100%' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
+                      {t('budget.progressByCategory')}
+                    </Typography>
+                    <BulletChart snapshots={budgetSnapshots} />
+                  </Box>
+                </Box>
+              </Paper>
+            </Box>
+          )}
+        </Grid>
+        <Grid size={{ xs: 12, lg: 5 }}>
           <Charts />
         </Grid>
       </Grid>
 
-      <TransactionModal
-        open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        type={editType}
-        transaction={editTransaction}
-      />
+      <AccountDetailDialog open={accountDialogOpen} onClose={() => setAccountDialogOpen(false)} />
     </Box>
   );
 };

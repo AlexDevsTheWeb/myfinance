@@ -50,6 +50,7 @@ export interface IAppModules {
   carManagement: boolean;
   utilityTracker: boolean;
   investmentTracking: boolean;
+  budgetTracking: boolean;
 }
 
 export interface ICarMileageRecord {

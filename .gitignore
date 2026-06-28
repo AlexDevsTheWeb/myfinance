@@ -30,3 +30,4 @@ dist-ssr
 .config/
 .config/*
 src/version.ts
+docs/YATF/.obsidian/workspace.json

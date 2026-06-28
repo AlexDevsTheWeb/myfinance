@@ -21,9 +21,19 @@ export type {
   IPortfolioPoint,
   BrokerAccount,
   AssetHolding,
+  CashAdjustment,
+  DividendEntry,
 } from './investment.types';
 
 export type {
   IProjectionInput,
   IMonthlySnapshot,
 } from './projection.types';
+
+export type {
+  BudgetTarget,
+  BudgetProgressSnapshot,
+  BudgetPeriodSummary,
+  BurnUpPoint,
+  HistoricalSavingsRate,
+} from './budget.types';

@@ -3,4 +3,4 @@
  */
 export { sanitizeTransaction } from './transaction';
 export { sanitizeRecurring } from './recurring';
-export { sanitizeEtfTransaction, sanitizeBrokerConfig, sanitizeBrokerAccount, sanitizeBrokerAccounts } from './investment';
+export { sanitizeEtfTransaction, sanitizeBrokerConfig, sanitizeBrokerAccount, sanitizeBrokerAccounts, sanitizeCashAdjustments, sanitizeDividendEntries } from './investment';

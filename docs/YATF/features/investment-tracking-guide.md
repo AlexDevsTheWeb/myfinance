@@ -1,11 +1,11 @@
 ---
-title: "Investment Tracking & Financial Projections — User Guide"
-tags: [feature, investment, projections, guide]
+title: "Investment Tracking & Financial Projections & Budget — User Guide"
+tags: [feature, investment, projections, budget, guide]
 created: 2026-06-27
-updated: 2026-06-27
+updated: 2026-06-28
 status: active
 sources: ["raw/FEATURES-GUIDE.md"]
-related: ["features/guida-investimenti", "features/investment-tracking", "features/financial-projections", "features/multi-broker-architecture", "features/crud-etf-transactions", "features/pac-automation", "features/historical-snapshots", "features/tax-inflation-modeling", "features/ticker-validation", "architecture/investment-tracking-architecture", "architecture/financial-projections-architecture"]
+related: ["features/guida-investimenti", "features/investment-tracking", "features/investment-tracking-v3", "features/financial-projections", "features/budget-savings-engine", "features/multi-broker-architecture", "features/crud-etf-transactions", "features/pac-automation", "features/historical-snapshots", "features/tax-inflation-modeling", "features/ticker-validation", "architecture/investment-tracking-architecture", "architecture/financial-projections-architecture", "architecture/budget-savings-architecture"]
 ---
 
 # User Guide: Investment Tracking & Financial Projections
@@ -145,6 +145,36 @@ If broker settings are configured in Investments, the Projections page auto-fill
 - Tax is flat 26% on capital gains (Italian regime)
 - Inflation adjustment is off by default; toggle it on for real purchasing power
 
+## 3. Budget & Savings Rate (`/budget`)
+
+Track your spending against configurable budget targets and monitor your savings rate in real time.
+
+### Getting Started
+
+1. **Enable the module**: Go to **Settings** (`/config`) → *Active Modules* → toggle **Budget Tracking** on.
+2. **Add budget targets**: Click **Add Budget** to create targets with category, period (monthly/semiannual/annual), target amount, and colour.
+
+### Dashboard
+
+- **Savings Rate Gauge**: Circular gauge showing `(Income − Expenses) / Income`. Green (≥20%), Amber (10–19%), Red (<10%).
+- **Summary Cards**: Total Budgeted, Total Spent, Remaining, Savings Rate %.
+- **Progress by Category**: Bullet bars with Safe (<70%), Warning (71–99%), Breach (≥100%) zones.
+- **Target vs Actual**: Recharts grouped bar chart — target (ghost) vs actual (filled).
+- **Burn-up Trend**: Cumulative spend (actual) vs ideal linear burn rate (dashed).
+- **Budget Targets list**: Edit/delete each configured target.
+
+### Savings Rate Formula
+
+```
+Rate = (Total Income − Total Expenses) / Total Income
+```
+
+Computed live from your existing transactions — no additional setup needed.
+
+### Integration with Investments
+
+Surplus and savings rate are displayed on `/budget`, bridging day-to-day budgeting with the investment pipeline.
+
 ## Data Flow Between Features
 
 ```
@@ -174,4 +204,6 @@ Setting up your broker means you don't have to re-enter numbers on the Projectio
 - [[features/ticker-validation]]
 - [[architecture/investment-tracking-architecture]]
 - [[architecture/financial-projections-architecture]]
+- [[features/budget-savings-engine]]
+- [[architecture/budget-savings-architecture]]
 - Source: [raw/FEATURES-GUIDE.md](raw/FEATURES-GUIDE.md)

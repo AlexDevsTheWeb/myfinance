@@ -1,16 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AccountBalance, Refresh, Settings, TrendingUp } from '@mui/icons-material';
+import { AccountBalance, Add, Refresh, Settings, TrendingUp } from '@mui/icons-material';
 import { Badge, Box, Button, Grid, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import AllocationDonutChart from '../components/investment/AllocationDonutChart';
 import BrokerSelect from '../components/investment/BrokerSelect';
 import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
+import CashAdjustmentDialog from '../components/investment/CashAdjustmentDialog';
 import CashInterestCard from '../components/investment/CashInterestCard';
+import DividendBadge from '../components/investment/DividendBadge';
+import DividendDialog from '../components/investment/DividendDialog';
 import EtfTransactionModal from '../components/investment/EtfTransactionModal';
 import HoldingsTable from '../components/investment/HoldingsTable';
 import PacConfirmationDialog from '../components/investment/PacConfirmationDialog';
 import PortfolioLineChart from '../components/investment/PortfolioLineChart';
 import PortfolioStats from '../components/investment/PortfolioStats';
+import TaxPocketWidget from '../components/investment/TaxPocketWidget';
 import { usePacAutomation } from '../hooks/usePacAutomation';
 import { usePortfolio } from '../analytics/hooks/usePortfolio';
 import { useMarketData } from '../hooks/useMarketData';
@@ -30,6 +34,8 @@ const InvestmentPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [etfModalOpen, setEtfModalOpen] = useState(false);
+  const [cashAdjustmentOpen, setCashAdjustmentOpen] = useState(false);
+  const [dividendOpen, setDividendOpen] = useState(false);
   const [timeRange, setTimeRange] = useState('1Y');
   const [editingTransaction, setEditingTransaction] = useState<IETFTransaction | null>(null);
   const [pacDialogOpen, setPacDialogOpen] = useState(false);
@@ -123,6 +129,15 @@ const InvestmentPage: React.FC = () => {
               accruedInterest={portfolio.accruedInterest}
               brokerName={portfolio.brokerName}
             />
+            <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Button variant="outlined" startIcon={<Add />} onClick={() => setCashAdjustmentOpen(true)} size="small">
+                Cash Adjustment
+              </Button>
+              <Button variant="outlined" startIcon={<Add />} onClick={() => setDividendOpen(true)} size="small">
+                Add Dividend
+              </Button>
+              <DividendBadge totalDividends={portfolio.monthlyDividends} />
+            </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 9 }}>
             <PortfolioLineChart data={chartData} timeRange={timeRange} onTimeRangeChange={setTimeRange} />
@@ -159,12 +174,17 @@ const InvestmentPage: React.FC = () => {
           <Grid size={{ xs: 12 }}>
             <PortfolioLineChart data={chartData} timeRange={timeRange} onTimeRangeChange={setTimeRange} />
           </Grid>
+          <Grid size={{ xs: 12 }}>
+            <TaxPocketWidget />
+          </Grid>
         </Grid>
       </TabPanel>
 
       <EtfTransactionModal open={etfModalOpen} onClose={handleCloseModal} editTransaction={editingTransaction} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
       <BrokerSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <PacConfirmationDialog open={pacDialogOpen} onClose={() => setPacDialogOpen(false)} />
+      <CashAdjustmentDialog open={cashAdjustmentOpen} onClose={() => setCashAdjustmentOpen(false)} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
+      <DividendDialog open={dividendOpen} onClose={() => setDividendOpen(false)} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
     </Box>
   );
 };

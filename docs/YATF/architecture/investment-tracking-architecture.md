@@ -74,11 +74,13 @@ interface HistorySnapshot {
 
 ## Transaction Classification
 
-| Type | Enum Value | Expense Impact | Net Worth Impact |
-|------|-----------|---------------|------------------|
-| Regular expense | `'expense'` | ✅ Counted | ✅ Decreases |
-| Income | `'income'` | ❌ Excluded | ✅ Increases |
-| Internal transfer | `'transfer'` | ❌ Excluded | ❌ No impact |
+| Type | Enum Value | Expense Impact | Net Worth Impact | Units Impact |
+|------|-----------|---------------|------------------|-------------|
+| Regular expense | `'expense'` | ✅ Counted | ✅ Decreases | N/A |
+| Income | `'income'` | ❌ Excluded | ✅ Increases | N/A |
+| Internal transfer | `'transfer'` | ❌ Excluded | ❌ No impact | ❌ No change |
+| Dividend/Interest | `'dividend'` / `'interest'` | ❌ Excluded | ✅ Increases (cash) | ❌ No change |
+| Cash adjustment | `'cash_adjustment'` | ❌ Excluded | ✅ Deposit / ❌ Withdrawal | ❌ No change |
 
 Key rule: Transfers are pure asset reallocation. Money moves between accounts within the same user's net worth — balance changes must cancel out.
 
@@ -146,6 +148,19 @@ The `useInvestmentSync.ts` hook includes `migrateBrokerConfig()` that detects ol
 - **Fire-and-forget:** Writes migrated data to Firestore asynchronously.
 - **Legacy field:** `brokerConfig` kept as optional field in converters for backward-compatible reads.
 
+## V3 — Planned Enhancements (Phase 13)
+
+The upcoming [[features/investment-tracking-v3]] adds four capability groups on top of the V2 foundation:
+
+| Feature | Impact on Architecture |
+|---------|----------------------|
+| Dividend & Interest Ledger | New transaction types (`dividend`/`interest`) — cash-only, no unit impact. New `/users/{uid}/dividends/` subcollection. |
+| Capital Gains Tax (26%) | Tax computation layer on sell transactions. New `taxLiabilities` state in store. |
+| Dynamic Performance Prefill | Bridge from `usePortfolio()` returns → `useProjectionEngine()` inputs. Reads historical snapshots for CAGR computation. |
+| Disconnected Cash Adjustments | New `cash_adjustment` transaction type. Adjusts `cashBalance` on broker accounts without touching holdings. |
+
+See [[plans/investment-tracking-v3-implementation]] for the detailed implementation order and file impact analysis.
+
 ## Integration with Other Phase 12 Features
 
 | Feature | Connection |
@@ -157,8 +172,23 @@ The `useInvestmentSync.ts` hook includes `migrateBrokerConfig()` that detects ol
 | [[features/tax-inflation-modeling]] | Independent — pure projection computation |
 | [[features/ticker-validation]] | Validation at broker config save time |
 
+## Integration with Budget & Savings Rate Engine
+
+The upcoming [[features/budget-savings-engine]] bridges operational budgets with the investment pipeline:
+
+| Budget Feature | Integration Point |
+|----------------|------------------|
+| Savings rate surplus | Surplus (income − expenses) displayed on `/budget` as "available for investment" |
+| Suggested PAC increase | Surplus × 0.5 → prefill suggestion on `/invest` |
+| Investment bridge card | Quick-action button: "Apply to Investment" on BudgetPage |
+| Cash flow impact | Expense budget breaches → reduced investment capacity — surfaced in SavingsRateGauge |
+
+See [[plans/budget-savings-engine-implementation#wave-6]] for detail on the investment bridge.
+
 ## Related
 
+- [[features/budget-savings-engine]] — Budget module (investment pipeline bridge)
+- [[features/budget-savings-architecture]] — Budget architecture
 - [[features/investment-tracking]]
 - [[features/investment-tracking-guide]]
 - [[features/multi-broker-architecture]]
@@ -166,7 +196,10 @@ The `useInvestmentSync.ts` hook includes `migrateBrokerConfig()` that detects ol
 - [[features/historical-snapshots]]
 - [[features/pac-automation]]
 - [[features/ticker-validation]]
+- [[features/investment-tracking-v3]]
 - [[plans/investment-tracking-implementation]]
 - [[plans/investment-tracking-v2-enhancements]]
+- [[plans/investment-tracking-v3-implementation]]
+- [[plans/budget-savings-engine-implementation]]
 - [[architecture/system-architecture]]
 - [[architecture/tech-stack]]
