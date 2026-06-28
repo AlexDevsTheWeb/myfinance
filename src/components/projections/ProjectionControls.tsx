@@ -15,7 +15,7 @@ const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange
   const { t } = useTranslation();
   const hasRealData = realCagr != null && realCagr > 0;
   return (
-    <Paper sx={{ p: 3 }}>
+    <Paper sx={{ p: 1.5 }}>
       <Stack spacing={3}>
         <Stack spacing={1}>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>

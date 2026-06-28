@@ -13,7 +13,7 @@ interface HoldingsTableProps {
 const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings, onEdit, onDelete }) => {
   if (holdings.length === 0) {
     return (
-      <Paper sx={{ p: 3, textAlign: 'center' }}>
+      <Paper sx={{ p: 1.5, textAlign: 'center' }}>
         <Typography variant="body2" sx={{ opacity: 0.5 }}>No ETF holdings</Typography>
       </Paper>
     );

@@ -12,7 +12,7 @@ const formatEur = (v: number) => `€${v.toLocaleString('it-IT', { minimumFracti
 const CashInterestCard: React.FC<CashInterestCardProps> = ({ cashBalance, interestRate, accruedInterest, brokerName }) => {
   return (
     <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4 }}>
-      <CardContent sx={{ p: 3 }}>
+      <CardContent sx={{ p: 1.5 }}>
         <Typography variant="subtitle2" sx={{ opacity: 0.7, fontWeight: 700, textTransform: 'uppercase', mb: 0.5 }}>
           Cash Balance
         </Typography>

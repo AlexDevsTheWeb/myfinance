@@ -50,7 +50,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 const ProjectionChart: React.FC<ProjectionChartProps> = ({ data, showRealValue }) => {
   const { t } = useTranslation();
   return (
-    <Paper sx={{ p: 2 }}>
+    <Paper sx={{ p: 1.5 }}>
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
         {t('projections.chartTitle')}
       </Typography>

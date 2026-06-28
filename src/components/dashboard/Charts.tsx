@@ -41,7 +41,7 @@ const Charts: React.FC = () => {
 
 
   return (
-    <Paper sx={{ p: 2 }}>
+    <Paper sx={{ p: 1.5 }}>
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
         Cash Flow Trend
       </Typography>

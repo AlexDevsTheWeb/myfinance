@@ -19,7 +19,7 @@ const MetricCard: React.FC<{
   value: string;
   color: string;
 }> = ({ icon, label, value, color }) => (
-  <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 1 }}>
+  <Paper sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 1 }}>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <Box sx={{ color }}>{icon}</Box>
       <Typography variant="body2" sx={{ color: 'text.secondary' }}>

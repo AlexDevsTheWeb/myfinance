@@ -267,7 +267,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
         </DialogContent>
       )}
 
-      <DialogActions sx={{ p: 3 }}>
+      <DialogActions sx={{ p: 1.5 }}>
         {mode === 'list' ? (
           <Button onClick={handleClose} color="inherit">Close</Button>
         ) : (
