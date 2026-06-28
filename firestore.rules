@@ -21,5 +21,14 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
       }
     }
+
+    match /users/{userId}/dividends/{entryId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /users/{userId}/tax_events/{eventId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
   }
 }

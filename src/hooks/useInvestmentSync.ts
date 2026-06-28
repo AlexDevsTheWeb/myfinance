@@ -66,6 +66,8 @@ export const useInvestmentSync = () => {
               portfolioSnapshots: Array.isArray(convertedData.portfolioSnapshots) ? convertedData.portfolioSnapshots as never[] : [],
               brokerConfig: convertedData.brokerConfig as never ?? Defaults.DEFAULT_BROKER_CONFIG,
               brokerAccounts,
+              cashAdjustments: Array.isArray(convertedData.cashAdjustments) ? convertedData.cashAdjustments as never[] : [],
+              dividendEntries: Array.isArray(convertedData.dividendEntries) ? convertedData.dividendEntries as never[] : [],
             });
           } else {
             const defaultConfig = getDefaultUserConfig();
@@ -75,6 +77,8 @@ export const useInvestmentSync = () => {
               portfolioSnapshots: defaultConfig.portfolioSnapshots ?? [],
               brokerConfig: defaultConfig.brokerConfig ?? Defaults.DEFAULT_BROKER_CONFIG,
               brokerAccounts: defaultConfig.brokerAccounts ?? Defaults.DEFAULT_BROKER_ACCOUNTS,
+              cashAdjustments: defaultConfig.cashAdjustments ?? [],
+              dividendEntries: defaultConfig.dividendEntries ?? [],
             });
           }
         });
@@ -105,6 +109,8 @@ export const useInvestmentSync = () => {
           portfolioSnapshots: Array.isArray(rawData.portfolioSnapshots) ? rawData.portfolioSnapshots as never[] : [],
           brokerConfig: rawData.brokerConfig as never ?? Defaults.DEFAULT_BROKER_CONFIG,
           brokerAccounts,
+          cashAdjustments: Array.isArray(rawData.cashAdjustments) ? rawData.cashAdjustments as never[] : [],
+          dividendEntries: Array.isArray(rawData.dividendEntries) ? rawData.dividendEntries as never[] : [],
         });
       }
     });

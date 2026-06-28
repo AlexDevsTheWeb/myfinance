@@ -1,4 +1,4 @@
-import type { IETFTransaction, IBrokerConfig, BrokerAccount } from '../types/investment.types';
+import type { IETFTransaction, IBrokerConfig, BrokerAccount, CashAdjustment, DividendEntry } from '../types/investment.types';
 import { fetchQuote } from '../../hooks/useMarketData';
 
 export function validateEtfTransaction(tx: IETFTransaction): { valid: boolean; error?: string } {
@@ -63,6 +63,35 @@ export function validateTicker(ticker: string): { valid: boolean; error?: string
       valid: false,
       error: 'Invalid ticker format. Expected format: SYMBOL or SYMBOL.EXCHANGE (e.g., SWDA.MI, VWCE.DE, AAPL)',
     };
+  }
+  return { valid: true };
+}
+
+export function validateCashAdjustment(adj: CashAdjustment): { valid: boolean; error?: string } {
+  if (!adj.brokerId) {
+    return { valid: false, error: 'Broker account is required' };
+  }
+  if (typeof adj.amount !== 'number' || adj.amount === 0) {
+    return { valid: false, error: 'Amount must be non-zero' };
+  }
+  if (!adj.date) {
+    return { valid: false, error: 'Date is required' };
+  }
+  return { valid: true };
+}
+
+export function validateDividendEntry(entry: DividendEntry): { valid: boolean; error?: string } {
+  if (!entry.brokerId) {
+    return { valid: false, error: 'Broker account is required' };
+  }
+  if (!entry.ticker?.trim()) {
+    return { valid: false, error: 'Ticker symbol is required' };
+  }
+  if (typeof entry.amount !== 'number' || entry.amount <= 0) {
+    return { valid: false, error: 'Amount must be greater than 0' };
+  }
+  if (!entry.date) {
+    return { valid: false, error: 'Date is required' };
   }
   return { valid: true };
 }

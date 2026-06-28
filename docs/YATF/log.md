@@ -154,3 +154,14 @@
 - Updated [[architecture/investment-tracking-architecture]] with V2 schema, store, component tree, migration layer
 - Updated index.md
 - Source: [raw/12-investment-tracking-v2/implementation.md](raw/12-investment-tracking-v2/implementation.md)
+
+## [2026-06-28] implement | Feature | Investment Tracking V3 — Wave 1+2+3
+- Implemented V3 data layer: `CashAdjustment`, `DividendEntry` types, store actions, validation, sanitization, Firestore sync + rules
+- Updated cash balance formula in `usePortfolio` to include adjustments and dividends
+- Created components: `CashAdjustmentDialog`, `DividendDialog`, `DividendBadge`, `TaxPocketWidget`
+- Created `useTaxTracking` hook with 26% Italian capital gains computation per year
+- Integrated all new components into `InvestmentPage`
+- Added i18n keys (EN/IT) for dividends, cash adjustments, and tax tracking
+- Updated [[features/investment-tracking-v3]] status → **in-progress**
+- Updated [[plans/investment-tracking-v3-implementation]] status → **in-progress**
+- Updated [[architecture/investment-tracking-architecture]] with V3 section and new transaction types

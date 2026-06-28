@@ -12,4 +12,6 @@ export {
   validateBrokerAccount,
   validateTicker,
   validateTickerWithApi,
+  validateCashAdjustment,
+  validateDividendEntry,
 } from './investment.validation';

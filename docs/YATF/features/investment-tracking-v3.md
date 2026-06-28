@@ -3,7 +3,7 @@ title: "Investment Tracking V3: Dividend, Tax & Performance"
 tags: [feature, investment, tax, dividend, planned]
 created: 2026-06-28
 updated: 2026-06-28
-status: planned
+status: in-progress
 sources: ["raw/98-investment-tracking-v3/issue.md"]
 related: ["features/investment-tracking", "features/multi-broker-architecture", "features/historical-snapshots", "features/tax-inflation-modeling", "features/financial-projections", "features/crud-etf-transactions", "features/pac-automation", "architecture/investment-tracking-architecture", "plans/investment-tracking-v3-implementation"]
 ---
