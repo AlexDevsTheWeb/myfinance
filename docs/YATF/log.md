@@ -179,6 +179,15 @@
 - Updated [[plans/investment-tracking-v3-implementation]] status → **completed**
 - Updated [[features/investment-tracking-v3]] status → **implemented**
 
+## [2026-06-28] ingest | Feature | Budget & Savings Rate Engine V4 — Issue #100
+- Created [[raw/100-budget-savings-engine/issue.md]] from GitHub [Issue #100](https://github.com/AlexDevsTheWeb/myfinance/issues/100)
+- Created [[features/budget-savings-engine]] — 3 sub-features (budget config, Recharts visualizations, savings rate engine)
+- Created [[architecture/budget-savings-architecture]] — data flow, Firestore schema, store architecture, component tree, charting, integration points
+- Created [[plans/budget-savings-engine-implementation]] — 6 waves, 11 new files, 10 modified files, with full architecture analysis
+- Updated [[architecture/investment-tracking-architecture]] — added budget integration section (surplus → investment bridge)
+- Updated [[architecture/financial-projections-architecture]] — added savings rate bridge section
+- Updated index.md (33 pages) and log.md
+
 ## [2026-06-28] docs | Guide | V3 features added to FEATURES-GUIDE (EN/IT)
 - Updated `raw/FEATURES-GUIDE.md` — added Cash Adjustments, Dividends, Tax Pocket, and Use Real Performance sections
 - Updated `raw/FEATURES-GUIDE.it.md` — Italian version with same V3 additions

@@ -16,8 +16,10 @@ import TransactionsPage from './pages/TransactionsPage';
 import UtilitiesPage from './pages/UtilitiesPage';
 import InsightsPage from './pages/InsightsPage';
 import InvestmentPage from './pages/InvestmentPage';
+import BudgetPage from './pages/BudgetPage';
 const ProjectionsPage = React.lazy(() => import('./pages/ProjectionsPage'));
 import { useInvestmentSync } from './hooks/useInvestmentSync';
+import { useBudgetSync } from './hooks/useBudgetSync';
 import { useAuthStore } from './store/useAuthStore';
 import { useFinanceStore } from './store/useFinanceStore';
 
@@ -44,6 +46,7 @@ function App() {
   const { _migrateToMultiAccount } = useFinanceStore();
   useSyncFinance();
   useInvestmentSync();
+  useBudgetSync();
 
   useEffect(() => {
     _migrateToMultiAccount();
@@ -104,6 +107,11 @@ function App() {
         <Route path="/invest" element={
           <ProtectedRoute>
             <InvestmentPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/budget" element={
+          <ProtectedRoute>
+            <BudgetPage />
           </ProtectedRoute>
         } />
         <Route path="/projections" element={

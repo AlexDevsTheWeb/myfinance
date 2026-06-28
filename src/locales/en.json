@@ -11,7 +11,8 @@
     "config": "Settings"
   },
   "nav": {
-    "projections": "Projections"
+    "projections": "Projections",
+    "budget": "Budget"
   },
   "common": {
     "save": "Save",
@@ -158,6 +159,7 @@
     "carManagement": "Car Management",
     "utilityTracker": "Utilities Management",
     "investmentTracking": "Investment Tracking",
+    "budgetTracking": "Budget Tracking",
     "calculationStartDate": "Calculation Start Date",
     "calculationStartDateDescription": "Totals are calculated from this date onwards",
     "accounts": "Manage Accounts",
@@ -343,5 +345,33 @@
     "noTaxEvents": "No taxable events",
     "useRealPerformance": "Use Real Performance",
     "manualParameters": "Manual Parameters"
+  },
+  "budget": {
+    "title": "Budget",
+    "subtitle": "Track your spending against targets",
+    "savingsRate": "Savings Rate",
+    "totalBudgeted": "Total Budgeted",
+    "totalSpent": "Total Spent",
+    "remaining": "Remaining",
+    "targetVsActual": "Target vs Actual",
+    "burnUp": "Burn-up Trend",
+    "progressByCategory": "Progress by Category",
+    "period": "Period",
+    "periodMonthly": "Monthly",
+    "periodSemiannual": "Semiannual",
+    "periodAnnual": "Annual",
+    "addBudget": "Add Budget",
+    "editBudget": "Edit Budget Target",
+    "deleteBudget": "Delete Budget Target",
+    "category": "Category",
+    "name": "Name (optional)",
+    "targetAmount": "Target Amount",
+    "noTargets": "No budget targets yet",
+    "noTargetsDescription": "Set your first budget target to start tracking your spending.",
+    "addFirst": "Add your first target",
+    "budgetTargets": "Budget Targets",
+    "idealBurnRate": "Ideal Burn Rate",
+    "actualSpend": "Actual Spend",
+    "noBurnUpData": "No spending data for this period"
   }
 }

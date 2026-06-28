@@ -172,8 +172,23 @@ See [[plans/investment-tracking-v3-implementation]] for the detailed implementat
 | [[features/tax-inflation-modeling]] | Independent — pure projection computation |
 | [[features/ticker-validation]] | Validation at broker config save time |
 
+## Integration with Budget & Savings Rate Engine
+
+The upcoming [[features/budget-savings-engine]] bridges operational budgets with the investment pipeline:
+
+| Budget Feature | Integration Point |
+|----------------|------------------|
+| Savings rate surplus | Surplus (income − expenses) displayed on `/budget` as "available for investment" |
+| Suggested PAC increase | Surplus × 0.5 → prefill suggestion on `/invest` |
+| Investment bridge card | Quick-action button: "Apply to Investment" on BudgetPage |
+| Cash flow impact | Expense budget breaches → reduced investment capacity — surfaced in SavingsRateGauge |
+
+See [[plans/budget-savings-engine-implementation#wave-6]] for detail on the investment bridge.
+
 ## Related
 
+- [[features/budget-savings-engine]] — Budget module (investment pipeline bridge)
+- [[features/budget-savings-architecture]] — Budget architecture
 - [[features/investment-tracking]]
 - [[features/investment-tracking-guide]]
 - [[features/multi-broker-architecture]]
@@ -185,5 +200,6 @@ See [[plans/investment-tracking-v3-implementation]] for the detailed implementat
 - [[plans/investment-tracking-implementation]]
 - [[plans/investment-tracking-v2-enhancements]]
 - [[plans/investment-tracking-v3-implementation]]
+- [[plans/budget-savings-engine-implementation]]
 - [[architecture/system-architecture]]
 - [[architecture/tech-stack]]
