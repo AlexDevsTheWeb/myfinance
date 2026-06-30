@@ -21,3 +21,5 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MYFINANCETRACKER_B257E }}
           projectId: myfinancetracker-b257e
+          channelId: pr${{ github.event.number }}
+          expires: 30d
