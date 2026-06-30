@@ -222,6 +222,32 @@
 - Updated FEATURES-GUIDE.md and FEATURES-GUIDE.it.md with Budget section
 - Updated index.md and log.md
 
+## [2026-06-30] implement | Backup/Restore | Fixed budget + investment data coverage
+- Implemented fix for 6 missing entities in backup/restore (`budgetTargets`, `brokerAccounts`, `assetHoldings`, `cashAdjustments`, `dividendEntries`, `deletedRecurringInstances`)
+- Updated `src/store/backup/index.ts`:
+  - Extended `BackupPayload` interface with 6 new fields
+  - Updated `createBackup()` to read from actual stores (`useInvestmentStore`, `useBudgetStore`) instead of broken `(state as any)` pattern
+  - Added validation for `budgetTargets`, `brokerAccounts`, `cashAdjustments`, `dividendEntries`
+  - Extended `BackupPreview` summary with new entity counts
+- Updated `src/store/useFinanceStore.ts`:
+  - Extended `importAllData()` to write new fields to Firestore
+  - Added cross-store state restoration for `useBudgetStore` and `useInvestmentStore`
+- Updated `src/pages/ConfigPage.tsx` — preview dialog shows new entity counts
+- Updated `src/store/types/finance.types.ts` — return type uses `BackupPreview`
+- Updated [[plans/backup-restore-data-coverage]] status → **completed**
+- Updated [[architecture/concerns-and-tech-debt]] — marked backup gap as fixed
+- Updated [[architecture/project-state]] — moved backup gap to resolved
+- Updated index.md and log.md
+
+## [2026-06-30] audit | Backup/Restore | Budget + investment data gaps identified
+- Audited backup/restore (`src/store/backup/index.ts`) for budget and investment data coverage
+- **Found:** 6 entities missing from backup/restore — `budgetTargets`, `brokerAccounts`, `assetHoldings`, `cashAdjustments`, `dividendEntries`, `deletedRecurringInstances`
+- Created [[raw/101-backup-restore-gaps.md]] — full gap analysis
+- Created [[plans/backup-restore-data-coverage]] — implementation plan
+- Updated [[architecture/concerns-and-tech-debt]] — added backup coverage gap to Known Bugs
+- Updated [[architecture/project-state]] — added Known Gaps section
+- Updated index.md (40 pages) and log.md
+
 ## [2026-06-28] docs | Guide | V3 features added to FEATURES-GUIDE (EN/IT)
 - Updated `raw/FEATURES-GUIDE.md` — added Cash Adjustments, Dividends, Tax Pocket, and Use Real Performance sections
 - Updated `raw/FEATURES-GUIDE.it.md` — Italian version with same V3 additions

@@ -134,18 +134,7 @@ export interface IFinanceState {
   clearSaveError: () => void;
   exportAllData: () => void;
   importAllData: (fileOrData: File | object) => Promise<boolean>;
-  previewBackup: (file: File) => Promise<{
-    valid: boolean;
-    error?: string;
-    summary: {
-      transactionCount: number;
-      accountCount: number;
-      recurringCount: number;
-      categoryCount: number;
-      incomeCategoryCount: number;
-      exportedAt: string;
-    } | null;
-  }>;
+  previewBackup: (file: File) => Promise<import('../../store/backup').BackupPreview>;
 }
 
 // Validation functions moved to ../validation/finance.validation.ts

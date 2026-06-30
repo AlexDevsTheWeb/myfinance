@@ -4,6 +4,8 @@ import { create } from 'zustand';
 import { db } from '../lib/firebase';
 import i18n from '../lib/i18n';
 import { useAuthStore } from './useAuthStore';
+import { useBudgetStore } from './useBudgetStore';
+import { useInvestmentStore } from './useInvestmentStore';
 import * as Types from './types';
 import * as Validation from './validation';
 import * as Sanitization from './sanitization';
@@ -101,18 +103,7 @@ interface FinanceState {
   clearSaveError: () => void;
   exportAllData: () => void;
   importAllData: (fileOrData: File | object) => Promise<boolean>;
-  previewBackup: (file: File) => Promise<{
-    valid: boolean;
-    error?: string;
-    summary: {
-      transactionCount: number;
-      accountCount: number;
-      recurringCount: number;
-      categoryCount: number;
-      incomeCategoryCount: number;
-      exportedAt: string;
-    } | null;
-  }>;
+  previewBackup: (file: File) => Promise<Backup.BackupPreview>;
 }
 
 export const useFinanceStore = create<FinanceState>()(
@@ -1153,16 +1144,16 @@ setBalanceStartDate: async (date) => {
 
         set({ saveError: null, isSaving: true });
         try {
-          let backup: { version?: string; app?: string; data?: Partial<FinanceState>; state?: Partial<FinanceState> };
+          let backup: { version?: string; app?: string; data?: Record<string, unknown>; state?: Record<string, unknown> };
 
           if (fileOrData instanceof File) {
             const text = await fileOrData.text();
             backup = JSON.parse(text);
           } else {
-            backup = fileOrData as { version?: string; app?: string; data?: Partial<FinanceState>; state?: Partial<FinanceState> };
+            backup = fileOrData as { version?: string; app?: string; data?: Record<string, unknown>; state?: Record<string, unknown> };
           }
 
-          let data: Partial<FinanceState>;
+          let data: Record<string, unknown>;
 
           if (backup.version) {
             if (backup.app !== 'myfinance') {
@@ -1177,43 +1168,67 @@ setBalanceStartDate: async (date) => {
             return false;
           }
 
-          const validation = Backup.validateBackupData(data);
+          const validation = Backup.validateBackupData(data as Backup.BackupPayload);
           if (!validation.valid) {
             const errorMessages = validation.errors.slice(0, 3).map(e => e.message).join(', ');
             set({ saveError: `Invalid backup data: ${errorMessages}`, isSaving: false });
             return false;
           }
 
+          const payload = data as Backup.BackupPayload;
+
           const docRef = doc(db, 'users', userId);
           await updateDoc(docRef, {
-            initialBalance: data.initialBalance ?? 0,
-            accounts: data.accounts ?? Defaults.DEFAULT_ACCOUNTS,
-            transactions: data.transactions ?? [],
-            recurringTransactions: data.recurringTransactions ?? [],
-            categories: data.categories ?? Defaults.DEFAULT_CATEGORIES,
-            incomeCategories: data.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
-            enabledModules: data.enabledModules ?? Defaults.DEFAULT_ENABLED_MODULES,
-            balanceStartDate: data.balanceStartDate ?? Defaults.DEFAULT_BALANCE_START_DATE,
-            carMileage: data.carMileage ?? [],
-            carInitialMileage: data.carInitialMileage ?? 0,
-            tireSettings: data.tireSettings ?? Defaults.DEFAULT_TIRE_SETTINGS,
-            tireChanges: data.tireChanges ?? [],
+            initialBalance: payload.initialBalance ?? 0,
+            accounts: payload.accounts ?? Defaults.DEFAULT_ACCOUNTS,
+            transactions: payload.transactions ?? [],
+            recurringTransactions: payload.recurringTransactions ?? [],
+            categories: payload.categories ?? Defaults.DEFAULT_CATEGORIES,
+            incomeCategories: payload.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
+            enabledModules: payload.enabledModules ?? Defaults.DEFAULT_ENABLED_MODULES,
+            balanceStartDate: payload.balanceStartDate ?? Defaults.DEFAULT_BALANCE_START_DATE,
+            carMileage: payload.carMileage ?? [],
+            carInitialMileage: payload.carInitialMileage ?? 0,
+            tireSettings: payload.tireSettings ?? Defaults.DEFAULT_TIRE_SETTINGS,
+            tireChanges: payload.tireChanges ?? [],
+            etfTransactions: payload.etfTransactions ?? [],
+            portfolioSnapshots: payload.portfolioSnapshots ?? [],
+            brokerConfig: payload.brokerConfig ?? Defaults.DEFAULT_BROKER_CONFIG,
+            budgetTargets: payload.budgetTargets ?? [],
+            brokerAccounts: payload.brokerAccounts ?? Defaults.DEFAULT_BROKER_ACCOUNTS,
+            assetHoldings: payload.assetHoldings ?? [],
+            cashAdjustments: payload.cashAdjustments ?? [],
+            dividendEntries: payload.dividendEntries ?? [],
+            deletedRecurringInstances: payload.deletedRecurringInstances ?? [],
           });
 
           set({
-            initialBalance: data.initialBalance ?? 0,
-            accounts: data.accounts ?? Defaults.DEFAULT_ACCOUNTS,
-            transactions: data.transactions ?? [],
-            recurringTransactions: data.recurringTransactions ?? [],
-            categories: data.categories ?? Defaults.DEFAULT_CATEGORIES,
-            incomeCategories: data.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
-            enabledModules: data.enabledModules ?? Defaults.DEFAULT_ENABLED_MODULES,
-            balanceStartDate: data.balanceStartDate ?? Defaults.DEFAULT_BALANCE_START_DATE,
-            carMileage: data.carMileage ?? [],
-            carInitialMileage: data.carInitialMileage ?? 0,
-            tireSettings: data.tireSettings ?? Defaults.DEFAULT_TIRE_SETTINGS,
-            tireChanges: data.tireChanges ?? [],
+            initialBalance: payload.initialBalance ?? 0,
+            accounts: payload.accounts ?? Defaults.DEFAULT_ACCOUNTS,
+            transactions: payload.transactions ?? [],
+            recurringTransactions: payload.recurringTransactions ?? [],
+            categories: payload.categories ?? Defaults.DEFAULT_CATEGORIES,
+            incomeCategories: payload.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
+            enabledModules: payload.enabledModules ?? Defaults.DEFAULT_ENABLED_MODULES,
+            balanceStartDate: payload.balanceStartDate ?? Defaults.DEFAULT_BALANCE_START_DATE,
+            carMileage: payload.carMileage ?? [],
+            carInitialMileage: payload.carInitialMileage ?? 0,
+            tireSettings: payload.tireSettings ?? Defaults.DEFAULT_TIRE_SETTINGS,
+            tireChanges: payload.tireChanges ?? [],
+            deletedRecurringInstances: payload.deletedRecurringInstances ?? [],
             isSaving: false,
+          });
+
+          useBudgetStore.getState().setBudgetTargets(payload.budgetTargets ?? []);
+
+          useInvestmentStore.getState().setAll({
+            etfTransactions: payload.etfTransactions ?? [],
+            portfolioSnapshots: payload.portfolioSnapshots ?? [],
+            brokerConfig: payload.brokerConfig ?? Defaults.DEFAULT_BROKER_CONFIG,
+            brokerAccounts: payload.brokerAccounts ?? Defaults.DEFAULT_BROKER_ACCOUNTS,
+            assetHoldings: payload.assetHoldings ?? [],
+            cashAdjustments: payload.cashAdjustments ?? [],
+            dividendEntries: payload.dividendEntries ?? [],
           });
 
           return true;
