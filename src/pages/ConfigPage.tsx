@@ -201,6 +201,11 @@ const ConfigPage: React.FC = () => {
     recurringCount: number;
     categoryCount: number;
     incomeCategoryCount: number;
+    budgetTargetCount: number;
+    brokerAccountCount: number;
+    etfTransactionCount: number;
+    cashAdjustmentCount: number;
+    dividendEntryCount: number;
     exportedAt: string;
   } | null>(null);
   const [importFile, setImportFile] = useState<File | null>(null);
@@ -897,6 +902,21 @@ const ConfigPage: React.FC = () => {
                 </ListItem>
                 <ListItem>
                   <ListItemText primary="Categorie Entrata" secondary={`${previewData.incomeCategoryCount} categorie`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Obiettivi Budget" secondary={`${previewData.budgetTargetCount} target`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Conti Broker" secondary={`${previewData.brokerAccountCount} conti`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Transazioni ETF" secondary={`${previewData.etfTransactionCount} transazioni`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Aggiustamenti Cassa" secondary={`${previewData.cashAdjustmentCount} registrazioni`} />
+                </ListItem>
+                <ListItem>
+                  <ListItemText primary="Dividendi/Interessi" secondary={`${previewData.dividendEntryCount} registrazioni`} />
                 </ListItem>
                 <ListItem>
                   <ListItemText primary="Esportato il" secondary={new Date(previewData.exportedAt).toLocaleString('it-IT')} />

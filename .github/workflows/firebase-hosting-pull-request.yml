@@ -15,9 +15,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Check for source code changes
+        id: check
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          CHANGED=$(git diff --name-only "$BASE_SHA"...HEAD -- src/ package.json package-lock.json tsconfig.json tsconfig.app.json vite.config.ts index.html firebase.json .nvmrc 2>/dev/null || true)
+          if [ -z "$CHANGED" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "No source code changes — skipping preview deployment."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Changed files:"
+            echo "$CHANGED"
+          fi
       - run: npm ci && npm run build
+        if: steps.check.outputs.skip != 'true'
       - uses: FirebaseExtended/action-hosting-deploy@v0
+        continue-on-error: true
+        if: steps.check.outputs.skip != 'true'
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MYFINANCETRACKER_B257E }}
           projectId: myfinancetracker-b257e
+          channelId: pr${{ github.event.number }}
+          expires: 30d

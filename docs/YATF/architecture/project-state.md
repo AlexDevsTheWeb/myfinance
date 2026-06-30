@@ -57,6 +57,10 @@ related: ["plans/roadmap", "architecture/concerns-and-tech-debt", "features/car-
 - ✅ Sync overwrites local edits — added `hasLocalChanges` tracking
 - ✅ Import validation — added `Backup.validateBackupData()`
 
+## Fixed Issues
+
+1. ✅ **Backup/Restore data coverage** — budget targets and full investment data (broker accounts, holdings, cash adjustments, dividends) now included in export/import. See [[plans/backup-restore-data-coverage]].
+
 ## Next Steps
 
 1. Add test suite — Configure Vitest

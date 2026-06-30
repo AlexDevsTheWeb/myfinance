@@ -35,6 +35,7 @@ related: ["architecture/project-state", "architecture/testing-status", "architec
 | Race condition in `checkRecurring()` | Sync snapshot | ✅ Fixed (isCheckingRecurring flag) |
 | Sync overwrites local edits | Multi-device editing | ✅ Fixed (hasLocalChanges tracking) |
 | Import doesn't validate transaction data | Corrupted backup | ✅ Fixed (Backup.validateBackupData()) |
+| Backup/restore missing budget + investment data (6 entities) | Export/import loses budget config, broker accounts, holdings, cash adjustments, dividends | ✅ Fixed — see [[plans/backup-restore-data-coverage]] |
 | Data loss on category deletion with subcategories | `isSaving: true` stuck | **Open** — store returns early without saving |
 | No error handling for array update conflicts | Rapid clicks, multi-tab | **Open** |
 | Deleting account doesn't clean up related transactions | Orphaned data | **Open** |

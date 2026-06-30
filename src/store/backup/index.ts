@@ -1,6 +1,8 @@
-import type { IBrokerConfig, IETFTransaction, IFinanceState, IPortfolioSnapshot } from '../types';
+import type { IBrokerConfig, IETFTransaction, IFinanceState, IPortfolioSnapshot, BudgetTarget, BrokerAccount, AssetHolding, CashAdjustment, DividendEntry } from '../types';
 import { DEFAULT_BROKER_CONFIG } from '../defaults';
 import { validateTransaction, validateRecurringTransaction } from '../validation';
+import { useInvestmentStore } from '../useInvestmentStore';
+import { useBudgetStore } from '../useBudgetStore';
 
 export interface BackupValidationError {
   type: 'transaction' | 'recurring' | 'account' | 'category' | 'field';
@@ -80,6 +82,50 @@ export function validateBackupData(data: BackupPayload): BackupValidationResult 
     }
   }
 
+  if (data.budgetTargets) {
+    data.budgetTargets.forEach((b, i) => {
+      if (!b.id || typeof b.id !== 'string') {
+        errors.push({ type: 'field', index: i, message: 'Budget target missing valid id' });
+      }
+      if (typeof b.targetAmount !== 'number') {
+        errors.push({ type: 'field', index: i, message: 'Budget target missing valid targetAmount' });
+      }
+    });
+  }
+
+  if (data.brokerAccounts) {
+    data.brokerAccounts.forEach((b, i) => {
+      if (!b.id || typeof b.id !== 'string') {
+        errors.push({ type: 'field', index: i, message: 'Broker account missing valid id' });
+      }
+      if (!b.name || typeof b.name !== 'string') {
+        errors.push({ type: 'field', index: i, message: 'Broker account missing valid name' });
+      }
+    });
+  }
+
+  if (data.cashAdjustments) {
+    data.cashAdjustments.forEach((c, i) => {
+      if (!c.id || typeof c.id !== 'string') {
+        errors.push({ type: 'field', index: i, message: 'Cash adjustment missing valid id' });
+      }
+      if (typeof c.amount !== 'number') {
+        errors.push({ type: 'field', index: i, message: 'Cash adjustment missing valid amount' });
+      }
+    });
+  }
+
+  if (data.dividendEntries) {
+    data.dividendEntries.forEach((d, i) => {
+      if (!d.id || typeof d.id !== 'string') {
+        errors.push({ type: 'field', index: i, message: 'Dividend entry missing valid id' });
+      }
+      if (typeof d.amount !== 'number') {
+        errors.push({ type: 'field', index: i, message: 'Dividend entry missing valid amount' });
+      }
+    });
+  }
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -106,6 +152,12 @@ export interface BackupPayload {
   etfTransactions?: IETFTransaction[];
   portfolioSnapshots?: IPortfolioSnapshot[];
   brokerConfig?: IBrokerConfig;
+  budgetTargets?: BudgetTarget[];
+  brokerAccounts?: BrokerAccount[];
+  assetHoldings?: AssetHolding[];
+  cashAdjustments?: CashAdjustment[];
+  dividendEntries?: DividendEntry[];
+  deletedRecurringInstances?: { recurringLinkId: string; date: string }[];
 }
 
 export interface BackupPreview {
@@ -117,11 +169,18 @@ export interface BackupPreview {
     recurringCount: number;
     categoryCount: number;
     incomeCategoryCount: number;
+    budgetTargetCount: number;
+    brokerAccountCount: number;
+    etfTransactionCount: number;
+    cashAdjustmentCount: number;
+    dividendEntryCount: number;
     exportedAt: string;
   } | null;
 }
 
 export function createBackup(state: IFinanceState): BackupData {
+  const investmentState = useInvestmentStore.getState();
+  const budgetState = useBudgetStore.getState();
   return {
     version: '1.0',
     exportedAt: new Date().toISOString(),
@@ -139,9 +198,15 @@ export function createBackup(state: IFinanceState): BackupData {
       carInitialMileage: state.carInitialMileage,
       tireSettings: state.tireSettings,
       tireChanges: state.tireChanges,
-      etfTransactions: (state as any).etfTransactions ?? [],
-      portfolioSnapshots: (state as any).portfolioSnapshots ?? [],
-      brokerConfig: (state as any).brokerConfig ?? DEFAULT_BROKER_CONFIG,
+      etfTransactions: investmentState.etfTransactions,
+      portfolioSnapshots: investmentState.portfolioSnapshots,
+      brokerConfig: investmentState.brokerConfig ?? DEFAULT_BROKER_CONFIG,
+      budgetTargets: budgetState.budgetTargets,
+      brokerAccounts: investmentState.brokerAccounts,
+      assetHoldings: investmentState.assetHoldings,
+      cashAdjustments: investmentState.cashAdjustments,
+      dividendEntries: investmentState.dividendEntries,
+      deletedRecurringInstances: state.deletedRecurringInstances,
     },
   };
 }
@@ -210,6 +275,11 @@ export async function previewBackup(file: File): Promise<BackupPreview> {
         recurringCount: data?.recurringTransactions?.length ?? 0,
         categoryCount: data?.categories?.length ?? 0,
         incomeCategoryCount: data?.incomeCategories?.length ?? 0,
+        budgetTargetCount: data?.budgetTargets?.length ?? 0,
+        brokerAccountCount: data?.brokerAccounts?.length ?? 0,
+        etfTransactionCount: data?.etfTransactions?.length ?? 0,
+        cashAdjustmentCount: data?.cashAdjustments?.length ?? 0,
+        dividendEntryCount: data?.dividendEntries?.length ?? 0,
         exportedAt,
       },
     };

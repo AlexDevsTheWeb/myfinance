@@ -29,7 +29,7 @@ Personal finance tracker with Firebase Auth + Firestore backend, featuring multi
 ### Phase 04: Backup & Restore
 - **Priority:** High — data disaster protection
 - **Requirements:** Export to JSON, import/restore, preview, valid human-readable format
-- **Plan:** [[plans/04-01-backup-restore]] (not yet created)
+- **Plan:** [[plans/backup-restore-data-coverage]] — audit found 6 missing entities (budget + investment data)
 
 ### Phase 05: Cloud Backup (Google Drive)
 - **Priority:** Medium — convenience feature
