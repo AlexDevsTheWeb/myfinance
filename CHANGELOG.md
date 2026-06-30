@@ -1,4 +1,12 @@
 
+### [2026.8.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.8.0...v2026.8.1) (2026-06-30)
+
+
+* add missing budget and investment data to backup/restore ([94f68a8](https://github.com/AlexDevsTheWeb/myfinance/commit/94f68a820f69820d41153ea96e07561bee26bfbb))
+* checkout PR head and continue-on-error for Firebase deploy ([4bd1e31](https://github.com/AlexDevsTheWeb/myfinance/commit/4bd1e31ef2c4e3badc9e9d3385303d286ed0a086))
+* skip Firebase PR preview when no source code changes ([7185baa](https://github.com/AlexDevsTheWeb/myfinance/commit/7185baadf4c046e6910d5e410446c81ae4b9e98f))
+* use explicit channelId and 30d expiry for Firebase PR preview ([f426ebd](https://github.com/AlexDevsTheWeb/myfinance/commit/f426ebdbfc22b39a9454afe5c651187a45298519))
+
 ## [2026.8.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.7.0...v2026.8.0) (2026-06-28)
 
 
