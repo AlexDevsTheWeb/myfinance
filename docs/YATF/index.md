@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-06-28* (Manual Review #99 — all 7 items implemented)
-*Total pages: 39*
+*Last updated: 2026-06-30* (Backup/restore data coverage audit)
+*Total pages: 40*
 
 ---
 
@@ -39,6 +39,7 @@
 | [[plans/investment-tracking-v3-implementation]] | ✅ V3 implementation: dividend, tax, cash adjustments, performance prefill | [`#98`](https://github.com/AlexDevsTheWeb/myfinance/issues/98) |
 | [[plans/budget-savings-engine-implementation]] | ✅ V4 Budget & Savings Rate implementation: 6 waves, 11 new files, 10 modified | [`#100`](https://github.com/AlexDevsTheWeb/myfinance/issues/100) |
 | [[plans/manual-review-99-implementation]] | ✅ 5-wave plan: bug fixes, padding, account dialog, dashboard charts, sidebar | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
+| [[plans/backup-restore-data-coverage]] | Plan to add missing budget + investment data to backup/restore | [`raw/101-backup-restore-gaps.md`](raw/101-backup-restore-gaps.md) |
 
 ## Bugs
 
