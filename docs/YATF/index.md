@@ -48,7 +48,7 @@
 | Page | Summary | Sources |
 |------|---------|---------|
 | [[bugs/car-statistics-year]] | ✅ Car page "Statistics {year}" shows literal `{year}` | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
-| [[bugs/ticker-persistence]] | 🐛 BrokerAccount ticker not persisted; PAC uses brokerId as ticker — **open** | [`raw/investment-report.md`](raw/investment-report.md) |
+| [[bugs/ticker-persistence]] | ✅ BrokerAccount ticker not persisted; PAC uses brokerId as ticker — **fixed** | [`#108`](https://github.com/AlexDevsTheWeb/myfinance/issues/108) |
 
 ## Architecture
 

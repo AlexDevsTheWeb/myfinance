@@ -24,6 +24,7 @@ export interface IPortfolioSnapshot {
 export interface BrokerAccount {
   id: string;
   name: string;
+  ticker: string;
   baseLumpSum: number;
   monthlyPacAmount: number;
   interestRate: number;

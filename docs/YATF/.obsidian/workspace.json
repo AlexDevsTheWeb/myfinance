@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "features/investment-tracking-guide.md",
+                "file": "bugs/ticker-persistence.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "investment-tracking-guide"
+              "title": "ticker-persistence"
             }
           }
         ]
@@ -182,6 +182,8 @@
   },
   "active": "d83c4f0840b094ae",
   "lastOpenFiles": [
+    "features/investment-tracking-v3.md",
+    "features/investment-tracking-guide.md",
     "features/sidebar-routing-refactor.md",
     "raw/sidebar-routing-refactor.md",
     "features/investment-professional-enhancements.md",
@@ -202,8 +204,6 @@
     "raw/98-investment-tracking-v3/issue.md",
     "raw/98-investment-tracking-v3",
     "plans/investment-tracking-v3-implementation.md",
-    "features/investment-tracking-v3.md",
-    "features/investment-tracking-guide.md",
     "features/historical-snapshots.md",
     "index.md",
     "raw/12-investment-tracking-v2/implementation.md",

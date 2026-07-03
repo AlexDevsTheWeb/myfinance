@@ -20,6 +20,7 @@ function migrateBrokerConfig(data: Record<string, unknown>): BrokerAccount[] {
     const migrated: BrokerAccount[] = [{
       id: 'broker-1',
       name: old.brokerName || 'Trade Republic',
+      ticker: old.ticker || 'SWDA.MI',
       baseLumpSum: old.lumpSumAmount || 0,
       monthlyPacAmount: old.monthlyPacAmount || 0,
       interestRate: old.interestRate || 0,
