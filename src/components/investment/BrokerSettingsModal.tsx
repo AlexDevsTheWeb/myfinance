@@ -67,7 +67,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
       baseLumpSum: broker.baseLumpSum.toString(),
       monthlyPacAmount: broker.monthlyPacAmount.toString(),
       interestRate: broker.interestRate.toString(),
-      ticker: '',
+      ticker: broker.ticker ?? '',
     });
     setMode('form');
   };
@@ -99,6 +99,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
     const account = {
       id: editingBrokerId || crypto.randomUUID(),
       name,
+      ticker: formData.ticker.toUpperCase().trim(),
       baseLumpSum: Number(formData.baseLumpSum) || 0,
       monthlyPacAmount: Number(formData.monthlyPacAmount) || 0,
       interestRate: Number(formData.interestRate) || 0,

@@ -203,6 +203,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
     const brokerAccounts: BrokerAccount[] = Array.isArray(data.brokerAccounts) ? data.brokerAccounts.map((b: any) => ({
       id: b.id ?? '',
       name: b.name ?? '',
+      ticker: b.ticker ?? '',
       baseLumpSum: typeof b.baseLumpSum === 'number' ? b.baseLumpSum : 0,
       monthlyPacAmount: typeof b.monthlyPacAmount === 'number' ? b.monthlyPacAmount : 0,
       interestRate: typeof b.interestRate === 'number' ? b.interestRate : 0,

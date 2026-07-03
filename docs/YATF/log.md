@@ -275,8 +275,19 @@
 - Updated [[architecture/project-state]] — added Known Gaps section
 - Updated index.md (40 pages) and log.md
 
-## [2026-06-28] docs | Guide | V3 features added to FEATURES-GUIDE (EN/IT)
+## [2026-07-03] docs | Guide | V3 features added to FEATURES-GUIDE (EN/IT)
 - Updated `raw/FEATURES-GUIDE.md` — added Cash Adjustments, Dividends, Tax Pocket, and Use Real Performance sections
 - Updated `raw/FEATURES-GUIDE.it.md` — Italian version with same V3 additions
 - Updated data flow diagram in both guides with new V3 integration points
 - Updated [[features/investment-tracking-guide]] and [[features/guida-investimenti]]
+
+## [2026-07-03] fix | Bug | Ticker persistence — BrokerAccount ticker not saved; PAC uses brokerId as ticker (#108)
+- Added `ticker: string` to `BrokerAccount` interface (`investment.types.ts`)
+- Added `ticker` to `sanitizeBrokerAccount` (`sanitization/investment.ts`)
+- Included `ticker` in save payload and pre-fill on edit in `BrokerSettingsModal.tsx`
+- Fixed `confirmPacTransaction` to resolve ticker from `brokerAccounts` instead of using `selectedAccountId`
+- Fixed `setBrokerConfig` migration, `useInvestmentSync` migration, and `converters.ts` to include `ticker`
+- Updated [[bugs/ticker-persistence]] → status: **fixed**
+- Updated index.md (bug status changed to fixed)
+- Branch: `fix/YATF-108`
+- Source: [#108](https://github.com/AlexDevsTheWeb/myfinance/issues/108)

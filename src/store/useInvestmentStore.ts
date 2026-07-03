@@ -267,6 +267,7 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       const migratedAccount: BrokerAccount = {
         id: 'broker-1',
         name: config.brokerName,
+        ticker: config.ticker,
         baseLumpSum: config.lumpSumAmount,
         monthlyPacAmount: config.monthlyPacAmount,
         interestRate: config.interestRate,
@@ -446,11 +447,15 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
 
     set({ saveError: null, isSaving: true });
     try {
+      // Resolve actual ticker from broker account
+      const broker = get().brokerAccounts.find(b => b.id === selectedAccountId);
+      const ticker = broker?.ticker ?? selectedAccountId;
+
       // Create IETFTransaction from pending PAC
       const tx: IETFTransaction = {
         id: crypto.randomUUID(),
         date: pending.date,
-        ticker: selectedAccountId, // Using accountId as ticker reference — the caller resolves the ticker
+        ticker,
         description: 'System-Generated Buy',
         type: 'buy',
         units: 0,
