@@ -1,4 +1,4 @@
-import { ChevronRight, AccountBalance as FinanceIcon, Home, Menu as MenuIcon } from '@mui/icons-material';
+import { ChevronRight, Home, Menu as MenuIcon } from '@mui/icons-material';
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
 import { AppBar, Box, Breadcrumbs, Button, Container, IconButton, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery } from '@mui/material';
 import dayjs from 'dayjs';
@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../../lib/i18n';
 import { useAuthStore } from '../../store/useAuthStore';
 import type { Transaction } from '../../store/useFinanceStore';
-import { getEnvVar } from '../../utils/variables.utils';
 import Sidebar from './Sidebar';
 import TransactionModal from '../modals/TransactionModal';
 import { VersionFooter } from '../common/VersionFooter';
@@ -46,19 +45,16 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
     setModalOpen(true);
   };
 
-  const appTitle = getEnvVar('VITE_REACT_APP_TITLE');
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   const breadcrumbNameMap: { [key: string]: string } = {
     'dashboard': t('navigation.dashboard'),
     'transactions': 'Transactions',
     'config': t('navigation.config'),
-    'salary': t('salary.title'),
-    'insights': t('insights.title'),
+    'finance': t('nav.finance'),
+    'investments': 'Investments',
     'car': t('car.title'),
     'utilities': t('utilities.title'),
-    'invest': t('investment.navInvestments'),
-    'projections': t('nav.projections'),
   };
 
   return (
@@ -89,15 +85,6 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
                 <MenuIcon />
               </IconButton>
             )}
-            <Typography
-              variant="h6"
-              component={Link}
-              to="/dashboard"
-              sx={{ fontWeight: 800, letterSpacing: -1, color: '#6366f1', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 1 }}
-            >
-              <FinanceIcon />
-              {appTitle}
-            </Typography>
           </Toolbar>
         </AppBar>
 

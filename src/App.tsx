@@ -1,6 +1,6 @@
 import { Box, CircularProgress } from '@mui/material';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import React, { Suspense, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'; // This line is already correct.
 import Layout from './components/layout/Layout';
 import { TransactionError } from './components/TransactionError';
@@ -10,14 +10,12 @@ import AnalysisPage from './pages/AnalysisPage';
 import CarPage from './pages/CarPage';
 import ConfigPage from './pages/ConfigPage';
 import DashboardPage from './pages/DashboardPage';
+import FinancePage from './pages/FinancePage';
+import InvestmentsPage from './pages/InvestmentsPage';
 import LoginPage from './pages/LoginPage';
-import SalaryPage from './pages/SalaryPage';
 import TransactionsPage from './pages/TransactionsPage';
 import UtilitiesPage from './pages/UtilitiesPage';
-import InsightsPage from './pages/InsightsPage';
-import InvestmentPage from './pages/InvestmentPage';
 import BudgetPage from './pages/BudgetPage';
-const ProjectionsPage = React.lazy(() => import('./pages/ProjectionsPage'));
 import { useInvestmentSync } from './hooks/useInvestmentSync';
 import { useBudgetSync } from './hooks/useBudgetSync';
 import { useAuthStore } from './store/useAuthStore';
@@ -79,11 +77,6 @@ function App() {
             <TransactionsPage />
           </ProtectedRoute>
         } />
-        <Route path="/salary" element={
-          <ProtectedRoute>
-            <SalaryPage />
-          </ProtectedRoute>
-        } />
         <Route path="/analysis" element={
           <ProtectedRoute>
             <AnalysisPage />
@@ -99,26 +92,19 @@ function App() {
             <UtilitiesPage />
           </ProtectedRoute>
         } />
-        <Route path="/insights" element={
+        <Route path="/finance" element={
           <ProtectedRoute>
-            <InsightsPage />
+            <FinancePage />
           </ProtectedRoute>
         } />
-        <Route path="/invest" element={
+        <Route path="/investments" element={
           <ProtectedRoute>
-            <InvestmentPage />
+            <InvestmentsPage />
           </ProtectedRoute>
         } />
         <Route path="/budget" element={
           <ProtectedRoute>
             <BudgetPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/projections" element={
-          <ProtectedRoute>
-            <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>}>
-              <ProjectionsPage />
-            </Suspense>
           </ProtectedRoute>
         } />
       </Routes>

@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-06-30* (Backup/restore data coverage audit)
-*Total pages: 40*
+*Last updated: 2026-07-03* (Sidebar/routing refactor, investment bug + enhancements)
+*Total pages: 44*
 
 ---
 
@@ -13,7 +13,7 @@
 | [[features/transaction-layout-improvement]] | Two-column transaction layout with filter + chart on left | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[features/investment-tracking]] | ✅ ETF portfolio tracking, broker integration, PAC strategy, and asset-vs-expense separation | [`raw/81-tax-refund/`](raw/81-tax-refund/) |
 | [[features/financial-projections]] | ✅ Compound interest simulator with parametric sliders and real-time chart | [`#83`](https://github.com/AlexDevsTheWeb/myfinance/issues/83) |
-| [[features/investment-tracking-guide]] | 📘 User guide — Investment, Projections & Budget (EN) | [`raw/FEATURES-GUIDE.md`](raw/FEATURES-GUIDE.md) |
+| [[features/investment-tracking-guide]] | 📘 User guide + code analysis — Investment & Projections (EN) | [`raw/FEATURES-GUIDE.md`](raw/FEATURES-GUIDE.md) |
 | [[features/guida-investimenti]] | 📘 Guida utente — Investimenti, Proiezioni e Budget (IT) | [`raw/FEATURES-GUIDE.it.md`](raw/FEATURES-GUIDE.it.md) |
 | [[features/pac-automation]] | ✅ Automated recurring PAC transactions with confirmation UI | [`#89`](https://github.com/AlexDevsTheWeb/myfinance/issues/89) |
 | [[features/crud-etf-transactions]] | ✅ Edit/delete ETF transactions with safe cascade recalculation | [`#90`](https://github.com/AlexDevsTheWeb/myfinance/issues/90) |
@@ -25,6 +25,8 @@
 | [[features/budget-savings-engine]] | ✅ V4: Budget targets, progress tracking, savings rate engine, investment bridge | [`#100`](https://github.com/AlexDevsTheWeb/myfinance/issues/100) |
 | [[features/dashboard-redesign]] | ✅ Dashboard split, account detail dialog, additional charts, overview stat cards | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
 | [[features/sidebar-redesign]] | ✅ Vertical left sidebar with grouped navigation, collapsible mode, avatar | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
+| [[features/investment-professional-enhancements]] | 📋 Per-ticker pricing, stamp duty, capital losses, fees, privacy mode — **draft** | [`raw/investment-report.md`](raw/investment-report.md) |
+| [[features/sidebar-routing-refactor]] | ✅ Sidebar flat links, `/finance` + `/investments` tabbed pages, removed duplicate title | [`#113`](https://github.com/AlexDevsTheWeb/myfinance/issues/113) |
 
 ## Plans
 
@@ -45,7 +47,8 @@
 
 | Page | Summary | Sources |
 |------|---------|---------|
-| [[bugs/car-statistics-year]] | ✅ Car page "Statistics {year}" shows literal `{year}` instead of the year value — fixed | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
+| [[bugs/car-statistics-year]] | ✅ Car page "Statistics {year}" shows literal `{year}` | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
+| [[bugs/ticker-persistence]] | 🐛 BrokerAccount ticker not persisted; PAC uses brokerId as ticker — **open** | [`raw/investment-report.md`](raw/investment-report.md) |
 
 ## Architecture
 

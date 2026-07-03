@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "bugs/car-statistics-year.md",
+                "file": "features/investment-tracking-guide.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "car-statistics-year"
+              "title": "investment-tracking-guide"
             }
           }
         ]
@@ -182,9 +182,15 @@
   },
   "active": "d83c4f0840b094ae",
   "lastOpenFiles": [
+    "features/sidebar-routing-refactor.md",
+    "raw/sidebar-routing-refactor.md",
+    "features/investment-professional-enhancements.md",
+    "bugs/ticker-persistence.md",
+    "raw/investment-report.md",
+    "raw/test.md",
+    "bugs/car-statistics-year.md",
     "features/guida-investimenti.md",
     "plans/manual-review-99-implementation.md",
-    "bugs/car-statistics-year.md",
     "features/sidebar-redesign.md",
     "features/dashboard-redesign.md",
     "raw/99-manual-review-2706.md",
@@ -204,9 +210,6 @@
     "raw/12-investment-tracking-v2",
     "features/investment-tracking.md",
     "architecture/versioning.md",
-    "plans/transaction-layout-implementation.md",
-    "features/transaction-layout-improvement.md",
-    "raw/codebase/CONCERNS.md",
-    "conventions/branch-strategy.md"
+    "plans/transaction-layout-implementation.md"
   ]
 }

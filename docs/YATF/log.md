@@ -1,5 +1,32 @@
 # Wiki Log
 
+## [2026-07-03] implement | Feature | Sidebar/routing refactor — flat links, tabbed pages, duplicate title removed
+- Removed duplicate app title from Layout.tsx AppBar (sidebar retains it)
+- Created [[features/sidebar-routing-refactor]] — `FinancePage` (/finance, tabs: Salary + Insights) and `InvestmentsPage` (/investments, tabs: Investments + Projections)
+- Removed `/salary`, `/insights`, `/invest`, `/projections` routes from App.tsx
+- Removed `NavGroup` component from Sidebar.tsx — flat link structure
+- Updated breadcrumb map in Layout.tsx
+- Created [#113](https://github.com/AlexDevsTheWeb/myfinance/issues/113)
+- Updated index.md (44 pages), log.md
+- Source: [raw/sidebar-routing-refactor.md](raw/sidebar-routing-refactor.md)
+
+## [2026-07-03] ingest | Report | Investment bug report & professional enhancements
+- Created [[bugs/ticker-persistence]] — Bug: BrokerAccount ticker not persisted (critical); PAC confirmation uses brokerId as ticker
+- Created [[features/investment-professional-enhancements]] — 5 sub-features: per-ticker pricing, stamp duty (0.20%), capital losses tracking (zainetto fiscale), transaction fees field, privacy mode
+- Verified claims against codebase: ticker bug **confirmed** (`BrokerAccount` type + save handler both lack ticker); cash adjustments already implemented in V3
+- Updated index.md (43 pages) and log.md
+- Source: [raw/investment-report.md](raw/investment-report.md)
+
+## [2026-07-03] docs | Guide | Investment & Projections — Full code analysis added to wiki
+- Created [[features/investment-tracking-guide]] — complete rewrite: combines user guide (EN) + deep code analysis (6 parts)
+- Part 1–2: User guide for `/invest` and `/projections` (from raw/FEATURES-GUIDE.md)
+- Part 3: Code analysis of `/invest` — page structure, `usePortfolio()` computation engine (avg cost method, cash balance formula), `usePacAutomation()` flow, `useMarketData()` / Yahoo Finance, store write pattern (optimistic→Firestore→rollback), `useTaxTracking()` (26% capital gains)
+- Part 4: Code analysis of `/projections` — `useProjections()` hook flow, `generateFinancialProjection()` monthly loop algorithm, monthly rate conversion, inflation adjustment, CAGR computation
+- Part 5: Data flow diagram (Firestore ↔ stores ↔ hooks ↔ pages)
+- Part 6: Key files reference table
+- Updated [[features/guida-investimenti]] cross-references
+- Updated index.md (41 pages) and log.md
+
 ## [2026-06-28] complete | Implementation | Manual Review #99 — All 7 items implemented
 - ✅ Wave 1: i18n bugfix (car.statistics, utilities.total, insights.financialTrendTitle) + hardcoded strings → translations
 - ✅ Wave 2: Padding reduction (p:3→p:1.5) across 20+ component files
