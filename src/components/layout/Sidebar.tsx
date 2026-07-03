@@ -14,7 +14,6 @@ import {
 } from '@mui/icons-material';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
@@ -35,47 +34,6 @@ import { getEnvVar } from '../../utils/variables.utils';
 
 const drawerWidthExpanded = 240;
 const drawerWidthCollapsed = 64;
-
-interface NavGroupProps {
-  icon: React.ReactNode;
-  label: string;
-  children: React.ReactNode;
-  collapsed: boolean;
-  defaultOpen?: boolean;
-}
-
-function NavGroup({ icon, label, children, collapsed, defaultOpen = true }: NavGroupProps) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  if (collapsed) {
-    return (
-      <Tooltip title={label} placement="right">
-        <Box sx={{ px: 1, mb: 0.5 }}>
-          <ListItemButton sx={{ borderRadius: 1, justifyContent: 'center', px: 1 }}>
-            <ListItemIcon sx={{ minWidth: 0, color: 'rgba(255,255,255,0.6)', justifyContent: 'center' }}>
-              {icon}
-            </ListItemIcon>
-          </ListItemButton>
-        </Box>
-      </Tooltip>
-    );
-  }
-
-  return (
-    <>
-      <ListItemButton onClick={() => setOpen(!open)} sx={{ borderRadius: 1, mx: 1 }}>
-        <ListItemIcon sx={{ minWidth: 40, color: 'rgba(255,255,255,0.6)' }}>{icon}</ListItemIcon>
-        <ListItemText primary={label} sx={{ '& .MuiListItemText-primary': { fontWeight: 600, fontSize: '0.875rem' } }} />
-        {open ? <ChevronRight sx={{ fontSize: 20, opacity: 0.5 }} /> : <ChevronLeft sx={{ fontSize: 20, opacity: 0.5 }} />}
-      </ListItemButton>
-      <Collapse in={open} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          {children}
-        </List>
-      </Collapse>
-    </>
-  );
-}
 
 interface SidebarProps {
   onNavClick?: () => void;
@@ -149,15 +107,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
         {navItem('/dashboard', <Home />, t('navigation.dashboard'))}
         {navItem('/transactions', <Receipt />, t('navigation.transactions'))}
 
-        <NavGroup icon={<BarChartIcon />} label={t('nav.finance')} collapsed={collapsed}>
-          {navItem('/salary', <TrendingUp />, t('salary.title'))}
-          {navItem('/insights', <BarChartIcon />, t('insights.title'))}
-        </NavGroup>
+        {navItem('/finance', <BarChartIcon />, t('nav.finance'))}
 
-        <NavGroup icon={<TrendingUp />} label="Investments" collapsed={collapsed}>
-          {enabledModules?.investmentTracking && navItem('/invest', <TrendingUp />, t('investment.navInvestments'))}
-          {navItem('/projections', <BarChartIcon />, t('nav.projections'))}
-        </NavGroup>
+        {enabledModules?.investmentTracking && navItem('/investments', <TrendingUp />, 'Investments')}
 
         {enabledModules?.budgetTracking && navItem('/budget', <BudgetIcon />, t('nav.budget'))}
         {enabledModules?.carManagement && navItem('/car', <CarIcon />, t('car.title'))}
