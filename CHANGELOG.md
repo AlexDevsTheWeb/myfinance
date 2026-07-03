@@ -1,4 +1,9 @@
 
+### [2026.8.2](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.8.1...v2026.8.2) (2026-07-03)
+
+
+* **development:** new issues and navbar navigation ([0c2b551](https://github.com/AlexDevsTheWeb/myfinance/commit/0c2b55188f5bbdbed25808d0f279d3b3294a7704))
+
 ### [2026.8.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.8.0...v2026.8.1) (2026-06-30)
 
 
