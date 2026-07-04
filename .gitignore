@@ -32,3 +32,5 @@ dist-ssr
 src/version.ts
 .obsidian/
 .obsidian/*
+
+run_agent.sh
