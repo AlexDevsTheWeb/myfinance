@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DndContext, type DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
-import { AccountBalance, Add as AddIcon, Backup as BackupIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, Repeat, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
+import { AccountBalance, Add as AddIcon, Backup as BackupIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, Repeat, ShowChart, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
 import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Select, Switch, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import TransactionForm from '../components/forms/TransactionForm';
+import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import { useFinanceStore } from '../store/useFinanceStore';
+import { useInvestmentStore } from '../store/useInvestmentStore';
+import { useProjectionSettingsStore, DEFAULT_PROJECTION_SETTINGS } from '../store/useProjectionSettingsStore';
 import type { ITabPanelProps } from '../types/props.types';
 
 function TabPanel(props: ITabPanelProps) {
@@ -154,8 +157,26 @@ const ConfigPage: React.FC = () => {
   } = useFinanceStore();
 
   const { t } = useTranslation();
+  const { inflationRate: savedInflationRate, taxRate: savedTaxRate, loaded: settingsLoaded, loadSettings, saveSettings, resetToDefaults } = useProjectionSettingsStore();
 
   const [tabValue, setTabValue] = React.useState(0);
+  const [projectionForm, setProjectionForm] = React.useState({ inflationRate: '', taxRate: '' });
+
+  React.useEffect(() => {
+    if (!settingsLoaded) {
+      loadSettings();
+    }
+  }, [settingsLoaded, loadSettings]);
+
+  const handleTabChange = React.useCallback((_event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+    if (newValue === 5) {
+      setProjectionForm({
+        inflationRate: (savedInflationRate * 100).toFixed(1),
+        taxRate: (savedTaxRate * 100).toFixed(1),
+      });
+    }
+  }, [savedInflationRate, savedTaxRate]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogConfig, setDialogConfig] = useState<{
@@ -194,6 +215,9 @@ const ConfigPage: React.FC = () => {
     monthOfYear: 1
   });
 
+  const [brokerDialogOpen, setBrokerDialogOpen] = useState(false);
+  const brokerAccounts = useInvestmentStore(s => s.brokerAccounts);
+
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewData, setPreviewData] = useState<{
     transactionCount: number;
@@ -209,10 +233,6 @@ const ConfigPage: React.FC = () => {
     exportedAt: string;
   } | null>(null);
   const [importFile, setImportFile] = useState<File | null>(null);
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
 
   const handleOpenDialog = (config: any) => {
     setDialogConfig(config);
@@ -480,10 +500,11 @@ const ConfigPage: React.FC = () => {
             }}
           >
             <Tab icon={<ViewQuilt sx={{ mr: 1 }} />} iconPosition="start" label={t('config.general')} />
-            <Tab icon={<AccountBalance sx={{ mr: 1 }} />} iconPosition="start" label={t('config.balance')} />
-            <Tab icon={<Repeat sx={{ mr: 1 }} />} iconPosition="start" label={t('config.recurring')} />
+            <Tab icon={<AccountBalance sx={{ mr: 1 }} />} iconPosition="start" label={t('config.accounts')} />
             <Tab icon={<TrendingDown sx={{ mr: 1 }} />} iconPosition="start" label={t('config.expenses')} />
             <Tab icon={<TrendingUp sx={{ mr: 1 }} />} iconPosition="start" label={t('config.incomes')} />
+            <Tab icon={<Repeat sx={{ mr: 1 }} />} iconPosition="start" label={t('config.recurring')} />
+            <Tab icon={<ShowChart sx={{ mr: 1 }} />} iconPosition="start" label={t('config.projections')} />
             <Tab icon={<BackupIcon sx={{ mr: 1 }} />} iconPosition="start" label={t('config.backup')} />
           </Tabs>
         </Box>
@@ -578,13 +599,6 @@ const ConfigPage: React.FC = () => {
                   </List>
               </Paper>
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <Typography variant="body2" sx={{ textAlign: 'center', opacity: 0.3, fontStyle: 'italic' }}>
-                  {t('config.accountsPlaceholder')}
-                </Typography>
-              </Paper>
-            </Grid>
           </Grid>
         </TabPanel>
 
@@ -632,6 +646,41 @@ const ConfigPage: React.FC = () => {
                     </ListItem>
                   ))}
                 </List>
+
+                <Typography variant="h6" sx={{ fontWeight: 700, mt: 4, mb: 2 }}>Broker Accounts</Typography>
+                {brokerAccounts.length === 0 ? (
+                  <Typography sx={{ opacity: 0.6, textAlign: 'center', py: 2, fontStyle: 'italic' }}>
+                    No broker accounts configured.
+                  </Typography>
+                ) : (
+                  <List>
+                    {brokerAccounts.map(broker => (
+                      <ListItem
+                        key={broker.id}
+                        sx={{
+                          background: 'rgba(255,255,255,0.02)',
+                          mb: 1,
+                          borderRadius: 3,
+                          border: '1px solid rgba(255,255,255,0.05)',
+                        }}
+                      >
+                        <ListItemText
+                          primary={<Typography sx={{ fontWeight: 700 }}>{broker.name}</Typography>}
+                          secondary={`Lump: €${broker.baseLumpSum.toLocaleString()} · PAC: €${broker.monthlyPacAmount.toLocaleString()} · Rate: ${broker.interestRate}%`}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setBrokerDialogOpen(true)}
+                  fullWidth
+                  sx={{ mt: 1 }}
+                >
+                  Add Broker Account
+                </Button>
               </Paper>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
@@ -654,6 +703,14 @@ const ConfigPage: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
+          {renderExplodedList(sortedExpenses, 'expense')}
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={3}>
+          {renderExplodedList(sortedIncome, 'income')}
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={4}>
           <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h5" sx={{ fontWeight: 800 }}>{t('config.recurringTemplates')}</Typography>
@@ -718,15 +775,71 @@ const ConfigPage: React.FC = () => {
           </Paper>
         </TabPanel>
 
-        <TabPanel value={tabValue} index={3}>
-          {renderExplodedList(sortedExpenses, 'expense')}
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={4}>
-          {renderExplodedList(sortedIncome, 'income')}
-        </TabPanel>
-
         <TabPanel value={tabValue} index={5}>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                  {t('config.projections')}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 3, opacity: 0.7 }}>
+                  {t('config.projectionsDescription')}
+                </Typography>
+                <Grid container spacing={2} sx={{ mb: 3 }}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      label={t('config.inflationRate')}
+                      type="number"
+                      variant="filled"
+                      value={projectionForm.inflationRate}
+                      onChange={(e) => setProjectionForm(prev => ({ ...prev, inflationRate: e.target.value }))}
+                      slotProps={{ input: { endAdornment: <Typography sx={{ opacity: 0.5 }}>%</Typography> }, htmlInput: { min: 0, max: 100, step: 0.1 } }}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      label={t('config.taxRate')}
+                      type="number"
+                      variant="filled"
+                      value={projectionForm.taxRate}
+                      onChange={(e) => setProjectionForm(prev => ({ ...prev, taxRate: e.target.value }))}
+                      slotProps={{ input: { endAdornment: <Typography sx={{ opacity: 0.5 }}>%</Typography> }, htmlInput: { min: 0, max: 100, step: 0.1 } }}
+                    />
+                  </Grid>
+                </Grid>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={async () => {
+                      const inflationRate = Number(projectionForm.inflationRate) / 100;
+                      const taxRate = Number(projectionForm.taxRate) / 100;
+                      if (isNaN(inflationRate) || isNaN(taxRate)) return;
+                      await saveSettings({ inflationRate, taxRate });
+                    }}
+                  >
+                    {t('common.save')}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={async () => {
+                      await resetToDefaults();
+                      setProjectionForm({
+                        inflationRate: (DEFAULT_PROJECTION_SETTINGS.inflationRate * 100).toFixed(1),
+                        taxRate: (DEFAULT_PROJECTION_SETTINGS.taxRate * 100).toFixed(1),
+                      });
+                    }}
+                  >
+                    {t('config.resetDefaults')}
+                  </Button>
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={6}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
               <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
@@ -878,6 +991,8 @@ const ConfigPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <BrokerSettingsModal open={brokerDialogOpen} onClose={() => setBrokerDialogOpen(false)} />
 
         {/* Backup Preview Dialog */}
         <Dialog open={previewDialogOpen} onClose={() => setPreviewDialogOpen(false)} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>

@@ -147,7 +147,7 @@
   "config": {
     "general": "Generale",
     "language": "Lingua",
-    "balance": "Saldo",
+    "accounts": "Conti",
     "recurring": "Ricorrenti",
     "expenses": "Spese",
     "incomes": "Entrate",
@@ -187,7 +187,12 @@
     "category": "Categoria",
     "item": "Elemento",
     "recurringTemplate": "Template Ricorrente",
-    "account": "Conto"
+    "account": "Conto",
+    "projections": "Proiezioni",
+    "projectionsDescription": "Configura i tassi predefiniti usati nelle proiezioni finanziarie.",
+    "inflationRate": "Tasso d'inflazione",
+    "taxRate": "Aliquota fiscale",
+    "resetDefaults": "Reimposta predefiniti"
   },
   "language": {
     "italian": "Italiano",

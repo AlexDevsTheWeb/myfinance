@@ -67,10 +67,15 @@ A predictive charting module that lets users simulate the long-term growth (10â€
 - Nav link in Layout top AppBar (desktop) + drawer (mobile)
 - 15 EN + 15 IT translation keys under `projections` namespace
 
+## Future Enhancements
+
+- [[features/user-configurable-rates]] â€” Proposed: replace hardcoded inflation/tax rates with user-configurable values stored in Firestore
+
 ## Related
 
 - [[plans/financial-projections-implementation]]
 - [[architecture/financial-projections-architecture]]
+- [[features/user-configurable-rates]]
 - [[features/investment-tracking]]
 - [[architecture/project-state]]
 - Sources: [raw/83-financial-projections/issue.md](raw/83-financial-projections/issue.md), [raw/83-financial-projections/implementation.md](raw/83-financial-projections/implementation.md)

@@ -32,6 +32,7 @@ export const sanitizeBrokerAccount = (account: BrokerAccount): Record<string, un
   return {
     id: account.id.trim(),
     name: account.name.trim(),
+    ticker: (account.ticker ?? '').toUpperCase(),
     baseLumpSum: Number(account.baseLumpSum) || 0,
     monthlyPacAmount: Number(account.monthlyPacAmount) || 0,
     interestRate: Number(account.interestRate) || 0,

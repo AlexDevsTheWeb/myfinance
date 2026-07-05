@@ -1,9 +1,9 @@
 ---
 title: "BrokerAccount ticker field not persisted — PAC creates transactions with wrong ticker"
-tags: [bug, investment, broker, critical]
+tags: [bug, investment, broker, critical, fixed]
 created: 2026-07-03
 updated: 2026-07-03
-status: open
+status: fixed
 severity: critical
 sources: ["raw/investment-report.md"]
 related: ["features/multi-broker-architecture", "features/pac-automation", "features/investment-tracking-v3", "architecture/investment-tracking-architecture"]
@@ -11,7 +11,7 @@ related: ["features/multi-broker-architecture", "features/pac-automation", "feat
 
 # Bug: Ticker Persistence Failure in BrokerAccount
 
-Status: **open**
+Status: **fixed**
 Severity: **critical**
 
 ## Symptom
@@ -85,14 +85,29 @@ This means every PAC auto-buy registers under the broker ID (e.g., `"broker-1"`)
 3. Save → close → reopen settings → the ticker field is empty
 4. If a PAC triggers, the buy transaction records with `broker-1` as the ticker
 
-## Proposed Fix
+## Implemented Fix
 
-1. Add `ticker: string` to `BrokerAccount` type
-2. Include `ticker` in the save payload in `BrokerSettingsModal.handleSave`
-3. Update `handleEdit` to pre-fill ticker from stored broker data
-4. Update `confirmPacTransaction` to read the actual ticker from the broker account instead of using `selectedAccountId` as ticker
-5. Update Firestore rules for the new field
-6. Validate ticker at the API boundary (already done in form — needs to survive to persistence)
+| # | File | Change |
+|---|------|--------|
+| 1 | `src/store/types/investment.types.ts:28` | Added `ticker: string` to `BrokerAccount` interface |
+| 2 | `src/store/sanitization/investment.ts:35` | Added `ticker` to `sanitizeBrokerAccount` (uppercased) |
+| 3 | `src/store/defaults.ts:57` | Added `ticker: 'SWDA.MI'` to `DEFAULT_BROKER_ACCOUNTS` |
+| 4 | `src/components/investment/BrokerSettingsModal.tsx:104` | Included `ticker: formData.ticker.toUpperCase().trim()` in save payload |
+| 5 | `src/components/investment/BrokerSettingsModal.tsx:70` | Pre-fill `ticker` from `broker.ticker` on edit (was `''`) |
+| 6 | `src/store/useInvestmentStore.ts:453-454` | Resolve actual ticker from `brokerAccounts` in `confirmPacTransaction` instead of using `selectedAccountId` |
+| 7 | `src/store/useInvestmentStore.ts:270` | Include `config.ticker` in `setBrokerConfig` migration |
+| 8 | `src/hooks/useInvestmentSync.ts:23` | Include `old.ticker` in `IBrokerConfig` → `BrokerAccount[]` migration |
+| 9 | `src/lib/converters.ts:207` | Read `b.ticker` from Firestore in data converter |
+
+### Fix details
+
+**Root Cause 1** — The `BrokerAccount` type was missing `ticker`, so even though the form collected and validated it, the value was never stored. The fix adds the field to the type, the sanitizer, the default, and all construction sites (save handler, edit handler, migrations, converter).
+
+**Root Cause 2** — `confirmPacTransaction` used `selectedAccountId` (the broker ID) as the ticker. Fixed by resolving the actual ticker from `brokerAccounts.find(b => b.id === selectedAccountId)?.ticker` with a fallback to `selectedAccountId` for safety.
+
+### Migration note
+
+Existing broker accounts in Firestore will have `ticker: ""` after the fix lands. Users must re-enter their ticker via the Broker Settings modal.
 
 ## Related
 

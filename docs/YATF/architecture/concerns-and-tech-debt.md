@@ -21,6 +21,7 @@ related: ["architecture/project-state", "architecture/testing-status", "architec
 | Redundant sanitization (sanitization/ + converters both do it) | Data drift risk | Open |
 | Dead code: 70 lines commented out in `RecapCards.tsx` | Clutter | Open |
 | Unused `handleEditTireChange` in CarPage.tsx | Dead code | Open |
+| Unused `SettingsContext.tsx` (context + provider + hook, zero imports) | Dead code | ✅ Removed |
 | Redundant type re-exports in store | Import confusion | Open |
 | `useSyncFinance` onSnapshot doesn't handle multi-tab well | Data loss risk | Open |
 | `_migrateToMultiAccount` runs on every app mount | Wasteful | Open |
