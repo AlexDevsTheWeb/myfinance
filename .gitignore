@@ -30,8 +30,8 @@ dist-ssr
 .config/
 .config/*
 src/version.ts
-.obsidian/
-.obsidian/*
+docs/YATF/.obsidian/
+docs/YATF/.obsidian/*
 
 run_agent.sh
 agent_hub.py
