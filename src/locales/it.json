@@ -147,7 +147,7 @@
   "config": {
     "general": "Generale",
     "language": "Lingua",
-    "balance": "Saldo",
+    "accounts": "Conti",
     "recurring": "Ricorrenti",
     "expenses": "Spese",
     "incomes": "Entrate",

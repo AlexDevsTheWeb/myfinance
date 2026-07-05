@@ -147,7 +147,7 @@
   "config": {
     "general": "General",
     "language": "Language",
-    "balance": "Balance",
+    "accounts": "Accounts",
     "recurring": "Recurring",
     "expenses": "Expenses",
     "incomes": "Incomes",

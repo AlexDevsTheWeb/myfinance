@@ -168,7 +168,7 @@ const ConfigPage: React.FC = () => {
 
   const handleTabChange = React.useCallback((_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-    if (newValue === 6) {
+    if (newValue === 5) {
       setProjectionForm({
         inflationRate: (savedInflationRate * 100).toFixed(1),
         taxRate: (savedTaxRate * 100).toFixed(1),
@@ -495,12 +495,12 @@ const ConfigPage: React.FC = () => {
             }}
           >
             <Tab icon={<ViewQuilt sx={{ mr: 1 }} />} iconPosition="start" label={t('config.general')} />
-            <Tab icon={<AccountBalance sx={{ mr: 1 }} />} iconPosition="start" label={t('config.balance')} />
-            <Tab icon={<Repeat sx={{ mr: 1 }} />} iconPosition="start" label={t('config.recurring')} />
+            <Tab icon={<AccountBalance sx={{ mr: 1 }} />} iconPosition="start" label={t('config.accounts')} />
             <Tab icon={<TrendingDown sx={{ mr: 1 }} />} iconPosition="start" label={t('config.expenses')} />
             <Tab icon={<TrendingUp sx={{ mr: 1 }} />} iconPosition="start" label={t('config.incomes')} />
-            <Tab icon={<BackupIcon sx={{ mr: 1 }} />} iconPosition="start" label={t('config.backup')} />
+            <Tab icon={<Repeat sx={{ mr: 1 }} />} iconPosition="start" label={t('config.recurring')} />
             <Tab icon={<ShowChart sx={{ mr: 1 }} />} iconPosition="start" label={t('config.projections')} />
+            <Tab icon={<BackupIcon sx={{ mr: 1 }} />} iconPosition="start" label={t('config.backup')} />
           </Tabs>
         </Box>
 
@@ -594,13 +594,6 @@ const ConfigPage: React.FC = () => {
                   </List>
               </Paper>
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <Typography variant="body2" sx={{ textAlign: 'center', opacity: 0.3, fontStyle: 'italic' }}>
-                  {t('config.accountsPlaceholder')}
-                </Typography>
-              </Paper>
-            </Grid>
           </Grid>
         </TabPanel>
 
@@ -670,6 +663,14 @@ const ConfigPage: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
+          {renderExplodedList(sortedExpenses, 'expense')}
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={3}>
+          {renderExplodedList(sortedIncome, 'income')}
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={4}>
           <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h5" sx={{ fontWeight: 800 }}>{t('config.recurringTemplates')}</Typography>
@@ -734,15 +735,7 @@ const ConfigPage: React.FC = () => {
           </Paper>
         </TabPanel>
 
-        <TabPanel value={tabValue} index={3}>
-          {renderExplodedList(sortedExpenses, 'expense')}
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={4}>
-          {renderExplodedList(sortedIncome, 'income')}
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={6}>
+        <TabPanel value={tabValue} index={5}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
               <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
@@ -806,7 +799,7 @@ const ConfigPage: React.FC = () => {
           </Grid>
         </TabPanel>
 
-        <TabPanel value={tabValue} index={5}>
+        <TabPanel value={tabValue} index={6}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
               <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
