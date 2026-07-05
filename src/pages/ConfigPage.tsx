@@ -6,7 +6,9 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import TransactionForm from '../components/forms/TransactionForm';
+import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import { useFinanceStore } from '../store/useFinanceStore';
+import { useInvestmentStore } from '../store/useInvestmentStore';
 import { useProjectionSettingsStore, DEFAULT_PROJECTION_SETTINGS } from '../store/useProjectionSettingsStore';
 import type { ITabPanelProps } from '../types/props.types';
 
@@ -212,6 +214,9 @@ const ConfigPage: React.FC = () => {
     frequency: 'monthly' as 'monthly' | 'yearly',
     monthOfYear: 1
   });
+
+  const [brokerDialogOpen, setBrokerDialogOpen] = useState(false);
+  const brokerAccounts = useInvestmentStore(s => s.brokerAccounts);
 
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [previewData, setPreviewData] = useState<{
@@ -641,6 +646,41 @@ const ConfigPage: React.FC = () => {
                     </ListItem>
                   ))}
                 </List>
+
+                <Typography variant="h6" sx={{ fontWeight: 700, mt: 4, mb: 2 }}>Broker Accounts</Typography>
+                {brokerAccounts.length === 0 ? (
+                  <Typography sx={{ opacity: 0.6, textAlign: 'center', py: 2, fontStyle: 'italic' }}>
+                    No broker accounts configured.
+                  </Typography>
+                ) : (
+                  <List>
+                    {brokerAccounts.map(broker => (
+                      <ListItem
+                        key={broker.id}
+                        sx={{
+                          background: 'rgba(255,255,255,0.02)',
+                          mb: 1,
+                          borderRadius: 3,
+                          border: '1px solid rgba(255,255,255,0.05)',
+                        }}
+                      >
+                        <ListItemText
+                          primary={<Typography sx={{ fontWeight: 700 }}>{broker.name}</Typography>}
+                          secondary={`Lump: €${broker.baseLumpSum.toLocaleString()} · PAC: €${broker.monthlyPacAmount.toLocaleString()} · Rate: ${broker.interestRate}%`}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setBrokerDialogOpen(true)}
+                  fullWidth
+                  sx={{ mt: 1 }}
+                >
+                  Add Broker Account
+                </Button>
               </Paper>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
@@ -951,6 +991,8 @@ const ConfigPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <BrokerSettingsModal open={brokerDialogOpen} onClose={() => setBrokerDialogOpen(false)} />
 
         {/* Backup Preview Dialog */}
         <Dialog open={previewDialogOpen} onClose={() => setPreviewDialogOpen(false)} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
