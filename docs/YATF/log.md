@@ -281,6 +281,21 @@
 - Updated data flow diagram in both guides with new V3 integration points
 - Updated [[features/investment-tracking-guide]] and [[features/guida-investimenti]]
 
+## [2026-07-05] fix | Build | Removed unused SettingsContext.tsx — 2 TS6133 errors
+- `SettingsContext.tsx` had 2 `tsc` errors (unused `current` params) and zero imports across the codebase
+- Removed the file — `npm run build` now passes clean (0 type errors)
+- Updated [[architecture/concerns-and-tech-debt]] — added dead code entry to tech debt, marked ✅ Removed
+
+## [2026-07-05] ingest | Feature | User-Configurable Inflation & Tax Rates for Projections
+- Raw source: [raw/103.md](raw/103.md) — analysis of moving from hardcoded rates to user-configurable settings
+- Created [[features/user-configurable-rates]] — feature page (draft)
+- Created [[plans/user-configurable-rates-implementation]] — 6-step implementation plan (draft)
+- Created [[architecture/user-settings-data-flow]] — settings architecture, Firestore schema, store design (draft)
+- Updated [[features/tax-inflation-modeling]] — added "Next Evolution" section linking to configurable rates
+- Updated [[features/financial-projections]] — added Future Enhancements section
+- Updated [[architecture/financial-projections-architecture]] — added "Future: Configurable Rates" section amending the no-persistence decision
+- Updated index.md (47 pages), log.md
+
 ## [2026-07-03] fix | Bug | Ticker persistence — BrokerAccount ticker not saved; PAC uses brokerId as ticker (#108)
 - Added `ticker: string` to `BrokerAccount` interface (`investment.types.ts`)
 - Added `ticker` to `sanitizeBrokerAccount` (`sanitization/investment.ts`)

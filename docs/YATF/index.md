@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-07-03* (Sidebar/routing refactor, investment bug + enhancements)
-*Total pages: 44*
+*Last updated: 2026-07-05* (User-configurable inflation & tax rates analysis)
+*Total pages: 47*
 
 ---
 
@@ -27,6 +27,7 @@
 | [[features/sidebar-redesign]] | ✅ Vertical left sidebar with grouped navigation, collapsible mode, avatar | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
 | [[features/investment-professional-enhancements]] | 📋 Per-ticker pricing, stamp duty, capital losses, fees, privacy mode — **draft** | [`raw/investment-report.md`](raw/investment-report.md) |
 | [[features/sidebar-routing-refactor]] | ✅ Sidebar flat links, `/finance` + `/investments` tabbed pages, removed duplicate title | [`#113`](https://github.com/AlexDevsTheWeb/myfinance/issues/113) |
+| [[features/user-configurable-rates]] | 📋 User-configurable inflation & tax rates for projections — **draft** | [`raw/103.md`](raw/103.md) |
 
 ## Plans
 
@@ -42,6 +43,7 @@
 | [[plans/budget-savings-engine-implementation]] | ✅ V4 Budget & Savings Rate implementation: 6 waves, 11 new files, 10 modified | [`#100`](https://github.com/AlexDevsTheWeb/myfinance/issues/100) |
 | [[plans/manual-review-99-implementation]] | ✅ 5-wave plan: bug fixes, padding, account dialog, dashboard charts, sidebar | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
 | [[plans/backup-restore-data-coverage]] | Plan to add missing budget + investment data to backup/restore | [`raw/101-backup-restore-gaps.md`](raw/101-backup-restore-gaps.md) |
+| [[plans/user-configurable-rates-implementation]] | 📋 6-step implementation plan for configurable rates — **draft** | [`raw/103.md`](raw/103.md) |
 
 ## Bugs
 
@@ -65,6 +67,7 @@
 | [[architecture/investment-tracking-architecture]] | ✅ Investment data flow, V1+V2 Firestore schema, store architecture, component tree, migration layer | [`.planning/phases/10-investment-tracking/10-RESEARCH.md`](.planning/phases/10-investment-tracking/10-RESEARCH.md) |
 | [[architecture/financial-projections-architecture]] | ✅ Simulation data flow, component tree, design decisions, integration points | [`raw/83-financial-projections/issue.md`](raw/83-financial-projections/issue.md) |
 | [[architecture/budget-savings-architecture]] | ✅ Budget data flow, Firestore schema, store architecture, component tree, charting | [`raw/100-budget-savings-engine/issue.md`](raw/100-budget-savings-engine/issue.md) |
+| [[architecture/user-settings-data-flow]] | 📋 User settings architecture for configurable rates — **draft** | [`raw/103.md`](raw/103.md) |
 
 ## Conventions
 

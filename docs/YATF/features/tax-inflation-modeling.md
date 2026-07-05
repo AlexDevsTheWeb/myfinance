@@ -46,8 +46,13 @@ Add inflation-adjusted projections to the financial simulator with a toggle. Imp
 
 - **Modified:** `projection.types.ts`, `compoundInterestUtils.ts`, `useProjections.ts`, `ProjectionControls.tsx`, `ProjectionChart.tsx`, `ProjectionSummary.tsx`, `ProjectionsPage.tsx`, `en.json`, `it.json`
 
+## Next Evolution
+
+The current implementation uses a hardcoded 2% inflation rate. A proposed enhancement [[features/user-configurable-rates]] would make inflation and tax rates user-configurable via a settings page, replacing the hardcoded constants with per-user stored values.
+
 ## Related
 
+- [[features/user-configurable-rates]] — Proposed: user-configurable rates (next evolution)
 - [[features/financial-projections]]
 - [[architecture/financial-projections-architecture]]
 - [[plans/investment-tracking-v2-enhancements]]
