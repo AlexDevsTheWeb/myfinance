@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AccountBalance, Add, Refresh, Settings, TrendingUp } from '@mui/icons-material';
+import { AccountBalance, Add, Refresh, TrendingUp } from '@mui/icons-material';
 import { Badge, Box, Button, Grid, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import AllocationDonutChart from '../components/investment/AllocationDonutChart';
 import BrokerSelect from '../components/investment/BrokerSelect';
-import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import CashAdjustmentDialog from '../components/investment/CashAdjustmentDialog';
 import CashInterestCard from '../components/investment/CashInterestCard';
 import DividendBadge from '../components/investment/DividendBadge';
@@ -32,7 +31,6 @@ function TabPanel(props: { children?: React.ReactNode; index: number; value: num
 
 const InvestmentPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [etfModalOpen, setEtfModalOpen] = useState(false);
   const [cashAdjustmentOpen, setCashAdjustmentOpen] = useState(false);
   const [dividendOpen, setDividendOpen] = useState(false);
@@ -107,9 +105,6 @@ const InvestmentPage: React.FC = () => {
           <Button variant="outlined" startIcon={<Refresh />} onClick={refreshPrices} disabled={isUpdating}>
             {isUpdating ? 'Updating...' : 'Refresh Prices'}
           </Button>
-          <Button variant="outlined" startIcon={<Settings />} onClick={() => setSettingsOpen(true)}>
-            Settings
-          </Button>
         </Box>
       </Box>
 
@@ -181,7 +176,6 @@ const InvestmentPage: React.FC = () => {
       </TabPanel>
 
       <EtfTransactionModal open={etfModalOpen} onClose={handleCloseModal} editTransaction={editingTransaction} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
-      <BrokerSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <PacConfirmationDialog open={pacDialogOpen} onClose={() => setPacDialogOpen(false)} />
       <CashAdjustmentDialog open={cashAdjustmentOpen} onClose={() => setCashAdjustmentOpen(false)} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
       <DividendDialog open={dividendOpen} onClose={() => setDividendOpen(false)} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />

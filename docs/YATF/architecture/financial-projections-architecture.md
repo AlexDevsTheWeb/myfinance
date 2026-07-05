@@ -110,12 +110,25 @@ The upcoming [[features/budget-savings-engine]] can feed the projections simulat
 
 See [[plans/budget-savings-engine-implementation#wave-6]] for the savings rate → investment bridge.
 
+## Future: Configurable Rates
+
+The proposed [[features/user-configurable-rates]] feature will partially amend the "No persistence" design decision:
+
+- The projection **engine** (`generateFinancialProjection`) remains a pure function — no persistence inside it
+- However, its **inputs** (inflationRate, taxRate) will come from persistent user settings stored in Firestore
+- The `useProjections` hook will read from `useUserSettingsStore` instead of hardcoded constants
+
+See [[architecture/user-settings-data-flow]] for the full settings architecture.
+
 ## Related
 
+- [[architecture/user-settings-data-flow]] — Proposed user settings architecture
+- [[features/user-configurable-rates]] — Proposed feature: configurable rates
 - [[features/budget-savings-engine]] — Budget module (savings rate data source)
 - [[features/budget-savings-architecture]] — Budget architecture
 - [[features/financial-projections]]
 - [[plans/financial-projections-implementation]]
+- [[plans/user-configurable-rates-implementation]]
 - [[plans/budget-savings-engine-implementation]]
 - [[architecture/investment-tracking-architecture]]
 - [[architecture/tech-stack]]

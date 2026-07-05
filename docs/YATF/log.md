@@ -281,6 +281,37 @@
 - Updated data flow diagram in both guides with new V3 integration points
 - Updated [[features/investment-tracking-guide]] and [[features/guida-investimenti]]
 
+## [2026-07-05] refactor | Settings | Reorganized ConfigPage tabs by domain family
+- New tab order: General → Accounts → Expenses → Incomes → Recurring → Projections → Backup
+- Renamed "Balance" → "Accounts" (clearer name for bank accounts tab)
+- Removed placeholder card from General tab
+- Updated i18n EN/IT keys
+
+## [2026-07-05] implement | Feature | User-Configurable Inflation & Tax Rates (#103)
+- Created `useProjectionSettingsStore` — Zustand store with Firestore persistence (`projectionSettings` field on `users/{userId}`)
+- Added **Projections** tab (index 6) to ConfigPage — two number fields (Inflation Rate %, Tax Rate %) with Save / Reset to Defaults
+- Updated `useProjections` — reads `inflationRate` and `taxRate` from settings store; `setInflationToggle` uses configured rate; `estimatedTaxes` uses configured tax rate
+- Added 6 i18n keys EN/IT under `config.*`
+- Updated [[features/user-configurable-rates]] → **implemented**
+- Updated [[plans/user-configurable-rates-implementation]] → **completed**
+- Updated [[architecture/user-settings-data-flow]] → **active**
+- Updated index.md, log.md
+
+## [2026-07-05] fix | Build | Removed unused SettingsContext.tsx — 2 TS6133 errors
+- `SettingsContext.tsx` had 2 `tsc` errors (unused `current` params) and zero imports across the codebase
+- Removed the file — `npm run build` now passes clean (0 type errors)
+- Updated [[architecture/concerns-and-tech-debt]] — added dead code entry to tech debt, marked ✅ Removed
+
+## [2026-07-05] ingest | Feature | User-Configurable Inflation & Tax Rates for Projections
+- Raw source: [raw/103.md](raw/103.md) — analysis of moving from hardcoded rates to user-configurable settings
+- Created [[features/user-configurable-rates]] — feature page (draft)
+- Created [[plans/user-configurable-rates-implementation]] — 6-step implementation plan (draft)
+- Created [[architecture/user-settings-data-flow]] — settings architecture, Firestore schema, store design (draft)
+- Updated [[features/tax-inflation-modeling]] — added "Next Evolution" section linking to configurable rates
+- Updated [[features/financial-projections]] — added Future Enhancements section
+- Updated [[architecture/financial-projections-architecture]] — added "Future: Configurable Rates" section amending the no-persistence decision
+- Updated index.md (47 pages), log.md
+
 ## [2026-07-03] fix | Bug | Ticker persistence — BrokerAccount ticker not saved; PAC uses brokerId as ticker (#108)
 - Added `ticker: string` to `BrokerAccount` interface (`investment.types.ts`)
 - Added `ticker` to `sanitizeBrokerAccount` (`sanitization/investment.ts`)

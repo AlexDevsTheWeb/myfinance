@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeCAGR, generateFinancialProjection } from '../lib/compoundInterestUtils';
+import { useProjectionSettingsStore } from '../store/useProjectionSettingsStore';
 import type { IMonthlySnapshot, IProjectionInput } from '../store/types';
 
 const DEFAULT_INPUT: IProjectionInput = {
@@ -9,8 +10,8 @@ const DEFAULT_INPUT: IProjectionInput = {
   monthlyPac: 200,
   etfAnnualReturn: 0.07,
   cashAnnualRate: 0.02,
-  adjustForInflation: false,  // default off
-  inflationRate: 0.02,        // 2%
+  adjustForInflation: false,
+  inflationRate: 0.02,
 };
 
 export interface ProjectionSummary {
@@ -36,6 +37,16 @@ export function useProjections(): UseProjectionsReturn {
   const [input, setInput] = useState<IProjectionInput>(DEFAULT_INPUT);
   const [useRealPerformance, setUseRealPerformance] = useState(false);
   const [realCagr, setRealCagr] = useState<number | null>(null);
+  const settingsInflationRate = useProjectionSettingsStore(s => s.inflationRate);
+  const settingsTaxRate = useProjectionSettingsStore(s => s.taxRate);
+  const settingsLoaded = useProjectionSettingsStore(s => s.loaded);
+  const loadSettings = useProjectionSettingsStore(s => s.loadSettings);
+
+  useEffect(() => {
+    if (!settingsLoaded) {
+      loadSettings();
+    }
+  }, [settingsLoaded, loadSettings]);
 
   useEffect(() => {
     const prefetch = async () => {
@@ -101,9 +112,9 @@ export function useProjections(): UseProjectionsReturn {
     return {
       finalCapital: last.netWorth,
       totalInterests: interests,
-      estimatedTaxes: Math.max(0, interests * 0.26),
+      estimatedTaxes: Math.max(0, interests * settingsTaxRate),
     };
-  }, [snapshots]);
+  }, [snapshots, settingsTaxRate]);
 
   const setParam = (key: keyof IProjectionInput, value: number) => {
     setInput(prev => ({ ...prev, [key]: value }));
@@ -115,7 +126,7 @@ export function useProjections(): UseProjectionsReturn {
   };
 
   const setInflationToggle = (enabled: boolean) => {
-    setInput(prev => ({ ...prev, adjustForInflation: enabled }));
+    setInput(prev => ({ ...prev, adjustForInflation: enabled, inflationRate: settingsInflationRate }));
   };
 
   return { input, snapshots, summary, chartData, setParam, resetToDefaults, setInflationToggle, useRealPerformance, setUseRealPerformance, realCagr };
