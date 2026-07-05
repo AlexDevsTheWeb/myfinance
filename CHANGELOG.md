@@ -1,4 +1,18 @@
 
+## [2026.9.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.8.2...v2026.9.0) (2026-07-05)
+
+
+* **103:** added gitignore ([cc01a35](https://github.com/AlexDevsTheWeb/myfinance/commit/cc01a35e37bf8f1f83275aaf9aac19cce78ae3e7))
+* **103:** last fixes ([bf1019b](https://github.com/AlexDevsTheWeb/myfinance/commit/bf1019bf2fbc4d4bf37aa24697d85a2d93511a2c))
+* **development:** new nvmrc ([50a32c0](https://github.com/AlexDevsTheWeb/myfinance/commit/50a32c0dfdc530745701d687d3372c02371290a8))
+* **develpment:** fix gitignore ([203b615](https://github.com/AlexDevsTheWeb/myfinance/commit/203b61581bc5e2be944f86d5cfea5ea9adcb299f))
+* ingest analysis for user-configurable inflation/tax rates (fix [#103](https://github.com/AlexDevsTheWeb/myfinance/issues/103)) ([676df52](https://github.com/AlexDevsTheWeb/myfinance/commit/676df527f97263f3a396a6030a5b6dae2770ff14))
+* log ConfigPage tab reorganization ([585965b](https://github.com/AlexDevsTheWeb/myfinance/commit/585965bf00a25897f700d299c5fd69c19d84bc32))
+* move broker accounts from InvestmentPage to ConfigPage > Accounts ([fcfd817](https://github.com/AlexDevsTheWeb/myfinance/commit/fcfd817e9ec57f6b5caed3a513a2ff92c42acd6f))
+* persist BrokerAccount ticker and fix PAC transaction ticker resolution ([33b9ccd](https://github.com/AlexDevsTheWeb/myfinance/commit/33b9ccd36c54e57b284e7624e26a00adfd92c70e)), closes [#108](https://github.com/AlexDevsTheWeb/myfinance/issues/108)
+* reorganize ConfigPage tabs by domain family ([0eea7f4](https://github.com/AlexDevsTheWeb/myfinance/commit/0eea7f47465f84d990a434679b0d79cc34e66a64))
+* user-configurable inflation and tax rates for projections ([#103](https://github.com/AlexDevsTheWeb/myfinance/issues/103)) ([f6c36c8](https://github.com/AlexDevsTheWeb/myfinance/commit/f6c36c8715acd84edf8b75658062dd1f1df6d62c))
+
 ### [2026.8.2](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.8.1...v2026.8.2) (2026-07-03)
 
 
