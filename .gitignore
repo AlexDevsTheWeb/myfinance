@@ -34,3 +34,5 @@ src/version.ts
 .obsidian/*
 
 run_agent.sh
+agent_hub.py
+.venv/
