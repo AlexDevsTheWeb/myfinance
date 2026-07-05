@@ -187,7 +187,12 @@
     "category": "Category",
     "item": "Item",
     "recurringTemplate": "Recurring Template",
-    "account": "Account"
+    "account": "Account",
+    "projections": "Projections",
+    "projectionsDescription": "Configure default rates used in financial projections.",
+    "inflationRate": "Inflation Rate",
+    "taxRate": "Tax Rate",
+    "resetDefaults": "Reset to Defaults"
   },
   "language": {
     "italian": "Italiano",

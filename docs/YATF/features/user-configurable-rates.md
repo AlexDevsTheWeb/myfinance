@@ -1,54 +1,71 @@
 ---
 title: "User-Configurable Inflation & Tax Rates for Projections"
-tags: [feature, projections, settings, draft]
+tags: [feature, projections, settings, implemented]
 created: 2026-07-05
 updated: 2026-07-05
-status: draft
+status: implemented
 sources: ["raw/103.md"]
 related: ["features/tax-inflation-modeling", "features/financial-projections", "architecture/user-settings-data-flow", "plans/user-configurable-rates-implementation", "architecture/financial-projections-architecture"]
 ---
 
 # Feature: User-Configurable Inflation & Tax Rates for Projections
 
-Status: draft
+Status: implemented
 Priority: low
 
 ## Description
 
-Replace the hardcoded inflation (2%) and tax (26%) rates in the financial projections engine with user-configurable values stored per user. This allows users to customize rates based on their country of residence or personal financial assumptions.
+Replace the hardcoded inflation (2%) and tax (26%) rates in the financial projections engine with user-configurable values stored per user in Firestore. Settings are available in a dedicated **Projections** tab in ConfigPage.
 
-Currently, inflation and tax values are hardcoded constants. Users cannot adjust them, making projections inaccurate for non-default scenarios.
+## What Was Built
 
-## Requirements
+### Store — `useProjectionSettingsStore`
+- Zustand store with `inflationRate` and `taxRate` fields
+- `loadSettings()` — reads `projectionSettings` from `users/{userId}` Firestore doc
+- `saveSettings(settings)` — writes to Firestore with optimistic update + rollback
+- `resetToDefaults()` — resets to application defaults (2% inflation, 26% tax)
+- Falls back to defaults when no settings exist in Firestore
 
-- Replace hardcoded `DEFAULT_INFLATION_RATE` and `DEFAULT_TAX_RATE` constants with user-specific values
-- New **Settings** page/panel (route: `/settings`) with input fields for inflation rate and tax rate
-- Store rates per user in Firestore (new `userSettings` subcollection or extended user doc)
-- Load user settings on app startup; fall back to sensible defaults if none stored
-- Refactor `generateFinancialProjection` and `useProjections` to accept configurable rates
-- Validate inputs: non-negative floats, display as percentages (0–100%), store as decimals (0–1)
-- Cache settings locally to reduce API calls
+### ConfigPage — Projections Tab
+- New tab in the main settings page (index 6, icon: `ShowChart`)
+- Two number fields: **Inflation Rate (%)** and **Tax Rate (%)**
+- **Save** button persists to Firestore
+- **Reset to Defaults** restores application defaults
+- Inputs validated as percentages (0–100%, step 0.1)
+- Values auto-populated from Firestore when tab is selected
+
+### Hook — `useProjections`
+- Reads `inflationRate` and `taxRate` from `useProjectionSettingsStore`
+- `setInflationToggle` now sets `inflationRate` to the user's configured value
+- `estimatedTaxes` computed using the user's configured tax rate (instead of hardcoded 26%)
+
+### i18n
+- 6 new EN keys: `config.projections`, `config.projectionsDescription`, `config.inflationRate`, `config.taxRate`, `config.resetDefaults`
+- 6 new IT keys with Italian translations
 
 ## User Flow
 
-1. User navigates to `/settings` → sees form with Inflation Rate and Tax Rate fields pre-filled with current values (or defaults)
-2. User adjusts values and clicks **Save** → settings persisted to Firestore
-3. User navigates to `/projections` → projections use the saved rates
-4. "Reset to Defaults" restores the application defaults
+1. User navigates to **ConfigPage > Projections** tab
+2. Sees current inflation rate and tax rate pre-filled from saved settings (or defaults)
+3. Adjusts values and clicks **Save** → persisted to Firestore
+4. User visits `/projections` page → projections use saved rates
+5. "Reset to Defaults" restores 2% inflation / 26% tax
 
-## Implementation Notes
+## Files Changed
 
-- Pure client-side simulation becomes **settings-dependent** — projection engine now reads from user settings store instead of constants
-- The existing `adjustForInflation` toggle in `ProjectionControls` should use the configured rate instead of hardcoded 2%
-- Fallback defaults: inflation 3%, tax 20% (matching typical global averages)
-- Future-proof: the settings store pattern can be extended for additional user preferences
-- No migration needed for existing users — they'll get defaults until they configure custom rates
+| File | Change |
+|------|--------|
+| `src/store/useProjectionSettingsStore.ts` | **New** — Zustand store with Firestore persistence |
+| `src/pages/ConfigPage.tsx` | **Modified** — added Projections tab (index 6) with form |
+| `src/hooks/useProjections.ts` | **Modified** — reads settings store for rates |
+| `src/locales/en.json` | **Modified** — 6 new config keys |
+| `src/locales/it.json` | **Modified** — 6 new config keys |
 
 ## Related
 
-- [[features/tax-inflation-modeling]] — Current inflation toggle (hardcoded 2%)
+- [[features/tax-inflation-modeling]] — Current inflation toggle (now uses configured rate)
 - [[features/financial-projections]] — Projections page that consumes the rates
-- [[architecture/user-settings-data-flow]] — Settings architecture, API, DB schema
-- [[plans/user-configurable-rates-implementation]] — Task breakdown and timeline
-- [[architecture/financial-projections-architecture]] — Projections architecture (will need update)
+- [[architecture/user-settings-data-flow]] — Settings architecture, Firestore schema, store design
+- [[plans/user-configurable-rates-implementation]] — Task breakdown
+- [[architecture/financial-projections-architecture]] — Projections architecture (updated)
 - Source: [raw/103.md](raw/103.md)

@@ -1,9 +1,9 @@
 ---
 title: "User Settings Architecture — Configurable Rates"
-tags: [architecture, settings, projections, draft]
+tags: [architecture, settings, projections, active]
 created: 2026-07-05
 updated: 2026-07-05
-status: draft
+status: active
 sources: ["raw/103.md"]
 related: ["features/user-configurable-rates", "features/tax-inflation-modeling", "features/financial-projections", "plans/user-configurable-rates-implementation", "architecture/financial-projections-architecture", "architecture/project-state"]
 ---
@@ -12,149 +12,128 @@ related: ["features/user-configurable-rates", "features/tax-inflation-modeling",
 
 ## Overview
 
-Introduces a lightweight user-preferences system for storing configurable inflation and tax rates used in financial projections. This is the first instance of a user-settings pattern in the app and should be designed for extensibility.
+A lightweight user-preferences system for storing configurable inflation and tax rates used in financial projections. Settings are stored as a `projectionSettings` field on the existing `users/{userId}` Firestore doc, consumed by the `useProjections` hook.
 
 ## Data Flow
 
 ```
-User fills SettingsForm
+User fills form in ConfigPage > Projections tab
         │
         ▼
-useUserSettingsStore.updateSettings(settings)
+useProjectionSettingsStore.saveSettings(settings)
         │
-        ├─► Firestore: write to userSettings subcollection
-        ├─► localStorage: cache for offline/hydration
-        │
-        ▼
-useUserSettingsStore state updated
+        ├─► Firestore: updateDoc projectionSettings on users/{userId}
         │
         ▼
-ProjectionsPage re-reads rates from store
+Store state updated (optimistic)
         │
         ▼
-useProjections passes rates to generateFinancialProjection()
+ProjectionsPage / useProjections re-reads rates from store
         │
         ▼
-MonthlySnapshot[] computed with user values
+setInflationToggle(enabled) sets adjustForInflation + inflationRate
+estimatedTaxes computed with user taxRate
 ```
 
-### Startup Flow
+### Load Flow
 
 ```
-App mounts → user authenticated?
-  ├─ Yes → fetchSettings() from Firestore
-  │         ├─ Found → populate store + cache
-  │         └─ Not found → use defaults (inflation: 3%, tax: 20%)
-  └─ No → no settings loaded (projections use defaults)
+User visits ConfigPage > Projections tab, or ProjectionsPage
+        │
+        ▼
+useProjectionSettingsStore.loadSettings()
+        │
+        ├─► getDoc(users/{userId})
+        │    ├─ projectionSettings found → populate store
+        │    └─ not found → use defaults (2%, 26%)
+        └─► loaded = true
 ```
 
 ## Firestore Schema
 
-### Option A: Subcollection (recommended)
-
-```
-users/{userId}/settings/default
-  ├─ inflationRate: number (0.03 = 3%)
-  ├─ taxRate: number (0.20 = 20%)
-  └─ updatedAt: Timestamp
-```
-
-### Option B: Extended user doc
+Stored as a field on the existing `users/{userId}` doc (no new collection):
 
 ```
 users/{userId}
-  ├─ ...existing fields...
-  ├─ settings.inflationRate: number
-  └─ settings.taxRate: number
+  ├─ ...existing fields (transactions, accounts, etc.)...
+  └─ projectionSettings: {
+        inflationRate: number,  // 0.02 = 2%
+        taxRate: number         // 0.26 = 26%
+      }
 ```
 
-**Recommendation:** Option A (subcollection) for cleaner separation and easier future extension with additional settings.
+No Firestore security rule changes needed — the existing user doc rules cover the field.
 
-### Firestore Security Rules
-
-```
-match /users/{userId}/settings/{doc} {
-  allow read, write: if request.auth != null && request.auth.uid == userId;
-}
-```
-
-## State Management
-
-### `useUserSettingsStore` (Zustand)
+## Store — `useProjectionSettingsStore` (Zustand)
 
 ```typescript
-interface UserSettingsStore {
+interface ProjectionSettingsStore {
   inflationRate: number;
   taxRate: number;
-  isLoaded: boolean;
+  loaded: boolean;
 
-  fetchSettings: () => Promise<void>;
-  updateSettings: (settings: Partial<Pick<UserSettingsStore, 'inflationRate' | 'taxRate'>>) => Promise<void>;
+  loadSettings: () => Promise<void>;
+  saveSettings: (settings: Partial<Pick<ProjectionSettingsStore, 'inflationRate' | 'taxRate'>>) => Promise<void>;
   resetToDefaults: () => Promise<void>;
 }
 ```
 
-- Hydrated on app startup after auth state resolves
-- Writes are optimistic: update local state + cache first, then Firestore, rollback on failure
-- `localStorage` cache as fallback for offline/slow connections
+- Loaded lazily (not on app startup) — triggered when ConfigPage or ProjectionsPage is visited
+- Optimistic writes: update local state first, then Firestore, rollback on error
+- Defaults: inflation 2% (0.02), tax 26% (0.26) — matching the original hardcoded values
 
-## Component Tree (New/Modified)
+## Component Integration
 
 ```
-SettingsPage (route: /settings) [NEW]
-  └── SettingsForm [NEW]
-        ├── NumberField: Inflation Rate (%)
-        ├── NumberField: Tax Rate (%)
-        ├── Save Button
-        └── Reset to Defaults Button
+ConfigPage (route: /settings) [MODIFIED]
+  └── Tab index 6: Projections [NEW]
+        ├── NumberField: Inflation Rate (%) with % adornment
+        ├── NumberField: Tax Rate (%) with % adornment
+        ├── Save button → saveSettings
+        └── Reset to Defaults → resetToDefaults
 
-ProjectionsPage [MODIFIED]
+ProjectionsPage [UNCHANGED]
   └── useProjections [MODIFIED]
-        └── reads inflationRate + taxRate from useUserSettingsStore
+        └── reads inflationRate + taxRate from useProjectionSettingsStore
 ```
-
-## API / Firebase Layer
-
-| Function | Purpose |
-|----------|---------|
-| `fetchUserSettings(userId)` | Read settings from Firestore, return defaults if none |
-| `updateUserSettings(userId, settings)` | Write settings to Firestore |
-| `resetUserSettings(userId)` | Delete settings doc (triggers default fallback) |
 
 ## Default Values
 
-| Rate | Value | Notes |
-|------|-------|-------|
-| Inflation | 3% (0.03) | Slightly above current hardcoded 2% for broader geographic applicability |
-| Tax | 20% (0.20) | Below current hardcoded 26% (Italian-specific) for broader applicability |
-
-Current hardcoded values (2% inflation, 26% tax) remain as application constants but are no longer the user-facing defaults.
+| Rate | Default | Notes |
+|------|---------|-------|
+| Inflation | 2% (0.02) | Matches original hardcoded value |
+| Tax | 26% (0.26) | Matches original hardcoded value (Italian capital gains) |
 
 ## Impact on Existing Architecture
 
 | Layer | Change |
 |-------|--------|
-| `compoundInterestUtils.ts` | Accept `inflationRate` and `taxRate` as function parameters |
-| `useProjections.ts` | Read from `useUserSettingsStore` instead of constants |
-| `ProjectionControls.tsx` | Inflation toggle label shows user's configured rate |
-| `financial-projections-architecture` | The "no persistence" design decision is partially amended — engine remains pure function, but inputs come from persistent settings |
+| `useProjections.ts` | Reads `inflationRate` and `taxRate` from settings store instead of hardcoded constants |
+| `ProjectionControls.tsx` | Inflation toggle uses user's configured rate (no change to component itself — hook handles it) |
+| `financial-projections-architecture` | The "no persistence" design decision is partially amended — engine remains pure, but inputs come from persistent settings |
+
+## Files
+
+| File | Role |
+|------|------|
+| `src/store/useProjectionSettingsStore.ts` | Zustand store with Firestore read/write |
+| `src/pages/ConfigPage.tsx` | Projections tab with form (index 6) |
+| `src/hooks/useProjections.ts` | Reads settings store for rates |
 
 ## Extensibility
 
-This architecture is designed to be the foundation for future user preferences:
+This store pattern can be extended for future user preferences by adding fields to the same `projectionSettings` object:
 
-- Theme toggle (light/dark)
 - Currency/regional settings
-- Notification preferences
+- Theme preference
 - Dashboard layout preferences
-
-Future settings can be added as new fields in the same settings doc without structural changes.
+- Notification preferences
 
 ## Related
 
-- [[features/user-configurable-rates]] — Feature spec
-- [[plans/user-configurable-rates-implementation]] — Implementation plan
-- [[features/tax-inflation-modeling]] — Current implementation (will be updated)
+- [[features/user-configurable-rates]] — Feature spec (implemented)
+- [[plans/user-configurable-rates-implementation]] — Implementation plan (completed)
+- [[features/tax-inflation-modeling]] — Current implementation (updated)
 - [[features/financial-projections]] — Consumer of settings
-- [[architecture/financial-projections-architecture]] — Projections architecture (will be updated)
+- [[architecture/financial-projections-architecture]] — Projections architecture
 - [[architecture/external-integrations]] — Firebase config

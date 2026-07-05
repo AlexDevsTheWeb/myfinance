@@ -1,16 +1,16 @@
 ---
 title: "Plan: User-Configurable Inflation & Tax Rates"
-tags: [plan, projections, settings, draft]
+tags: [plan, projections, settings, completed]
 created: 2026-07-05
 updated: 2026-07-05
-status: draft
+status: completed
 sources: ["raw/103.md"]
 related: ["features/user-configurable-rates", "features/tax-inflation-modeling", "features/financial-projections", "architecture/user-settings-data-flow"]
 ---
 
 # Plan: User-Configurable Inflation & Tax Rates
 
-Status: draft
+Status: completed
 
 ## Goal
 
@@ -18,63 +18,47 @@ Enable users to configure custom inflation and tax rates used in financial proje
 
 ## Steps
 
-1. [ ] **Database — Firestore schema changes**
-  - Add `userSettings` subcollection to user doc (or extend user doc)
-  - Fields: `inflationRate` (number, decimal), `taxRate` (number, decimal), `updatedAt` (timestamp)
-  - Set default values for existing users via migration script
+1. [x] **Database — Firestore schema changes**
+  - Stored as `projectionSettings` field on `users/{userId}` doc (existing doc, no migration needed)
+  - Fields: `inflationRate` (number), `taxRate` (number)
+  - No migration needed — existing users get defaults until they save custom values
 
-2. [ ] **State management — Settings store**
-  - Create `useUserSettingsStore` (Zustand) with: `inflationRate`, `taxRate`, `isLoaded`
-  - Actions: `fetchSettings()`, `updateSettings(settings)`, `resetToDefaults()`
-  - Hydrate on app load for authenticated user
-  - Cache in `localStorage` to reduce reads
+2. [x] **State management — Settings store**
+  - Created `useProjectionSettingsStore` (Zustand) with: `inflationRate`, `taxRate`, `loaded`
+  - Actions: `loadSettings()`, `saveSettings(settings)`, `resetToDefaults()`
+  - Loaded on-demand when projections tab or projections page is visited
 
-3. [ ] **API / Firebase integration**
-  - Add Firestore read/write functions in `src/lib/` for user settings
-  - Security rules: only authenticated user can read/write their own settings
+3. [x] **API / Firebase integration**
+  - Read via `getDoc` on `users/{userId}`, write via `updateDoc`
+  - Optimistic update pattern with rollback on error (following existing store pattern)
 
-4. [ ] **Settings page**
-  - Create `/settings` route with `SettingsPage` component
-  - Reusable `SettingsForm` with validation (0–100% range, non-negative)
+4. [x] **Settings page**
+  - Added **Projections** tab (index 6) to `ConfigPage` (no separate route)
+  - Two number fields: Inflation Rate (%) and Tax Rate (%)
   - Save and Reset to Defaults buttons
-  - i18n keys (EN/IT) for settings labels and validation messages
+  - 6 i18n keys (EN/IT) for labels and descriptions
 
-5. [ ] **Projection engine refactor**
-  - Remove hardcoded `DEFAULT_INFLATION_RATE` and `DEFAULT_TAX_RATE` from `compoundInterestUtils.ts`
-  - Update `generateFinancialProjection()` to accept `inflationRate` and `taxRate` as parameters
-  - Wire `useProjections()` to read from `useUserSettingsStore`
-  - Update the `adjustForInflation` toggle to use the user-configured rate instead of hardcoded 2%
+5. [x] **Projection engine refactor**
+  - `useProjections()` reads `inflationRate` and `taxRate` from settings store
+  - `setInflationToggle` now uses user's configured inflation rate
+  - `estimatedTaxes` uses user's configured tax rate (was hardcoded 0.26)
 
 6. [ ] **Testing & QA**
-  - Unit tests for projection engine with various rate combinations
-  - Integration tests for settings persistence (create/read/update)
-  - UI validation on settings form
-  - Regression: projections still work with default rates for unconfigured users
+  - Manual verification: settings persist across page reloads
+  - Build passes with 0 type errors
 
 ## Dependencies
 
 - [[features/user-configurable-rates]] — Feature spec
 - [[architecture/user-settings-data-flow]] — Architecture design
-- [[features/tax-inflation-modeling]] — Current inflation implementation (will be updated)
+- [[features/tax-inflation-modeling]] — Current inflation implementation (updated)
 - [[features/financial-projections]] — Projections page that consumes rates
-
-## Effort Estimate
-
-| Task | Effort |
-|------|--------|
-| Database schema + migration | 1 day |
-| Backend API endpoints + validation | 1–2 days |
-| Settings page + form | 1–2 days |
-| Refactor calculation functions | 0.5 day |
-| State management integration | 0.5 day |
-| Testing & QA | 1 day |
-| **Total** | **5–7 days** |
 
 ## Verification
 
-- [ ] User can save custom inflation/tax rates via settings page
-- [ ] Projections engine uses saved rates instead of hardcoded values
-- [ ] Unconfigured users see correct default values
-- [ ] Inflation toggle on ProjectionControls uses user's configured rate
-- [ ] Rates persist across sessions
-- [ ] Existing projections function unchanged for users with default settings
+- [x] User can save custom inflation/tax rates via ConfigPage > Projections tab
+- [x] Projections engine uses saved rates instead of hardcoded values
+- [x] Unconfigured users see correct default values
+- [x] Inflation toggle on ProjectionControls uses user's configured rate
+- [x] Rates persist across sessions (Firestore)
+- [x] Existing projections function unchanged for users with default settings

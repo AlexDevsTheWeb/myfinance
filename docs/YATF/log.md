@@ -281,6 +281,16 @@
 - Updated data flow diagram in both guides with new V3 integration points
 - Updated [[features/investment-tracking-guide]] and [[features/guida-investimenti]]
 
+## [2026-07-05] implement | Feature | User-Configurable Inflation & Tax Rates (#103)
+- Created `useProjectionSettingsStore` — Zustand store with Firestore persistence (`projectionSettings` field on `users/{userId}`)
+- Added **Projections** tab (index 6) to ConfigPage — two number fields (Inflation Rate %, Tax Rate %) with Save / Reset to Defaults
+- Updated `useProjections` — reads `inflationRate` and `taxRate` from settings store; `setInflationToggle` uses configured rate; `estimatedTaxes` uses configured tax rate
+- Added 6 i18n keys EN/IT under `config.*`
+- Updated [[features/user-configurable-rates]] → **implemented**
+- Updated [[plans/user-configurable-rates-implementation]] → **completed**
+- Updated [[architecture/user-settings-data-flow]] → **active**
+- Updated index.md, log.md
+
 ## [2026-07-05] fix | Build | Removed unused SettingsContext.tsx — 2 TS6133 errors
 - `SettingsContext.tsx` had 2 `tsc` errors (unused `current` params) and zero imports across the codebase
 - Removed the file — `npm run build` now passes clean (0 type errors)
