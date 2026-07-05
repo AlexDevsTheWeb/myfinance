@@ -281,6 +281,12 @@
 - Updated data flow diagram in both guides with new V3 integration points
 - Updated [[features/investment-tracking-guide]] and [[features/guida-investimenti]]
 
+## [2026-07-05] refactor | Settings | Reorganized ConfigPage tabs by domain family
+- New tab order: General → Accounts → Expenses → Incomes → Recurring → Projections → Backup
+- Renamed "Balance" → "Accounts" (clearer name for bank accounts tab)
+- Removed placeholder card from General tab
+- Updated i18n EN/IT keys
+
 ## [2026-07-05] implement | Feature | User-Configurable Inflation & Tax Rates (#103)
 - Created `useProjectionSettingsStore` — Zustand store with Firestore persistence (`projectionSettings` field on `users/{userId}`)
 - Added **Projections** tab (index 6) to ConfigPage — two number fields (Inflation Rate %, Tax Rate %) with Save / Reset to Defaults
