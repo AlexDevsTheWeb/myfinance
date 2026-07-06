@@ -43,12 +43,12 @@ TL;DR: Never commit to `development`/`main` directly. Branch as `feat/YATF-{n}` 
 - No test suite exists in this repo
 - No pre-commit hooks configured
 - TypeScript uses project references (`tsconfig.json` references `tsconfig.app.json`)
-- LLM Wiki lives in `docs/YATF/` — see `docs/YATF/CLAUDE.md` for schema
+- LLM Wiki lives in `docs/YATF/` — see `docs/YATF/AGENTS.md` for schema
 
 ## Wiki Discipline
 
 Every new feature, bug analysis, implementation, or decision **must be documented**:
 
-1. Write raw notes to `docs/YATF/raw/` (markdown)
-2. Ask to ingest into the wiki — the LLM will process it into the proper wiki pages, update `index.md`, cross-link related pages, and append to `log.md`
+1. Write raw notes to `docs/YATF/raw/` — each analysis in its own subfolder (e.g. `raw/<topic>/<topic>.md`)
+2. Ask to ingest into the wiki — the LLM will process it into `docs/YATF/wiki/`, update `docs/YATF/index.md`, cross-link related pages, and append to `docs/YATF/log.md`
 3. Commit changes to `development`

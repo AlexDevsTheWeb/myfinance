@@ -1,24 +1,20 @@
 {
   "main": {
-    "id": "026f9669fab8af59",
+    "id": "2c603335616cad37",
     "type": "split",
     "children": [
       {
-        "id": "1d9ece821ebefc31",
+        "id": "65af4cb6bf7962c8",
         "type": "tabs",
         "children": [
           {
-            "id": "bc4c69b27aa4b419",
+            "id": "d887a166aab5bbb6",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "raw/81-tax-refund/tr-code.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "tr-code"
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
             }
           }
         ]
@@ -27,15 +23,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "6d91c48b29caa116",
+    "id": "1c2b58393147c501",
     "type": "split",
     "children": [
       {
-        "id": "38e2face1dc95d07",
+        "id": "bbced915fdc7b159",
         "type": "tabs",
         "children": [
           {
-            "id": "364d21244abcd054",
+            "id": "60dfeab5928d7f52",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -48,12 +44,12 @@
             }
           },
           {
-            "id": "a6764b373b74b5d3",
+            "id": "a3dd81065e6cd25e",
             "type": "leaf",
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "issue",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -65,7 +61,7 @@
             }
           },
           {
-            "id": "ed1c584943ac3292",
+            "id": "60c6606de534bfc8",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -78,22 +74,23 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 362.5
   },
   "right": {
-    "id": "4b919f320683b5c6",
+    "id": "cc4166eb8afbec7b",
     "type": "split",
     "children": [
       {
-        "id": "2f97af57791abe40",
+        "id": "51cf55c28fb16ecc",
         "type": "tabs",
         "children": [
           {
-            "id": "df15c82d56062ba2",
+            "id": "20b5d590ff281ef6",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
+                "file": "CLAUDE.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,24 +100,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks"
+              "title": "Backlinks for CLAUDE"
             }
           },
           {
-            "id": "74d927e0c969f6d0",
+            "id": "1cf80249bfaaf63a",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "CLAUDE.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links"
+              "title": "Outgoing links from CLAUDE"
             }
           },
           {
-            "id": "fa2d6c8155e01bd5",
+            "id": "c4fc9b8e34b9c5e3",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -135,7 +133,7 @@
             }
           },
           {
-            "id": "7432f63b22009819",
+            "id": "70cd9deac7189d7e",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -149,17 +147,18 @@
             }
           },
           {
-            "id": "2540e35bc65e5c66",
+            "id": "49689aed568823a5",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
+                "file": "CLAUDE.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of CLAUDE"
             }
           }
         ]
@@ -180,39 +179,42 @@
       "bases:Create new base": false
     }
   },
-  "active": "bc4c69b27aa4b419",
+  "active": "d887a166aab5bbb6",
   "lastOpenFiles": [
-    "wiki/103_ingest_log.md",
-    "index.md",
-    "raw/103.md",
-    "raw/explain-llm-wiki-skill-creation.md",
-    "raw/analysis/errors.txt",
-    "raw/analysis/errors.md",
-    "raw/analysis",
-    "architecture/user-settings-data-flow.md",
-    "plans/user-configurable-rates-implementation.md",
-    "features/user-configurable-rates.md",
-    "wiki",
-    "bugs/ticker-persistence.md",
-    "features/investment-tracking-v3.md",
-    "features/investment-tracking-guide.md",
-    "features/sidebar-routing-refactor.md",
-    "raw/sidebar-routing-refactor.md",
-    "features/investment-professional-enhancements.md",
-    "raw/investment-report.md",
-    "raw/test.md",
-    "bugs/car-statistics-year.md",
-    "features/guida-investimenti.md",
-    "plans/manual-review-99-implementation.md",
-    "features/sidebar-redesign.md",
-    "features/dashboard-redesign.md",
-    "raw/99-manual-review-2706.md",
-    "raw/100-budget-savings-engine/issue.md",
-    "raw/100-budget-savings-engine",
-    "plans/budget-savings-engine-implementation.md",
-    "features/budget-savings-engine.md",
-    "features/budget-savings-architecture.md",
-    "raw/98-investment-tracking-v3",
-    "raw/12-investment-tracking-v2"
+    "docs/YATF/raw/ux-improvments/ux-improvments.md",
+    "docs/YATF/raw/ux-improvments",
+    "docs/YATF/raw",
+    "docs/YATF",
+    "docs",
+    "raw/ux-improvments/ux-improvments.md",
+    "raw/91-multi-broker/91-multi-broker.md",
+    "raw/81-tax-refund/81-tax-refund.md",
+    "raw/81-tax-refund/tr-code.md",
+    "raw/81-tax-refund/import.md",
+    "wiki/features/sidebar-redesign/sidebar-redesign.md",
+    "raw/STATE/STATE.md",
+    "raw/SPEC/SPEC.md",
+    "raw/sidebar-routing-refactor/sidebar-routing-refactor.md",
+    "raw/ROADMAP/ROADMAP.md",
+    "raw/PLANS/PLANS.md",
+    "raw/original-llm-wiki/original-llm-wiki.md",
+    "raw/investment-report/investment-report.md",
+    "raw/FEATURES-GUIDE/FEATURES-GUIDE.md",
+    "raw/FEATURES-GUIDE.it/FEATURES-GUIDE.it.md",
+    "raw/99-manual-review-2706/99-manual-review-2706.md",
+    "raw/98-investment-tracking-v3/98-investment-tracking-v3.md",
+    "raw/94-ticker-validation/94-ticker-validation.md",
+    "raw/93-tax-inflation/93-tax-inflation.md",
+    "raw/92-historical-snapshots/92-historical-snapshots.md",
+    "raw/90-crud-transactions/90-crud-transactions.md",
+    "raw/89-pac-automation/89-pac-automation.md",
+    "raw/83-financial-projections/83-financial-projections.md",
+    "raw/110-italian-tax-enhancements/110-italian-tax-enhancements.md",
+    "wiki/features/user-configurable-rates",
+    "wiki/features/transaction-layout-improvement",
+    "wiki/features/ticker-validation",
+    "wiki/features/tax-inflation-modeling",
+    "wiki/features/sidebar-routing-refactor",
+    "wiki/features/sidebar-redesign"
   ]
 }
