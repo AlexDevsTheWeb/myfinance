@@ -1,5 +1,9 @@
 import { Box, Button, Paper, Typography } from '@mui/material';
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
+import { AreaPlot, LinePlot } from '@mui/x-charts/LineChart';
+import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
+import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
+import { ChartsLegend } from '@mui/x-charts/ChartsLegend';
 import dayjs from 'dayjs';
 
 interface PortfolioLineChartProps {
@@ -37,26 +41,54 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
         </Box>
       </Box>
       <Box sx={{ height: 300, width: '100%' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={filtered}>
-            <defs>
-              <linearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#5b6cb8" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#5b6cb8" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="date" stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} />
-            <YAxis stroke="rgba(255,255,255,0.5)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v: number) => `€${v.toLocaleString()}`} />
-            <Tooltip
-              contentStyle={{ background: '#161b2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 2 }}
-              itemStyle={{ fontWeight: 600 }}
-              formatter={(value: any) => `€${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
-            />
-            <Area type="monotone" dataKey="value" stroke="#5b6cb8" strokeWidth={3} fillOpacity={1} fill="url(#portfolioGradient)" dot={false} activeDot={{ r: 5 }} />
-            <Area type="monotone" dataKey="invested" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" fillOpacity={0} dot={false} />
-          </AreaChart>
-        </ResponsiveContainer>
+        <ChartsDataProvider
+          series={[
+            {
+              id: 'portfolio',
+              type: 'line',
+              data: filtered.map(d => d.value),
+              label: 'Portfolio Value',
+              color: '#5b6cb8',
+              area: true,
+              showMark: false,
+            },
+            {
+              id: 'invested',
+              type: 'line',
+              data: filtered.map(d => d.invested),
+              label: 'Invested',
+              color: '#10b981',
+              showMark: false,
+            },
+          ]}
+          xAxis={[{ scaleType: 'point', data: filtered.map(d => d.date), disableLine: true, disableTicks: true }]}
+          yAxis={[{ disableLine: true, disableTicks: true }]}
+          height={300}
+          margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+        >
+          <ChartsWrapper>
+            <ChartsLegend />
+            <ChartsSurface>
+              <defs>
+                <linearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#5b6cb8" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#5b6cb8" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <ChartsGrid vertical={false} horizontal />
+              <AreaPlot
+                slotProps={{
+                  area: ({ seriesId }) => ({
+                    fill: seriesId === 'portfolio' ? 'url(#portfolioGradient)' : undefined,
+                  }),
+                }}
+              />
+              <LinePlot />
+              <ChartsAxis />
+            </ChartsSurface>
+          </ChartsWrapper>
+          <ChartsTooltip />
+        </ChartsDataProvider>
       </Box>
     </Paper>
   );

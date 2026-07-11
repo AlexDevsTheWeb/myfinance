@@ -1,5 +1,8 @@
-import { Box, Paper, Typography } from '@mui/material';
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Box, Paper, Typography, useTheme } from '@mui/material';
+import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
+import { AreaPlot, LinePlot } from '@mui/x-charts/LineChart';
+import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
+import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
 import type { INetWorthPoint } from '../types';
 
 interface NetWorthChartProps {
@@ -8,7 +11,10 @@ interface NetWorthChartProps {
 }
 
 const NetWorthChart: React.FC<NetWorthChartProps> = ({ data, title }) => {
+  const theme = useTheme();
   const isPositive = data.length > 0 && data[data.length - 1].balance >= 0;
+  const color = isPositive ? theme.chart.income : theme.chart.expense;
+  const gradientId = `netWorth-${color.replace('#', '')}`;
 
   return (
     <Paper sx={{ p: 2 }}>
@@ -18,50 +24,45 @@ const NetWorthChart: React.FC<NetWorthChartProps> = ({ data, title }) => {
         </Typography>
       )}
       <Box sx={{ height: 300, width: '100%' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={isPositive ? '#10b981' : '#ef4444'} stopOpacity={0.3} />
-                <stop offset="95%" stopColor={isPositive ? '#10b981' : '#ef4444'} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-            <XAxis
-              dataKey="date"
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v: number) => `€${v.toLocaleString()}`}
-            />
-            <Tooltip
-              contentStyle={{
-                background: '#161b2e',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 2,
-              }}
-              itemStyle={{ fontWeight: 600 }}
-              formatter={(value: any) => `€ ${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
-            />
-            <Area
-              type="monotone"
-              dataKey="balance"
-              stroke={isPositive ? '#10b981' : '#ef4444'}
-              strokeWidth={3}
-              fillOpacity={1}
-              fill="url(#netWorthGradient)"
-              dot={false}
-              activeDot={{ r: 5 }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        <ChartsDataProvider
+          series={[
+            {
+              id: 'netWorth',
+              type: 'line',
+              data: data.map(d => d.balance),
+              label: 'Balance',
+              color,
+              showMark: false,
+              area: true,
+            },
+          ]}
+          xAxis={[{ scaleType: 'point', data: data.map(d => d.date), disableLine: true, disableTicks: true }]}
+          yAxis={[{ disableLine: true, disableTicks: true }]}
+          height={300}
+          margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+        >
+          <ChartsWrapper>
+            <ChartsSurface>
+              <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={color} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <ChartsGrid vertical={false} horizontal />
+              <AreaPlot
+                slotProps={{
+                  area: () => ({
+                    fill: `url(#${gradientId})`,
+                  }),
+                }}
+              />
+              <LinePlot />
+              <ChartsAxis />
+            </ChartsSurface>
+          </ChartsWrapper>
+          <ChartsTooltip />
+        </ChartsDataProvider>
       </Box>
     </Paper>
   );

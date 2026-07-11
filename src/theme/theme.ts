@@ -1,5 +1,24 @@
 import { createTheme } from '@mui/material/styles';
 
+declare module '@mui/material/styles' {
+  interface Theme {
+    chart: {
+      primary: string;
+      income: string;
+      expense: string;
+      palette: string[];
+    };
+  }
+  interface ThemeOptions {
+    chart?: {
+      primary?: string;
+      income?: string;
+      expense?: string;
+      palette?: string[];
+    };
+  }
+}
+
 export const theme = createTheme({
   palette: {
     mode: 'dark',
@@ -19,6 +38,16 @@ export const theme = createTheme({
     error: {
       main: '#ef4444',
     },
+  },
+  chart: {
+    primary: '#5b6cb8',
+    income: '#10b981',
+    expense: '#ef4444',
+    palette: [
+      '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6',
+      '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#06b6d4',
+      '#84cc16', '#d946ef',
+    ],
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',

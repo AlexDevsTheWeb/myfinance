@@ -3,7 +3,8 @@ import { Box, Card, CardContent, Grid, Paper, Tab, Table, TableBody, TableCell, 
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { LineChart } from '@mui/x-charts/LineChart';
+import { axisClasses } from '@mui/x-charts';
 import { YearSelector } from '../components/common/YearSelector.component';
 import { useFinanceStore } from '../store/useFinanceStore';
 
@@ -189,21 +190,38 @@ const UtilitiesPage: React.FC = () => {
         <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('utilities.consumptionTrend')}</Typography>
           <Box sx={{ height: 300, width: '100%' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={stats.chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="period" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis yAxisId="left" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0}`} />
-                <YAxis yAxisId="right" orientation="right" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: any) => `${v || 0}€`} />
-                <Tooltip
-                  contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                  itemStyle={{ fontWeight: 600 }}
-                  formatter={(value: any) => `${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
-                />
-                <Line yAxisId="left" type="monotone" dataKey="consumption" name={`Consumo`} stroke={color} strokeWidth={3} dot={{ r: 4, fill: color }} />
-                <Line yAxisId="right" type="monotone" dataKey="unitCost" name={`Costo Unit.`} stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: '#f59e0b' }} strokeDasharray="5 5" />
-              </LineChart>
-            </ResponsiveContainer>
+            <LineChart
+              series={[
+                {
+                  data: stats.chartData.map(d => d.consumption),
+                  label: 'Consumo',
+                  color,
+                  yAxisId: 'left',
+                  showMark: false,
+                },
+                {
+                  data: stats.chartData.map(d => d.unitCost),
+                  label: 'Costo Unit.',
+                  color: '#f59e0b',
+                  yAxisId: 'right',
+                  showMark: false,
+                },
+              ]}
+              xAxis={[{ scaleType: 'band', data: stats.chartData.map(d => d.period), disableLine: true, disableTicks: true }]}
+              yAxis={[
+                { id: 'left', disableLine: true, disableTicks: true },
+                { id: 'right', disableLine: true, disableTicks: true, position: 'right' },
+              ]}
+              grid={{ vertical: false, horizontal: true }}
+              height={300}
+              margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+              sx={{
+                [`.${axisClasses.tickLabel}`]: {
+                  fill: 'rgba(255,255,255,0.5)',
+                  fontSize: 11,
+                },
+              }}
+            />
           </Box>
         </Paper>
       </Grid>

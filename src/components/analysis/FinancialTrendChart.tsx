@@ -1,10 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BarChart as BarChartIcon } from '@mui/icons-material';
 import { Box, Paper, Typography } from '@mui/material';
+import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
+import { AreaPlot, LinePlot } from '@mui/x-charts/LineChart';
+import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
+import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
+import { ChartsLegend } from '@mui/x-charts/ChartsLegend';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Area, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useFinanceStore } from '../../store/useFinanceStore';
 
 interface FinancialTrendChartProps {
@@ -18,21 +21,15 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
   const chartData = useMemo(() => {
     const months = Array.from({ length: 12 }, (_, i) => i);
 
-    // Sort transactions by date for cumulative balance calculation
     const allTransactions = [...transactions]
       .sort((a, b) => a.date.localeCompare(b.date));
 
-    // Base date for balance tracking
     const startOfSelectedYear = dayjs(`${selectedYear}-01-01`);
 
-    // Calculate balance at the start of the selected year
     let runningBalance = initialBalance;
     allTransactions.forEach(t => {
       const tDate = dayjs(t.date);
-      // Only process transactions before the start of the selected year for the starting balance
       if (tDate.isBefore(startOfSelectedYear)) {
-        // Check if transaction is after balanceStartDate (for income)
-        // or always (for expense) as per existing logic in RecapCards
         const isAfterStart = tDate.isAfter(dayjs(balanceStartDate).subtract(1, 'day'));
         if (t.type === 'income' && isAfterStart) {
           runningBalance += t.amount;
@@ -59,8 +56,6 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
 
       const netGain = income - expense;
 
-      // Update running balance for this month
-      // Applying the same logic: Income only if after balanceStartDate
       monthTransactions.forEach(t => {
         const isAfterStart = dayjs(t.date).isAfter(dayjs(balanceStartDate).subtract(1, 'day'));
         if (t.type === 'income' && isAfterStart) {
@@ -86,89 +81,71 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
         <BarChartIcon /> {t('insights.financialTrendTitle', { year: selectedYear })}
       </Typography>
       <Box sx={{ height: 400, mt: 2 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={chartData}>
-            <defs>
-              <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-            <XAxis
-              dataKey="month"
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value: number) => `€${value.toLocaleString()}`}
-            />
-            <Tooltip
-              contentStyle={{
-                background: '#161b2e',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 2,
-                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)',
-              }}
-              itemStyle={{ fontWeight: 600 }}
-              formatter={(value: any) => `€ ${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
-            />
-            <Legend verticalAlign="top" height={36} iconType="circle" />
-            <Area
-              type="monotone"
-              dataKey="balance"
-              stroke="none"
-              fillOpacity={1}
-              fill="url(#colorBalance)"
-              legendType="none"
-            />
-            <Line
-              type="monotone"
-              dataKey="income"
-              name={t('insights.totalIncome')}
-              stroke="#10b981"
-              strokeWidth={3}
-              dot={{ r: 4, strokeWidth: 2, fill: '#1e293b' }}
-              activeDot={{ r: 6, strokeWidth: 0 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="expense"
-              name={t('insights.totalExpenses')}
-              stroke="#ef4444"
-              strokeWidth={3}
-              dot={{ r: 4, strokeWidth: 2, fill: '#1e293b' }}
-              activeDot={{ r: 6, strokeWidth: 0 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="netGain"
-              name={t('insights.netEarnings')}
-              stroke="#f59e0b"
-              strokeWidth={3}
-              strokeDasharray="5 5"
-              dot={{ r: 4, strokeWidth: 2, fill: '#1e293b' }}
-              activeDot={{ r: 6, strokeWidth: 0 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="balance"
-              name={t('insights.accountBalance')}
-              stroke="#6366f1"
-              strokeWidth={4}
-              dot={{ r: 5, strokeWidth: 2, fill: '#1e293b' }}
-              activeDot={{ r: 7, strokeWidth: 0 }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
+        <ChartsDataProvider
+          series={[
+            {
+              id: 'balance',
+              type: 'line',
+              data: chartData.map(d => d.balance),
+              label: t('insights.accountBalance'),
+              color: '#6366f1',
+              area: true,
+              showMark: false,
+            },
+            {
+              id: 'income',
+              type: 'line',
+              data: chartData.map(d => d.income),
+              label: t('insights.totalIncome'),
+              color: '#10b981',
+              showMark: true,
+            },
+            {
+              id: 'expense',
+              type: 'line',
+              data: chartData.map(d => d.expense),
+              label: t('insights.totalExpenses'),
+              color: '#ef4444',
+              showMark: true,
+            },
+            {
+              id: 'netGain',
+              type: 'line',
+              data: chartData.map(d => d.netGain),
+              label: t('insights.netEarnings'),
+              color: '#f59e0b',
+              showMark: true,
+            },
+          ]}
+          xAxis={[{ scaleType: 'band', data: chartData.map(d => d.month), disableLine: true, disableTicks: true }]}
+          yAxis={[{ disableLine: true, disableTicks: true }]}
+          height={400}
+          margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+        >
+          <ChartsWrapper>
+            <ChartsLegend />
+            <ChartsSurface>
+              <defs>
+                <linearGradient id="balanceGradient-financial" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <ChartsGrid vertical={false} horizontal />
+              <AreaPlot
+                slotProps={{
+                  area: ({ seriesId }) => ({
+                    fill: seriesId === 'balance' ? 'url(#balanceGradient-financial)' : undefined,
+                  }),
+                }}
+              />
+              <LinePlot />
+              <ChartsAxis />
+            </ChartsSurface>
+          </ChartsWrapper>
+          <ChartsTooltip />
+        </ChartsDataProvider>
       </Box>
-
     </Paper>
   );
 };
