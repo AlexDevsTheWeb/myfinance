@@ -1,6 +1,10 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
+import { AreaPlot, LinePlot } from '@mui/x-charts/LineChart';
+import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
+import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
+import { ChartsLegend } from '@mui/x-charts/ChartsLegend';
 import { useTranslation } from 'react-i18next';
-import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface ChartDataPoint {
   label: string;
@@ -20,111 +24,80 @@ const formatEuro = (v: number) => {
   return `€${v}`;
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (!active || !payload) return null;
-  return (
-    <Box
-      sx={{
-        background: '#161b2e',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: 1,
-        p: 1.5,
-      }}
-    >
-      <Typography variant="caption" sx={{ opacity: 0.6, mb: 0.5, display: 'block' }}>
-        {label}
-      </Typography>
-      {payload.map((entry: any, idx: number) => (
-        <Typography
-          key={idx}
-          variant="body2"
-          sx={{ fontWeight: 600, color: entry.color }}
-        >
-          {entry.name}: €{Number(entry.value).toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-        </Typography>
-      ))}
-    </Box>
-  );
-};
-
 const ProjectionChart: React.FC<ProjectionChartProps> = ({ data, showRealValue }) => {
   const { t } = useTranslation();
+
+  const series = [
+    {
+      id: 'netWorth',
+      type: 'line' as const,
+      data: data.map(d => d.netWorth),
+      label: t('projections.seriesNetWorth'),
+      color: '#5b6cb8',
+      area: true,
+      showMark: false,
+    },
+    {
+      id: 'totalInvested',
+      type: 'line' as const,
+      data: data.map(d => d.totalInvested),
+      label: t('projections.seriesInvested'),
+      color: '#10b981',
+      area: true,
+      showMark: false,
+    },
+    ...(showRealValue ? [{
+      id: 'nominalValue',
+      type: 'line' as const,
+      data: data.map(d => d.nominalValue ?? 0),
+      label: t('projections.seriesNominalValue'),
+      color: '#ef4444',
+      showMark: false,
+    }] : []),
+  ];
+
   return (
     <Paper sx={{ p: 1.5 }}>
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
         {t('projections.chartTitle')}
       </Typography>
       <Box sx={{ height: 400, width: '100%' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#5b6cb8" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#5b6cb8" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="investedGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-            <XAxis
-              dataKey="label"
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              interval="preserveStartEnd"
-            />
-            <YAxis
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={formatEuro}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              formatter={(value: string) => (
-                <span style={{ color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>{value}</span>
-              )}
-            />
-            <Area
-              type="monotone"
-              dataKey="netWorth"
-              name={t('projections.seriesNetWorth')}
-              stroke="#5b6cb8"
-              strokeWidth={3}
-              fillOpacity={1}
-              fill="url(#netWorthGradient)"
-              dot={false}
-              activeDot={{ r: 5 }}
-            />
-            <Area
-              type="monotone"
-              dataKey="totalInvested"
-              name={t('projections.seriesInvested')}
-              stroke="#10b981"
-              strokeWidth={2}
-              strokeDasharray="4 4"
-              fillOpacity={1}
-              fill="url(#investedGradient)"
-              dot={false}
-            />
-            {showRealValue && (
-              <Area
-                type="monotone"
-                dataKey="nominalValue"
-                name={t('projections.seriesNominalValue')}
-                stroke="#ef4444"
-                strokeWidth={2}
-                strokeDasharray="6 3"
-                fillOpacity={0}
-                dot={false}
+        <ChartsDataProvider
+          series={series}
+          xAxis={[{ scaleType: 'band', data: data.map(d => d.label), disableLine: true, disableTicks: true }]}
+          yAxis={[{ disableLine: true, disableTicks: true, valueFormatter: formatEuro }]}
+          height={400}
+          margin={{ top: 10, right: 10, bottom: 30, left: 60 }}
+        >
+          <ChartsWrapper>
+            <ChartsLegend />
+            <ChartsSurface>
+              <defs>
+                <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#5b6cb8" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#5b6cb8" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="totalInvestedGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <ChartsGrid vertical={false} horizontal />
+              <AreaPlot
+                slotProps={{
+                  area: ({ seriesId }) => {
+                    if (seriesId === 'netWorth') return { fill: 'url(#netWorthGradient)' };
+                    if (seriesId === 'totalInvested') return { fill: 'url(#totalInvestedGradient)' };
+                    return {};
+                  },
+                }}
               />
-            )}
-          </AreaChart>
-        </ResponsiveContainer>
+              <LinePlot />
+              <ChartsAxis />
+            </ChartsSurface>
+          </ChartsWrapper>
+          <ChartsTooltip />
+        </ChartsDataProvider>
       </Box>
     </Paper>
   );

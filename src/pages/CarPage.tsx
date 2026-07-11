@@ -4,7 +4,8 @@ import { Box, Button, Card, CardContent, Collapse, Grid, IconButton, MenuItem, P
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { LineChart } from '@mui/x-charts/LineChart';
+import { axisClasses } from '@mui/x-charts';
 import { YearSelector } from '../components/common/YearSelector.component';
 import { useFinanceStore, type CarMileageRecord, type TireChangeRecord } from '../store/useFinanceStore';
 
@@ -424,15 +425,20 @@ const CarPage: React.FC = () => {
             <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.trend')}</Typography>
               <Box sx={{ height: 200, width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={yearStats.chartData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
-                    <Line type="monotone" dataKey="km" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} />
-                  </LineChart>
-                </ResponsiveContainer>
+                <LineChart
+                  series={[{ data: yearStats.chartData.map(d => d.km), color: '#3b82f6', showMark: false }]}
+                  xAxis={[{ scaleType: 'band', data: yearStats.chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
+                  yAxis={[{ disableLine: true, disableTicks: true }]}
+                  grid={{ vertical: false, horizontal: true }}
+                  height={200}
+                  margin={{ top: 10, right: 10, bottom: 20, left: 40 }}
+                  sx={{
+                    [`.${axisClasses.tickLabel}`]: {
+                      fill: 'rgba(255,255,255,0.5)',
+                      fontSize: 11,
+                    },
+                  }}
+                />
               </Box>
             </Paper>
           </Grid>
@@ -568,15 +574,20 @@ const CarPage: React.FC = () => {
             <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.tireUsage')}</Typography>
               <Box sx={{ height: 250, width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={tireStats.history.slice(0, 10).map((t, i) => ({ name: `${i + 1}`, km: t.runKm }))}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
-                    <Line type="monotone" dataKey="km" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4 }} />
-                  </LineChart>
-                </ResponsiveContainer>
+                <LineChart
+                  series={[{ data: tireStats.history.slice(0, 10).map(t => t.runKm), color: '#f59e0b', showMark: false }]}
+                  xAxis={[{ scaleType: 'band', data: tireStats.history.slice(0, 10).map((_, i) => `${i + 1}`), disableLine: true, disableTicks: true }]}
+                  yAxis={[{ disableLine: true, disableTicks: true }]}
+                  grid={{ vertical: false, horizontal: true }}
+                  height={250}
+                  margin={{ top: 10, right: 10, bottom: 20, left: 40 }}
+                  sx={{
+                    [`.${axisClasses.tickLabel}`]: {
+                      fill: 'rgba(255,255,255,0.5)',
+                      fontSize: 11,
+                    },
+                  }}
+                />
               </Box>
             </Paper>
           </Grid>
@@ -658,15 +669,20 @@ const CarPage: React.FC = () => {
             <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Fuel Efficiency Trend</Typography>
               <Box sx={{ height: 250, width: '100%' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={costStats.chartData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
-                    <YAxis stroke="rgba(255,255,255,0.5)" fontSize={11} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
-                    <Line type="monotone" dataKey="val" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981' }} />
-                  </LineChart>
-                </ResponsiveContainer>
+                <LineChart
+                  series={[{ data: costStats.chartData.map(d => d.val), color: '#10b981', showMark: false }]}
+                  xAxis={[{ scaleType: 'band', data: costStats.chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
+                  yAxis={[{ disableLine: true, disableTicks: true }]}
+                  grid={{ vertical: false, horizontal: true }}
+                  height={250}
+                  margin={{ top: 10, right: 10, bottom: 20, left: 40 }}
+                  sx={{
+                    [`.${axisClasses.tickLabel}`]: {
+                      fill: 'rgba(255,255,255,0.5)',
+                      fontSize: 11,
+                    },
+                  }}
+                />
               </Box>
             </Paper>
           </Grid>

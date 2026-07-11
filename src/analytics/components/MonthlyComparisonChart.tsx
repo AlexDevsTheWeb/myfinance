@@ -1,5 +1,6 @@
 import { Box, Paper, Typography } from '@mui/material';
-import { BarChart, Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { axisClasses } from '@mui/x-charts';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import type { IMonthlyComparisonData } from '../types';
@@ -8,6 +9,8 @@ interface MonthlyComparisonChartProps {
   data: IMonthlyComparisonData;
   title?: string;
 }
+
+const formatEuro = (v: number | null) => v === null ? '' : `€ ${v.toLocaleString('it-IT', { minimumFractionDigits: 2 })}`;
 
 const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, title }) => {
   const { t } = useTranslation();
@@ -46,38 +49,24 @@ const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, t
         {monthLabel} {data.year} {t('insights.vsPrevMonth')} vs {monthLabel} {data.year - 1}
       </Typography>
       <Box sx={{ height: 300, width: '100%' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-            <XAxis
-              dataKey="name"
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v: number) => `€${v.toLocaleString()}`}
-            />
-            <Tooltip
-              contentStyle={{
-                background: '#161b2e',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 2,
-              }}
-              itemStyle={{ fontWeight: 600 }}
-              formatter={(value: any) => `€ ${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
-            />
-            <Legend verticalAlign="top" height={36} iconType="circle" />
-            <Bar dataKey="current" name={`${monthLabel} ${data.year}`} fill="#6366f1" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="previous" name={t('insights.vsPrevMonth')} fill="#10b981" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="lastYear" name={`${monthLabel} ${data.year - 1}`} fill="#f59e0b" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <BarChart
+          series={[
+            { data: chartData.map(d => d.current), label: `${monthLabel} ${data.year}`, color: '#6366f1', valueFormatter: formatEuro },
+            { data: chartData.map(d => d.previous), label: t('insights.vsPrevMonth'), color: '#10b981', valueFormatter: formatEuro },
+            { data: chartData.map(d => d.lastYear), label: `${monthLabel} ${data.year - 1}`, color: '#f59e0b', valueFormatter: formatEuro },
+          ]}
+          xAxis={[{ scaleType: 'band', data: chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
+          yAxis={[{ disableLine: true, disableTicks: true }]}
+          grid={{ vertical: false, horizontal: true }}
+          height={300}
+          margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+          sx={{
+            [`.${axisClasses.tickLabel}`]: {
+              fill: 'rgba(255,255,255,0.5)',
+              fontSize: 12,
+            },
+          }}
+        />
       </Box>
     </Paper>
   );
