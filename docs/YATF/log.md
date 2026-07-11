@@ -350,3 +350,21 @@
 - Created `wiki/decisions/` directory (new category)
 - Updated index.md (49 pages) and log.md
 - Sources: `openspec/changes/archive/2026-07-11-*`
+
+## [2026-07-11] ingest | Strategy | Go-to-market plan, SaaS readiness, full app review
+- Created raw sources from session-generated files:
+  - `raw/app-review/app-review.md` — comprehensive app audit
+  - `raw/saas-readiness/saas-readiness.md` — hard blockers vs ship-as-is analysis
+  - `raw/go-to-market/go-to-market.md` — 6-phase SaaS launch plan
+- Created [[wiki/queries/app-review]] — strengths, weaknesses, anti-patterns, improvement areas
+- Created [[wiki/decisions/saas-readiness]] — fix 6 hard blockers, ship, iterate with real users
+- Created [[wiki/plans/go-to-market]] — 6 phases: quick wins → data security → beta → validate → monetize → cleanup
+- Updated [[wiki/architecture/project-state]] — shifted focus from feature dev to go-to-market
+- Updated [[wiki/architecture/concerns-and-tech-debt]] — linked to new strategy pages
+- Updated index.md (52 pages) and log.md
+- Created [#138](https://github.com/AlexDevsTheWeb/myfinance/issues/138) — GitHub issue with full plan
+- Sources: `raw/app-review/`, `raw/saas-readiness/`, `raw/go-to-market/`
+
+## [2026-07-11] ingest | Decision | PWA Strategy — mobile senza riscrittura
+- Created [[wiki/decisions/pwa-strategy]] — 2-step plan: PWA subito (manifest.json + SW), Flutter solo dopo validazione
+- Updated index.md (53 pages) and log.md

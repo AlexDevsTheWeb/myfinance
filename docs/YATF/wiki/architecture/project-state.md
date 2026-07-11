@@ -2,27 +2,31 @@
 title: "Project State"
 tags: [architecture, state, project]
 created: 2026-06-22
-updated: 2026-06-28
+updated: 2026-07-11
 status: active
-sources: ["raw/STATE.md", "raw/99-manual-review-2706/99-manual-review-2706.md"]
-related: ["plans/roadmap", "architecture/concerns-and-tech-debt", "features/car-management-redesign", "features/dashboard-redesign", "features/sidebar-redesign", "plans/manual-review-99-implementation"]
+sources: ["raw/STATE.md", "raw/99-manual-review-2706/99-manual-review-2706.md", "raw/go-to-market/go-to-market.md"]
+related: ["plans/roadmap", "architecture/concerns-and-tech-debt", "features/car-management-redesign", "features/dashboard-redesign", "features/sidebar-redesign", "plans/manual-review-99-implementation", "plans/go-to-market", "decisions/saas-readiness", "queries/app-review"]
 ---
 
 # Project State
 
-*Updated: 2026-05-15*
+*Updated: 2026-07-11*
 
 ## Current Focus
 
 | Field | Value |
 |-------|-------|
-| Issue | #46 - Massive Store Refactor |
-| Branch | feat/46-massive-store-refactor |
-| Status | In Progress |
+| Priority | **Go-to-Market: Phase 0 — Quick Wins** |
+| Issue | [#138](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
+| Status | Pre-launch / Soft beta preparation |
+
+The project has shifted focus from feature development to **go-to-market readiness**. The goal is to fix critical data integrity issues, recruit beta testers, validate the product with real users, and monetize only after proven retention.
+
+See [[wiki/plans/go-to-market]] for the full phased plan.
 
 ## Store Refactoring Progress
 
-- 1403 → 1224 lines (13% reduction)
+- 1403 → 1224 lines (13% reduction, Phase #46)
 - Extracted: types, validation, sanitization, defaults, backup, sync modules
 - Build: ✓ Passing
 
@@ -43,31 +47,40 @@ related: ["plans/roadmap", "architecture/concerns-and-tech-debt", "features/car-
 3. **Duplicate Categories**: Defined in both store and sync hook
 4. **Race Condition**: `checkRecurring()` can generate duplicates
 
-## New Work Items (from Manual Review #99)
+## Phase 0 — Immediate Quick Wins
 
-1. **Dashboard Redesign** — Split dashboard into overview + enhanced transactions; move account details to full-screen dialog; add conditional charts
-2. **Sidebar Navigation** — Replace horizontal top bar with vertical left sidebar; group Finance and Investment items
-3. **Car Statistics Bug** — i18next interpolation syntax uses `{{year}}` but locale files have `{year}`
-4. **Translation Polish** — Several strings in Layout.tsx are hardcoded instead of using `t()`
-5. **Padding Reduction** — Reduce card/container padding from 24px/16px to 12px across ~20 components
+Top priorities before showing the app to beta users:
+
+1. **Fix ticker bug** — `BrokerAccount.ticker` not persisted (investments are the #1 selling point)
+2. **Add error boundary** — prevent white screen on render crash
+3. **Swap `alert()`/`confirm()` → MUI dialogs** in ConfigPage
+4. **Add loading states** — skeletons/spinners on Dashboard, Transactions, Investments
 
 ## Bug Fixes Applied
 
 - ✅ Race condition in checkRecurring — added `isCheckingRecurring` flag
 - ✅ Sync overwrites local edits — added `hasLocalChanges` tracking
 - ✅ Import validation — added `Backup.validateBackupData()`
+- ✅ Car statistics year i18next interpolation
+- ✅ Ticker persistence (critical) — `BrokerAccount` missing `ticker` field
 
 ## Fixed Issues
 
-1. ✅ **Backup/Restore data coverage** — budget targets and full investment data (broker accounts, holdings, cash adjustments, dividends) now included in export/import. See [[wiki/plans/backup-restore-data-coverage]].
+1. ✅ **Backup/Restore data coverage** — budget targets and full investment data (broker accounts, holdings, cash adjustments, dividends). See [[wiki/plans/backup-restore-data-coverage]].
+2. ✅ **Ticker persistence** — `BrokerAccount.ticker` now saves correctly. Existing accounts need manual re-entry.
+3. ✅ **Car statistics bug** — i18next `{{variable}}` syntax fixed.
 
 ## Next Steps
 
-1. Add test suite — Configure Vitest
-2. Update CONCERNS.md — Mark fixed issues as resolved
+1. Complete Phase 0 quick wins ([[wiki/plans/go-to-market]])
+2. Migrate transactions to Firestore sub-collection (Phase 1)
+3. Recruit 10-15 beta testers from Italian finance communities
 
 ## Related
 
 - [[wiki/architecture/concerns-and-tech-debt]]
 - [[wiki/plans/roadmap]]
+- [[wiki/plans/go-to-market]]
+- [[wiki/decisions/saas-readiness]]
+- [[wiki/queries/app-review]]
 - [[wiki/conventions/coding-conventions]]

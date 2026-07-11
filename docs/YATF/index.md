@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-07-11* (OpenSpec decisions ingested — TS 7 upgrade + MUI Charts migration)
-*Total pages: 49*
+*Last updated: 2026-07-11* (PWA strategy added)
+*Total pages: 53*
 
 ---
 
@@ -45,6 +45,22 @@
 | [[wiki/plans/backup-restore-data-coverage]] | Plan to add missing budget + investment data to backup/restore | [`raw/101-backup-restore-gaps/101-backup-restore-gaps.md`](raw/101-backup-restore-gaps/101-backup-restore-gaps.md) |
 | [[wiki/plans/user-configurable-rates-implementation]] | ✅ 6-step plan — completed | [`raw/103/103.md`](raw/103/103.md) |
 | [[wiki/plans/italian-tax-enhancements]] | 📋 Stamp duty (0.20%) + capital losses tracking — 5-wave task breakdown | [`#110`](https://github.com/AlexDevsTheWeb/myfinance/issues/110) |
+| [[wiki/plans/go-to-market]] | 🔴 **MAX PRIORITY** — 6-phase SaaS launch plan (quick wins → data security → beta → validate → monetize → cleanup) | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
+
+## Decisions
+
+| Page | Summary | Sources |
+|------|---------|---------|
+| [[wiki/decisions/typescript-7-upgrade]] | ✅ TS 7.0 Go-rewrite adoption with linting workaround via `@typescript/typescript6` | [`raw/typescript-7-upgrade/`](raw/typescript-7-upgrade/) |
+| [[wiki/decisions/chart-migration-mui]] | ✅ Migrated 16 chart components from Recharts to MUI X Charts — theme-aware, phased migration | [`raw/chart-migration/`](raw/chart-migration/) |
+| [[wiki/decisions/saas-readiness]] | 🔴 **MAX PRIORITY** — Hard blockers vs ship-as-is: fix 6 critical items, launch, iterate with real users | [`raw/saas-readiness/saas-readiness.md`](raw/saas-readiness/saas-readiness.md) |
+| [[wiki/decisions/pwa-strategy]] | 🟢 PWA prima, Flutter dopo — mobile senza riscrittura, 2-step plan | [`raw/go-to-market/go-to-market.md`](raw/go-to-market/go-to-market.md) |
+
+## Queries
+
+| Page | Summary | Sources |
+|------|---------|---------|
+| [[wiki/queries/app-review]] | 🔴 Comprehensive app audit: strengths, weaknesses, architecture anti-patterns, improvement suggestions | [`raw/app-review/app-review.md`](raw/app-review/app-review.md) |
 
 ## Bugs
 
@@ -76,13 +92,6 @@
 |------|---------|---------|
 | [[wiki/conventions/branch-strategy]] | Git branch rules, naming, PR workflow | — |
 | [[wiki/conventions/coding-conventions]] | Naming, imports, error handling, code style | [`raw/codebase/CONVENTIONS.md`](raw/codebase/CONVENTIONS.md) |
-
-## Decisions
-
-| Page | Summary | Sources |
-|------|---------|---------|
-| [[wiki/decisions/typescript-7-upgrade]] | ✅ TS 7.0 Go-rewrite adoption with linting workaround via `@typescript/typescript6` | [`raw/typescript-7-upgrade/`](raw/typescript-7-upgrade/) |
-| [[wiki/decisions/chart-migration-mui]] | ✅ Migrated 16 chart components from Recharts to MUI X Charts — theme-aware, phased migration | [`raw/chart-migration/`](raw/chart-migration/) |
 
 ## References
 

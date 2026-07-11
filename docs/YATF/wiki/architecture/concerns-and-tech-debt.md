@@ -81,3 +81,5 @@ related: ["architecture/project-state", "architecture/testing-status", "architec
 - [[wiki/architecture/project-state]]
 - [[wiki/architecture/testing-status]]
 - [[wiki/architecture/system-architecture]]
+- [[wiki/plans/go-to-market]] — includes phased plan to address the top blockers
+- [[wiki/decisions/saas-readiness]] — hard blockers vs ship-as-is breakdown
