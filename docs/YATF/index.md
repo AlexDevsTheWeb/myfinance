@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-07-05* (User-configurable inflation & tax rates analysis)
-*Total pages: 47*
+*Last updated: 2026-07-11* (OpenSpec decisions ingested — TS 7 upgrade + MUI Charts migration)
+*Total pages: 49*
 
 ---
 
@@ -76,6 +76,13 @@
 |------|---------|---------|
 | [[wiki/conventions/branch-strategy]] | Git branch rules, naming, PR workflow | — |
 | [[wiki/conventions/coding-conventions]] | Naming, imports, error handling, code style | [`raw/codebase/CONVENTIONS.md`](raw/codebase/CONVENTIONS.md) |
+
+## Decisions
+
+| Page | Summary | Sources |
+|------|---------|---------|
+| [[wiki/decisions/typescript-7-upgrade]] | ✅ TS 7.0 Go-rewrite adoption with linting workaround via `@typescript/typescript6` | [`raw/typescript-7-upgrade/`](raw/typescript-7-upgrade/) |
+| [[wiki/decisions/chart-migration-mui]] | ✅ Migrated 16 chart components from Recharts to MUI X Charts — theme-aware, phased migration | [`raw/chart-migration/`](raw/chart-migration/) |
 
 ## References
 

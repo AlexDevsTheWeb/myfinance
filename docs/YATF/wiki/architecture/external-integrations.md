@@ -2,7 +2,7 @@
 title: "External Integrations"
 tags: [architecture, integrations, firebase, deploy]
 created: 2026-06-22
-updated: 2026-06-22
+updated: 2026-07-11
 status: active
 sources: ["raw/codebase/INTEGRATIONS.md"]
 related: ["architecture/tech-stack", "architecture/system-architecture"]
@@ -10,30 +10,38 @@ related: ["architecture/tech-stack", "architecture/system-architecture"]
 
 # External Integrations
 
-*Analysis: 2026-06-22*
+*Analysis: 2026-07-11*
 
 ## Firebase Suite (v12.13.0)
 
 | Service | Usage | Files |
 |---------|-------|-------|
 | **Auth** | Google OAuth (`GoogleAuthProvider`) + email/password | `src/lib/firebase.ts`, `src/pages/LoginPage.tsx` |
-| **Firestore** | Single doc per user at `users/{userId}`, realtime sync via `onSnapshot` | `src/lib/firebase.ts`, `src/lib/converters.ts`, `src/hooks/useSyncFinance.ts` |
+| **Firestore** | Single doc per user at `users/{userId}` + 3 subcollections, realtime sync via `onSnapshot` | `src/lib/firebase.ts`, `src/lib/converters.ts`, `src/hooks/useSyncFinance.ts` |
 | **Hosting** | Serves `dist/`, SPA rewrites (`**` → `/index.html`), project: `myfinancetracker-b257e` | `firebase.json`, `.firebaserc` |
+
+### Firestore Subcollections
+- `/users/{userId}/portfolio_history/{snapshotId}` — Daily portfolio snapshots
+- `/users/{userId}/dividends/{entryId}` — Dividend records
+- `/users/{userId}/tax_events/{eventId}` — Tax tracking events
+
+### Firestore Data Model
+- **UserDoc** (`src/lib/converters.ts`) — 27+ top-level fields including transactions, accounts, categories, ETF transactions, broker accounts, budget targets, etc.
+- **Converter:** `userDocConverter` — type-safe serialization via `FirestoreDataConverter`
+- **Write pattern:** Optimistic updates via `updateDoc` with full-array replacement (anti-pattern)
+- **Security rules:** Owner-only read/write by `request.auth.uid`, no field-level validation
+
+## Market Data API
+
+- **yfin.dev** — Stock/crypto price quotes
+  - Endpoint: `https://api.yfin.dev/v1/quote?symbols={ticker}`
+  - Used in: `src/hooks/useMarketData.ts`
+  - No API key required (public endpoint)
+  - Used for ETF portfolio price refresh
 
 ## CI/CD
 
-**GitHub Actions** — Two workflows in `.github/workflows/`:
-
-1. **`version-bump.yml`** (push to `main`): Ubuntu + Node 24, conventional commit parsing, `standard-version` for version bump + git tag + GitHub Release, builds with Firebase secrets, deploys to Firebase Hosting
-2. **`firebase-hosting-pull-request.yml`** (PR → `main` only): Builds and deploys PR preview to Firebase Hosting. Restricted to PRs targeting `main` — PRs to `development` produce no deployment.
-
-### Deployment rules
-
-| Event | Action |
-|-------|--------|
-| PR opened against `development` | Skip — no deployment |
-| PR opened against `main` | Build + deploy PR preview to Firebase Hosting |
-| Push / merge to `main` | Version bump (if conventional commits), tag, GitHub Release, build + deploy to Firebase Hosting live channel |
+**No CI pipeline configured.** Previous GitHub Actions workflows (`version-bump.yml`, `firebase-hosting-pull-request.yml`) have been removed. Deployment is manual via Firebase CLI.
 
 ## i18n
 
@@ -53,26 +61,30 @@ related: ["architecture/tech-stack", "architecture/system-architecture"]
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | `src/lib/firebase.ts` | No |
 | `VITE_FIREBASE_APP_ID` | `src/lib/firebase.ts` | No |
 | `VITE_FIREBASE_MEASUREMENT_ID` | `src/lib/firebase.ts` | No |
-| `VITE_REACT_APP_TITLE` | `src/main.tsx` (via index.html) | No |
+| `VITE_REACT_APP_TITLE` | `src/pages/LoginPage.tsx`, `src/components/layout/Sidebar.tsx` | No |
 
-- Env validation: `getEnvVar()` in `src/utils/variables.utils.tsx` — throws if any required var is missing
-- Sources: `.env.development` (local dev), `.env.production` (prod), GitHub Secrets (CI)
+- **Validation:** `getEnvVar()` in `src/utils/variables.utils.tsx` — throws `Error` if missing at module load (crash-early approach)
+- **Sources:** `.env.development` (local dev), `.env.production` (prod)
+- **Missing:** `VITE_REACT_APP_TITLE` is undocumented in `AGENTS.md`
 
-## Missing
+## Missing / Not Configured
 
 - **Error tracking:** None (no Sentry/LogRocket)
-- **Caching:** None (Firestore SDK local cache only)
+- **Analytics:** `VITE_FIREBASE_MEASUREMENT_ID` configured but `getAnalytics()` never called
+- **Caching:** Firestore SDK local cache only (no explicit persistence config)
 - **File storage:** None (data in Firestore only)
 - **Webhooks:** None
-- **Firebase Analytics:** `measurementId` is configured but `getAnalytics()` is never called
+- **Offline support:** Firestore `enableMultiTabIndexedDbPersistence()` not configured
 
 ## External Network Dependencies
 
-| Resource | Purpose |
-|----------|---------|
-| Google Fonts (Inter) | Primary font family in MUI theme |
-| Firebase CDN | Auth/Firestore SDK operations |
-| Firebase Hosting CDN | Production static assets |
+| Resource | Purpose | Required At |
+|----------|---------|-------------|
+| Google Fonts (Inter) | Primary font family | App load |
+| Firebase CDN | Auth/Firestore SDK operations | All operations |
+| Firebase Hosting CDN | Production static assets | Page load |
+| yfin.dev API | Stock price quotes | On price refresh |
+| Google Accounts | OAuth sign-in flow | On login |
 
 ## Related
 

@@ -328,3 +328,25 @@
 - Updated index.md (bug status changed to fixed)
 - Branch: `fix/YATF-108`
 - Source: [#108](https://github.com/AlexDevsTheWeb/myfinance/issues/108)
+
+## [2026-07-11] re-map | Codebase | Full mapping via gsd-map-codebase (4 parallel agents) — post-big-changes refresh
+- Re-mapped codebase with tech, arch, quality, and concerns focus agents
+- Updated raw files from `.planning/codebase/*.md` → `raw/codebase/*.md`
+- Created 16 GitHub issues from refreshed concerns: [#122](https://github.com/AlexDevsTheWeb/myfinance/issues/122)–[#137](https://github.com/AlexDevsTheWeb/myfinance/issues/137)
+- Closed 5 superseded old issues: #47, #49, #59, #55, #53
+- Re-ingested [[wiki/architecture/tech-stack]] — TS 7 Go rewrite, MUI X Charts (no Recharts), Node 22.19.0, TS workarounds, 16+ chart components
+- Re-ingested [[wiki/architecture/system-architecture]] — 4-layer diagram, 14 pages, 5 stores, 8 hooks, new anti-patterns
+- Re-ingested [[wiki/architecture/codebase-structure]] — all new pages/stores/hooks, removed .github/, added agent_hub.py
+- Re-ingested [[wiki/architecture/external-integrations]] — yfin.dev API, 3 Firestore subcollections, CI/CD removed, no analytics init
+- Re-ingested [[wiki/conventions/coding-conventions]] — 6 error patterns, sanitization pattern, sync hook pattern, TS 7 workarounds, 3 anti-patterns
+- Re-ingested [[wiki/architecture/testing-status]] — expanded unit/integration/component test targets with priorities
+- Re-ingested [[wiki/architecture/concerns-and-tech-debt]] — full rewrite with GitHub issue references for every item
+- Updated index.md and log.md
+
+## [2026-07-11] ingest | Decisions | OpenSpec artifacts — TS 7 upgrade + MUI Charts migration
+- Copied OpenSpec change archives to `raw/typescript-7-upgrade/` (supplemented existing analysis) and `raw/chart-migration/` (new)
+- Created [[wiki/decisions/typescript-7-upgrade]] — TS 7.0 Go-rewrite adoption, benchmarks, workaround strategy
+- Created [[wiki/decisions/chart-migration-mui]] — phased 3-wave migration of 16 chart components from Recharts to MUI X Charts
+- Created `wiki/decisions/` directory (new category)
+- Updated index.md (49 pages) and log.md
+- Sources: `openspec/changes/archive/2026-07-11-*`

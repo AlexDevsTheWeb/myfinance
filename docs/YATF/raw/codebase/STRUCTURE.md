@@ -1,284 +1,344 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-06-22
+**Analysis Date:** 2026-07-11
 
 ## Directory Layout
 
 ```
 myfinance/
-├── src/                          # Application source
-│   ├── main.tsx                  # Entry point: React root + providers
-│   ├── App.tsx                   # Router, auth listener, protected routes
-│   ├── App.css                   # Minimal global app styles
-│   ├── index.css                 # Global CSS reset / base styles
+├── index.html                        # Vite HTML entry point
+├── vite.config.ts                    # Vite configuration
+├── tsconfig.json                     # Root TS config (project references)
+├── tsconfig.app.json                 # App TS config (references tsconfig.node.json)
+├── tsconfig.node.json                # Node/Vite TS config
+├── package.json
+├── AGENTS.md                         # Dev notes, commands, workflow rules
+├── firestore.rules                   # Firestore security rules
+├── clear_auth.html                   # Auth clearing helper
+│
+├── .env                              # NOT READ (contains Firebase env vars)
+├── .env.production                   # NOT READ (production env vars)
+│
+├── scripts/
+│   └── fix-tsc-bin.js                # postinstall script for TS 7 binary fix
+│
+├── src/
+│   ├── main.tsx                      # 🔤 React entry point, providers setup
+│   ├── App.tsx                       # 🔤 Router, ProtectedRoute, global sync hooks
+│   ├── App.css
+│   ├── index.css
+│   ├── version.ts                    # Auto-generated version info
 │   │
-│   ├── pages/                    # Top-level route components (8 pages)
-│   │   ├── LoginPage.tsx         #   (/) - Auth entry (Google OAuth + email/password)
-│   │   ├── DashboardPage.tsx     #   (/dashboard) - Home: recap, charts, tx table
-│   │   ├── TransactionsPage.tsx  #   (/transactions) - Full transaction list
-│   │   ├── AnalysisPage.tsx      #   (/analysis) - Annual/monthly analysis tables
-│   │   ├── InsightsPage.tsx      #   (/insights) - Deep analytics with charts
-│   │   ├── SalaryPage.tsx        #   (/salary) - Salary tracking
-│   │   ├── CarPage.tsx           #   (/car) - Car mileage & tire management
-│   │   ├── UtilitiesPage.tsx     #   (/utilities) - Utility bill tracking
-│   │   └── ConfigPage.tsx        #   (/config) - Settings, categories, accounts, backup
+│   ├── pages/                        # 📄 Route page components (13 total)
+│   │   ├── LoginPage.tsx             #   / — Google OAuth + email/password
+│   │   ├── DashboardPage.tsx         #   /dashboard — Main overview
+│   │   ├── TransactionsPage.tsx      #   /transactions — Transaction list + filters
+│   │   ├── FinancePage.tsx           #   /finance — Tabs: Salary + Insights
+│   │   ├── InvestmentsPage.tsx       #   /investments — Tabs: Investment + Projections
+│   │   ├── BudgetPage.tsx            #   /budget — Budget tracking
+│   │   ├── ConfigPage.tsx            #   /config — Settings, categories, backup/restore
+│   │   ├── CarPage.tsx               #   /car — Car mileage + tire tracking
+│   │   ├── UtilitiesPage.tsx         #   /utilities — Utility bill tracking
+│   │   ├── AnalysisPage.tsx          #   /analysis — Legacy redirect to /insights
+│   │   ├── InsightsPage.tsx          #   Nested under /finance tab — Analytics/charts
+│   │   ├── SalaryPage.tsx            #   Nested under /finance tab — Salary tracking
+│   │   ├── InvestmentPage.tsx        #   Nested under /investments tab — ETF tracking
+│   │   └── ProjectionsPage.tsx       #   Lazy loaded under /investments tab — Projections
 │   │
-│   ├── components/               # Reusable UI components
+│   ├── components/                   # 🧩 Reusable UI components (by domain)
 │   │   ├── layout/
-│   │   │   └── Layout.tsx        #   App shell: AppBar, nav drawer, breadcrumbs, FAB
+│   │   │   ├── Layout.tsx            #   App shell: AppBar, Sidebar, Breadcrumbs, FAB
+│   │   │   └── Sidebar.tsx           #   Navigation drawer (collapsible, module-aware)
 │   │   ├── dashboard/
-│   │   │   ├── RecapCards.tsx    #   Balance/income/expense summary cards
-│   │   │   ├── AccountCard.component.tsx  # Individual account card with sparkline
-│   │   │   ├── Charts.tsx        #   Cash flow area chart (12-month)
-│   │   │   └── TransactionTable.tsx # Recent transactions table
-│   │   ├── modals/
-│   │   │   └── TransactionModal.tsx # Modal wrapper for transaction add/edit
-│   │   ├── forms/
-│   │   │   └── TransactionForm.tsx   # Reusable transaction/recurring form with validation
+│   │   │   ├── AccountCard.component.tsx
+│   │   │   ├── AccountDetailDialog.tsx
+│   │   │   ├── Charts.tsx
+│   │   │   ├── RecapCards.tsx
+│   │   │   └── TransactionTable.tsx
+│   │   ├── budget/
+│   │   │   ├── BulletChart.tsx
+│   │   │   ├── BudgetTargetDialog.tsx
+│   │   │   ├── BudgetSummaryCards.tsx
+│   │   │   ├── BurnUpLineChart.tsx
+│   │   │   ├── ComparisonBarChart.tsx
+│   │   │   └── SavingsRateGauge.tsx
+│   │   ├── investment/               #   13 investment-related components
+│   │   │   ├── AllocationDonutChart.tsx
+│   │   │   ├── BrokerSelect.tsx
+│   │   │   ├── BrokerSettingsModal.tsx
+│   │   │   ├── CashAdjustmentDialog.tsx
+│   │   │   ├── CashInterestCard.tsx
+│   │   │   ├── DividendBadge.tsx
+│   │   │   ├── DividendDialog.tsx
+│   │   │   ├── EtfTransactionForm.tsx
+│   │   │   ├── EtfTransactionModal.tsx
+│   │   │   ├── HoldingsTable.tsx
+│   │   │   ├── PacConfirmationDialog.tsx
+│   │   │   ├── PortfolioLineChart.tsx
+│   │   │   ├── PortfolioStats.tsx
+│   │   │   └── TaxPocketWidget.tsx
 │   │   ├── analysis/
-│   │   │   ├── AnalysisTables.tsx        # Yearly income/expense tables
-│   │   │   └── FinancialTrendChart.tsx   # Trend chart for a selected year
+│   │   │   ├── AnalysisTables.tsx
+│   │   │   └── FinancialTrendChart.tsx
+│   │   ├── projections/
+│   │   │   ├── ProjectionChart.tsx
+│   │   │   ├── ProjectionControls.tsx
+│   │   │   ├── ProjectionSummary.tsx
+│   │   │   └── ProjectionsHeader.tsx
+│   │   ├── forms/
+│   │   │   └── TransactionForm.tsx
+│   │   ├── modals/
+│   │   │   └── TransactionModal.tsx
 │   │   ├── common/
-│   │   │   ├── YearSelector.component.tsx # Year dropdown selector
-│   │   │   └── VersionFooter.tsx         # Build version footer
-│   │   └── TransactionError.tsx          # Global save error banner
+│   │   │   ├── YearSelector.component.tsx
+│   │   │   └── VersionFooter.tsx
+│   │   └── TransactionError.tsx       #   Global error snackbar
 │   │
-│   ├── store/                    # State management (Zustand)
-│   │   ├── useFinanceStore.ts    # Central finance store: all CRUD + state (~1200+ lines)
-│   │   ├── useAuthStore.ts       # Auth state store (11 lines)
-│   │   ├── defaults.ts           # Default values for accounts, categories, settings, modules
+│   ├── store/                        # 🗄️ Zustand state management
+│   │   ├── useFinanceStore.ts        #   Core finance store (1200+ lines)
+│   │   ├── useInvestmentStore.ts     #   Investment store (585 lines)
+│   │   ├── useBudgetStore.ts         #   Budget store (100 lines)
+│   │   ├── useAuthStore.ts           #   Auth store (11 lines)
+│   │   ├── useProjectionSettingsStore.ts  # Projection settings store (71 lines)
+│   │   ├── defaults.ts              #   Default values for all store domains
 │   │   ├── types/
-│   │   │   ├── index.ts          # Re-exports finance.types
-│   │   │   └── finance.types.ts  # All I-prefixed interfaces for finance data
+│   │   │   ├── index.ts              #   Re-exports all types
+│   │   │   ├── finance.types.ts      #   ITransaction, IAccount, ICategory, etc.
+│   │   │   ├── investment.types.ts   #   IETFTransaction, IPortfolioSnapshot, etc.
+│   │   │   ├── budget.types.ts       #   BudgetTarget, BudgetProgressSnapshot, etc.
+│   │   │   └── projection.types.ts   #   IProjectionInput, IMonthlySnapshot
 │   │   ├── validation/
-│   │   │   ├── index.ts          # Re-exports validation functions
-│   │   │   └── finance.validation.ts # validateTransaction, validateRecurringTransaction
+│   │   │   ├── index.ts              #   Re-exports
+│   │   │   ├── finance.validation.ts #   Transaction/Recurring validation
+│   │   │   └── investment.validation.ts  # ETF/Broker validation
 │   │   ├── sanitization/
-│   │   │   ├── index.ts          # Re-exports sanitization functions
-│   │   │   ├── transaction.ts    # sanitizeTransaction for Firestore
-│   │   │   └── recurring.ts      # sanitizeRecurring for Firestore
-│   │   ├── backup/
-│   │   │   └── index.ts          # Backup/restore: createBackup, validateBackupData, parseBackup, previewBackup
-│   │   └── sync/
-│   │       └── index.ts          # Firestore init helpers: getDefaultUserConfig, getUserDocRef, initializeUserData
+│   │   │   ├── index.ts              #   Re-exports
+│   │   │   ├── transaction.ts        #   Transaction sanitizer
+│   │   │   ├── recurring.ts          #   Recurring sanitizer
+│   │   │   └── investment.ts         #   Investment sanitizer
+│   │   ├── sync/
+│   │   │   └── index.ts              #   Firestore sync helpers, default config
+│   │   └── backup/
+│   │       └── index.ts              #   Backup/export/import logic (293 lines)
 │   │
-│   ├── analytics/                # Derived analytics computations & chart components
-│   │   ├── index.ts              # Barrel: re-exports types, hooks, components
-│   │   ├── types.ts              # Analytics-specific types (IAnalyticsFilters, ICategoryBreakdown, etc.)
+│   ├── hooks/                        # 🪝 Custom React hooks (8 files)
+│   │   ├── useSyncFinance.ts         #   Finance -> Firestore sync
+│   │   ├── useInvestmentSync.ts      #   Investment -> Firestore sync
+│   │   ├── useBudgetSync.ts          #   Budget -> Firestore sync
+│   │   ├── useMarketData.ts          #   Market price fetching
+│   │   ├── useHistoricalSnapshots.ts #   Portfolio snapshot recording
+│   │   ├── usePacAutomation.ts       #   PAC transaction generation
+│   │   ├── useProjections.ts         #   Financial projection calculations
+│   │   └── useLogout.ts             #   Logout handler
+│   │
+│   ├── analytics/                    # 📊 Self-contained analytics module
+│   │   ├── index.ts                  #   Re-exports all
+│   │   ├── types.ts                  #   Analytics filter types
 │   │   ├── hooks/
-│   │   │   ├── index.ts          # Re-exports all analytics hooks
-│   │   │   ├── useNetWorth.ts    # Net worth time series (monthly balance)
-│   │   │   ├── useCategoryBreakdown.ts # Spending breakdown by category/subcategory
-│   │   │   ├── useAccountBreakdown.ts  # Per-account balance percentages
-│   │   │   └── useMonthlyComparison.ts # Month-over-month & year-over-year
+│   │   │   ├── index.ts              #   Re-exports
+│   │   │   ├── usePortfolio.ts       #   Portfolio performance computation
+│   │   │   ├── useNetWorth.ts        #   Net worth over time
+│   │   │   ├── useMonthlyComparison.ts   # Month-over-month comparison
+│   │   │   ├── useCategoryBreakdown.ts   # Spending by category
+│   │   │   ├── useAccountBreakdown.ts    # Balance by account
+│   │   │   └── useTaxTracking.ts     #   Tax tracking data
 │   │   └── components/
-│   │       ├── index.ts          # Re-exports all analytics chart components
-│   │       ├── NetWorthChart.tsx
-│   │       ├── CategoryPieChart.tsx
-│   │       ├── CategoryBarChart.tsx
-│   │       ├── MonthlyComparisonChart.tsx
-│   │       ├── AccountBreakdownChart.tsx
-│   │       └── AnalyticsFilters.tsx   # Date range, granularity, category filter UI
+│   │       ├── index.ts              #   Re-exports (default exports)
+│   │       ├── AnalyticsFilters.tsx  #   Date range / granularity filter bar
+│   │       ├── CategoryPieChart.tsx  #   Pie chart of spending by category
+│   │       ├── CategoryBarChart.tsx  #   Bar chart of spending by category
+│   │       ├── MonthlyComparisonChart.tsx  # Monthly income/expense bars
+│   │       ├── NetWorthChart.tsx     #   Net worth line chart
+│   │       └── AccountBreakdownChart.tsx  # Account balances chart
 │   │
-│   ├── hooks/                    # Shared React hooks
-│   │   ├── useSyncFinance.ts     # Firestore init + realtime snapshot sub
-│   │   └── useLogout.ts          # Sign out + localStorage cleanup + redirect
-│   │
-│   ├── lib/                      # Library initialization & configuration
-│   │   ├── firebase.ts           # Firebase app init, Auth, Firestore, Google provider
-│   │   ├── i18n.ts               # i18next config with dayjs locale sync
-│   │   └── converters.ts         # FirestoreDataConverter for UserDoc (typing + serialization)
-│   │
-│   ├── types/                    # Shared TypeScript interfaces
-│   │   ├── auth.types.tsx        # IAuthState interface (user, loading, isLoggingOut)
-│   │   └── props.types.tsx       # ITabPanelProps
+│   ├── lib/                          # 🔧 Library utilities
+│   │   ├── firebase.ts               #   Firebase app initialization
+│   │   ├── converters.ts             #   Firestore UserDoc converter (278 lines)
+│   │   ├── budgetEngine.ts           #   Pure budget computation functions
+│   │   ├── compoundInterestUtils.ts  #   CAGR, financial projection math
+│   │   └── i18n.ts                  #   i18next configuration
 │   │
 │   ├── theme/
-│   │   └── theme.ts              # MUI dark theme with custom palette, typography, component overrides
+│   │   └── theme.ts                  #   MUI dark theme with chart colors
 │   │
-│   ├── locales/                  # i18n translation JSON files
-│   │   ├── it.json               # Italian translations (primary, fallback)
-│   │   └── en.json               # English translations
+│   ├── types/                        # 📐 Shared type definitions
+│   │   ├── auth.types.tsx            #   IAuthState interface
+│   │   └── props.types.tsx           #   ITabPanelProps (shared component props)
 │   │
 │   ├── utils/
-│   │   └── variables.utils.tsx   # getEnvVar: typed access to Vite env variables
+│   │   └── variables.utils.tsx       #   getEnvVar() — typed env access
+│   │
+│   ├── locales/
+│   │   ├── it.json                   #   Italian translations
+│   │   └── en.json                   #   English translations
 │   │
 │   └── assets/
-│       └── react.svg             # Default Vite React logo
+│       └── react.svg                 #   Static asset
 │
-├── public/                       # Static assets served by Vite
-├── dist/                         # Production build output (gitignored)
-├── scripts/
-│   └── generate-version.js       # Pre-build script: writes version info
-├── docs/                         # Documentation files
-├── .planning/                    # GSD planning artifacts
-├── .github/                      # GitHub config (workflows, etc.)
-├── .firebase/                    # Firebase local cache (gitignored)
+├── docs/
+│   └── YATF/                         # LLM Wiki (architecture decision records)
+│       ├── AGENTS.md                 #   Schema for wiki entries
+│       ├── index.md
+│       ├── log.md
+│       ├── wiki/                     #   Processed wiki content
+│       └── raw/                      #   Raw notes for ingestion
 │
-├── package.json                  # Dependencies, scripts (v2026.2.1)
-├── tsconfig.json                 # TS project references root
-├── tsconfig.app.json             # TS config for app source
-├── tsconfig.node.json            # TS config for scripts/config
-├── vite.config.ts                # Vite build config
-├── eslint.config.js              # ESLint flat config
-├── firebase.json                 # Firebase hosting config
-├── firestore.rules               # Firestore security rules
-├── .nvmrc                        # Node version requirement
-├── .versionrc                    # standard-version config
-├── .env                          # Local environment variables (gitignored — never read)
-├── .env.development              # Dev environment variables (gitignored)
-├── .env.production               # Production environment variables (gitignored)
-├── index.html                    # Vite HTML entry point
-├── AGENTS.md                     # Dev agent instructions (build, branch workflow, firebase setup)
-└── README.md                     # Project readme
+├── .planning/                        # 📋 GSD planning directory
+│   ├── ROADMAP.md
+│   ├── PROJECT.md
+│   └── codebase/                     #   Codebase mapping documents
+│
+├── dist/                             # Vite production build output
+│
+├── .firebase/                        # Firebase hosting cache
+│
+├── .opencode/                        # OpenCode agent skills
+│   └── skills/                       #   openspec-* skills
+│
+├── .claude/
+│   └── skills/                       #   GSD skills
+│
+├── .versionrc                        # Standard version config
+│
+├── agent_hub.py                      # AI agent orchestration script
+├── run_agent.sh                      # Agent runner script
+└── .DS_Store
 ```
 
 ## Directory Purposes
 
 **`src/pages/`:**
-- Purpose: Top-level route components that compose layout, data, and child components into complete views
-- Contains: 8 page components, one per route
-- Key files: `DashboardPage.tsx`, `ConfigPage.tsx` (897 lines — largest page), `InsightsPage.tsx`
-- New pages go here and must be registered in `App.tsx` Routes
+- Purpose: One React component per route/URL path. These are the top-level views.
+- Contains: 13 page components + 3 nested tab pages (InsightsPage, SalaryPage, InvestmentPage, ProjectionsPage are embedded within FinancePage/InvestmentsPage tabs)
+- Key files: `App.tsx` routes to these pages
 
 **`src/components/`:**
-- Purpose: Reusable UI components organized by domain/feature
-- Contains: Subdirectories for `layout/`, `dashboard/`, `modals/`, `forms/`, `analysis/`, `common/`
-- Key files: `Layout.tsx` (425 lines — App shell), `TransactionForm.tsx` (388 lines — reusable form with validation)
-- Components typically use MUI `@mui/material` primitives and access stores directly via `useFinanceStore()`
+- Purpose: Reusable UI components organized by domain (dashboard, budget, investment, etc.)
+- Contains: 38 `.tsx` component files across 8 subdirectories
+- Key pattern: Each domain has its own folder (e.g., `components/budget/`). Shared utility components go in `components/common/`.
 
 **`src/store/`:**
-- Purpose: All state management, CRUD logic, data validation, sanitization, backup, and sync helpers
-- Contains: Two Zustand stores + domain-organized subdirectories
-- Key files: `useFinanceStore.ts` (~1200+ lines — the largest file), `useAuthStore.ts` (11 lines)
-- Subdirectories: `types/`, `validation/`, `sanitization/`, `backup/`, `sync/` — each with an `index.ts` barrel export
-
-**`src/analytics/`:**
-- Purpose: Derived financial computations encapsulated as React hooks, plus chart visualization components
-- Contains: 4 custom hooks (`useNetWorth`, `useCategoryBreakdown`, `useAccountBreakdown`, `useMonthlyComparison`), 6 chart components, shared types, barrel index
-- Pattern: Hooks read from `useFinanceStore` and compute via `useMemo`; chart components are thin recharts wrappers
+- Purpose: All state management — Zustand stores, types, validation, sanitization, sync, and backup
+- Contains: 5 store files, 5 type files, 2 validation files, 3 sanitization files, 1 sync file, 1 backup file, defaults
+- Key pattern: `useXStore.ts` for each domain store. Store actions embed async Firestore calls.
 
 **`src/hooks/`:**
-- Purpose: Shared React hooks that don't belong to a specific domain
-- Contains: `useSyncFinance.ts` (Firestore sync lifecycle), `useLogout.ts` (auth sign-out + cleanup)
+- Purpose: Custom React hooks for data synchronization and business logic
+- Contains: 8 hook files
+- Key pattern: Three sync hooks mirror the three data stores (finance, investment, budget). Each handles Firestore init and real-time subscription.
+
+**`src/analytics/`:**
+- Purpose: Self-contained analytics subsystem (computed data + chart components)
+- Contains: 6 hooks, 6 chart components, type definitions, barrel exports
+- Key pattern: Hooks consume store data and return computed analytics. Re-exported via `src/analytics/index.ts`.
 
 **`src/lib/`:**
-- Purpose: Third-party library initialization and configuration
-- Contains: `firebase.ts` (Firebase SDK setup), `i18n.ts` (i18next config), `converters.ts` (Firestore type converter)
+- Purpose: Framework initialization and utility libraries
+- Contains: Firebase config, Firestore converter, budget engine, compound interest utils, i18n
+- Key pattern: Pure functions + side-effectful init code. No React dependency.
 
-**`src/types/`:**
-- Purpose: Shared TypeScript interfaces used across the app
-- Contains: `auth.types.tsx`, `props.types.tsx`
+**`src/locales/`:**
+- Purpose: Translation JSON files for i18n
+- Contains: `it.json` (Italian) and `en.json` (English)
+
+**`docs/YATF/`:**
+- Purpose: LLM-managed wiki documentation — architecture decisions, conventions, raw notes
+- Contains: Processed wiki pages and raw markdown notes for ingestion
 
 ## Key File Locations
 
 **Entry Points:**
-- `src/main.tsx`: React root render with all providers (Theme, Localization, I18n)
-- `src/App.tsx`: Router definition (BrowserRouter), auth state listener, protected route gate
-- `index.html`: Vite HTML entry (root `<div>` in `<body>`)
+- `src/main.tsx`: React DOM render, provider wrapping (MUI theme, dayjs, i18n)
+- `src/App.tsx`: Router setup, ProtectedRoute, global sync initialization, auth listener
+- `index.html`: Vite HTML shell
 
 **Configuration:**
-- `package.json`: Dependencies, npm scripts, version
 - `vite.config.ts`: Vite build configuration
-- `tsconfig.json` / `tsconfig.app.json` / `tsconfig.node.json`: TypeScript project references
-- `eslint.config.js`: ESLint flat config (v10)
-- `firebase.json`: Firebase hosting configuration
-- `firestore.rules`: Firestore security rules
-- `.nvmrc`: Node.js version requirement
-- `scripts/generate-version.js`: Pre-build version injection
+- `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json`: TypeScript project references
+- `package.json`: Dependencies, scripts (dev, build, lint, preview)
+- `src/theme/theme.ts`: MUI theme configuration
+- `src/lib/firebase.ts`: Firebase project configuration
 
 **Core Logic:**
-- `src/store/useFinanceStore.ts`: All CRUD operations (transactions, accounts, categories, recurring, car, tires, backup)
-- `src/store/useAuthStore.ts`: Auth state management
-- `src/hooks/useSyncFinance.ts`: Firestore sync lifecycle
-- `src/lib/converters.ts`: Firestore document serialization
-
-**Theming:**
-- `src/theme/theme.ts`: MUI dark theme (muted indigo primary, dark slate background, Inter font)
-
-**Testing:**
-- Not applicable — no test suite exists in this repo
+- `src/store/useFinanceStore.ts`: Central finance state + all CRUD actions
+- `src/store/useInvestmentStore.ts`: Investment state + portfolio computations
+- `src/store/useBudgetStore.ts`: Budget targets state
+- `src/hooks/useSyncFinance.ts`: Finance data sync with Firestore
+- `src/store/sync/index.ts`: Sync initialization helpers
+- `src/lib/converters.ts`: Firestore type-safe converter
+- `src/lib/budgetEngine.ts`: Budget computation algorithms
 
 ## Naming Conventions
 
 **Files:**
-- **React components:** `PascalCase.tsx` — e.g., `DashboardPage.tsx`, `Layout.tsx`, `RecapCards.tsx`
-- **React hooks:** `camelCase.ts` — e.g., `useSyncFinance.ts`, `useLogout.ts`, `useNetWorth.ts`
-- **Utilities/helpers:** `camelCase.ts` or `camelCase.tsx` — e.g., `variables.utils.tsx`, `converters.ts`
-- **Stores:** `camelCase.ts` — e.g., `useFinanceStore.ts`, `useAuthStore.ts`
-- **Types:** `camelCase.types.tsx` — e.g., `auth.types.tsx`, `finance.types.ts`
-- **Config files:** `kebab-case.*` — e.g., `vite.config.ts`, `tsconfig.app.json`
-- **Locales:** Language code: `it.json`, `en.json`
+- **Components:** PascalCase with optional `.component.tsx` suffix for some dashboard components (`AccountCard.component.tsx`, `YearSelector.component.tsx`). No consistent pattern — most use `.tsx` directly.
+- **Stores:** `useXStore.ts` (camelCase with `use` prefix)
+- **Hooks:** `useX.ts` (camelCase with `use` prefix)
+- **Types:** `*.types.ts` or `*.types.tsx` (kebab-case domain prefix)
+- **Pages:** PascalCase with `Page` suffix (`DashboardPage.tsx`, `TransactionsPage.tsx`)
 
-**Directories:**
-- **Component subdirectories:** `kebab-case` — `dashboard/`, `modals/`, `forms/`, `analysis/`, `common/`, `layout/`
-- **Store subdirectories:** `kebab-case` — `types/`, `validation/`, `sanitization/`, `backup/`, `sync/`
+**Functions:**
+- **Store actions:** camelCase (`addTransaction`, `setCategories`, `checkRecurring`)
+- **Utility functions:** camelCase (`computeBudgetProgress`, `sanitizeTransaction`, `validateTransaction`)
+- **Hooks:** `use` prefix camelCase (`useSyncFinance`, `usePortfolio`)
 
-**Component Naming:**
-- **Page components:** `{Name}Page.tsx` — matches the route they serve
-- **Regular components:** `{Name}.tsx` — e.g., `Layout.tsx`, `RecapCards.tsx`, `Charts.tsx`
-- **Modal components:** `{Name}Modal.tsx` — e.g., `TransactionModal.tsx`
-- **Form components:** `{Name}Form.tsx` — e.g., `TransactionForm.tsx`
-- **Chart components:** `{Name}Chart.tsx` — e.g., `NetWorthChart.tsx`, `CategoryPieChart.tsx`
-- **Common components:** `{Name}.component.tsx` — e.g., `AccountCard.component.tsx`, `YearSelector.component.tsx`
+**Variables:**
+- **State selectors:** camelCase (`budgetTargets`, `etfTransactions`)
+- **Store:** camelCase
+
+**Types:**
+- **Interfaces:** `I` prefix + PascalCase (`ITransaction`, `IAccount`, `ICategory`, `IETFTransaction`)
+- **Type aliases:** PascalCase (`Transaction`, `Account`, `Category` — backward-compatible aliases in `useFinanceStore.ts`)
+- **React component props:** PascalCase + `Props` suffix (`SidebarProps`, `TabPanelProps`, `ITabPanelProps`)
 
 ## Where to Add New Code
 
-**New Feature (e.g., new financial module):**
-- Primary code: `src/pages/{FeatureName}Page.tsx`
-- Components: `src/components/{feature-name}/`
-- Store logic: Add to `src/store/useFinanceStore.ts` OR (preferred) create `src/store/use{Feature}Store.ts`
-- Types: Add interfaces to `src/store/types/finance.types.ts`
-- Route registration: Add `<Route>` in `src/App.tsx` (line 58-99)
-- Navigation: Add nav link in `src/components/layout/Layout.tsx` drawer (line 87-120)
-- Locales: Add translation keys to `src/locales/{it,en}.json`
+**New Feature (e.g., "Net Worth Calculator"):**
+- Primary code: `src/pages/NewFeaturePage.tsx` (page component) + route in `src/App.tsx`
+- State management: `src/store/useNewFeatureStore.ts` (if needed) or extend existing store
+- UI components: `src/components/newfeature/*.tsx`
+- Hooks: `src/hooks/useNewFeature.ts` (data computation or sync)
+- Types: `src/store/types/newfeature.types.ts`
+- If analytics-heavy: add hook to `src/analytics/hooks/` + component to `src/analytics/components/`
 
-**New Component:**
-- Implementation: `src/components/{domain}/{ComponentName}.tsx`
-- If reusable across domains: `src/components/common/{ComponentName}.component.tsx`
-- Always import types from `src/store/types/` or `src/types/`
+**New Component/Module:**
+- Implementation: `src/components/<domain>/ComponentName.tsx`
+- For domain-specific components: create subdirectory in `src/components/<domain>/`
+- For shared utilities: `src/components/common/`
+- Export via barrel file: create `index.ts` if multiple files in directory
 
-**New Analytics / Chart:**
-- Hook: `src/analytics/hooks/use{Computation}.ts` — pattern: read from `useFinanceStore`, compute with `useMemo`
-- Component: `src/analytics/components/{Name}Chart.tsx` — recharts wrapper
-- Types: `src/analytics/types.ts`
-- Register in barrel files: `src/analytics/hooks/index.ts`, `src/analytics/components/index.ts`, `src/analytics/index.ts`
+**Utilities:**
+- Shared helpers: `src/lib/` (pure functions, no React dependencies)
+- Validation logic: `src/store/validation/` (following existing pattern)
+- Sanitization logic: `src/store/sanitization/` (following existing pattern)
 
-**New Utility Function:**
-- Shared helpers: `src/utils/{domain}.utils.ts` or `src/utils/{domain}.utils.tsx`
-- Avoid adding to `src/lib/` (reserved for third-party lib init)
-
-**New Store / State:**
-- Simple store: `src/store/use{Name}Store.ts` — follow `useAuthStore.ts` pattern (11 lines)
-- Complex store: Create subdirectory `src/store/{name}/` with `types/`, `validation/`, etc.
-- Avoid adding to `useFinanceStore.ts` — prefer domain-specific stores to prevent god-store growth
-
-**New Hook:**
-- `src/hooks/use{Name}.ts` — only for hooks shared across components/pages
-- Domain-specific hooks live in their domain folder (e.g., `src/analytics/hooks/`)
+**Tests (future):**
+- Co-located: `src/**/*.test.ts` or `src/**/*.test.tsx`
+- No test infrastructure currently configured
 
 ## Special Directories
 
-**`.planning/`:**
-- Purpose: GSD planning artifacts (codebase maps, phase plans, roadmaps)
-- Generated: Yes (by `/gsd-map-codebase`, `/gsd-plan-phase`)
-- Committed: Yes (shared planning state)
+**`src/analytics/`:**
+- Purpose: Self-contained analytics module with its own hooks and components
+- Generated: No
+- Committed: Yes
+- Note: This is a domain module, not a build artifact. Re-exports everything via barrel `index.ts`.
 
-**`node_modules/`:**
-- Purpose: npm dependencies
-- Generated: Yes
-- Committed: No (`.gitignore`)
+**`docs/YATF/`:**
+- Purpose: LLM Wiki documentation (architecture decisions, meeting notes, conventions)
+- Generated: Yes — wiki content is LLM-processed from raw notes
+- Committed: Yes — full history of decisions
+
+**`.planning/`:**
+- Purpose: GSD (Goal-Structured Development) planning artifacts
+- Generated: Yes — created by GSD workflow tools
+- Committed: Yes — planning history tracked alongside code
 
 **`dist/`:**
-- Purpose: Production build output
-- Generated: Yes (by `npm run build`)
-- Committed: No (`.gitignore`)
-
-**`.firebase/`:**
-- Purpose: Firebase local emulator cache
-- Generated: Yes
-- Committed: No (`.gitignore`)
+- Purpose: Vite production build output
+- Generated: Yes — `npm run build`
+- Committed: No — in `.gitignore`
 
 ---
 
-*Structure analysis: 2026-06-22*
+*Structure analysis: 2026-07-11*
