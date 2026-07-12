@@ -53,15 +53,18 @@ export const DEFAULT_SYNC_CONFIG: SyncConfig = {
  * already exist in the sub-collection.
  */
 export async function backfillTransactionsToSubCollection(userId: string): Promise<{ written: number; skipped: number }> {
-  const docRef = getUserDocRef(userId);
+  // Use raw doc ref (no converter) to read the legacy transactions field
+  // which still exists in Firestore even after Phase D removed it from UserDoc
+  const rawDocRef = doc(db, 'users', userId);
   const remoteDoc = await runTransaction(db, async (transaction) => {
-    return transaction.get(docRef);
+    return transaction.get(rawDocRef);
   });
 
   if (!remoteDoc.exists()) return { written: 0, skipped: 0 };
 
-  const data = remoteDoc.data() as unknown as Record<string, unknown>;
-  const transactions = (data.transactions ?? []) as ITransaction[];
+  const data = remoteDoc.data();
+  const legacyTransactions = data?.transactions;
+  const transactions: ITransaction[] = Array.isArray(legacyTransactions) ? legacyTransactions : [];
   if (transactions.length === 0) return { written: 0, skipped: 0 };
 
   const collRef = getTransactionsCollectionRef(userId);
