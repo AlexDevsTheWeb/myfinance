@@ -1,4 +1,27 @@
 
+## [2026.10.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.9.0...v2026.10.0) (2026-07-12)
+
+
+* **119-mui-charts-migration:** openspec ([6e30852](https://github.com/AlexDevsTheWeb/myfinance/commit/6e308528ccbfb5acb6c4dd1d7792d135e5476aaa))
+* **119-mui-charts-migration:** openspec ([b363727](https://github.com/AlexDevsTheWeb/myfinance/commit/b363727455c748fd7600826c993908a8f73aee91))
+* **119:** migrate recharts to MUI X Charts with gradient area fills ([e86f73e](https://github.com/AlexDevsTheWeb/myfinance/commit/e86f73eef14c1960dab2eccb6fe7feaea96ceed4))
+* **138:** backfill reads raw doc (bypass converter) for legacy array migration ([43ec320](https://github.com/AlexDevsTheWeb/myfinance/commit/43ec320ef2d7af950a796f3dd52bbc0ec9660364))
+* **138:** Go-to-Market Phase 0 — error boundary, MUI dialogs, loading states ([16de3d5](https://github.com/AlexDevsTheWeb/myfinance/commit/16de3d57d29fcd00835c92619bf4fd046da64bff))
+* **138:** isLoading never set to false — setAll drops unrecognized fields in investment store ([f914c6b](https://github.com/AlexDevsTheWeb/myfinance/commit/f914c6b2b0d82ffddfee28cea86cca20a6266b15))
+* **138:** mark Phase 0 complete, add PR [#140](https://github.com/AlexDevsTheWeb/myfinance/issues/140), archive OpenSpec ([d61594f](https://github.com/AlexDevsTheWeb/myfinance/commit/d61594f48ccf1470c4b3684744c90ebb208f900d))
+* **138:** Phase D — remove legacy transactions array (single user, backups confirmed) ([71284f9](https://github.com/AlexDevsTheWeb/myfinance/commit/71284f955e340acd8566a6e8be76e7295594e6ce))
+* **138:** remove extra closing brace in firestore.rules ([cb442d4](https://github.com/AlexDevsTheWeb/myfinance/commit/cb442d40e1f28fdc42ca6883e1ebf8913ffa3887))
+* **138:** update plans, handoff, and readiness docs for Phase 1 completion ([599a1e8](https://github.com/AlexDevsTheWeb/myfinance/commit/599a1e86f1c9aac081e2afefbac7fcb92d377fe1))
+* **138:** update wiki — Phase 1.1 sub-collection migration complete, PR [#141](https://github.com/AlexDevsTheWeb/myfinance/issues/141) ([46112c3](https://github.com/AlexDevsTheWeb/myfinance/commit/46112c36c06fc0a1b0355e9a254cc66d73351717))
+* add MarkPlot and showMark for single-point portfolio chart visibility ([5071d6c](https://github.com/AlexDevsTheWeb/myfinance/commit/5071d6c76ac08d707ea49fe4697cfae344c10e3e))
+* **development:** wiki + priorities ([4410a23](https://github.com/AlexDevsTheWeb/myfinance/commit/4410a23116ad2c7fae5e8ab9bb6a825690aaa7c9))
+* Phase 1 — recurring dedup, PAC state persistence ([414caf7](https://github.com/AlexDevsTheWeb/myfinance/commit/414caf7b99a5781fe06f1a9a43e571c6c7744fd5)), closes [#138](https://github.com/AlexDevsTheWeb/myfinance/issues/138)
+* refresh codebase map, ingest openspec decisions, update wiki ([8bbf33d](https://github.com/AlexDevsTheWeb/myfinance/commit/8bbf33d0c5b69500808d7f2623250ee5f23a22ec))
+* restructure YATF wiki — raw/ subfolders, wiki/ pages, feature folders ([5ed8c4b](https://github.com/AlexDevsTheWeb/myfinance/commit/5ed8c4bf774797e6bb75466538c5ebb1104d99a1))
+* upgrade TypeScript 6.0.3 → 7.0.1-rc (Corsa Go rewrite) ([113d81a](https://github.com/AlexDevsTheWeb/myfinance/commit/113d81a5fe045e8f263ae068d180ee1d650fb584))
+* **YATF-138:** openspec update ([7f302a1](https://github.com/AlexDevsTheWeb/myfinance/commit/7f302a1866ed59163210485facd30b91c6bc9ec0))
+* **YATF-138:** transaction sub-collection migration (Phases A-C) ([c5478c0](https://github.com/AlexDevsTheWeb/myfinance/commit/c5478c0950492b806fd83caf8407cd01fecef751))
+
 ## [2026.9.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.8.2...v2026.9.0) (2026-07-05)
 
 
