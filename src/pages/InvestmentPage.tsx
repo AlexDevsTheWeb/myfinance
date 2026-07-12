@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AccountBalance, Add, Refresh, TrendingUp } from '@mui/icons-material';
-import { Badge, Box, Button, Grid, Tab, Tabs, Typography } from '@mui/material';
+import { Badge, Box, Button, CircularProgress, Grid, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import AllocationDonutChart from '../components/investment/AllocationDonutChart';
 import BrokerSelect from '../components/investment/BrokerSelect';
@@ -18,6 +18,7 @@ import { usePacAutomation } from '../hooks/usePacAutomation';
 import { usePortfolio } from '../analytics/hooks/usePortfolio';
 import { useMarketData } from '../hooks/useMarketData';
 import { useInvestmentStore } from '../store/useInvestmentStore';
+import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import type { IETFTransaction, IInvestmentHolding } from '../store/types';
 
 function TabPanel(props: { children?: React.ReactNode; index: number; value: number }) {
@@ -37,10 +38,12 @@ const InvestmentPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState('1Y');
   const [editingTransaction, setEditingTransaction] = useState<IETFTransaction | null>(null);
   const [pacDialogOpen, setPacDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [pendingDeleteTx, setPendingDeleteTx] = useState<string | null>(null);
 
   usePacAutomation(); // Initialize PAC check on mount
 
-  const { brokerAccounts, selectedBrokerId, setSelectedBroker, etfTransactions, pendingPacTransaction } = useInvestmentStore();
+  const { brokerAccounts, selectedBrokerId, setSelectedBroker, etfTransactions, pacState, isLoading } = useInvestmentStore();
   const portfolio = usePortfolio();
   const { refreshPrices, isUpdating } = useMarketData();
 
@@ -59,10 +62,8 @@ const InvestmentPage: React.FC = () => {
       .filter(t => t.ticker === holding.ticker)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
     if (tx) {
-      // Delete single latest transaction for this ticker
-      window.confirm('Delete this transaction? Units and PMC will be recalculated.')
-        ? useInvestmentStore.getState().deleteEtfTransaction(tx.id)
-        : null;
+      setPendingDeleteTx(tx.id);
+      setDeleteConfirmOpen(true);
     }
   };
 
@@ -70,6 +71,14 @@ const InvestmentPage: React.FC = () => {
     setEtfModalOpen(false);
     setEditingTransaction(null);
   };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   const chartData = portfolio.chartData;
   const donutData = portfolio.holdings.map(h => ({
@@ -95,7 +104,7 @@ const InvestmentPage: React.FC = () => {
             selected={selectedBrokerId}
             onChange={setSelectedBroker}
           />
-          {pendingPacTransaction && (
+          {pacState.pendingTransaction && (
             <Badge badgeContent="!" color="warning" onClick={() => setPacDialogOpen(true)} sx={{ cursor: 'pointer' }}>
               <Button variant="outlined" color="warning">
                 PAC Pending
@@ -179,6 +188,21 @@ const InvestmentPage: React.FC = () => {
       <PacConfirmationDialog open={pacDialogOpen} onClose={() => setPacDialogOpen(false)} />
       <CashAdjustmentDialog open={cashAdjustmentOpen} onClose={() => setCashAdjustmentOpen(false)} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
       <DividendDialog open={dividendOpen} onClose={() => setDividendOpen(false)} defaultBrokerId={selectedBrokerId === 'all' ? undefined : selectedBrokerId} />
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete transaction?"
+        message="Units and PMC will be recalculated."
+        confirmText="Delete"
+        onConfirm={() => {
+          if (pendingDeleteTx) useInvestmentStore.getState().deleteEtfTransaction(pendingDeleteTx);
+          setDeleteConfirmOpen(false);
+          setPendingDeleteTx(null);
+        }}
+        onCancel={() => {
+          setDeleteConfirmOpen(false);
+          setPendingDeleteTx(null);
+        }}
+      />
     </Box>
   );
 };

@@ -1,5 +1,5 @@
 import { ArrowDownward, ArrowUpward, FilterList, ReceiptLong, Search } from '@mui/icons-material';
-import { Box, Button, Card, CardContent, FormControl, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, CircularProgress, FormControl, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useMemo, useState } from 'react';
@@ -13,7 +13,7 @@ import {
 } from '../analytics';
 
 const TransactionsPage: React.FC = () => {
-  const { transactions, categories, incomeCategories } = useFinanceStore();
+  const { transactions, categories, incomeCategories, isLoading } = useFinanceStore();
   const { t } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'income' | 'expense' | 'transfer'>('expense');
@@ -128,6 +128,14 @@ const TransactionsPage: React.FC = () => {
   }), [transactionDateRange]);
 
   const spendingData = useCategoryBreakdown(transactionFilters);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
       <Box sx={{ pb: 6 }}>

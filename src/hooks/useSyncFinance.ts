@@ -10,10 +10,13 @@ export const useSyncFinance = () => {
   const { setAll } = useFinanceStore();
 
   const isInitializing = useRef(false);
+  const hasLoaded = useRef(false);
+  const hasCheckedRecurring = useRef(false);
 
   useEffect(() => {
     if (!user) {
       isInitializing.current = false;
+      hasCheckedRecurring.current = false;
       return;
     }
 
@@ -28,15 +31,17 @@ export const useSyncFinance = () => {
           const remoteDoc = await transaction.get(docRef);
           if (remoteDoc.exists()) {
             const data = remoteDoc.data();
-            setAll(data);
+            setAll({ ...data, isLoading: false });
           } else {
             const defaultConfig = getDefaultUserConfig();
             transaction.set(docRef, defaultConfig);
-            setAll(defaultConfig);
+            setAll({ ...defaultConfig, isLoading: false });
           }
+          hasLoaded.current = true;
         });
       } catch (error) {
         console.error('Error in initializeUser transaction:', error);
+        useFinanceStore.getState().setAll({ isLoading: false });
       } finally {
         isInitializing.current = false;
       }
@@ -55,8 +60,14 @@ export const useSyncFinance = () => {
         }
         const data = doc.data();
         const { setAll, checkRecurring } = useFinanceStore.getState();
-        setAll(data);
-        checkRecurring();
+        setAll({ ...data, isLoading: !hasLoaded.current });
+        if (!hasLoaded.current) {
+          hasLoaded.current = true;
+        }
+        if (!hasCheckedRecurring.current) {
+          hasCheckedRecurring.current = true;
+          checkRecurring();
+        }
       }
     });
 

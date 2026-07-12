@@ -368,3 +368,33 @@
 ## [2026-07-11] ingest | Decision | PWA Strategy — mobile senza riscrittura
 - Created [[wiki/decisions/pwa-strategy]] — 2-step plan: PWA subito (manifest.json + SW), Flutter solo dopo validazione
 - Updated index.md (53 pages) and log.md
+
+## [2026-07-12] implement | Phase 0 | Go-to-Market Quick Wins (#138)
+- Implemented all 12 tasks of Phase 0 (Go-to-Market #138):
+  - ✅ Error boundary — `src/components/ErrorBoundary.tsx`, wrapped `<App />` in `main.tsx`
+  - ✅ MUI dialogs — `ConfirmDialog` + `AlertSnackbar` shared components; replaced 10 native dialogs across ConfigPage, InvestmentPage, TransactionTable
+  - ✅ Loading states — added `isLoading` to `useFinanceStore` + `useInvestmentStore`; sync hooks set `isLoading = false` after first snapshot; CircularProgress on Dashboard, Transactions, Investment pages
+- Created OpenSpec change `go-to-market-phase-0` with proposal, design, specs, tasks
+- Created [[wiki/features/error-boundary/error-boundary]]
+- Created [[wiki/features/mui-dialogs/mui-dialogs]]
+- Created [[wiki/features/loading-states/loading-states]]
+- Updated [[wiki/plans/go-to-market]] — Phase 0 tasks marked complete
+- Updated index.md (56 pages) and log.md
+
+## [2026-07-12] ship | Phase 0 | PR #140 + OpenSpec archive
+- Created PR [#140](https://github.com/AlexDevsTheWeb/myfinance/pull/140) from `feat/YATF-138` → `development`
+- Commented on [#138](https://github.com/AlexDevsTheWeb/myfinance/issues/138) with PR link
+- Archived OpenSpec change `go-to-market-phase-0` → `openspec/changes/archive/2026-07-12-go-to-market-phase-0/`
+- Updated [[wiki/plans/go-to-market]] — all Phase 0 checkboxes checked
+
+## [2026-07-12] ingest | Plan | Phase 1 — Secure the Data (#138)
+- Created [[raw/138-go-to-market/phase-1-analysis.md]] — codebase analysis of 3 sub-items (sub-collection migration, PAC Firestore persistence, recurring race condition) with risk assessment and recommended order (1.3 → 1.2 → 1.1)
+- Updated [[wiki/plans/go-to-market]] — Phase 1 expanded with detailed sub-tasks, file references, and solution designs
+- Updated index.md and log.md
+
+## [2026-07-12] implement | Phase 1 | Go-to-Market — Recurring dedup + PAC state persistence (#138)
+- Implemented 1.3 Recurring dedup: `lastGeneratedUpTo` field on `IRecurringTransaction`, `checkRecurring` uses Firestore-side dedup, session debounce in `useSyncFinance`, timestamp cooldown guard
+- Implemented 1.2 PAC state persistence: `PacState` type + `pacState` field on `UserDoc`, `usePacAutomation` reads/writes Firestore instead of localStorage, `confirmPacTransaction` persists to Firestore, localStorage migration on first mount
+- Updated [[wiki/plans/go-to-market]] — 1.3 and 1.2 tasks marked complete
+- Created OpenSpec change `go-to-market-phase-1` with proposal, design, 3 specs, tasks
+- Updated index.md and log.md

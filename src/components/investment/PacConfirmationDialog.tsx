@@ -11,14 +11,15 @@ interface PacConfirmationDialogProps {
 const formatEur = (v: number) => `€${v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const PacConfirmationDialog: React.FC<PacConfirmationDialogProps> = ({ open, onClose }) => {
-  const { pendingPacTransaction, brokerAccounts, confirmPacTransaction, dismissPacTransaction } = useInvestmentStore();
+  const { pacState, brokerAccounts, confirmPacTransaction, dismissPacTransaction } = useInvestmentStore();
+  const pendingTransaction = pacState.pendingTransaction;
 
-  if (!pendingPacTransaction) return null;
+  if (!pendingTransaction) return null;
 
-  const broker = brokerAccounts.find(b => b.id === pendingPacTransaction.brokerId);
+  const broker = brokerAccounts.find(b => b.id === pendingTransaction.brokerId);
 
   const handleConfirm = async () => {
-    await confirmPacTransaction(pendingPacTransaction.brokerId);
+    await confirmPacTransaction(pendingTransaction.brokerId);
     onClose();
   };
 
@@ -40,13 +41,13 @@ const PacConfirmationDialog: React.FC<PacConfirmationDialogProps> = ({ open, onC
           A monthly PAC transaction is ready to be executed:
         </Typography>
         <Typography variant="body2" sx={{ opacity: 0.7 }}>
-          Broker: <strong>{broker?.name ?? pendingPacTransaction.brokerId}</strong>
+          Broker: <strong>{broker?.name ?? pendingTransaction.brokerId}</strong>
         </Typography>
         <Typography variant="body2" sx={{ opacity: 0.7 }}>
-          Amount: <strong>{formatEur(pendingPacTransaction.amount)}</strong>
+          Amount: <strong>{formatEur(pendingTransaction.amount)}</strong>
         </Typography>
         <Typography variant="body2" sx={{ opacity: 0.7 }}>
-          Date: <strong>{pendingPacTransaction.date}</strong>
+          Date: <strong>{pendingTransaction.date}</strong>
         </Typography>
         <Typography variant="caption" sx={{ opacity: 0.5, display: 'block', mt: 2 }}>
           On confirm, the current market price will be fetched and a buy transaction created.

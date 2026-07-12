@@ -3,6 +3,17 @@ import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions } from 'firebase/firestore';
 import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type ITransaction, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
 
+export interface PacState {
+  lastGenerationDate: string | null;
+  pendingTransaction: {
+    brokerId: string;
+    amount: number;
+    date: string;
+    status: 'pending' | 'confirmed' | 'executed';
+  } | null;
+  perBrokerLastGeneration: Record<string, string>;
+}
+
 export interface UserDoc {
   transactions: ITransaction[];
   initialBalance: number;
@@ -24,6 +35,7 @@ export interface UserDoc {
   cashAdjustments: CashAdjustment[];
   dividendEntries: DividendEntry[];
   budgetTargets: BudgetTarget[];
+  pacState?: PacState;
   /** @deprecated Legacy field — kept for backward-compatible reads during migration. Will be removed after all users migrate. */
   brokerConfig?: IBrokerConfig;
 }
@@ -76,6 +88,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       cashAdjustments: userDoc.cashAdjustments || [],
       dividendEntries: userDoc.dividendEntries || [],
       budgetTargets: userDoc.budgetTargets || [],
+      pacState: userDoc.pacState || { lastGenerationDate: null, pendingTransaction: null, perBrokerLastGeneration: {} },
       // Legacy brokerConfig — kept for backward-compatible reads during migration window
       brokerConfig: userDoc.brokerConfig || { brokerName: 'Trade Republic', lumpSumAmount: 0, monthlyPacAmount: 0, ticker: 'SWDA.MI', interestRate: 0 },
     };
@@ -242,6 +255,12 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       interestRate: typeof data.brokerConfig?.interestRate === 'number' ? data.brokerConfig.interestRate : 0,
     } : undefined;
 
+    const pacState: PacState = {
+      lastGenerationDate: data.pacState?.lastGenerationDate ?? null,
+      pendingTransaction: data.pacState?.pendingTransaction ?? null,
+      perBrokerLastGeneration: data.pacState?.perBrokerLastGeneration ?? {},
+    };
+
     return {
       transactions,
       initialBalance,
@@ -272,6 +291,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
         createdAt: b.createdAt ?? '',
         updatedAt: b.updatedAt ?? '',
       })) : [],
+      pacState,
       brokerConfig,
     };
   }

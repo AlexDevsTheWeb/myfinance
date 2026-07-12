@@ -1,6 +1,6 @@
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
-import { AreaPlot, LinePlot } from '@mui/x-charts/LineChart';
+import { AreaPlot, LinePlot, MarkPlot } from '@mui/x-charts/LineChart';
 import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
 import { ChartsGrid } from '@mui/x-charts/ChartsGrid';
 import { ChartsLegend } from '@mui/x-charts/ChartsLegend';
@@ -50,7 +50,7 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
               label: 'Portfolio Value',
               color: '#5b6cb8',
               area: true,
-              showMark: false,
+              showMark: filtered.length <= 1,
             },
             {
               id: 'invested',
@@ -58,7 +58,7 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
               data: filtered.map(d => d.invested),
               label: 'Invested',
               color: '#10b981',
-              showMark: false,
+              showMark: filtered.length <= 1,
             },
           ]}
           xAxis={[{ scaleType: 'point', data: filtered.map(d => d.date), disableLine: true, disableTicks: true }]}
@@ -84,6 +84,7 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
                 }}
               />
               <LinePlot />
+              <MarkPlot />
               <ChartsAxis />
             </ChartsSurface>
           </ChartsWrapper>

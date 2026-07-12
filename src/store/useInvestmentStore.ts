@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from './useAuthStore';
+import type { PacState } from '../lib/converters';
 import type { IBrokerConfig, IETFTransaction, IPortfolioSnapshot, IInvestmentHolding, BrokerAccount, AssetHolding, CashAdjustment, DividendEntry } from './types';
 import { validateEtfTransaction, validateBrokerConfig, validateBrokerAccount, validateCashAdjustment, validateDividendEntry } from './validation';
 import { sanitizeEtfTransaction, sanitizeBrokerConfig, sanitizeBrokerAccounts, sanitizeCashAdjustments, sanitizeDividendEntries } from './sanitization';
@@ -17,11 +18,11 @@ export interface InvestmentState {
   assetHoldings: AssetHolding[];
   selectedBrokerId: string | 'all';
   brokerTransactions: Record<string, IETFTransaction[]>;
-  pendingPacTransaction: { brokerId: string; amount: number; date: string; status: 'pending' | 'confirmed' | 'executed' } | null;
-  lastPacGenerationDate: string | null;
+  pacState: PacState;
   currentPrice: number | null;
   lastPriceUpdate: string | null;
   isSaving: boolean;
+  isLoading: boolean;
   saveError: string | null;
   cashAdjustments: CashAdjustment[];
   dividendEntries: DividendEntry[];
@@ -104,11 +105,11 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
   assetHoldings: [],
   selectedBrokerId: 'all',
   brokerTransactions: {},
-  pendingPacTransaction: null,
-  lastPacGenerationDate: null,
+  pacState: { lastGenerationDate: null, pendingTransaction: null, perBrokerLastGeneration: {} },
   currentPrice: null,
   lastPriceUpdate: null,
   isSaving: false,
+  isLoading: true,
   saveError: null,
   cashAdjustments: [],
   dividendEntries: [],
@@ -326,14 +327,14 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       assetHoldings,
       selectedBrokerId,
       brokerTransactions,
-      pendingPacTransaction,
-      lastPacGenerationDate,
+      pacState,
       currentPrice,
       lastPriceUpdate,
       isSaving,
       saveError,
       cashAdjustments,
       dividendEntries,
+      isLoading,
     } = data;
 
     set({
@@ -344,14 +345,14 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       assetHoldings: assetHoldings ?? get().assetHoldings,
       selectedBrokerId: selectedBrokerId ?? get().selectedBrokerId,
       brokerTransactions: brokerTransactions ?? get().brokerTransactions,
-      pendingPacTransaction: pendingPacTransaction !== undefined ? pendingPacTransaction : get().pendingPacTransaction,
-      lastPacGenerationDate: lastPacGenerationDate !== undefined ? lastPacGenerationDate : get().lastPacGenerationDate,
+      pacState: pacState ?? get().pacState,
       currentPrice: currentPrice !== undefined ? currentPrice : get().currentPrice,
       lastPriceUpdate: lastPriceUpdate !== undefined ? lastPriceUpdate : get().lastPriceUpdate,
       isSaving: isSaving ?? get().isSaving,
       saveError: saveError !== undefined ? saveError : get().saveError,
       cashAdjustments: cashAdjustments ?? get().cashAdjustments,
       dividendEntries: dividendEntries ?? get().dividendEntries,
+      isLoading: isLoading ?? get().isLoading,
     });
   },
 
@@ -435,14 +436,25 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
   },
 
   addPendingPacTransaction: (pending) => {
-    set({ pendingPacTransaction: { ...pending, status: 'pending' } });
+    const state = get();
+    const perBrokerLastGeneration = {
+      ...state.pacState.perBrokerLastGeneration,
+      [pending.brokerId]: dayjs(pending.date).format('YYYY-MM'),
+    };
+    set({
+      pacState: {
+        ...state.pacState,
+        pendingTransaction: { ...pending, status: 'pending' },
+        perBrokerLastGeneration,
+      },
+    });
   },
 
   confirmPacTransaction: async (selectedAccountId) => {
     const userId = useAuthStore.getState().user?.uid;
     if (!userId) return;
 
-    const pending = get().pendingPacTransaction;
+    const pending = get().pacState.pendingTransaction;
     if (!pending) return;
 
     set({ saveError: null, isSaving: true });
@@ -467,11 +479,19 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       // Add the transaction to etfTransactions
       const prevTxs = get().etfTransactions;
       const sorted = [tx, ...prevTxs].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      set({ etfTransactions: sorted, pendingPacTransaction: null, lastPacGenerationDate: pending.date, isSaving: false });
+      const pacState = {
+        lastGenerationDate: pending.date,
+        pendingTransaction: null,
+        perBrokerLastGeneration: {
+          ...get().pacState.perBrokerLastGeneration,
+          [pending.brokerId]: dayjs(pending.date).format('YYYY-MM'),
+        },
+      };
+      set({ etfTransactions: sorted, pacState, isSaving: false });
 
       const docRef = doc(db, 'users', userId);
       const sanitizedTxs = get().etfTransactions.map(sanitizeEtfTransaction);
-      await updateDoc(docRef, { etfTransactions: sanitizedTxs });
+      await updateDoc(docRef, { etfTransactions: sanitizedTxs, pacState });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to confirm PAC transaction';
       set({ saveError: errorMessage, isSaving: false });
@@ -480,7 +500,8 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
   },
 
   dismissPacTransaction: () => {
-    set({ pendingPacTransaction: null });
+    const state = get();
+    set({ pacState: { ...state.pacState, pendingTransaction: null } });
   },
 
   addCashAdjustment: async (adj) => {

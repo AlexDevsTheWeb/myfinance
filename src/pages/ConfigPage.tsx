@@ -7,6 +7,8 @@ import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import TransactionForm from '../components/forms/TransactionForm';
 import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
+import { ConfirmDialog } from '../components/shared/ConfirmDialog';
+import { AlertSnackbar } from '../components/shared/AlertSnackbar';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { useInvestmentStore } from '../store/useInvestmentStore';
 import { useProjectionSettingsStore, DEFAULT_PROJECTION_SETTINGS } from '../store/useProjectionSettingsStore';
@@ -234,6 +236,28 @@ const ConfigPage: React.FC = () => {
   } | null>(null);
   const [importFile, setImportFile] = useState<File | null>(null);
 
+  // Confirm dialog state
+  const [confirmState, setConfirmState] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: '', message: '', onConfirm: () => {} });
+
+  // Alert snackbar state
+  const [alertState, setAlertState] = useState<{ open: boolean; message: string; severity: 'error' | 'warning' | 'info' | 'success' }>({ open: false, message: '', severity: 'error' });
+
+  const handleOpenConfirm = (title: string, message: string, onConfirm: () => void) => {
+    setConfirmState({ open: true, title, message, onConfirm });
+  };
+
+  const handleCloseConfirm = () => {
+    setConfirmState(prev => ({ ...prev, open: false }));
+  };
+
+  const showAlert = (message: string, severity: 'error' | 'warning' | 'info' | 'success' = 'error') => {
+    setAlertState({ open: true, message, severity });
+  };
+
+  const handleCloseAlert = () => {
+    setAlertState(prev => ({ ...prev, open: false }));
+  };
+
   const handleOpenDialog = (config: any) => {
     setDialogConfig(config);
     if (config?.type === 'recurring') {
@@ -316,7 +340,7 @@ const ConfigPage: React.FC = () => {
 
     const result = await previewBackup(file);
     if (!result.valid) {
-      alert(result.error);
+      showAlert(result.error || 'Errore caricamento backup');
       return;
     }
     setPreviewData(result.summary);
@@ -330,9 +354,9 @@ const ConfigPage: React.FC = () => {
 
     const success = await importAllData(importFile);
     if (success) {
-      alert('Backup ripristinato con successo!');
+      showAlert('Backup ripristinato con successo!', 'success');
     } else {
-      alert(saveError || 'Errore nel ripristino del backup');
+      showAlert(saveError ?? 'Errore nel ripristino del backup');
     }
     setPreviewData(null);
     setImportFile(null);
@@ -436,10 +460,10 @@ const ConfigPage: React.FC = () => {
               onRename={() => handleOpenDialog({ type: 'category', mode: 'rename', financeType: type, oldValue: cat.name })}
               onDelete={() => {
                 if (cat.subcategories.length > 0) {
-                  alert('Cannot delete a category that still contains items. Move or delete them first.');
+                  showAlert('Cannot delete a category that still contains items. Move or delete them first.', 'warning');
                   return;
                 }
-                if (window.confirm(`Delete category "${cat.name}"?`)) deleteCategory(type, cat.name);
+                handleOpenConfirm(`Delete category "${cat.name}"?`, 'This action cannot be undone.', () => deleteCategory(type, cat.name));
               }}
             >
               {cat.subcategories.map((sub: string) => (
@@ -456,9 +480,7 @@ const ConfigPage: React.FC = () => {
                     if (hasTransactions || hasRecurring) {
                       handleOpenRemapDialog(type, cat.name, sub);
                     } else {
-                      if (window.confirm(`Delete item "${sub}"?`)) {
-                        deleteSubcategory(type, cat.name, sub);
-                      }
+                      handleOpenConfirm(`Delete item "${sub}"?`, 'This action cannot be undone.', () => deleteSubcategory(type, cat.name, sub));
                     }
                   }}
                 />
@@ -639,7 +661,7 @@ const ConfigPage: React.FC = () => {
                         <IconButton size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'edit', accountId: acc.id })}>
                           <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small" color="error" disabled={accounts.length <= 1} onClick={() => { if (window.confirm(`Delete account "${acc.name}"?`)) deleteAccount(acc.id); }}>
+                        <IconButton size="small" color="error" disabled={accounts.length <= 1} onClick={() => handleOpenConfirm(`Delete account "${acc.name}"?`, 'This action cannot be undone.', () => deleteAccount(acc.id))}>
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </ListItemSecondaryAction>
@@ -764,7 +786,7 @@ const ConfigPage: React.FC = () => {
                       <IconButton size="small" onClick={() => handleOpenDialog({ type: 'recurring', mode: 'edit', financeType: rec.type, recurringId: rec.id })}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" color="error" onClick={() => { if (window.confirm('Delete recurring template?')) deleteRecurring(rec.id); }}>
+                      <IconButton size="small" color="error" onClick={() => handleOpenConfirm('Delete recurring template?', 'This action cannot be undone.', () => deleteRecurring(rec.id))}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </ListItemSecondaryAction>
@@ -993,6 +1015,20 @@ const ConfigPage: React.FC = () => {
         </Dialog>
 
         <BrokerSettingsModal open={brokerDialogOpen} onClose={() => setBrokerDialogOpen(false)} />
+
+        <ConfirmDialog
+          open={confirmState.open}
+          title={confirmState.title}
+          message={confirmState.message}
+          onConfirm={() => { confirmState.onConfirm(); handleCloseConfirm(); }}
+          onCancel={handleCloseConfirm}
+        />
+        <AlertSnackbar
+          open={alertState.open}
+          message={alertState.message}
+          severity={alertState.severity}
+          onClose={handleCloseAlert}
+        />
 
         {/* Backup Preview Dialog */}
         <Dialog open={previewDialogOpen} onClose={() => setPreviewDialogOpen(false)} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>

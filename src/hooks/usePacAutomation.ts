@@ -1,24 +1,31 @@
 import { useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/useAuthStore';
 import { useInvestmentStore } from '../store/useInvestmentStore';
+import type { PacState } from '../lib/converters';
 
-const PAC_DAY = 1; // Default: 1st of month (configurable per broker)
+const PAC_DAY = 1;
 
-/**
- * PAC Automation Initialization Hook (D-04)
- *
- * On app init, checks each broker account:
- * 1. Does the broker have monthlyPacAmount > 0?
- * 2. Has PAC already been generated this month for this broker?
- * 3. Has the configured PAC day passed this month?
- *
- * If all conditions met, generates a pending PAC transaction via the store.
- * Uses useRef guard to prevent duplicate generation on re-render/HMR (Pitfall 2).
- */
+function migratePacStateFromLocalStorage(): Record<string, string> | null {
+  const migrated: Record<string, string> = {};
+  let found = false;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith('pac_last_')) {
+      const brokerId = key.replace('pac_last_', '');
+      migrated[brokerId] = localStorage.getItem(key) ?? '';
+      found = true;
+    }
+  }
+  return found ? migrated : null;
+}
+
 export function usePacAutomation() {
   const { user } = useAuthStore();
   const hasChecked = useRef(false);
+  const hasMigrated = useRef(false);
 
   useEffect(() => {
     if (!user) {
@@ -26,36 +33,40 @@ export function usePacAutomation() {
       return;
     }
 
-    // Prevent duplicate runs (Pitfall 2: HMR guard)
     if (hasChecked.current) return;
     hasChecked.current = true;
 
     const store = useInvestmentStore.getState();
-    const { brokerAccounts, pendingPacTransaction, addPendingPacTransaction } = store;
+    const { brokerAccounts, pacState, addPendingPacTransaction } = store;
 
-    // Only run if no pending PAC already exists
-    if (pendingPacTransaction) return;
+    if (!hasMigrated.current && Object.keys(pacState.perBrokerLastGeneration).length === 0) {
+      const localStorageData = migratePacStateFromLocalStorage();
+      if (localStorageData) {
+        hasMigrated.current = true;
+        const mergedPacState: PacState = {
+          ...pacState,
+          perBrokerLastGeneration: localStorageData,
+        };
+        const docRef = doc(db, 'users', user.uid);
+        updateDoc(docRef, { pacState: mergedPacState }).catch(() => {});
+        useInvestmentStore.getState().setAll({ pacState: mergedPacState });
+      }
+    }
+
+    if (pacState.pendingTransaction) return;
 
     const today = dayjs();
     const currentMonthKey = today.format('YYYY-MM');
 
     for (const broker of brokerAccounts) {
-      // Skip brokers without PAC configured
       if (!broker.monthlyPacAmount || broker.monthlyPacAmount <= 0) continue;
 
-      const storageKey = `pac_last_${broker.id}`;
-
-      // Check localStorage for per-broker tracking
-      const lastPacMonth = localStorage.getItem(storageKey);
+      const lastPacMonth = pacState.perBrokerLastGeneration[broker.id];
       if (lastPacMonth === currentMonthKey) continue;
 
-      // Also check store-level lastPacGenerationDate (backup check)
-      if (store.lastPacGenerationDate === currentMonthKey) continue;
+      if (pacState.lastGenerationDate === currentMonthKey) continue;
 
-      // Default PAC day is 1st of month
-      const pacDay = PAC_DAY; // Future: could be per-broker config
-
-      if (today.date() >= pacDay) {
+      if (today.date() >= PAC_DAY) {
         addPendingPacTransaction({
           brokerId: broker.id,
           amount: broker.monthlyPacAmount,
@@ -63,9 +74,19 @@ export function usePacAutomation() {
           status: 'pending',
         });
 
-        // Mark this month as generated (persist across refreshes)
-        localStorage.setItem(storageKey, currentMonthKey);
-        break; // Only generate one pending PAC at a time
+        const userId = useAuthStore.getState().user?.uid;
+        if (userId) {
+          const docRef = doc(db, 'users', userId);
+          const updatedPacState = {
+            ...useInvestmentStore.getState().pacState,
+            perBrokerLastGeneration: {
+              ...useInvestmentStore.getState().pacState.perBrokerLastGeneration,
+              [broker.id]: currentMonthKey,
+            },
+          };
+          updateDoc(docRef, { pacState: updatedPacState }).catch(() => {});
+        }
+        break;
       }
     }
   }, [user]);
