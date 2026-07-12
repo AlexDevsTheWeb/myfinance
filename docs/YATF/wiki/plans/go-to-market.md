@@ -13,6 +13,8 @@ related: ["wiki/plans/roadmap", "wiki/architecture/concerns-and-tech-debt", "wik
 Status: `active`
 Priority: **maximum**
 
+**Branches:** Phase 0 + 1.3/1.2 → `feat/YATF-138` merged to `development` (PR #140). Phase 1.1 → `feat/YATF-138-sub-collection` (PR #141).
+
 ## Goal
 
 Turn MyFinance (YAFT) into a validated SaaS product. Ship fast, validate with real users, monetize only after proven retention.
