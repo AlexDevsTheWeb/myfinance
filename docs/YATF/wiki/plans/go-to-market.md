@@ -10,7 +10,7 @@ related: ["wiki/plans/roadmap", "wiki/architecture/concerns-and-tech-debt", "wik
 
 # Plan: Go-to-Market
 
-Status: `active`
+Status: `active` — Phase 0 ✅, Phase 1 ✅
 Priority: **maximum**
 
 **Branches:** Phase 0 + 1.3/1.2 → `feat/YATF-138` merged to `development` (PR #140). Phase 1.1 → `feat/YATF-138-sub-collection` (PR #141).

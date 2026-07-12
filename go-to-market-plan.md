@@ -4,60 +4,61 @@
 
 ---
 
-## Phase 0: Quick Wins (Week 1)
+## Phase 0: Quick Wins ✅
 
-Before touching architecture, fix the things that will embarrass you with beta users.
+**Status: Complete.** Delivered on `feat/YATF-138` branch, PR #140 merged to `development`.
 
-| Task | Why | Effort |
+| Task | Status | PR |
 |---|---|---|
-| **Fix ticker bug** — `BrokerAccount.ticker` not persisted | Investments are the #1 selling point. If the ticker doesn't save, the feature is broken. | ~2h |
-| **Add error boundary** — wrap the app so a render crash shows a message instead of a white screen | First beta user hits a crash = lost beta user. | ~1h |
-| **Swap `alert()`/`confirm()` → MUI dialogs** in ConfigPage | Looks unprofessional. Beta users will notice. | ~1h |
-| **Add loading states** — skeleton/spinner on Dashboard, Transactions, Investments pages | Blank page on slow load = "is it broken?" | ~1 day |
+| **Fix ticker bug** — `BrokerAccount.ticker` not persisted | ✅ Fixed (issue #108, separate branch) | `fix/YATF-108` |
+| **Add error boundary** — wrap the app so a render crash shows a message instead of a white screen | ✅ `src/components/ErrorBoundary.tsx` | #140 |
+| **Swap `alert()`/`confirm()` → MUI dialogs** in ConfigPage | ✅ `ConfirmDialog` + `AlertSnackbar` | #140 |
+| **Add loading states** — skeleton/spinner on Dashboard, Transactions, Investments pages | ✅ `isLoading` in both stores, CircularProgress on all pages | #140 |
 
 **Deliverable:** App is demo-ready without immediate embarrassment.
 
 ---
 
-## Phase 1: Secure the Data (Weeks 2-3)
+## Phase 1: Secure the Data ✅
 
-Architectural changes to prevent data loss before anyone trusts the app.
+**Status: Complete.** Delivered on `feat/YATF-138-sub-collection` branch, PR #141 (ready for review).
 
-### 1.1 Migrate Transactions to Sub-collection
+### 1.1 Migrate Transactions to Sub-collection ✅
 
 **Problem:** `users/{uid}` is a single doc with a 1 MiB Firestore limit. All transactions live in an array field. Every write rewrites the whole array.
 
-**Solution:**
-1. Create `users/{uid}/transactions/{txnId}` sub-collection
-2. Write a one-time migration script that reads the array from the user doc and writes each transaction as a document
-3. Update `useSyncFinance` to listen to the sub-collection instead of the user doc field
-4. Update all write operations (`addTransaction`, `updateTransaction`, `deleteTransaction`) to target the sub-collection
-5. Keep the legacy field for backward compatibility during migration; remove after confirming all users migrated
+**Solution (4 phases):**
+1. ✅ **Phase A (Dual-write):** All CRUD ops write to both array + sub-collection
+2. ✅ **Phase B (Backfill):** `backfillTransactionsToSubCollection()` utility — batch copies array → sub-collection
+3. ✅ **Phase C (Flip reads):** `useSyncFinance` listens to sub-collection `onSnapshot` instead of doc field
+4. ✅ **Phase D (Remove legacy):** `transactions` removed from `UserDoc` interface, converter, all CRUD ops, sync listener. Sub-collection is sole persistence layer.
 
-**Risk:** This is the biggest change. Test thoroughly with a copy of real data.
+**Risk mitigated:** Tested with real data. Backup/restore verified compatible. Single user with backups confirmed safe.
 
-**Bonus:** Once on sub-collections, pagination becomes trivial (Firestore `limit()` + `startAfter()`).
+**Bonus:** Sub-collections enable trivial pagination (Firestore `limit()` + `startAfter()`).
 
-### 1.2 Move PAC State from localStorage to Firestore
+### 1.2 Move PAC State from localStorage to Firestore ✅
 
 **Problem:** `pendingPacTransaction` lives in localStorage. Clearing browser data loses the automation trail. No cross-device sync.
 
 **Solution:**
-- Add a `pacState` field (or sub-collection) to the user doc
-- Store last PAC generation date, next scheduled date, and any pending confirmation
-- Update `usePacAutomation` to read/write from Firestore instead of localStorage
+- `PacState` type + `pacState` field on `UserDoc`
+- `usePacAutomation` reads/writes Firestore instead of localStorage
+- `confirmPacTransaction` persists to Firestore
+- localStorage→Firestore migration on first mount
 
-### 1.3 Fix Recurring Transaction Race Condition
+### 1.3 Fix Recurring Transaction Race Condition ✅
 
 **Problem:** Wiki documents a race condition in `checkRecurring()` — called on every load and on recurring CRUD without debouncing, can generate duplicate transactions.
 
 **Solution:**
-- Add a generation lock (timestamp-based dedup on the Firestore side)
-- Debounce the check to run at most once per session
+- `lastGeneratedUpTo` field on `IRecurringTransaction` — Firestore-side dedup
+- Timestamp cooldown guard
+- Session debounce in `useSyncFinance` — `checkRecurring()` runs at most once per session
 
 ---
 
-## Phase 2: Soft Beta Launch (Week 4)
+## Phase 2: Soft Beta Launch (Next — Week 4)
 
 ### 2.1 Find 10-15 Beta Users
 
@@ -162,9 +163,9 @@ Only now — when revenue validates the effort — invest in codebase quality:
 ## Summary Timeline
 
 ```
-Week 1    ██  Quick wins (ticker fix, error boundary, loading states, MUI dialogs)
-Week 2-3  ████  Sub-collection migration, PAC fix, recurring race condition
-Week 4    ██  Beta launch — 10-15 testers, feedback channel
+Week 1    ██████  QUICK WINS ✅ + Phase 1 (ticker, error boundary, loading states, MUI dialogs)
+Week 2-3  ████████████████  Phase 1 complete (sub-collection migration, PAC fix, recurring race condition)
+Week 4    ██  Beta launch — 10-15 testers, feedback channel ⬅️ YOU ARE HERE
 Week 5-8  ████  Validation period — watch retention, collect feedback
 Week 9+   ████  Monetization — Stripe, landing page, pricing
 Ongoing   ████  Code cleanup, test coverage, feature requests
@@ -174,10 +175,11 @@ Ongoing   ████  Code cleanup, test coverage, feature requests
 
 ## What You Need to Do Right Now
 
-1. [ ] Fix the ticker bug — highest priority, unblocks the investment feature
-2. [ ] Add error boundary — 1 hour, prevents the worst first impression
-3. [ ] Plan the sub-collection migration — the real architectural work starts here
-4. [ ] Write the "beta invitation" post for r/ItaliaPersonalFinance (draft it now, publish after Phase 1 is done)
-5. [ ] Set up a Telegram group or Discord server for beta feedback
+1. [x] Fix the ticker bug — ✅ done
+2. [x] Add error boundary — ✅ done
+3. [x] Sub-collection migration + PAC fix + recurring dedup — ✅ Phase 1 done
+4. [ ] Draft the "beta invitation" post for r/ItaliaPersonalFinance — **next step**
+5. [ ] Set up a Telegram group or Discord server for beta feedback — **next step**
+6. [ ] Deploy to Firebase Hosting for beta access
 
 Want me to draft the Reddit post for the beta launch?
