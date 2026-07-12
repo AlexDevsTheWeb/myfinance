@@ -63,9 +63,10 @@ export const useInvestmentSync = () => {
             const data = remoteDoc.data() as unknown as Record<string, unknown>;
             const brokerAccounts = migrateBrokerConfig(data);
             const convertedData = data as Record<string, unknown>;
+            const snapshots = Array.isArray(convertedData.portfolioSnapshots) ? convertedData.portfolioSnapshots as never[] : [];
             setAll({
               etfTransactions: Array.isArray(convertedData.etfTransactions) ? convertedData.etfTransactions as never[] : [],
-              portfolioSnapshots: Array.isArray(convertedData.portfolioSnapshots) ? convertedData.portfolioSnapshots as never[] : [],
+              portfolioSnapshots: snapshots,
               brokerConfig: convertedData.brokerConfig as never ?? Defaults.DEFAULT_BROKER_CONFIG,
               brokerAccounts,
               cashAdjustments: Array.isArray(convertedData.cashAdjustments) ? convertedData.cashAdjustments as never[] : [],
@@ -110,9 +111,10 @@ export const useInvestmentSync = () => {
         const { setAll } = useInvestmentStore.getState();
         const brokerAccounts = migrateBrokerConfig(rawData);
         migrationAttempted.current = true;
+        const snapshots = Array.isArray(rawData.portfolioSnapshots) ? rawData.portfolioSnapshots as never[] : [];
         setAll({
           etfTransactions: Array.isArray(rawData.etfTransactions) ? rawData.etfTransactions as never[] : [],
-          portfolioSnapshots: Array.isArray(rawData.portfolioSnapshots) ? rawData.portfolioSnapshots as never[] : [],
+          portfolioSnapshots: snapshots,
           brokerConfig: rawData.brokerConfig as never ?? Defaults.DEFAULT_BROKER_CONFIG,
           brokerAccounts,
           cashAdjustments: Array.isArray(rawData.cashAdjustments) ? rawData.cashAdjustments as never[] : [],
