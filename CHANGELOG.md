@@ -1,4 +1,6 @@
 
+### [2026.10.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.0...v2026.10.1) (2026-07-12)
+
 ## [2026.10.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.9.0...v2026.10.0) (2026-07-12)
 
 
