@@ -11,10 +11,12 @@ export const useSyncFinance = () => {
 
   const isInitializing = useRef(false);
   const hasLoaded = useRef(false);
+  const hasCheckedRecurring = useRef(false);
 
   useEffect(() => {
     if (!user) {
       isInitializing.current = false;
+      hasCheckedRecurring.current = false;
       return;
     }
 
@@ -62,7 +64,10 @@ export const useSyncFinance = () => {
         if (!hasLoaded.current) {
           hasLoaded.current = true;
         }
-        checkRecurring();
+        if (!hasCheckedRecurring.current) {
+          hasCheckedRecurring.current = true;
+          checkRecurring();
+        }
       }
     });
 

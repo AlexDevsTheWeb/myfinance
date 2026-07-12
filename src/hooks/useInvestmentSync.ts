@@ -71,6 +71,7 @@ export const useInvestmentSync = () => {
               brokerAccounts,
               cashAdjustments: Array.isArray(convertedData.cashAdjustments) ? convertedData.cashAdjustments as never[] : [],
               dividendEntries: Array.isArray(convertedData.dividendEntries) ? convertedData.dividendEntries as never[] : [],
+              pacState: convertedData.pacState as never ?? { lastGenerationDate: null, pendingTransaction: null, perBrokerLastGeneration: {} },
               isLoading: false,
             });
           } else {
@@ -83,6 +84,7 @@ export const useInvestmentSync = () => {
               brokerAccounts: defaultConfig.brokerAccounts ?? Defaults.DEFAULT_BROKER_ACCOUNTS,
               cashAdjustments: defaultConfig.cashAdjustments ?? [],
               dividendEntries: defaultConfig.dividendEntries ?? [],
+              pacState: { lastGenerationDate: null, pendingTransaction: null, perBrokerLastGeneration: {} },
               isLoading: false,
             });
           }
@@ -119,6 +121,7 @@ export const useInvestmentSync = () => {
           brokerAccounts,
           cashAdjustments: Array.isArray(rawData.cashAdjustments) ? rawData.cashAdjustments as never[] : [],
           dividendEntries: Array.isArray(rawData.dividendEntries) ? rawData.dividendEntries as never[] : [],
+          pacState: rawData.pacState as never ?? { lastGenerationDate: null, pendingTransaction: null, perBrokerLastGeneration: {} },
           isLoading: !hasLoaded.current,
         });
         hasLoaded.current = true;

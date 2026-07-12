@@ -43,7 +43,7 @@ const InvestmentPage: React.FC = () => {
 
   usePacAutomation(); // Initialize PAC check on mount
 
-  const { brokerAccounts, selectedBrokerId, setSelectedBroker, etfTransactions, pendingPacTransaction, isLoading } = useInvestmentStore();
+  const { brokerAccounts, selectedBrokerId, setSelectedBroker, etfTransactions, pacState, isLoading } = useInvestmentStore();
   const portfolio = usePortfolio();
   const { refreshPrices, isUpdating } = useMarketData();
 
@@ -104,7 +104,7 @@ const InvestmentPage: React.FC = () => {
             selected={selectedBrokerId}
             onChange={setSelectedBroker}
           />
-          {pendingPacTransaction && (
+          {pacState.pendingTransaction && (
             <Badge badgeContent="!" color="warning" onClick={() => setPacDialogOpen(true)} sx={{ cursor: 'pointer' }}>
               <Button variant="outlined" color="warning">
                 PAC Pending

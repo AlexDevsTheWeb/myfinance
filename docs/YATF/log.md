@@ -386,3 +386,15 @@
 - Commented on [#138](https://github.com/AlexDevsTheWeb/myfinance/issues/138) with PR link
 - Archived OpenSpec change `go-to-market-phase-0` → `openspec/changes/archive/2026-07-12-go-to-market-phase-0/`
 - Updated [[wiki/plans/go-to-market]] — all Phase 0 checkboxes checked
+
+## [2026-07-12] ingest | Plan | Phase 1 — Secure the Data (#138)
+- Created [[raw/138-go-to-market/phase-1-analysis.md]] — codebase analysis of 3 sub-items (sub-collection migration, PAC Firestore persistence, recurring race condition) with risk assessment and recommended order (1.3 → 1.2 → 1.1)
+- Updated [[wiki/plans/go-to-market]] — Phase 1 expanded with detailed sub-tasks, file references, and solution designs
+- Updated index.md and log.md
+
+## [2026-07-12] implement | Phase 1 | Go-to-Market — Recurring dedup + PAC state persistence (#138)
+- Implemented 1.3 Recurring dedup: `lastGeneratedUpTo` field on `IRecurringTransaction`, `checkRecurring` uses Firestore-side dedup, session debounce in `useSyncFinance`, timestamp cooldown guard
+- Implemented 1.2 PAC state persistence: `PacState` type + `pacState` field on `UserDoc`, `usePacAutomation` reads/writes Firestore instead of localStorage, `confirmPacTransaction` persists to Firestore, localStorage migration on first mount
+- Updated [[wiki/plans/go-to-market]] — 1.3 and 1.2 tasks marked complete
+- Created OpenSpec change `go-to-market-phase-1` with proposal, design, 3 specs, tasks
+- Updated index.md and log.md

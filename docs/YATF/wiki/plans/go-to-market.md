@@ -2,10 +2,10 @@
 title: "Go-to-Market Plan"
 tags: [plan, strategy, go-to-market, saas]
 created: 2026-07-11
-updated: 2026-07-11
+updated: 2026-07-12
 status: active
-sources: ["raw/go-to-market/go-to-market.md"]
-related: ["wiki/plans/roadmap", "wiki/architecture/concerns-and-tech-debt", "wiki/decisions/saas-readiness", "wiki/queries/app-review"]
+sources: ["raw/go-to-market/go-to-market.md", "raw/138-go-to-market/phase-1-analysis.md"]
+related: ["wiki/plans/roadmap", "wiki/architecture/concerns-and-tech-debt", "wiki/decisions/saas-readiness", "wiki/queries/app-review", "wiki/features/pac-automation/pac-automation"]
 ---
 
 # Plan: Go-to-Market
@@ -30,14 +30,67 @@ Fix immediate embarrassments before showing the app to anyone.
 
 ### Phase 1 — Secure the Data (Weeks 2-3)
 
-Architectural hardening to prevent data loss.
+Architectural hardening to prevent data loss before beta.
 
-- [ ] Migrate transactions from `users/{uid}` array → `users/{uid}/transactions/{txnId}` sub-collection
-- [ ] One-time migration script (array → sub-collection)
-- [ ] Update `useSyncFinance` listener
-- [ ] Update all write operations to target sub-collection
-- [ ] Move PAC state from localStorage → Firestore
-- [ ] Fix recurring transaction race condition in `checkRecurring()` — timestamp-based dedup + session debounce
+**Recommended order:** 1.3 → 1.2 → 1.1 (smallest/fastest first, biggest last)
+
+#### 1.3 Fix Recurring Transaction Race Condition (smallest — do first)
+
+`checkRecurring()` called from 3 sources without debouncing: `onSnapshot`, `addRecurring()`, `updateRecurring()`. Guard `isCheckingRecurring` flag only prevents re-entrance, not concurrent calls.
+
+**Solution:**
+- Add `lastGeneratedUpTo` field to `IRecurringTransaction` for Firestore-side dedup
+- Add session-level ref guard (runs at most once per session)
+- Add timestamp-based debounce (min 5s between checks)
+
+**Files:** `src/store/useFinanceStore.ts`, `src/store/types/finance.types.ts`
+
+- [x] Add `lastGeneratedUpTo` to `IRecurringTransaction` type
+- [x] Update `checkRecurring` to use Firestore-side dedup via `lastGeneratedUpTo`
+- [x] Add session debounce ref in sync hook
+- [x] Add timestamp-based cooldown guard in store
+
+#### 1.2 Move PAC State from localStorage to Firestore ✅
+
+PAC state split across Zustand memory (`pendingPacTransaction`, `lastPacGenerationDate`) + localStorage (`pac_last_{brokerId}`). Lost on browser clear, no cross-device sync.
+
+**Solution:**
+- Add `pacState` field to `users/{uid}` doc with `lastGenerationDate`, `pendingTransaction`, `perBrokerLastGeneration`
+- Update `usePacAutomation` to read/write Firestore instead of localStorage
+- Write `lastGenerationDate` after each PAC confirmation
+
+**Files:** `src/hooks/usePacAutomation.ts`, `src/store/useInvestmentStore.ts`, `src/lib/converters.ts`, `src/components/investment/PacConfirmationDialog.tsx`
+
+- [x] Add `pacState` to `UserDoc` interface in converters
+- [x] Update `usePacAutomation` to read `pacState` from Firestore on mount
+- [x] Update `confirmPacTransaction` to persist `pacState` to Firestore
+- [x] Remove `pendingPacTransaction` fallback in Zustand (now in Firestore)
+- [x] One-time migration script: read localStorage keys → write to Firestore
+
+#### 1.1 Migrate Transactions to Sub-collection (largest — do last)
+
+All transactions stored as array in `users/{uid}` doc. Every write rewrites the entire array. Hits 1 MiB limit, no pagination, costly writes.
+
+**Solution:**
+- Create `users/{uid}/transactions/{txnId}` sub-collection
+- Phase A: Dual-write (array + sub-collection)
+- Phase B: One-time backfill script
+- Phase C: Flip reads (`useSyncFinance` → sub-collection listener)
+- Phase D: Remove legacy array field
+
+**Files:** `src/store/useFinanceStore.ts`, `src/hooks/useSyncFinance.ts`, `src/lib/converters.ts`, `src/store/types/finance.types.ts`, `firestore.rules`
+
+- [ ] Add `TransactionDoc` type and sub-collection converter
+- [ ] Update `firestore.rules` with sub-collection read/write rules
+- [ ] Dual-write: write to both array + sub-collection in CRUD operations
+- [ ] One-time backfill script to copy existing transactions to sub-collection
+- [ ] Flip reads: update `useSyncFinance` to listen to sub-collection
+- [ ] Update all readers (pages, hooks) to use sub-collection data
+- [ ] Remove legacy `transactions` field from `UserDoc`
+
+---
+
+[Detailed analysis](raw/138-go-to-market/phase-1-analysis.md)
 
 ### Phase 2 — Soft Beta Launch (Week 4)
 
@@ -81,5 +134,6 @@ Only after revenue validates the effort:
 ## References
 
 - Issue: [#138](https://github.com/AlexDevsTheWeb/myfinance/issues/138)
+- Phase 1 analysis: [raw/138-go-to-market/phase-1-analysis.md](raw/138-go-to-market/phase-1-analysis.md)
 - Source: [raw/go-to-market/go-to-market.md](raw/go-to-market/go-to-market.md)
-- Related: [[wiki/decisions/saas-readiness]], [[wiki/queries/app-review]], [[wiki/architecture/concerns-and-tech-debt]]
+- Related: [[wiki/decisions/saas-readiness]], [[wiki/queries/app-review]], [[wiki/architecture/concerns-and-tech-debt]], [[wiki/features/pac-automation/pac-automation]]
