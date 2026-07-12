@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
-import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, doc, updateDoc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { create } from 'zustand';
 import { db } from '../lib/firebase';
+import { getTransactionDocRef, getTransactionsCollectionRef } from '../lib/converters';
 import i18n from '../lib/i18n';
 import { useAuthStore } from './useAuthStore';
 import { useBudgetStore } from './useBudgetStore';
@@ -157,7 +158,6 @@ export const useFinanceStore = create<FinanceState>()(
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        // Validate transaction before saving
         const validation = validateTransaction(transaction);
         if (!validation.valid) {
           set({ saveError: validation.error, isSaving: false });
@@ -173,6 +173,13 @@ export const useFinanceStore = create<FinanceState>()(
           const docRef = doc(db, 'users', userId);
           const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
+
+          const txnRef = getTransactionDocRef(userId, transaction.id);
+          await setDoc(txnRef, {
+            ...Sanitization.sanitizeTransaction(transaction),
+            createdAt: undefined,
+          }).catch((err) => console.error('sub-collection write error:', err));
+
           set({ hasLocalChanges: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to add transaction';
@@ -188,7 +195,6 @@ export const useFinanceStore = create<FinanceState>()(
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        // Validate transaction before saving
         const validation = validateTransaction(transaction);
         if (!validation.valid) {
           set({ saveError: validation.error, isSaving: false });
@@ -205,6 +211,12 @@ export const useFinanceStore = create<FinanceState>()(
           });
           const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           await updateDoc(docRef, { transactions: sanitizedTransactions });
+
+          const txnRef = getTransactionDocRef(userId, transaction.id);
+          await setDoc(txnRef, {
+            ...Sanitization.sanitizeTransaction(transaction),
+            createdAt: undefined,
+          }).catch((err) => console.error('sub-collection write error:', err));
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to update transaction';
           set({ saveError: errorMessage, isSaving: false });
@@ -243,6 +255,9 @@ export const useFinanceStore = create<FinanceState>()(
             transactions: sanitizedTransactions,
             deletedRecurringInstances: currentDeletedInstances
           });
+
+          const txnRef = getTransactionDocRef(userId, id);
+          await deleteDoc(txnRef).catch((err) => console.error('sub-collection delete error:', err));
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete transaction';
           set({ saveError: errorMessage, isSaving: false });
@@ -294,6 +309,14 @@ export const useFinanceStore = create<FinanceState>()(
             transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()),
             isSaving: false
           });
+
+          const collRef = getTransactionsCollectionRef(userId);
+          const batch = writeBatch(db);
+          for (const txn of transactions) {
+            const txnRef = doc(collRef, txn.id);
+            batch.set(txnRef, Sanitization.sanitizeTransaction(txn));
+          }
+          await batch.commit().catch((err) => console.error('sub-collection batch write error:', err));
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to set transactions';
           set({ saveError: errorMessage, isSaving: false });
@@ -1214,10 +1237,11 @@ setBalanceStartDate: async (date) => {
           const payload = data as Backup.BackupPayload;
 
           const docRef = doc(db, 'users', userId);
+          const txnPayload = payload.transactions ?? [];
           await updateDoc(docRef, {
             initialBalance: payload.initialBalance ?? 0,
             accounts: payload.accounts ?? Defaults.DEFAULT_ACCOUNTS,
-            transactions: payload.transactions ?? [],
+            transactions: txnPayload,
             recurringTransactions: payload.recurringTransactions ?? [],
             categories: payload.categories ?? Defaults.DEFAULT_CATEGORIES,
             incomeCategories: payload.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
@@ -1237,6 +1261,14 @@ setBalanceStartDate: async (date) => {
             dividendEntries: payload.dividendEntries ?? [],
             deletedRecurringInstances: payload.deletedRecurringInstances ?? [],
           });
+
+          const collRef = getTransactionsCollectionRef(userId);
+          const batch = writeBatch(db);
+          for (const txn of txnPayload) {
+            const txnRef = doc(collRef, txn.id);
+            batch.set(txnRef, Sanitization.sanitizeTransaction(txn));
+          }
+          await batch.commit().catch((err) => console.error('sub-collection batch write error:', err));
 
           set({
             initialBalance: payload.initialBalance ?? 0,

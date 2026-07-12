@@ -16,19 +16,22 @@
 
 ## 3. Transaction Sub-collection Migration (1.1) — Phase A: Dual-write
 
-- [ ] 3.1 Add `TransactionDoc` Firestore type and sub-collection converter in `converters.ts`
-- [ ] 3.2 Update `firestore.rules` with read/write rules for `users/{uid}/transactions/{txnId}`
-- [ ] 3.3 Update `addTransaction` to write to both array (existing) + sub-collection (new)
-- [ ] 3.4 Update `updateTransaction` to update both array + sub-collection document
-- [ ] 3.5 Update `deleteTransaction` to delete both from array + sub-collection document
+- [x] 3.1 Add `TransactionDoc` Firestore type and sub-collection converter in `converters.ts`
+- [x] 3.2 Update `firestore.rules` with read/write rules for `users/{uid}/transactions/{txnId}`
+- [x] 3.3 Update `addTransaction` to write to both array (existing) + sub-collection (new)
+- [x] 3.4 Update `updateTransaction` to update both array + sub-collection document
+- [x] 3.5 Update `deleteTransaction` to delete both from array + sub-collection document
 
 ## 4. Transaction Sub-collection (1.1) — Phase B: Backfill + Phase C: Flip reads
 
-- [ ] 4.1 Write one-time backfill script: iterate all users, copy array transactions to sub-collection
-- [ ] 4.2 Update `useSyncFinance` to add `onSnapshot` listener on sub-collection alongside existing listener
+- [x] 4.1 Write one-time backfill script: iterate all users, copy array transactions to sub-collection
+- [x] 4.2 Update `useSyncFinance` to add `onSnapshot` listener on sub-collection alongside existing listener
 - [ ] 4.3 Verify sub-collection data matches array data (validation script after backfill)
 
-## 5. Transaction Sub-collection (1.1) — Phase D: Remove legacy
+## 5. Transaction Sub-collection (1.1) — Phase D: Remove legacy 🔒 DEFERRED
+
+> ⚠️ Deferred until backfill confirmed for all users. Removing legacy array field
+> will break any user who hasn't run the backfill script.
 
 - [ ] 5.1 Remove `transactions` field from `UserDoc` interface
 - [ ] 5.2 Remove legacy array writes from all CRUD operations

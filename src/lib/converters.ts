@@ -1,7 +1,67 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from 'dayjs';
-import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions } from 'firebase/firestore';
+import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions, Timestamp, doc, collection } from 'firebase/firestore';
+import { db } from './firebase';
 import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type ITransaction, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
+
+export interface TransactionDoc {
+  id: string;
+  date: string;
+  description: string;
+  category: string;
+  subcategory: string;
+  amount: number;
+  type: 'income' | 'expense' | 'transfer';
+  accountId: string;
+  recurringLinkId?: string | null;
+  consumption?: number | null;
+  readingDateStart?: string | null;
+  readingDateEnd?: string | null;
+  createdAt?: ReturnType<typeof Timestamp.now>;
+}
+
+export const transactionConverter: FirestoreDataConverter<TransactionDoc> = {
+  toFirestore: (tx: TransactionDoc): DocumentData => ({
+    id: tx.id,
+    date: tx.date,
+    description: tx.description,
+    category: tx.category,
+    subcategory: tx.subcategory,
+    amount: tx.amount,
+    type: tx.type,
+    accountId: tx.accountId,
+    recurringLinkId: tx.recurringLinkId ?? null,
+    consumption: tx.consumption ?? null,
+    readingDateStart: tx.readingDateStart ?? null,
+    readingDateEnd: tx.readingDateEnd ?? null,
+    createdAt: tx.createdAt ?? Timestamp.now(),
+  }),
+  fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): TransactionDoc => {
+    const data = snapshot.data(options);
+    return {
+      id: data.id ?? '',
+      date: data.date ?? '',
+      description: data.description ?? '',
+      category: data.category ?? '',
+      subcategory: data.subcategory ?? '',
+      amount: typeof data.amount === 'number' ? data.amount : 0,
+      type: data.type === 'income' || data.type === 'expense' || data.type === 'transfer' ? data.type : 'expense',
+      accountId: data.accountId ?? 'default-main',
+      recurringLinkId: data.recurringLinkId,
+      consumption: typeof data.consumption === 'number' ? data.consumption : (typeof data.consumption === 'string' && data.consumption !== '' ? Number(data.consumption) : undefined),
+      readingDateStart: data.readingDateStart,
+      readingDateEnd: data.readingDateEnd,
+    };
+  },
+};
+
+export function getTransactionDocRef(userId: string, txnId: string) {
+  return doc(db, 'users', userId, 'transactions', txnId).withConverter(transactionConverter);
+}
+
+export function getTransactionsCollectionRef(userId: string) {
+  return collection(db, 'users', userId, 'transactions').withConverter(transactionConverter);
+}
 
 export interface PacState {
   lastGenerationDate: string | null;

@@ -29,6 +29,13 @@ service cloud.firestore {
     match /users/{userId}/tax_events/{eventId} {
       allow read, write: if isOwner(userId);
     }
+
+    // Transaction subcollection: migrated from array field for scalability
+    match /users/{userId}/transactions/{txnId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
   }
-  }
+}
 }
