@@ -10,8 +10,10 @@ related: ["wiki/plans/roadmap", "wiki/architecture/concerns-and-tech-debt", "wik
 
 # Plan: Go-to-Market
 
-Status: `active`
+Status: `active` — Phase 0 ✅, Phase 1 ✅
 Priority: **maximum**
+
+**Branches:** Phase 0 + 1.3/1.2 → `feat/YATF-138` merged to `development` (PR #140). Phase 1.1 → `feat/YATF-138-sub-collection` (PR #141).
 
 ## Goal
 
@@ -67,26 +69,22 @@ PAC state split across Zustand memory (`pendingPacTransaction`, `lastPacGenerati
 - [x] Remove `pendingPacTransaction` fallback in Zustand (now in Firestore)
 - [x] One-time migration script: read localStorage keys → write to Firestore
 
-#### 1.1 Migrate Transactions to Sub-collection (largest — do last)
+#### 1.1 Migrate Transactions to Sub-collection (largest — do last) ✅
 
 All transactions stored as array in `users/{uid}` doc. Every write rewrites the entire array. Hits 1 MiB limit, no pagination, costly writes.
 
 **Solution:**
-- Create `users/{uid}/transactions/{txnId}` sub-collection
-- Phase A: Dual-write (array + sub-collection)
-- Phase B: One-time backfill script
-- Phase C: Flip reads (`useSyncFinance` → sub-collection listener)
-- Phase D: Remove legacy array field
+- Phase A: Dual-write (array + sub-collection) — ✅
+- Phase B: One-time backfill script — ✅
+- Phase C: Flip reads (`useSyncFinance` → sub-collection listener) — ✅
+- Phase D: Remove legacy array field — ✅ (only user, backups taken)
 
-**Files:** `src/store/useFinanceStore.ts`, `src/hooks/useSyncFinance.ts`, `src/lib/converters.ts`, `src/store/types/finance.types.ts`, `firestore.rules`
-
-- [ ] Add `TransactionDoc` type and sub-collection converter
-- [ ] Update `firestore.rules` with sub-collection read/write rules
-- [ ] Dual-write: write to both array + sub-collection in CRUD operations
-- [ ] One-time backfill script to copy existing transactions to sub-collection
-- [ ] Flip reads: update `useSyncFinance` to listen to sub-collection
-- [ ] Update all readers (pages, hooks) to use sub-collection data
-- [ ] Remove legacy `transactions` field from `UserDoc`
+- [x] Add `TransactionDoc` type and sub-collection converter (`src/lib/converters.ts`)
+- [x] Update `firestore.rules` with sub-collection read/write rules
+- [x] Dual-write: write to both array + sub-collection in CRUD operations
+- [x] One-time backfill script (`backfillTransactionsToSubCollection` in `src/store/sync/index.ts`)
+- [x] Flip reads: `useSyncFinance` listens to sub-collection
+- [x] Remove legacy `transactions` field from `UserDoc` (Phase D)
 
 ---
 

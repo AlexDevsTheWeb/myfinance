@@ -398,3 +398,19 @@
 - Updated [[wiki/plans/go-to-market]] — 1.3 and 1.2 tasks marked complete
 - Created OpenSpec change `go-to-market-phase-1` with proposal, design, 3 specs, tasks
 - Updated index.md and log.md
+
+## [2026-07-12] implement | Phase 1.1 | Transaction sub-collection migration (#138)
+- Implemented Phases A-C: dual-write (all CRUD + setTransactions + importAllData), backfill utility, sub-collection onSnapshot in useSyncFinance
+- Phase D (remove legacy array) deferred — needs backfill confirmed for all users
+- PR #140 merged to `development` (Phase 0 + 1.3 + 1.2)
+- New branch `feat/YATF-138-sub-collection` — PR #141 for 1.1 only
+- Updated [[wiki/plans/go-to-market]] — 1.1 sub-tasks marked complete (except Phase D)
+
+## [2026-07-12] implement | Phase 1.1 | Phase D — Remove legacy transactions array (#138)
+- Removed `transactions` from `UserDoc` interface, `toFirestore`, and `fromFirestore` in `converters.ts`
+- Removed legacy array `updateDoc` from all CRUD functions (`addTransaction`, `updateTransaction`, `deleteTransaction`, `setTransactions`, `importAllData`) — sub-collection is now the sole persistence layer
+- Updated `useSyncFinance` — removed `transactions` destructure from doc listener (field no longer exists on doc)
+- Updated `sync/index.ts` — `getDefaultUserConfig` no longer includes empty transactions array
+- Backfill utility preserved with type-safe legacy read for any remaining cleanup
+- Backup/restore unaffected: backup reads store (sub-collection populated), restore writes to sub-collection via batch
+- Only safe because single user with backups confirmed

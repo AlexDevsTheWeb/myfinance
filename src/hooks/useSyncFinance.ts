@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { runTransaction, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { getDefaultUserConfig, getUserDocRef } from '../store/sync';
+import { getTransactionsCollectionRef } from '../lib/converters';
 import { useAuthStore } from '../store/useAuthStore';
 import { useFinanceStore } from '../store/useFinanceStore';
 
@@ -12,17 +13,20 @@ export const useSyncFinance = () => {
   const isInitializing = useRef(false);
   const hasLoaded = useRef(false);
   const hasCheckedRecurring = useRef(false);
+  const subColLoaded = useRef(false);
 
   useEffect(() => {
     if (!user) {
       isInitializing.current = false;
       hasCheckedRecurring.current = false;
+      subColLoaded.current = false;
       return;
     }
 
     if (isInitializing.current) return;
 
     const docRef = getUserDocRef(user.uid);
+    const txnsRef = getTransactionsCollectionRef(user.uid);
 
     const initializeUser = async () => {
       isInitializing.current = true;
@@ -49,18 +53,14 @@ export const useSyncFinance = () => {
 
     initializeUser();
 
-    const unsub = onSnapshot(docRef, (doc) => {
-      if (doc.metadata.hasPendingWrites) {
-        return;
-      }
+    const unsubDoc = onSnapshot(docRef, (doc) => {
+      if (doc.metadata.hasPendingWrites) return;
       if (doc.exists() && !isInitializing.current) {
         const storeState = useFinanceStore.getState();
-        if (storeState.isSaving || storeState.hasLocalChanges) {
-          return;
-        }
+        if (storeState.isSaving || storeState.hasLocalChanges) return;
         const data = doc.data();
         const { setAll, checkRecurring } = useFinanceStore.getState();
-        setAll({ ...data, isLoading: !hasLoaded.current });
+        setAll({ ...data, isLoading: !(hasLoaded.current || subColLoaded.current) });
         if (!hasLoaded.current) {
           hasLoaded.current = true;
         }
@@ -71,6 +71,18 @@ export const useSyncFinance = () => {
       }
     });
 
-    return () => unsub();
+    const unsubTxns = onSnapshot(txnsRef, (snapshot) => {
+      if (!subColLoaded.current) {
+        subColLoaded.current = true;
+      }
+      const transactions = snapshot.docs.map(d => d.data());
+      const sorted = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      useFinanceStore.getState().setAll({ transactions: sorted as never[], isLoading: false });
+    });
+
+    return () => {
+      unsubDoc();
+      unsubTxns();
+    };
   }, [user, setAll]);
 };

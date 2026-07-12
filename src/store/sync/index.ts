@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
-import { doc, onSnapshot, runTransaction, type DocumentReference } from 'firebase/firestore';
+import { doc, onSnapshot, runTransaction, writeBatch, type DocumentReference } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import { userDocConverter, type UserDoc } from '../../lib/converters';
+import { userDocConverter, getTransactionsCollectionRef, type UserDoc } from '../../lib/converters';
+import type { ITransaction } from '../types';
 import * as Defaults from '../defaults';
 
 export function getDefaultUserConfig(): UserDoc {
   const firstDayOfMonth = dayjs().startOf('month').format('YYYY-MM-DD');
 
   return {
-    transactions: [],
     initialBalance: Defaults.DEFAULT_INITIAL_BALANCE,
     accounts: Defaults.DEFAULT_ACCOUNTS,
     categories: Defaults.DEFAULT_CATEGORIES,
@@ -46,6 +46,57 @@ export interface SyncConfig {
 export const DEFAULT_SYNC_CONFIG: SyncConfig = {
   runRecurringCheck: true,
 };
+
+/**
+ * One-time backfill: copies transactions from the legacy array field
+ * to the transactions sub-collection. Idempotent — skips docs that
+ * already exist in the sub-collection.
+ */
+export async function backfillTransactionsToSubCollection(userId: string): Promise<{ written: number; skipped: number }> {
+  // Use raw doc ref (no converter) to read the legacy transactions field
+  // which still exists in Firestore even after Phase D removed it from UserDoc
+  const rawDocRef = doc(db, 'users', userId);
+  const remoteDoc = await runTransaction(db, async (transaction) => {
+    return transaction.get(rawDocRef);
+  });
+
+  if (!remoteDoc.exists()) return { written: 0, skipped: 0 };
+
+  const data = remoteDoc.data();
+  const legacyTransactions = data?.transactions;
+  const transactions: ITransaction[] = Array.isArray(legacyTransactions) ? legacyTransactions : [];
+  if (transactions.length === 0) return { written: 0, skipped: 0 };
+
+  const collRef = getTransactionsCollectionRef(userId);
+  let written = 0;
+  let skipped = 0;
+
+  const batch = writeBatch(db);
+  for (const txn of transactions) {
+    const txnRef = doc(collRef, txn.id);
+    batch.set(txnRef, {
+      id: txn.id,
+      date: txn.date,
+      description: txn.description,
+      category: txn.category,
+      subcategory: txn.subcategory,
+      amount: txn.amount,
+      type: txn.type,
+      accountId: txn.accountId,
+      recurringLinkId: txn.recurringLinkId ?? null,
+      consumption: txn.consumption ?? null,
+      readingDateStart: txn.readingDateStart ?? null,
+      readingDateEnd: txn.readingDateEnd ?? null,
+    });
+    written++;
+  }
+
+  if (written > 0) {
+    await batch.commit();
+  }
+
+  return { written, skipped };
+}
 
 export async function initializeUserData(
   userId: string,
