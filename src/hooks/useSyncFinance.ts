@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { runTransaction, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { getDefaultUserConfig, getUserDocRef, backfillTransactionsToSubCollection } from '../store/sync';
+import { getDefaultUserConfig, getUserDocRef } from '../store/sync';
 import { getTransactionsCollectionRef } from '../lib/converters';
 import { useAuthStore } from '../store/useAuthStore';
 import { useFinanceStore } from '../store/useFinanceStore';
@@ -14,14 +14,12 @@ export const useSyncFinance = () => {
   const hasLoaded = useRef(false);
   const hasCheckedRecurring = useRef(false);
   const subColLoaded = useRef(false);
-  const hasBackfilled = useRef(false);
 
   useEffect(() => {
     if (!user) {
       isInitializing.current = false;
       hasCheckedRecurring.current = false;
       subColLoaded.current = false;
-      hasBackfilled.current = false;
       return;
     }
 
@@ -45,14 +43,6 @@ export const useSyncFinance = () => {
           }
           hasLoaded.current = true;
         });
-
-        if (!hasBackfilled.current) {
-          hasBackfilled.current = true;
-          const { written } = await backfillTransactionsToSubCollection(user.uid);
-          if (written > 0) {
-            console.log(`Backfilled ${written} transaction(s) from legacy array to sub-collection`);
-          }
-        }
       } catch (error) {
         console.error('Error in initializeUser transaction:', error);
         useFinanceStore.getState().setAll({ isLoading: false });
