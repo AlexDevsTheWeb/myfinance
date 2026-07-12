@@ -336,6 +336,7 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       saveError,
       cashAdjustments,
       dividendEntries,
+      isLoading,
     } = data;
 
     set({
@@ -354,6 +355,7 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       saveError: saveError !== undefined ? saveError : get().saveError,
       cashAdjustments: cashAdjustments ?? get().cashAdjustments,
       dividendEntries: dividendEntries ?? get().dividendEntries,
+      isLoading: isLoading ?? get().isLoading,
     });
   },
 
