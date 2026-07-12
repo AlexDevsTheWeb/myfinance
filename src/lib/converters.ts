@@ -2,7 +2,7 @@
 import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions, Timestamp, doc, collection } from 'firebase/firestore';
 import { db } from './firebase';
-import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type ITransaction, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
+import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
 
 export interface TransactionDoc {
   id: string;
@@ -75,7 +75,6 @@ export interface PacState {
 }
 
 export interface UserDoc {
-  transactions: ITransaction[];
   initialBalance: number;
   categories: ICategory[];
   incomeCategories: ICategory[];
@@ -103,20 +102,6 @@ export interface UserDoc {
 export const userDocConverter: FirestoreDataConverter<UserDoc> = {
   toFirestore: (userDoc: UserDoc): DocumentData => {
     return {
-      transactions: userDoc.transactions.map(t => ({
-        id: t.id,
-        date: t.date,
-        description: t.description,
-        category: t.category,
-        subcategory: t.subcategory,
-        amount: t.amount,
-        type: t.type,
-        accountId: t.accountId,
-        recurringLinkId: t.recurringLinkId ?? null,
-        consumption: t.consumption ?? null,
-        readingDateStart: t.readingDateStart ?? null,
-        readingDateEnd: t.readingDateEnd ?? null,
-      })),
       initialBalance: userDoc.initialBalance || 0,
       categories: userDoc.categories,
       incomeCategories: userDoc.incomeCategories,
@@ -155,22 +140,6 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): UserDoc => {
     const data = snapshot.data(options);
-
-    // Basic validation and type casting
-    const transactions: ITransaction[] = Array.isArray(data.transactions) ? data.transactions.map((t: any) => ({
-      id: t.id ?? '',
-      date: t.date ?? '',
-      description: t.description ?? '',
-      category: t.category ?? '',
-      subcategory: t.subcategory ?? '',
-      amount: typeof t.amount === 'number' ? t.amount : 0,
-      type: t.type === 'income' || t.type === 'expense' || t.type === 'transfer' ? t.type : 'expense',
-      accountId: t.accountId ?? 'default-main',
-      recurringLinkId: t.recurringLinkId,
-      consumption: typeof t.consumption === 'number' ? t.consumption : (typeof t.consumption === 'string' && t.consumption !== '' ? Number(t.consumption) : undefined),
-      readingDateStart: t.readingDateStart,
-      readingDateEnd: t.readingDateEnd,
-    })) : [];
 
     const initialBalance: number = typeof data.initialBalance === 'number' ? data.initialBalance : 0;
 
@@ -322,7 +291,6 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
     };
 
     return {
-      transactions,
       initialBalance,
       categories,
       incomeCategories,

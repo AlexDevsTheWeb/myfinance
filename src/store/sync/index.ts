@@ -2,13 +2,13 @@ import dayjs from 'dayjs';
 import { doc, onSnapshot, runTransaction, writeBatch, type DocumentReference } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { userDocConverter, getTransactionsCollectionRef, type UserDoc } from '../../lib/converters';
+import type { ITransaction } from '../types';
 import * as Defaults from '../defaults';
 
 export function getDefaultUserConfig(): UserDoc {
   const firstDayOfMonth = dayjs().startOf('month').format('YYYY-MM-DD');
 
   return {
-    transactions: [],
     initialBalance: Defaults.DEFAULT_INITIAL_BALANCE,
     accounts: Defaults.DEFAULT_ACCOUNTS,
     categories: Defaults.DEFAULT_CATEGORIES,
@@ -60,8 +60,8 @@ export async function backfillTransactionsToSubCollection(userId: string): Promi
 
   if (!remoteDoc.exists()) return { written: 0, skipped: 0 };
 
-  const data = remoteDoc.data();
-  const transactions = data.transactions ?? [];
+  const data = remoteDoc.data() as unknown as Record<string, unknown>;
+  const transactions = (data.transactions ?? []) as ITransaction[];
   if (transactions.length === 0) return { written: 0, skipped: 0 };
 
   const collRef = getTransactionsCollectionRef(userId);

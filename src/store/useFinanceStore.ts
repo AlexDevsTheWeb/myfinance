@@ -170,15 +170,12 @@ export const useFinanceStore = create<FinanceState>()(
             const sorted = [transaction, ...state.transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
             return { transactions: sorted, isSaving: false };
           });
-          const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
-          await updateDoc(docRef, { transactions: sanitizedTransactions });
 
           const txnRef = getTransactionDocRef(userId, transaction.id);
           await setDoc(txnRef, {
             ...Sanitization.sanitizeTransaction(transaction),
             createdAt: undefined,
-          }).catch((err) => console.error('sub-collection write error:', err));
+          });
 
           set({ hasLocalChanges: false });
         } catch (err) {
@@ -203,20 +200,17 @@ export const useFinanceStore = create<FinanceState>()(
 
         set({ saveError: null, isSaving: true });
         try {
-          const docRef = doc(db, 'users', userId);
           set((state) => {
             const newTransactions = state.transactions.map((t) => (t.id === transaction.id ? transaction : t));
             const sorted = newTransactions.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
             return { transactions: sorted, isSaving: false };
           });
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
-          await updateDoc(docRef, { transactions: sanitizedTransactions });
 
           const txnRef = getTransactionDocRef(userId, transaction.id);
           await setDoc(txnRef, {
             ...Sanitization.sanitizeTransaction(transaction),
             createdAt: undefined,
-          }).catch((err) => console.error('sub-collection write error:', err));
+          });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to update transaction';
           set({ saveError: errorMessage, isSaving: false });
@@ -249,15 +243,13 @@ export const useFinanceStore = create<FinanceState>()(
             };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           const currentDeletedInstances = useFinanceStore.getState().deletedRecurringInstances;
           await updateDoc(docRef, {
-            transactions: sanitizedTransactions,
             deletedRecurringInstances: currentDeletedInstances
           });
 
           const txnRef = getTransactionDocRef(userId, id);
-          await deleteDoc(txnRef).catch((err) => console.error('sub-collection delete error:', err));
+          await deleteDoc(txnRef);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete transaction';
           set({ saveError: errorMessage, isSaving: false });
@@ -303,20 +295,18 @@ export const useFinanceStore = create<FinanceState>()(
 
         set({ saveError: null, isSaving: true });
         try {
-          const docRef = doc(db, 'users', userId);
-          await updateDoc(docRef, { transactions });
-          set({
-            transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()),
-            isSaving: false
-          });
-
           const collRef = getTransactionsCollectionRef(userId);
           const batch = writeBatch(db);
           for (const txn of transactions) {
             const txnRef = doc(collRef, txn.id);
             batch.set(txnRef, Sanitization.sanitizeTransaction(txn));
           }
-          await batch.commit().catch((err) => console.error('sub-collection batch write error:', err));
+          await batch.commit();
+
+          set({
+            transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()),
+            isSaving: false
+          });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to set transactions';
           set({ saveError: errorMessage, isSaving: false });
@@ -1241,7 +1231,6 @@ setBalanceStartDate: async (date) => {
           await updateDoc(docRef, {
             initialBalance: payload.initialBalance ?? 0,
             accounts: payload.accounts ?? Defaults.DEFAULT_ACCOUNTS,
-            transactions: txnPayload,
             recurringTransactions: payload.recurringTransactions ?? [],
             categories: payload.categories ?? Defaults.DEFAULT_CATEGORIES,
             incomeCategories: payload.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,

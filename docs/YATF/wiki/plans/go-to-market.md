@@ -77,14 +77,14 @@ All transactions stored as array in `users/{uid}` doc. Every write rewrites the 
 - Phase A: Dual-write (array + sub-collection) — ✅
 - Phase B: One-time backfill script — ✅
 - Phase C: Flip reads (`useSyncFinance` → sub-collection listener) — ✅
-- Phase D: Remove legacy array field — 🔒 Deferred until backfill confirmed for all users
+- Phase D: Remove legacy array field — ✅ (only user, backups taken)
 
 - [x] Add `TransactionDoc` type and sub-collection converter (`src/lib/converters.ts`)
 - [x] Update `firestore.rules` with sub-collection read/write rules
 - [x] Dual-write: write to both array + sub-collection in CRUD operations
 - [x] One-time backfill script (`backfillTransactionsToSubCollection` in `src/store/sync/index.ts`)
 - [x] Flip reads: `useSyncFinance` listens to sub-collection
-- [ ] Remove legacy `transactions` field from `UserDoc` (Phase D — deferred)
+- [x] Remove legacy `transactions` field from `UserDoc` (Phase D)
 
 ---
 

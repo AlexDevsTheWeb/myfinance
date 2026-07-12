@@ -28,12 +28,12 @@
 - [x] 4.2 Update `useSyncFinance` to add `onSnapshot` listener on sub-collection alongside existing listener
 - [ ] 4.3 Verify sub-collection data matches array data (validation script after backfill)
 
-## 5. Transaction Sub-collection (1.1) — Phase D: Remove legacy 🔒 DEFERRED
+## 5. Transaction Sub-collection (1.1) — Phase D: Remove legacy ✅
 
-> ⚠️ Deferred until backfill confirmed for all users. Removing legacy array field
-> will break any user who hasn't run the backfill script.
+> ⚠️ Safe to land because I'm the only user with backups.
+> After Phase D, backup/restore still works: backup reads from store (populated by sub-collection `onSnapshot`), restore writes to sub-collection via batch.
 
-- [ ] 5.1 Remove `transactions` field from `UserDoc` interface
-- [ ] 5.2 Remove legacy array writes from all CRUD operations
-- [ ] 5.3 Remove `transactions` from sync hook listener
-- [ ] 5.4 Update `converters.ts` — remove legacy array field defaults and serialization
+- [x] 5.1 Remove `transactions` field from `UserDoc` interface
+- [x] 5.2 Remove legacy array writes from all CRUD operations
+- [x] 5.3 Remove `transactions` from sync hook listener (was already destructured out; just removed the destructure)
+- [x] 5.4 Update `converters.ts` — remove legacy array field defaults and serialization

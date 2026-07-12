@@ -60,8 +60,7 @@ export const useSyncFinance = () => {
         if (storeState.isSaving || storeState.hasLocalChanges) return;
         const data = doc.data();
         const { setAll, checkRecurring } = useFinanceStore.getState();
-        const { transactions: _txns, ...rest } = data;
-        setAll({ ...rest, isLoading: !(hasLoaded.current || subColLoaded.current) });
+        setAll({ ...data, isLoading: !(hasLoaded.current || subColLoaded.current) });
         if (!hasLoaded.current) {
           hasLoaded.current = true;
         }
