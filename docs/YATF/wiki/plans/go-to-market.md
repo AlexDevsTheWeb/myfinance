@@ -23,10 +23,10 @@ Turn MyFinance (YAFT) into a validated SaaS product. Ship fast, validate with re
 
 Fix immediate embarrassments before showing the app to anyone.
 
-- [ ] Fix ticker bug — `BrokerAccount.ticker` not persisted
-- [ ] Add error boundary — wrap app to catch render crashes
-- [ ] Swap `alert()`/`confirm()` → MUI dialogs in ConfigPage
-- [ ] Add loading states (skeletons/spinners) on Dashboard, Transactions, Investments
+- [x] Fix ticker bug — `BrokerAccount.ticker` not persisted
+- [x] Add error boundary — wrap app to catch render crashes
+- [x] Swap `alert()`/`confirm()` → MUI dialogs in ConfigPage
+- [x] Add loading states (skeletons/spinners) on Dashboard, Transactions, Investments
 
 ### Phase 1 — Secure the Data (Weeks 2-3)
 

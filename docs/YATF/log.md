@@ -380,3 +380,9 @@
 - Created [[wiki/features/loading-states/loading-states]]
 - Updated [[wiki/plans/go-to-market]] — Phase 0 tasks marked complete
 - Updated index.md (56 pages) and log.md
+
+## [2026-07-12] ship | Phase 0 | PR #140 + OpenSpec archive
+- Created PR [#140](https://github.com/AlexDevsTheWeb/myfinance/pull/140) from `feat/YATF-138` → `development`
+- Commented on [#138](https://github.com/AlexDevsTheWeb/myfinance/issues/138) with PR link
+- Archived OpenSpec change `go-to-market-phase-0` → `openspec/changes/archive/2026-07-12-go-to-market-phase-0/`
+- Updated [[wiki/plans/go-to-market]] — all Phase 0 checkboxes checked
