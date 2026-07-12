@@ -1,325 +1,252 @@
-<!-- refreshed: 2026-06-22 -->
+<!-- refreshed: 2026-07-11 -->
 # Architecture
 
-**Analysis Date:** 2026-06-22
+**Analysis Date:** 2026-07-11
 
 ## System Overview
 
 ```text
-┌───────────────────────────────────────────────────────────────────┐
-│                        AUTH LAYER                                  │
-│  LoginPage ──► Firebase Auth ──► onAuthStateChanged ──► Zustand   │
-│  `src/pages/LoginPage.tsx`    `src/lib/firebase.ts`                │
-└───────────────────────────┬───────────────────────────────────────┘
-                            │ user
-                            ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                    ENTRY POINT / PROVIDER LAYER                     │
-│  main.tsx  ThemeProvider  LocalizationProvider  I18nextProvider     │
-│  `src/main.tsx`  MUI theme  dayjs adapter  i18n                     │
-└───────────────────────────┬───────────────────────────────────────┘
-                            │
-                            ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                      ROUTING & AUTH GATE                            │
-│  App.tsx ── BrowserRouter ── Routes ── ProtectedRoute              │
-│  `src/App.tsx` (line 57-103)  8 protected page routes              │
-│  ProtectedRoute checks user auth, wraps in <Layout>                │
-└───────────────────────────┬───────────────────────────────────────┘
-                            │
-          ┌─────────────────┼─────────────────┐
-          ▼                 ▼                   ▼
-┌──────────────────┐ ┌──────────────────┐ ┌──────────────────────┐
-│  PAGES LAYER      │ │  ANALYTICS       │ │ COMPONENTS LAYER     │
-│  DashboardPage    │ │  useNetWorth     │ │ Layout.tsx           │
-│  Transactions     │ │  useCategory     │ │ RecapCards           │
-│  ConfigPage       │ │  Breakdown       │ │ Charts               │
-│  SalaryPage       │ │  useAccount      │ │ TransactionTable     │
-│  InsightsPage     │ │  Breakdown       │ │ TransactionModal     │
-│  CarPage          │ │  Chart widgets   │ │ TransactionForm      │
-│  UtilitiesPage    │ │                  │ │ AccountCard          │
-│  `src/pages/`     │ │  `src/analytics/`│ │ `src/components/`    │
-└────────┬─────────┘ └────────┬─────────┘ └───────────┬──────────┘
-         │                    │                        │
-         ▼                    ▼                        ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                        STATE LAYER (Zustand)                       │
-│                                                                     │
-│  useAuthStore ──────► Auth state (user, loading, isLoggingOut)     │
-│  `src/store/useAuthStore.ts`                                        │
-│                                                                     │
-│  useFinanceStore ───► Financial data + all CRUD actions             │
-│  `src/store/useFinanceStore.ts`                                     │
-│    ├─ types/          Finance type definitions (I-prefixed)         │
-│    ├─ validation/     Transaction/recurring validation              │
-│    ├─ sanitization/   Data sanitization for Firestore               │
-│    ├─ backup/         Data export/import with validation            │
-│    ├─ sync/           Firestore init + snapshot sync helpers        │
-│    └─ defaults.ts     Default accounts, categories, settings        │
-└───────────────────────────┬───────────────────────────────────────┘
-                            │
-                            ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                    DATA PERSISTENCE LAYER                           │
-│                                                                     │
-│  Firebase Firestore ──► users/{userId} document                     │
-│    ├─ FirestoreDataConverter (userDocConverter)                     │
-│    │  `src/lib/converters.ts`                                       │
-│    ├─ Firestore onSnapshot (realtime sync)                          │
-│    │  `src/hooks/useSyncFinance.ts`  (line 47-61)                   │
-│    └─ Firestore runTransaction (user init)                          │
-│       `src/hooks/useSyncFinance.ts`  (line 24-43)                   │
-│                                                                     │
-│  Firebase Auth ──► Google + email/password providers                 │
-│    `src/lib/firebase.ts`                                            │
-└───────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                        Presentation Layer                            │
+│        React 19 + TypeScript · MUI v6 · React Router v7              │
+├───────────────────────┬───────────────────────┬───────────────────────┤
+│   Pages (src/pages/)  │  Layout & Navigation  │   Shared Components   │
+│   DashboardPage       │  Layout.tsx           │   TransactionModal    │
+│   TransactionsPage    │  Sidebar.tsx          │   TransactionForm     │
+│   FinancePage         │  Breadcrumbs           │   TransactionError    │
+│   InvestmentsPage     │  FAB (+ button)        │   ...                 │
+│   BudgetPage          │                       │                        │
+│   CarPage             │                       │                        │
+│   ... (13 total)      │                       │                        │
+└───────────┬───────────┴───────────┬───────────┴────────────┬──────────┘
+            │                       │                        │
+            ▼                       ▼                        ▼
+┌───────────────────────────────────────────────────────────────────────┐
+│                         State / Logic Layer                           │
+│                   Zustand Stores · Custom Hooks                        │
+├──────────────────────┬──────────────────────┬─────────────────────────┤
+│  useAuthStore        │  useFinanceStore     │  useInvestmentStore     │
+│  (auth state)        │  (transactions,      │  (ETF, portfolio,      │
+│                      │   accounts, cats,    │   broker config,       │
+│  useBudgetStore      │   recurring, car,    │   dividends, cash)     │
+│  (budget targets)    │   utilities)         │                         │
+│                      │                       │                         │
+│  useProjection-      │  Hooks:              │  Analytics hooks:      │
+│  SettingsStore        │  useSyncFinance      │  usePortfolio          │
+│                      │  useInvestmentSync   │  useNetWorth           │
+│                      │  useBudgetSync       │  useCategoryBreakdown  │
+│                      │  useMarketData       │  useMonthlyComparison  │
+│                      │  usePacAutomation    │  useAccountBreakdown   │
+│                      │  useProjections      │  useTaxTracking        │
+└───────────┬──────────┴───────────┬──────────┴────────────┬────────────┘
+            │                      │                       │
+            ▼                      ▼                       ▼
+┌───────────────────────────────────────────────────────────────────────┐
+│                        Data / Persistence Layer                       │
+│                Firebase · Firestore · i18n · localStorage              │
+├───────────────────────────────────────────────────────────────────────┤
+│  Firestore: users/{userId} (single doc with all user data)            │
+│  Firestore Converter: userDocConverter (src/lib/converters.ts)        │
+│  Backup/Import: JSON export via Backup module                         │
+│  i18n: react-i18next with localStorage caching                        │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Component Responsibilities
 
 | Component | Responsibility | File |
 |-----------|----------------|------|
-| `App` | Auth listener, route definition, ProtectedRoute gate | `src/App.tsx` |
-| `Layout` | AppBar, nav drawer, breadcrumbs, FAB for new tx, TransactionModal | `src/components/layout/Layout.tsx` |
-| `LoginPage` | Google OAuth + email/password sign-in/register | `src/pages/LoginPage.tsx` |
-| `DashboardPage` | Home: recap cards, net worth chart, account breakdown, tx table | `src/pages/DashboardPage.tsx` |
-| `ConfigPage` | Categories, accounts, recurring, backup/restore, modules, language | `src/pages/ConfigPage.tsx` |
-| `InsightsPage` | Analytics: pie/bar/line charts, net worth, monthly comparison | `src/pages/InsightsPage.tsx` |
-| `useFinanceStore` | All finance CRUD (transactions, accounts, categories, recurring, car, tires, backup) | `src/store/useFinanceStore.ts` |
-| `useAuthStore` | Auth state (user, loading, isLoggingOut) | `src/store/useAuthStore.ts` |
-| `useSyncFinance` | Firestore init transaction + realtime snapshot subscription | `src/hooks/useSyncFinance.ts` |
-| `useNetWorth` | Computed net worth time series from transactions | `src/analytics/hooks/useNetWorth.ts` |
-| `useCategoryBreakdown` | Computed spending breakdown by category/subcategory | `src/analytics/hooks/useCategoryBreakdown.ts` |
-| `useAccountBreakdown` | Computed per-account balance breakdown | `src/analytics/hooks/useAccountBreakdown.ts` |
-| `useMonthlyComparison` | Computed month-over-month and year-over-year comparison | `src/analytics/hooks/useMonthlyComparison.ts` |
-| `userDocConverter` | FirestoreDataConverter for typed read/write to users/{uid} | `src/lib/converters.ts` |
+| Auth Store | User authentication state, loading state | `src/store/useAuthStore.ts` |
+| Finance Store | Core finance data (transactions, accounts, categories, recurring, car, utilities) | `src/store/useFinanceStore.ts` |
+| Investment Store | ETF transactions, portfolio snapshots, broker accounts, PAC, dividends | `src/store/useInvestmentStore.ts` |
+| Budget Store | Budget targets CRUD | `src/store/useBudgetStore.ts` |
+| Projection Settings Store | Inflation/tax rate settings from Firestore | `src/store/useProjectionSettingsStore.ts` |
+| Sync (Finance) | Firestore read/init/subscribe → calls `setAll` on finance store | `src/hooks/useSyncFinance.ts` |
+| Sync (Investment) | Firestore read/init/subscribe → calls `setAll` on investment store | `src/hooks/useInvestmentSync.ts` |
+| Sync (Budget) | Firestore read/init/subscribe → calls `setBudgetTargets` | `src/hooks/useBudgetSync.ts` |
+| Budget Engine | Pure functions: `computeBudgetProgress`, `computeSavingsRate`, `computeBurnUpData` | `src/lib/budgetEngine.ts` |
+| Analytics | Self-contained analytics hooks & chart components for insights | `src/analytics/` |
+| Layout | App shell with sidebar, breadcrumbs, FAB, TransactionModal | `src/components/layout/Layout.tsx` |
+| Sidebar | Navigation drawer with collapsible mode, module-aware items | `src/components/layout/Sidebar.tsx` |
 
 ## Pattern Overview
 
-**Overall:** Single-page application (SPA) with Zustand-based state management and Firebase backend. The app follows a **layered architecture** with unidirectional data flow: UI → Zustand actions → Firestore writes → Firestore snapshot → Zustand state → UI re-render.
+**Overall:** Single-document Firestore persistence with optimistic Zustand stores and real-time sync
 
 **Key Characteristics:**
-- **Global state via Zustand stores** — Two stores: `useAuthStore` (simple, 3 fields) and `useFinanceStore` (large, ~50KB+ with ~70 actions)
-- **Optimistic updates with rollback** — Store mutations happen immediately (`set`), then Firestore write is attempted; on error, the state is reverted (e.g., `addTransaction` at line 184-187)
-- **Realtime sync via Firestore `onSnapshot`** — Changes from other devices/tabs propagate through Firestore snapshot listener in `useSyncFinance.ts` (line 47-61)
-- **Computed analytics via `useMemo` hooks** — Analytics hooks derive data from `useFinanceStore` transactions using `useMemo`; no separate cache
-- **Firestore document per user** — All user data stored in a single Firestore doc `users/{userId}` (denormalized, no subcollections)
-- **Modular store subdirectories** — `types/`, `validation/`, `sanitization/`, `backup/`, `sync/` organized as folders under `src/store/`
+- All user data stored in a single Firestore document: `users/{userId}`
+- Three independent Zustand stores, each synced to different slices of the same Firestore document
+- Optimistic updates with Firestore write-then-rollback-on-error pattern
+- Real-time sync via `onSnapshot` (Firestore listener) with pending-write guard
+- Modular domain architecture: pages are thin wrappers consuming stores and hooks directly
+- No traditional service layer — data operations are embedded directly in store actions
+- Domain-specific sub-modules for validation, sanitization, and backup
 
 ## Layers
 
-**Auth Layer:**
-- Purpose: Authenticate users and provide user identity to the app
-- Location: `src/lib/firebase.ts`, `src/store/useAuthStore.ts`, `src/pages/LoginPage.tsx`
-- Contains: Firebase Auth init, Google auth provider, Zustand auth store
-- Depends on: Firebase Auth SDK (`firebase/auth`)
-- Used by: `App.tsx` (onAuthStateChanged listener at line 49), `Layout.tsx`, `useSyncFinance.ts`
+**Presentation Layer:**
+- Purpose: Renders UI, handles user interaction
+- Location: `src/pages/`, `src/components/`, `src/analytics/components/`
+- Contains: React components (pages, layout, UI components, charts)
+- Depends on: Zustand stores (via hooks), analytics hooks, lib utilities
+- Used by: React Router (`src/App.tsx`)
 
-**Entry Point / Provider Layer:**
-- Purpose: Bootstrap React app with providers (theme, date localization, i18n)
-- Location: `src/main.tsx`
-- Contains: `ThemeProvider`, `LocalizationProvider` (dayjs), `I18nextProvider`
-- Depends on: MUI, dayjs, i18next
-- Used by: `App.tsx`
-
-**Routing / Auth Gate Layer:**
-- Purpose: Route handling and auth-protected route wrapper
-- Location: `src/App.tsx`
-- Contains: `BrowserRouter`, `Routes`, `ProtectedRoute` wrapper
-- Depends on: `react-router-dom`, `useAuthStore`
-- Used by: All page components
-
-**Pages Layer:**
-- Purpose: Top-level route components; orchestrate layout and data
-- Location: `src/pages/`
-- Contains: 8 page components (Dashboard, Transactions, Config, Salary, Insights, Car, Utilities, Login)
-- Depends on: `useFinanceStore`, `useAuthStore`, analytics hooks, dashboard component composites
-- Used by: App.tsx routes
-
-**Analytics Layer:**
-- Purpose: Compute derived financial data (net worth, category breakdown, account breakdown, monthly comparison)
-- Location: `src/analytics/`
-- Contains: Custom hooks (`useNetWorth`, `useCategoryBreakdown`, etc.) and chart components
-- Depends on: `useFinanceStore` (read-only), Recharts, MUI
-- Used by: `DashboardPage`, `InsightsPage`
-
-**Components Layer:**
-- Purpose: Reusable UI components (dashboard widgets, transaction modal/form, layout shell, analysis tables)
-- Location: `src/components/`
-- Contains: `Layout`, `RecapCards`, `Charts`, `TransactionTable`, `TransactionModal`, `TransactionForm`, `AccountCard`, `AnalysisTables`, `FinancialTrendChart`, `YearSelector`, `VersionFooter`, `TransactionError`
-- Depends on: `useFinanceStore`, MUI, lucide-react, recharts
-
-**State Layer (Zustand):**
-- Purpose: Global state management for auth + finance data; all CRUD logic lives here
-- Location: `src/store/`
-- Contains:
-  - `useFinanceStore.ts` — Central store with full CRUD for all entities; each action: validate → optimistic update → Firestore write → rollback on error
-  - `useAuthStore.ts` — Minimal store (3 fields, 3 setters)
-  - `types/` — TypeScript interfaces (all `I`-prefixed)
-  - `validation/` — `validateTransaction`, `validateRecurringTransaction`
-  - `sanitization/` — Firestore-safe field coercions for transactions and recurring
-  - `backup/` — JSON export/import with validation preview
-  - `sync/` — Firestore init + snapshot helper functions
-  - `defaults.ts` — Default accounts, categories, settings, modules
-- Depends on: Firebase Firestore (`firebase/firestore`), dayjs, i18n
+**State/Logic Layer:**
+- Purpose: Manages application state, computes derived data, handles business logic
+- Location: `src/store/`, `src/hooks/`, `src/analytics/hooks/`
+- Contains: Zustand stores with embedded async actions, React hooks for data sync, analytics hooks
+- Depends on: Firebase SDK (`firebase/firestore`, `firebase/auth`), lib utilities
 - Used by: All page and component files
 
-**Data Persistence Layer:**
-- Purpose: Firebase integration — auth + Firestore read/write + realtime sync
-- Location: `src/lib/firebase.ts`, `src/lib/converters.ts`, `src/hooks/useSyncFinance.ts`
-- Contains: Firebase app init, Firestore `userDocConverter` (with `fromFirestore`/`toFirestore`), realtime sync hook
-- Depends on: Firebase SDK (`firebase/app`, `firebase/auth`, `firebase/firestore`)
-- Used by: `useSyncFinance`, `useFinanceStore` actions, `LoginPage`
+**Data/Persistence Layer:**
+- Purpose: External persistence, authentication, localization
+- Location: `src/lib/`, `src/locales/`
+- Contains: Firebase config + auth, Firestore converter (`userDocConverter`), backup/export utilities, i18n configuration, compound interest math, budget engine
+- Depends on: Firebase SDK, dayjs, i18next
+- Used by: Stores, hooks, and components
 
 ## Data Flow
 
-### Primary Request Path (CRUD)
+### Primary Request Path — Transaction CRUD
 
-1. **User action** — User clicks "Add Transaction" button in `Layout.tsx` (line 54-58) → opens `TransactionModal` → fills `TransactionForm.tsx` → submits
-2. **Store action invoked** — `useFinanceStore.addTransaction(transaction)` called (line 161-190)
-3. **Validation** — `validateTransaction()` called (line 166); rejects with `saveError` if invalid
-4. **Optimistic update** — Immediate `set()` to Zustand state (line 174-177): transaction added and sorted descending by date; `hasLocalChanges` set to true
-5. **Firestore write** — `updateDoc(docRef, { transactions: sanitized })` (line 178-182); data sanitized via `Sanitization.sanitizeTransaction` (converts undefined → null, coerces types for Firestore)
-6. **Rollback on error** — `catch` block (line 183-189) reverts the transaction from state; sets `saveError`
-7. **Realtime confirmation** — `useSyncFinance`'s `onSnapshot` (line 47-61) picks up the Firestore write, but skips processing because `hasPendingWrites` is true for local writes; after server confirms, snapshot fires again with `hasPendingWrites: false` → `setAll(data)` syncs state
+1. User clicks "+" button in Layout FAB — opens `TransactionModal` (`src/components/layout/Layout.tsx:170-220`)
+2. User fills form in `TransactionForm` (`src/components/forms/TransactionForm.tsx`) — calls `useFinanceStore.getState().addTransaction(tx)`
+3. Store action validates (via `validateTransaction`), optimistically updates in-memory state, sorts transactions, sets `isSaving: true` (`src/store/useFinanceStore.ts:152-181`)
+4. Store writes sanitized transactions array to Firestore via `updateDoc(docRef, { transactions: sanitized })` (`src/store/useFinanceStore.ts:169-171`)
+5. On error, store rolls back: filters out the failed transaction and sets `saveError` (`src/store/useFinanceStore.ts:175-178`)
+6. `TransactionError` component (`src/components/TransactionError.tsx`) listens to `saveError` and shows a Snackbar
+7. Firestore `onSnapshot` in `useSyncFinance` (`src/hooks/useSyncFinance.ts:47-61`) fires for remote changes but skips if `hasPendingWrites` is true
 
-### Data Initialization Flow
+### State Synchronization Flow (Firebase → Local)
 
-1. `useSyncFinance()` called in `App.tsx` (line 42)
-2. On `user` change, runs `initializeUser()` (line 24-43):
-   - Uses `runTransaction` to atomically read-or-create the `users/{userId}` doc (line 27-37)
-   - If doc exists: `setAll(data)` populates store from Firestore
-   - If doc does not exist: creates doc with defaults from `getDefaultUserConfig()` and sets store
-3. Subscribes to `onSnapshot` (line 47-61) for realtime updates from other devices
+1. User logs in → `onAuthStateChanged` in `App.tsx` sets user on `useAuthStore` (`src/App.tsx:53-59`)
+2. `useSyncFinance`, `useInvestmentSync`, `useBudgetSync` each detect user and initialize:
+   - `runTransaction`: read existing doc OR create default user doc (`src/hooks/useSyncFinance.ts:27-37`, `src/store/sync/index.ts:50-66`)
+   - Call `setAll()` to populate store from Firestore data
+3. Subscribe via `onSnapshot` for real-time remote updates (`src/hooks/useSyncFinance.ts:47-61`)
+4. `checkRecurring()` is called after initial load to generate recurring transactions (`src/store/useFinanceStore.ts:787-873`)
 
-### App Startup Flow
+### Analytics/Computed Data Flow
 
-1. `main.tsx` renders React app with MUI ThemeProvider, LocalizationProvider (dayjs), I18nextProvider
-2. `App.tsx` mounts:
-   - Calls `useSyncFinance()` — starts Firestore sync (only fires when user is authenticated)
-   - Calls `_migrateToMultiAccount()` once (line 44-46) — legacy migration: adds `accountId` to transactions/recurring that lack it
-   - Registers `onAuthStateChanged` listener (line 49-54) — sets user in auth store, reveals/hides ProtectedRoute
-3. User lands on `/` (LoginPage) if unauthenticated, or is redirected to `/dashboard` if user exists
-
-### Recurring Transaction Check Flow
-
-1. Triggered manually in `checkRecurring()` action (line 796-882) — called after recurring add/update and after Firestore snapshot sync
-2. Scans all recurring transactions; for each, iterates months/years from `startDate` to now
-3. Creates new transactions for months where no transaction exists (and instance not deleted)
-4. Sets `recurringLinkId` on generated transactions for tracking/deletion
-5. Writes all new transactions to Firestore
+1. Pages consume raw data from Zustand stores (`useFinanceStore`, `useBudgetStore`, `useInvestmentStore`)
+2. Analytics hooks compute derived data (net worth, category breakdown, portfolio stats) using `useMemo` and store selectors
+3. Chart components render using analytics hook output
+4. `budgetEngine.ts` (`src/lib/budgetEngine.ts`) computes budget progress using pure functions: `computeBudgetProgress`, `computeSavingsRate`, `computeHistoricalSavingsRate`, `computeBurnUpData`
 
 **State Management:**
-- Zustand stores are the single source of truth for both auth and finance data
-- Finance state is fully overwritten on each Firestore snapshot via `setAll(data)` (line 1140)
-- No Redux, no Context API beyond MUI's theme provider
-- `useAuthStore` uses `getState()` pattern for cross-store reads (finance store reads auth user ID)
-- `useFinanceStore` uses `getState()` for reading current state during async Firestore writes
+- Optimistic updates: all mutations apply to in-memory state first, then persist to Firestore
+- Error rollback: on Firestore write failure, state reverts and `saveError` is set
+- Real-time sync: `onSnapshot` listens for remote changes, guarded by `hasPendingWrites` to avoid loop
+- Cross-store reads: stores access each other via `useAuthStore.getState().user?.uid` to get the current user ID
+- All state is client-only during session; Firestore is the single source of truth
 
 ## Key Abstractions
 
 **Zustand Stores:**
-- Purpose: Global state + all mutation logic (optimistic CRUD, validation, sanitization, Firestore persistence)
-- Examples: `src/store/useFinanceStore.ts`, `src/store/useAuthStore.ts`
-- Pattern: Single-argument `create<TSchema>()((set) => ({...}))` with `set()` for state mutation and `getState()` for cross-store reads
+- Purpose: Each store manages a domain slice of user data
+- Examples: `src/store/useFinanceStore.ts`, `src/store/useInvestmentStore.ts`, `src/store/useBudgetStore.ts`, `src/store/useAuthStore.ts`, `src/store/useProjectionSettingsStore.ts`
+- Pattern: `create<State>()((set, get) => ({...}))` with async actions that call `set()` for optimistic updates then Firestore `updateDoc()` for persistence
 
-**FirestoreDataConverter (userDocConverter):**
-- Purpose: Type-safe Firestore document serialization/deserialization for `users/{uid}`
-- File: `src/lib/converters.ts` (line 22-168)
-- Pattern: `FirestoreDataConverter<UserDoc>` with `toFirestore()` that coerces nullables, and `fromFirestore()` that validates/restores each field with defaults
+**Firestore Converter (`userDocConverter`):**
+- Purpose: Ensures type-safe serialization/deserialization between Firestore documents and TypeScript types
+- Location: `src/lib/converters.ts`
+- Pattern: `FirestoreDataConverter<UserDoc>` with `toFirestore()` and `fromFirestore()` methods that handle null checks, type coercion, and default values
 
-**Analytics Hooks:**
-- Purpose: Derive computed financial metrics from raw transactions (no separate cache layer)
-- Examples: `src/analytics/hooks/useNetWorth.ts`, `src/analytics/hooks/useCategoryBreakdown.ts`
-- Pattern: `useMemo` with `useFinanceStore()` selector, recalculates when transactions change
+**Validation Module:**
+- Purpose: Validates transactions, recurring transactions, ETF transactions, broker config before persistence
+- Location: `src/store/validation/`
+- Files: `finance.validation.ts`, `investment.validation.ts`
+- Pattern: Pure validation functions returning `{ valid: boolean; error?: string }`
 
-**Backup Subsystem:**
-- Purpose: Full data export/import with schema validation and preview
-- Files: `src/store/backup/index.ts` (216 lines)
-- Pattern: `createBackup()` serializes store state → `downloadBackup()` triggers browser download; `parseBackup()` with `validateBackupData()` error collection
+**Sanitization Module:**
+- Purpose: Strips non-Firestore-safe fields before writing to Firestore
+- Location: `src/store/sanitization/`
+- Files: `transaction.ts`, `recurring.ts`, `investment.ts`
+- Pattern: Pure functions that map objects to Firestore-compatible shapes
+
+**Backup Module:**
+- Purpose: Export/import all user data as JSON, with validation before import
+- Location: `src/store/backup/index.ts`
+- Pattern: Creates `BackupData` with version metadata; validates with `validateBackupData`; supports both file and object import
+
+**Analytics Module:**
+- Purpose: Self-contained analytics subsystem with hooks and chart components
+- Location: `src/analytics/`
+- Files: `hooks/` (6 hooks), `components/` (6 chart components), `types.ts`
+- Pattern: Hooks accept filter configs, return derived data; chart components render MUI X-Charts
+
+**Sync Module:**
+- Purpose: Shared Firestore initialization and document reference
+- Location: `src/store/sync/index.ts`
+- Functions: `getDefaultUserConfig()`, `getUserDocRef(userId)`, `initializeUserData(userId, onDataLoaded)`
 
 ## Entry Points
 
-**`main.tsx`:**
+**Application Entry:**
 - Location: `src/main.tsx`
-- Triggers: `npm run dev` / `npm run build` → Vite HTML entry → ReactDOM.createRoot
-- Responsibilities: Mount React app with all providers (theme, date adapter, i18n)
+- Triggers: Browser loads the Vite-bundled app
+- Responsibilities: Initializes React root, wraps App in ThemeProvider (MUI), LocalizationProvider (MUI X-date), I18nextProvider, CssBaseline
 
-**`App.tsx`:**
+**React Router Entry:**
 - Location: `src/App.tsx`
-- Triggers: Initial mount + auth state changes
-- Responsibilities: Route registration, auth listener, protected route gate, migration hook, sync finance hook
+- Responsibilities: Defines all routes, renders ProtectedRoute wrapper, initializes sync hooks and data migration on mount, renders global TransactionError Snackbar
 
-**`useSyncFinance.ts`:**
-- Location: `src/hooks/useSyncFinance.ts`
-- Triggers: `user` identity changes in auth store
-- Responsibilities: Firestore doc init (runTransaction), realtime snapshot subscription
+**Authentication Entry:**
+- Location: `src/pages/LoginPage.tsx`
+- Triggers: User navigates to `/`
+- Responsibilities: Provides Google OAuth (via Firebase `signInWithPopup`) and email/password auth
 
 ## Architectural Constraints
 
-- **Threading:** Single-threaded (React + browser main thread). All async work uses Promises; Firestore writes fire-and-forget with `.catch()` error handling
-- **Global state:** Two Zustand singletons (`useAuthStore`, `useFinanceStore`) — both module-level stores created at import time. `useFinanceStore` is very large (~50+ KB after 1200+ lines of actions)
-- **Circular imports:** `useFinanceStore` imports from `useAuthStore` (line 6) and `useAuthStore` does not import from `useFinanceStore` — no cycles detected. `useSyncFinance` imports both stores — this is the convergence point
-- **Firestore document size limit:** Single `users/{uid}` doc contains all user data (transactions, accounts, recurring, categories, car, etc.). As transaction count grows, this will approach Firestore's 1 MiB document size limit
-- **No test suite:** Per `AGENTS.md`: "No test suite exists in this repo"
-- **No pre-commit hooks:** Per `AGENTS.md`
+- **Threading:** Single-threaded (React SPA). All async operations use Promise-based Firestore calls.
+- **Global state:** Five Zustand stores at module level — `useAuthStore`, `useFinanceStore`, `useInvestmentStore`, `useBudgetStore`, `useProjectionSettingsStore`. All are singletons.
+- **Cross-store coupling:** Stores access each other via `getState()` (e.g., `useAuthStore.getState().user?.uid`). This creates implicit dependencies: finance/investment/budget stores depend on auth store for the user ID.
+- **Firestore document size limit:** All user data lives in a single `users/{userId}` document (max 1 MiB). This is a hard scaling limit — large transaction histories could hit this.
+- **Circular imports:** Avoided via selective `getState()` calls instead of direct import of store creation functions.
+- **No API layer:** All data persistence is direct Firestore calls inside store actions. No REST/gRPC layer exists.
 
 ## Anti-Patterns
 
-### Zustand God Store
+### Firestore Array Mutation via Full Rewrite
 
-**What happens:** `useFinanceStore` (`src/store/useFinanceStore.ts`) is a single Zustand store containing ~70 state fields + actions, spanning 1200+ lines. It manages transactions, accounts, categories, recurring, car mileage, tire changes, backup/import, and module toggling — everything in one monolithic store.
+**What happens:** Instead of using Firestore `arrayUnion`/`arrayRemove` for adding/removing items from arrays, the code reads the entire array, modifies it in memory, replaces the Firestore field with the entire new array via `updateDoc`.
+**Why it's wrong:** Writes the entire array field on every mutation, increasing bandwidth and Firestore write costs. Also creates race conditions if multiple clients modify different parts of the same array.
+**Do this instead:** Use `arrayUnion`/`arrayRemove` for simple add/remove operations. Full rewrites are currently used in `addTransaction`, `updateTransaction`, `deleteTransaction`, and many others in `src/store/useFinanceStore.ts`.
 
-**Why it's wrong:** Violates separation of concerns. A change to any store action requires understanding the entire file. Bundle splitting is impossible. The store file is already capped at 50KB output during reading (line 1199). Testing is impractical.
+### State + Actions in Same File
 
-**Do this instead:** Split into domain-specific stores (e.g., `useTransactionStore`, `useAccountStore`, `useCarStore`, `useConfigStore`) and compose them. Each store is independently testable and changeable.
+**What happens:** Store type definitions (`interface FinanceState`), state initialization, and all action implementations are in a single 1200+ line file (`src/store/useFinanceStore.ts`).
+**Why it's wrong:** Makes the file hard to navigate, test, and maintain. Business logic is scattered across one massive file.
+**Do this instead:** Split actions into separate files (e.g., `src/store/actions/transactionActions.ts`, `src/store/actions/accountActions.ts`, etc.) and compose them into the store, similar to how validation is already split into `src/store/validation/`.
 
-### Optimistic Update Without Debounce
+### Cross-Store Access via getState()
 
-**What happens:** Each store action (e.g., `addTransaction` at line 161-190) does an immediate `set()` and then `await updateDoc()` for Firestore. Rapid successive mutations cause multiple Firestore writes and potential race conditions between optimistic state and snapshot sync.
-
-**Why it's wrong:** Firestore writes are expensive; each action writes the full array (e.g., all transactions) instead of individual document writes. The `hasLocalChanges` / `isSaving` flags (line 133-136) attempt to gate this but can be unreliable.
-
-**Do this instead:** Batch local mutations and debounce Firestore writes, or use Firestore's native array operations more aggressively.
-
-### Single-Doc Firestore Schema
-
-**What happens:** All user data in one Firestore document at `users/{userId}` (`src/lib/converters.ts` line 22-168). The `userDocConverter` serializes/deserializes arrays of transactions, accounts, recurring, categories, car records, and tire changes into a single document.
-
-**Why it's wrong:** Firestore's 1 MiB document size limit will be hit as transaction history grows. Writing any single field requires rewriting the entire document (due to `updateDoc` with full arrays). Concurrent writes from multiple devices are prone to conflicts.
-
-**Do this instead:** Use subcollections (`users/{userId}/transactions/{txId}`, `users/{userId}/accounts/{accountId}`) for growing data, and keep only metadata in the parent doc.
-
-### Unnecessary `getState()` Calls
-
-**What happens:** Multiple actions read current state via `useFinanceStore.getState()` between `set()` and Firestore writes (e.g., line 179 `useFinanceStore.getState().transactions`). This is a pattern throughout the store.
-
-**Why it's wrong:** Creates a hard coupling between the reactive `set()` call and the imperative `getState()` read. If state structure changes between these calls (the `set` callback's closure captures the wrong value), bugs can occur.
-
-**Do this instead:** Use `set` callback's `state` parameter for all reads during mutation, and refactor to keep writes as a single atomic operation.
+**What happens:** Stores call `useAuthStore.getState().user?.uid` at the start of nearly every action to get the current user ID.
+**Why it's wrong:** Creates tight coupling between stores at runtime. If the auth store shape changes, all other stores break.
+**Do this instead:** Pass the `userId` as a parameter, or use a middleware that injects it. Alternatively, use a single combined store or React context for the user ID.
 
 ## Error Handling
 
-**Strategy:** Error-first with optimistic rollback
+**Strategy:** Optimistic updates with error rollback. Each async action sets `isSaving: true`, catches errors, reverts state, and sets `saveError`. 
 
 **Patterns:**
-- **`saveError` state field** — All actions set `saveError` on failure (`useFinanceStore.ts` line 136)
-- **`clearSaveError()` action** — Resets error state (line 1142)
-- **`TransactionError` component** — Rendered in `App.tsx` (line 101) to display global save errors
-- **try/catch with console.error** — All Firebase operations wrapped; errors logged to console
-- **Validation pre-check** — `validateTransaction()` / `validateRecurringTransaction()` called before any mutation; returns `{ valid, error }` pattern
-- **No user-facing error notifications** — Errors are set in state but not surfaced via toast/snackbar; only `TransactionError` component handles them
+- Store-level `saveError: string | null` — set on write failure, cleared via `clearSaveError()`
+- Global `TransactionError` component (`src/components/TransactionError.tsx`) renders a `Snackbar` with error message from `useFinanceStore`
+- `console.error` logging for all caught errors
+- Validation guards: `validateTransaction`/`validateRecurringTransaction` block invalid data before state mutation
 
 ## Cross-Cutting Concerns
 
-**Logging:** Console-based only (`console.error` in all catch blocks). No structured logging, no remote error reporting.
+**Logging:** `console.error` throughout stores and hooks. No structured logging or monitoring.
 
-**Validation:** Located in `src/store/validation/finance.validation.ts`. Two functions: `validateTransaction` and `validateRecurringTransaction`. Returns `{ valid: boolean, error?: string }`. Called at the start of every CRUD action in `useFinanceStore`.
+**Validation:** Pure validation functions in `src/store/validation/`. Called before state mutations in store actions. Covers transactions, recurring transactions, ETF transactions, broker config/accounts, cash adjustments, dividend entries.
 
-**Authentication:** Firebase Auth with Google OAuth (`signInWithPopup`) and email/password (`signInWithEmailAndPassword`, `createUserWithEmailAndPassword`). Auth state persisted via `onAuthStateChanged` listener in `App.tsx` (line 49).
+**Authentication:** Firebase Auth with `onAuthStateChanged` listener in `src/App.tsx:53-59`. `ProtectedRoute` component wraps all authenticated routes. Google OAuth via `signInWithPopup` + `GoogleAuthProvider`. Email/password auth via `signInWithEmailAndPassword` / `createUserWithEmailAndPassword`.
 
-**Internationalization:** i18next with `react-i18next`. Two locales in `src/locales/` (Italian `it.json`, English `en.json`). Fallback language is Italian. Language detected via localStorage then navigator. Syncs dayjs locale.
+**Internationalization:** `react-i18next` with `i18next-browser-languagedetector`. Two locales: `it` (`src/locales/it.json`) and `en` (`src/locales/en.json`). Fallback to Italian. Dayjs locale synced with i18n language.
+
+**Theme:** MUI dark theme with custom chart colors in `src/theme/theme.ts`. Indigo primary (`#5b6cb8`), dark slate backgrounds.
 
 ---
 
-*Architecture analysis: 2026-06-22*
+*Architecture analysis: 2026-07-11*

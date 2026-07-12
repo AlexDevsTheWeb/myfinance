@@ -1,5 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart } from '@mui/x-charts/PieChart';
 import type { ICategoryBreakdown } from '../types';
 
 const COLORS = [
@@ -36,39 +36,32 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
         </Typography>
       )}
       <Box sx={{ height: chartHeight, width: '100%' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={110}
-              paddingAngle={2}
-              dataKey="value"
-            >
-              {chartData.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                background: '#161b2e',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 2,
-              }}
-              itemStyle={{ fontWeight: 600 }}
-              formatter={(value) => `€ ${Number(value).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
-            />
-            <Legend
-              verticalAlign="bottom"
-              iconType="circle"
-              formatter={(value: string) => (
-                <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem' }}>{value}</span>
-              )}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        <PieChart
+          series={[
+            {
+              data: chartData.map((d, i) => ({
+                id: d.name,
+                label: d.name,
+                value: d.value,
+                color: COLORS[i % COLORS.length],
+              })),
+              innerRadius: 60,
+              outerRadius: 110,
+              paddingAngle: 2,
+              highlightScope: { fade: 'global', highlight: 'item' },
+              faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
+              highlighted: { additionalRadius: 10 },
+            },
+          ]}
+          height={chartHeight}
+          margin={{ bottom: 100 }}
+          slotProps={{
+            legend: {
+              direction: 'horizontal',
+              position: { vertical: 'bottom', horizontal: 'center' },
+            },
+          }}
+        />
       </Box>
     </Paper>
   );

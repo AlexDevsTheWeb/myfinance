@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
-import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, doc, updateDoc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { create } from 'zustand';
 import { db } from '../lib/firebase';
+import { getTransactionDocRef, getTransactionsCollectionRef } from '../lib/converters';
 import i18n from '../lib/i18n';
 import { useAuthStore } from './useAuthStore';
 import { useBudgetStore } from './useBudgetStore';
@@ -51,7 +52,9 @@ interface FinanceState {
   deletedRecurringInstances: { recurringLinkId: string; date: string }[];
   isSaving: boolean;
   isCheckingRecurring: boolean;
+  lastRecurringCheck: string | null;
   hasLocalChanges: boolean;
+  isLoading: boolean;
   saveError: string | null;
   language: string;
   setLanguage: (lang: string) => void;
@@ -123,7 +126,9 @@ export const useFinanceStore = create<FinanceState>()(
       deletedRecurringInstances: [],
       isSaving: false,
       isCheckingRecurring: false,
+      lastRecurringCheck: null,
       hasLocalChanges: false,
+      isLoading: true,
       saveError: null,
       language: localStorage.getItem('myfinance_language') || i18n.language || Defaults.DEFAULT_LANGUAGE,
 
@@ -153,7 +158,6 @@ export const useFinanceStore = create<FinanceState>()(
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        // Validate transaction before saving
         const validation = validateTransaction(transaction);
         if (!validation.valid) {
           set({ saveError: validation.error, isSaving: false });
@@ -166,9 +170,13 @@ export const useFinanceStore = create<FinanceState>()(
             const sorted = [transaction, ...state.transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
             return { transactions: sorted, isSaving: false };
           });
-          const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
-          await updateDoc(docRef, { transactions: sanitizedTransactions });
+
+          const txnRef = getTransactionDocRef(userId, transaction.id);
+          await setDoc(txnRef, {
+            ...Sanitization.sanitizeTransaction(transaction),
+            createdAt: undefined,
+          });
+
           set({ hasLocalChanges: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to add transaction';
@@ -184,7 +192,6 @@ export const useFinanceStore = create<FinanceState>()(
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
 
-        // Validate transaction before saving
         const validation = validateTransaction(transaction);
         if (!validation.valid) {
           set({ saveError: validation.error, isSaving: false });
@@ -193,14 +200,17 @@ export const useFinanceStore = create<FinanceState>()(
 
         set({ saveError: null, isSaving: true });
         try {
-          const docRef = doc(db, 'users', userId);
           set((state) => {
             const newTransactions = state.transactions.map((t) => (t.id === transaction.id ? transaction : t));
             const sorted = newTransactions.sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
             return { transactions: sorted, isSaving: false };
           });
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
-          await updateDoc(docRef, { transactions: sanitizedTransactions });
+
+          const txnRef = getTransactionDocRef(userId, transaction.id);
+          await setDoc(txnRef, {
+            ...Sanitization.sanitizeTransaction(transaction),
+            createdAt: undefined,
+          });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to update transaction';
           set({ saveError: errorMessage, isSaving: false });
@@ -233,12 +243,13 @@ export const useFinanceStore = create<FinanceState>()(
             };
           });
           const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
           const currentDeletedInstances = useFinanceStore.getState().deletedRecurringInstances;
           await updateDoc(docRef, {
-            transactions: sanitizedTransactions,
             deletedRecurringInstances: currentDeletedInstances
           });
+
+          const txnRef = getTransactionDocRef(userId, id);
+          await deleteDoc(txnRef);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete transaction';
           set({ saveError: errorMessage, isSaving: false });
@@ -284,8 +295,14 @@ export const useFinanceStore = create<FinanceState>()(
 
         set({ saveError: null, isSaving: true });
         try {
-          const docRef = doc(db, 'users', userId);
-          await updateDoc(docRef, { transactions });
+          const collRef = getTransactionsCollectionRef(userId);
+          const batch = writeBatch(db);
+          for (const txn of transactions) {
+            const txnRef = doc(collRef, txn.id);
+            batch.set(txnRef, Sanitization.sanitizeTransaction(txn));
+          }
+          await batch.commit();
+
           set({
             transactions: [...transactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix()),
             isSaving: false
@@ -789,20 +806,29 @@ setBalanceStartDate: async (date) => {
         if (!userId) return;
 
         const state = useFinanceStore.getState();
-        if (state.isCheckingRecurring) {
-          return;
+        if (state.isCheckingRecurring) return;
+
+        if (state.lastRecurringCheck) {
+          const timeSinceLastCheck = Date.now() - new Date(state.lastRecurringCheck).getTime();
+          if (timeSinceLastCheck < 5000) return;
         }
 
         set({ saveError: null, isSaving: true, isCheckingRecurring: true });
         try {
+          let hasNewTransactions = false;
+
           set((state) => {
             const newTransactions: Transaction[] = [];
             const now = dayjs();
             const balanceStart = dayjs(state.balanceStartDate);
 
-            state.recurringTransactions.forEach(payload => {
-              const start = dayjs(payload.startDate);
-              let current = start.isAfter(balanceStart) ? start : balanceStart;
+            const updatedRecurring = state.recurringTransactions.map(payload => {
+              const startFrom = payload.lastGeneratedUpTo
+                ? dayjs(payload.lastGeneratedUpTo).add(1, payload.frequency === 'yearly' ? 'year' : 'month')
+                : dayjs(payload.startDate);
+
+              const start = startFrom.isAfter(balanceStart) ? startFrom : balanceStart;
+              let current = start;
               let safetyCounter = 0;
 
               while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
@@ -854,17 +880,40 @@ setBalanceStartDate: async (date) => {
                 }
                 current = current.add(1, payload.frequency === 'yearly' ? 'year' : 'month');
               }
+
+              const lastScanned = current.subtract(1, payload.frequency === 'yearly' ? 'year' : 'month');
+              return { ...payload, lastGeneratedUpTo: lastScanned.format('YYYY-MM-DD') };
             });
 
-            if (newTransactions.length === 0) return { isSaving: false, isCheckingRecurring: false };
+            hasNewTransactions = newTransactions.length > 0;
+
+            if (!hasNewTransactions) {
+              return { isSaving: false, isCheckingRecurring: false, recurringTransactions: updatedRecurring };
+            }
 
             const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
-            return { transactions: allTransactions, isSaving: false, isCheckingRecurring: false };
+            return {
+              transactions: allTransactions,
+              recurringTransactions: updatedRecurring,
+              isSaving: false,
+              isCheckingRecurring: false,
+            };
           });
-          const docRef = doc(db, 'users', userId);
-          const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
-          await updateDoc(docRef, { transactions: sanitizedTransactions });
-          set({ isCheckingRecurring: false });
+
+          if (hasNewTransactions) {
+            const docRef = doc(db, 'users', userId);
+            const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
+            const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
+            await updateDoc(docRef, {
+              transactions: sanitizedTransactions,
+              recurringTransactions: sanitizedRecurring,
+            });
+          } else {
+            const docRef = doc(db, 'users', userId);
+            const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
+            await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
+          }
+          set({ isCheckingRecurring: false, lastRecurringCheck: new Date().toISOString() });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to check recurring transactions';
           set({ saveError: errorMessage, isSaving: false, isCheckingRecurring: false });
@@ -1178,10 +1227,10 @@ setBalanceStartDate: async (date) => {
           const payload = data as Backup.BackupPayload;
 
           const docRef = doc(db, 'users', userId);
+          const txnPayload = payload.transactions ?? [];
           await updateDoc(docRef, {
             initialBalance: payload.initialBalance ?? 0,
             accounts: payload.accounts ?? Defaults.DEFAULT_ACCOUNTS,
-            transactions: payload.transactions ?? [],
             recurringTransactions: payload.recurringTransactions ?? [],
             categories: payload.categories ?? Defaults.DEFAULT_CATEGORIES,
             incomeCategories: payload.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
@@ -1201,6 +1250,14 @@ setBalanceStartDate: async (date) => {
             dividendEntries: payload.dividendEntries ?? [],
             deletedRecurringInstances: payload.deletedRecurringInstances ?? [],
           });
+
+          const collRef = getTransactionsCollectionRef(userId);
+          const batch = writeBatch(db);
+          for (const txn of txnPayload) {
+            const txnRef = doc(collRef, txn.id);
+            batch.set(txnRef, Sanitization.sanitizeTransaction(txn));
+          }
+          await batch.commit().catch((err) => console.error('sub-collection batch write error:', err));
 
           set({
             initialBalance: payload.initialBalance ?? 0,

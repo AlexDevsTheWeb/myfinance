@@ -1,7 +1,9 @@
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography, useTheme } from '@mui/material';
+import { ChartsDataProvider, ChartsSurface, ChartsWrapper } from '@mui/x-charts';
+import { LinePlot } from '@mui/x-charts/LineChart';
+import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import React from 'react';
-import { Line, LineChart, ResponsiveContainer, YAxis } from 'recharts';
 
 interface AccountCardProps {
   name: string;
@@ -13,6 +15,10 @@ interface AccountCardProps {
 const AccountCard: React.FC<AccountCardProps> = ({ name, currentBalance, initialBalance, history }) => {
   const isPositive = currentBalance >= initialBalance;
   const diff = currentBalance - initialBalance;
+  const theme = useTheme();
+  const values = history.map(h => h.amount);
+  const dataMin = Math.min(...values);
+  const dataMax = Math.max(...values);
 
   return (
     <Paper
@@ -45,18 +51,26 @@ const AccountCard: React.FC<AccountCardProps> = ({ name, currentBalance, initial
 
       {/* Sparkline Chart */}
       <Box sx={{ height: 50, width: '100%', my: 1 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={history}>
-            <YAxis hide domain={['dataMin - 100', 'dataMax + 100']} />
-            <Line
-              type="monotone"
-              dataKey="amount"
-              stroke={isPositive ? '#10b981' : '#ef4444'}
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <ChartsDataProvider
+          series={[{
+            id: 'sparkline',
+            type: 'line',
+            data: values,
+            showMark: false,
+            color: isPositive ? theme.chart.income : theme.chart.expense,
+          }]}
+          yAxis={[{ min: dataMin - 100, max: dataMax + 100 }]}
+          xAxis={[{ scaleType: 'point', data: history.map((_, i) => i) }]}
+          height={50}
+          margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+        >
+          <ChartsWrapper hideLegend>
+            <ChartsSurface>
+              <LinePlot />
+              <ChartsAxis />
+            </ChartsSurface>
+          </ChartsWrapper>
+        </ChartsDataProvider>
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 'auto', pt: 1.5, borderTop: '1px solid rgba(255,255,255,0.05)' }}>

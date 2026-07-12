@@ -1,16 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BarChart as BarChartIcon, TrendingUp } from '@mui/icons-material';
 import { Box, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { LineChart } from '@mui/x-charts/LineChart';
+import { axisClasses } from '@mui/x-charts';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useFinanceStore } from '../store/useFinanceStore';
 
 interface MonthlySalaryData {
   monthName: string;
-  [key: number]: number; // For year keys
-  [key: string]: string | number; // For year_details keys, and also covers monthName
+  [key: number]: number;
+  [key: string]: string | number;
 }
 
 const SalaryPage: React.FC = () => {
@@ -61,7 +61,6 @@ const SalaryPage: React.FC = () => {
       (t) => t.category === 'Salario'
     );
 
-    // Group by Month/Year for YoY comparison
     const monthlyGroups: { [key: string]: number } = {};
     salaries.forEach((s) => {
       const monthYear = dayjs(s.date).format('YYYY-MM');
@@ -93,10 +92,19 @@ const SalaryPage: React.FC = () => {
         monthIdx: month,
         yearValues,
       };
-    }).filter(m => Object.values(m.yearValues).some(v => v > 0)); // Only show months with data
+    }).filter(m => Object.values(m.yearValues).some(v => v > 0));
   }, [transactions]);
 
   const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+
+  const months = trendChartData.map(d => d.monthName);
+  const series = availableYears.map((year, index) => ({
+    data: trendChartData.map(d => (d[year] as number) || 0),
+    label: year.toString(),
+    color: COLORS[index % COLORS.length],
+    showMark: true,
+    valueFormatter: (v: number | null) => v === null ? '' : `€ ${v.toLocaleString()}`,
+  }));
 
   return (
     <Box sx={{ pb: 6 }}>
@@ -171,58 +179,20 @@ const SalaryPage: React.FC = () => {
                 <BarChartIcon /> Monthly Salary Trend
               </Typography>
               <Box sx={{ height: 400, mt: 2 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trendChartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis
-                      dataKey="monthName"
-                      stroke="rgba(255,255,255,0.5)"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <YAxis
-                      stroke="rgba(255,255,255,0.5)"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value: number) => `€${value.toLocaleString()}`}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: '#1e293b',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                      }}
-                      itemStyle={{ color: '#fff' }}
-                      formatter={(value: any, name: any, props: any) => {
-                        const year = name;
-                        const details = props.payload?.[`${year}_details`];
-                        return [
-                          <Box key={year}>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>€ {Number(value || 0).toLocaleString()}</Typography>
-                            {details && <Typography variant="caption" sx={{ opacity: 0.7, display: 'block' }}>{details}</Typography>}
-                          </Box>,
-                          `Year ${year}`
-                        ] as any;
-                      }}
-                    />
-                    <Legend iconType="circle" />
-                    {availableYears.map((year, index) => (
-                      <Line
-                        key={year}
-                        type="monotone"
-                        dataKey={year}
-                        name={year.toString()}
-                        stroke={COLORS[index % COLORS.length]}
-                        strokeWidth={3}
-                        dot={{ r: 4, strokeWidth: 2, fill: '#1e293b' }}
-                        activeDot={{ r: 6, strokeWidth: 0 }}
-                      />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
+                <LineChart
+                  series={series}
+                  xAxis={[{ scaleType: 'band', data: months, disableLine: true, disableTicks: true }]}
+                  yAxis={[{ disableLine: true, disableTicks: true }]}
+                  grid={{ vertical: false, horizontal: true }}
+                  height={400}
+                  margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+                  sx={{
+                    [`.${axisClasses.tickLabel}`]: {
+                      fill: 'rgba(255,255,255,0.5)',
+                      fontSize: 12,
+                    },
+                  }}
+                />
               </Box>
             </CardContent>
           </Card>

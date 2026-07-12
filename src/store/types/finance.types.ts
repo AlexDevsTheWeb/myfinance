@@ -43,6 +43,7 @@ export interface IRecurringTransaction {
   endDate?: string | null;
   frequency?: 'monthly' | 'yearly';
   monthOfYear?: number;
+  lastGeneratedUpTo?: string;
 }
 
 export interface IAppModules {

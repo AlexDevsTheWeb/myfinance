@@ -1,5 +1,6 @@
 import { Box, Paper, Typography } from '@mui/material';
-import { BarChart, Bar, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { axisClasses } from '@mui/x-charts';
 import type { ICategoryBreakdown } from '../types';
 
 interface CategoryBarChartProps {
@@ -21,37 +22,23 @@ const CategoryBarChart: React.FC<CategoryBarChartProps> = ({ data, title }) => {
         </Typography>
       )}
       <Box sx={{ height: 320, width: '100%' }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} layout="vertical" margin={{ left: 100, right: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(255,255,255,0.05)" />
-            <XAxis
-              type="number"
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v: number) => `€${v.toLocaleString()}`}
-            />
-            <YAxis
-              type="category"
-              dataKey="name"
-              stroke="rgba(255,255,255,0.5)"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <Tooltip
-              contentStyle={{
-                background: '#161b2e',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 2,
-              }}
-              itemStyle={{ fontWeight: 600 }}
-              formatter={(value: any) => `€ ${Number(value || 0).toLocaleString('it-IT', { minimumFractionDigits: 2 })}`}
-            />
-            <Bar dataKey="amount" fill="#6366f1" radius={[0, 4, 4, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <BarChart
+          layout="horizontal"
+          series={[
+            { data: chartData.map(d => d.amount), label: 'Amount', color: '#6366f1' },
+          ]}
+          xAxis={[{ scaleType: 'linear', disableLine: true, disableTicks: true }]}
+          yAxis={[{ scaleType: 'band', data: chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
+          grid={{ vertical: true, horizontal: false }}
+          height={320}
+          margin={{ left: 100, right: 20 }}
+          sx={{
+            [`.${axisClasses.tickLabel}`]: {
+              fill: 'rgba(255,255,255,0.5)',
+              fontSize: 12,
+            },
+          }}
+        />
       </Box>
     </Paper>
   );

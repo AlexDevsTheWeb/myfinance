@@ -1,10 +1,80 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from 'dayjs';
-import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions } from 'firebase/firestore';
-import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type ITransaction, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
+import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions, Timestamp, doc, collection } from 'firebase/firestore';
+import { db } from './firebase';
+import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
+
+export interface TransactionDoc {
+  id: string;
+  date: string;
+  description: string;
+  category: string;
+  subcategory: string;
+  amount: number;
+  type: 'income' | 'expense' | 'transfer';
+  accountId: string;
+  recurringLinkId?: string | null;
+  consumption?: number | null;
+  readingDateStart?: string | null;
+  readingDateEnd?: string | null;
+  createdAt?: ReturnType<typeof Timestamp.now>;
+}
+
+export const transactionConverter: FirestoreDataConverter<TransactionDoc> = {
+  toFirestore: (tx: TransactionDoc): DocumentData => ({
+    id: tx.id,
+    date: tx.date,
+    description: tx.description,
+    category: tx.category,
+    subcategory: tx.subcategory,
+    amount: tx.amount,
+    type: tx.type,
+    accountId: tx.accountId,
+    recurringLinkId: tx.recurringLinkId ?? null,
+    consumption: tx.consumption ?? null,
+    readingDateStart: tx.readingDateStart ?? null,
+    readingDateEnd: tx.readingDateEnd ?? null,
+    createdAt: tx.createdAt ?? Timestamp.now(),
+  }),
+  fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): TransactionDoc => {
+    const data = snapshot.data(options);
+    return {
+      id: data.id ?? '',
+      date: data.date ?? '',
+      description: data.description ?? '',
+      category: data.category ?? '',
+      subcategory: data.subcategory ?? '',
+      amount: typeof data.amount === 'number' ? data.amount : 0,
+      type: data.type === 'income' || data.type === 'expense' || data.type === 'transfer' ? data.type : 'expense',
+      accountId: data.accountId ?? 'default-main',
+      recurringLinkId: data.recurringLinkId,
+      consumption: typeof data.consumption === 'number' ? data.consumption : (typeof data.consumption === 'string' && data.consumption !== '' ? Number(data.consumption) : undefined),
+      readingDateStart: data.readingDateStart,
+      readingDateEnd: data.readingDateEnd,
+    };
+  },
+};
+
+export function getTransactionDocRef(userId: string, txnId: string) {
+  return doc(db, 'users', userId, 'transactions', txnId).withConverter(transactionConverter);
+}
+
+export function getTransactionsCollectionRef(userId: string) {
+  return collection(db, 'users', userId, 'transactions').withConverter(transactionConverter);
+}
+
+export interface PacState {
+  lastGenerationDate: string | null;
+  pendingTransaction: {
+    brokerId: string;
+    amount: number;
+    date: string;
+    status: 'pending' | 'confirmed' | 'executed';
+  } | null;
+  perBrokerLastGeneration: Record<string, string>;
+}
 
 export interface UserDoc {
-  transactions: ITransaction[];
   initialBalance: number;
   categories: ICategory[];
   incomeCategories: ICategory[];
@@ -24,6 +94,7 @@ export interface UserDoc {
   cashAdjustments: CashAdjustment[];
   dividendEntries: DividendEntry[];
   budgetTargets: BudgetTarget[];
+  pacState?: PacState;
   /** @deprecated Legacy field — kept for backward-compatible reads during migration. Will be removed after all users migrate. */
   brokerConfig?: IBrokerConfig;
 }
@@ -31,20 +102,6 @@ export interface UserDoc {
 export const userDocConverter: FirestoreDataConverter<UserDoc> = {
   toFirestore: (userDoc: UserDoc): DocumentData => {
     return {
-      transactions: userDoc.transactions.map(t => ({
-        id: t.id,
-        date: t.date,
-        description: t.description,
-        category: t.category,
-        subcategory: t.subcategory,
-        amount: t.amount,
-        type: t.type,
-        accountId: t.accountId,
-        recurringLinkId: t.recurringLinkId ?? null,
-        consumption: t.consumption ?? null,
-        readingDateStart: t.readingDateStart ?? null,
-        readingDateEnd: t.readingDateEnd ?? null,
-      })),
       initialBalance: userDoc.initialBalance || 0,
       categories: userDoc.categories,
       incomeCategories: userDoc.incomeCategories,
@@ -76,28 +133,13 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       cashAdjustments: userDoc.cashAdjustments || [],
       dividendEntries: userDoc.dividendEntries || [],
       budgetTargets: userDoc.budgetTargets || [],
+      pacState: userDoc.pacState || { lastGenerationDate: null, pendingTransaction: null, perBrokerLastGeneration: {} },
       // Legacy brokerConfig — kept for backward-compatible reads during migration window
       brokerConfig: userDoc.brokerConfig || { brokerName: 'Trade Republic', lumpSumAmount: 0, monthlyPacAmount: 0, ticker: 'SWDA.MI', interestRate: 0 },
     };
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): UserDoc => {
     const data = snapshot.data(options);
-
-    // Basic validation and type casting
-    const transactions: ITransaction[] = Array.isArray(data.transactions) ? data.transactions.map((t: any) => ({
-      id: t.id ?? '',
-      date: t.date ?? '',
-      description: t.description ?? '',
-      category: t.category ?? '',
-      subcategory: t.subcategory ?? '',
-      amount: typeof t.amount === 'number' ? t.amount : 0,
-      type: t.type === 'income' || t.type === 'expense' || t.type === 'transfer' ? t.type : 'expense',
-      accountId: t.accountId ?? 'default-main',
-      recurringLinkId: t.recurringLinkId,
-      consumption: typeof t.consumption === 'number' ? t.consumption : (typeof t.consumption === 'string' && t.consumption !== '' ? Number(t.consumption) : undefined),
-      readingDateStart: t.readingDateStart,
-      readingDateEnd: t.readingDateEnd,
-    })) : [];
 
     const initialBalance: number = typeof data.initialBalance === 'number' ? data.initialBalance : 0;
 
@@ -242,8 +284,13 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       interestRate: typeof data.brokerConfig?.interestRate === 'number' ? data.brokerConfig.interestRate : 0,
     } : undefined;
 
+    const pacState: PacState = {
+      lastGenerationDate: data.pacState?.lastGenerationDate ?? null,
+      pendingTransaction: data.pacState?.pendingTransaction ?? null,
+      perBrokerLastGeneration: data.pacState?.perBrokerLastGeneration ?? {},
+    };
+
     return {
-      transactions,
       initialBalance,
       categories,
       incomeCategories,
@@ -272,6 +319,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
         createdAt: b.createdAt ?? '',
         updatedAt: b.updatedAt ?? '',
       })) : [],
+      pacState,
       brokerConfig,
     };
   }

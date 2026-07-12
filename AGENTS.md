@@ -43,12 +43,20 @@ TL;DR: Never commit to `development`/`main` directly. Branch as `feat/YATF-{n}` 
 - No test suite exists in this repo
 - No pre-commit hooks configured
 - TypeScript uses project references (`tsconfig.json` references `tsconfig.app.json`)
-- LLM Wiki lives in `docs/YATF/` — see `docs/YATF/CLAUDE.md` for schema
+- LLM Wiki lives in `docs/YATF/` — see `docs/YATF/AGENTS.md` for schema
+
+## TypeScript 7 Upgrade
+
+Uses `typescript@rc` (TS 7.0 Go rewrite) for `tsc` — ~10x faster type-checking.
+
+**Linting workaround:** `@typescript-eslint/typescript-estree` is overridden to use `npm:@typescript/typescript6` (TS 6.0 programmatic API) because the Go rewrite doesn't expose the JS API until TS 7.1.
+
+**`tsc` binary fix:** `scripts/fix-tsc-bin.js` runs on `postinstall` to ensure `node_modules/.bin/tsc` points to `typescript/bin/tsc` (TS 7), not `@typescript/old/bin/tsc` (TS 6).
 
 ## Wiki Discipline
 
 Every new feature, bug analysis, implementation, or decision **must be documented**:
 
-1. Write raw notes to `docs/YATF/raw/` (markdown)
-2. Ask to ingest into the wiki — the LLM will process it into the proper wiki pages, update `index.md`, cross-link related pages, and append to `log.md`
+1. Write raw notes to `docs/YATF/raw/` — each analysis in its own subfolder (e.g. `raw/<topic>/<topic>.md`)
+2. Ask to ingest into the wiki — the LLM will process it into `docs/YATF/wiki/`, update `docs/YATF/index.md`, cross-link related pages, and append to `docs/YATF/log.md`
 3. Commit changes to `development`
