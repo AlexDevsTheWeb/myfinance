@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ConfirmDialog } from '../shared/ConfirmDialog';
 import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 
 interface TransactionTableProps {
@@ -29,6 +30,9 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
   const { transactions: storeTransactions, deleteTransaction } = useFinanceStore();
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = React.useState<string | null>(null);
 
   // Logic for dashboard view (limit is a number)
   const getDashboardTransactions = () => {
@@ -115,7 +119,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Delete">
-                        <IconButton size="small" onClick={() => { if (window.confirm('Are you sure you want to delete this transaction?')) deleteTransaction(t.id); }} sx={{ color: 'error.main' }}>
+                        <IconButton size="small" onClick={() => { setPendingDeleteId(t.id); setDeleteConfirmOpen(true); }} sx={{ color: 'error.main' }}>
                           <Delete fontSize="small" />
                         </IconButton>
                       </Tooltip>
@@ -138,6 +142,21 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
             rowsPerPageOptions={[20]}
         />
       )}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete transaction?"
+        message="Are you sure you want to delete this transaction?"
+        confirmText="Delete"
+        onConfirm={() => {
+          if (pendingDeleteId) deleteTransaction(pendingDeleteId);
+          setDeleteConfirmOpen(false);
+          setPendingDeleteId(null);
+        }}
+        onCancel={() => {
+          setDeleteConfirmOpen(false);
+          setPendingDeleteId(null);
+        }}
+      />
     </Paper>
   );
 };

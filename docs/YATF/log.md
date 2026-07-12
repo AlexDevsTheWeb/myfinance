@@ -368,3 +368,15 @@
 ## [2026-07-11] ingest | Decision | PWA Strategy — mobile senza riscrittura
 - Created [[wiki/decisions/pwa-strategy]] — 2-step plan: PWA subito (manifest.json + SW), Flutter solo dopo validazione
 - Updated index.md (53 pages) and log.md
+
+## [2026-07-12] implement | Phase 0 | Go-to-Market Quick Wins (#138)
+- Implemented all 12 tasks of Phase 0 (Go-to-Market #138):
+  - ✅ Error boundary — `src/components/ErrorBoundary.tsx`, wrapped `<App />` in `main.tsx`
+  - ✅ MUI dialogs — `ConfirmDialog` + `AlertSnackbar` shared components; replaced 10 native dialogs across ConfigPage, InvestmentPage, TransactionTable
+  - ✅ Loading states — added `isLoading` to `useFinanceStore` + `useInvestmentStore`; sync hooks set `isLoading = false` after first snapshot; CircularProgress on Dashboard, Transactions, Investment pages
+- Created OpenSpec change `go-to-market-phase-0` with proposal, design, specs, tasks
+- Created [[wiki/features/error-boundary/error-boundary]]
+- Created [[wiki/features/mui-dialogs/mui-dialogs]]
+- Created [[wiki/features/loading-states/loading-states]]
+- Updated [[wiki/plans/go-to-market]] — Phase 0 tasks marked complete
+- Updated index.md (56 pages) and log.md

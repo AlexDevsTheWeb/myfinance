@@ -42,6 +42,7 @@ export const useInvestmentSync = () => {
 
   const isInitializing = useRef(false);
   const migrationAttempted = useRef(false);
+  const hasLoaded = useRef(false);
 
   useEffect(() => {
     if (!user) {
@@ -69,6 +70,7 @@ export const useInvestmentSync = () => {
               brokerAccounts,
               cashAdjustments: Array.isArray(convertedData.cashAdjustments) ? convertedData.cashAdjustments as never[] : [],
               dividendEntries: Array.isArray(convertedData.dividendEntries) ? convertedData.dividendEntries as never[] : [],
+              isLoading: false,
             });
           } else {
             const defaultConfig = getDefaultUserConfig();
@@ -80,11 +82,14 @@ export const useInvestmentSync = () => {
               brokerAccounts: defaultConfig.brokerAccounts ?? Defaults.DEFAULT_BROKER_ACCOUNTS,
               cashAdjustments: defaultConfig.cashAdjustments ?? [],
               dividendEntries: defaultConfig.dividendEntries ?? [],
+              isLoading: false,
             });
           }
+          hasLoaded.current = true;
         });
       } catch (error) {
         console.error('Error in useInvestmentSync initializeUser:', error);
+        useInvestmentStore.getState().setAll({ isLoading: false });
       } finally {
         isInitializing.current = false;
       }
@@ -112,7 +117,9 @@ export const useInvestmentSync = () => {
           brokerAccounts,
           cashAdjustments: Array.isArray(rawData.cashAdjustments) ? rawData.cashAdjustments as never[] : [],
           dividendEntries: Array.isArray(rawData.dividendEntries) ? rawData.dividendEntries as never[] : [],
+          isLoading: !hasLoaded.current,
         });
+        hasLoaded.current = true;
       }
     });
 

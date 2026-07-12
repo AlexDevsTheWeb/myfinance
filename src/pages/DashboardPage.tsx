@@ -1,5 +1,5 @@
 import { DirectionsCar as CarIcon, TrendingUp, AccountBalance as BudgetIcon, Bolt as ElecIcon } from '@mui/icons-material';
-import { Alert, AlertTitle, Box, Button, Grid, Paper, Typography } from '@mui/material';
+import { Alert, AlertTitle, Box, Button, CircularProgress, Grid, Paper, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -46,7 +46,7 @@ function StatCard({ icon, label, value, color, onClick }: { icon: React.ReactNod
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { enabledModules, carMileage, transactions } = useFinanceStore();
+  const { enabledModules, carMileage, transactions, isLoading } = useFinanceStore();
   const { budgetTargets } = useBudgetStore();
   const { t } = useTranslation();
   const [accountDialogOpen, setAccountDialogOpen] = React.useState(false);
@@ -77,6 +77,14 @@ const DashboardPage: React.FC = () => {
   const isFirstOfMonth = dayjs().date() === 1;
   const hasReadingThisMonth = carMileage.some(m => m.month === (dayjs().month() + 1) && m.year === dayjs().year());
   const showMileageReminder = enabledModules.carManagement && isFirstOfMonth && !hasReadingThisMonth;
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ pb: 10 }}>

@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-07-11* (PWA strategy added)
-*Total pages: 53*
+*Last updated: 2026-07-12* (Go-to-Market Phase 0)
+*Total pages: 56*
 
 ---
 
@@ -28,6 +28,9 @@
 | [[wiki/features/investment-professional-enhancements/investment-professional-enhancements]] | 📋 Per-ticker pricing, stamp duty, capital losses, fees, privacy mode — **draft** | [`raw/investment-report/investment-report.md`](raw/investment-report/investment-report.md), [`#110`](https://github.com/AlexDevsTheWeb/myfinance/issues/110) |
 | [[wiki/features/sidebar-routing-refactor/sidebar-routing-refactor]] | ✅ Sidebar flat links, `/finance` + `/investments` tabbed pages, removed duplicate title | [`#113`](https://github.com/AlexDevsTheWeb/myfinance/issues/113) |
 | [[wiki/features/user-configurable-rates/user-configurable-rates]] | ✅ User-configurable inflation & tax rates in ConfigPage > Projections tab | [`raw/103/103.md`](raw/103/103.md) |
+| [[wiki/features/error-boundary/error-boundary]] | ✅ React error boundary wrapping the app — catches render crashes | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
+| [[wiki/features/mui-dialogs/mui-dialogs]] | ✅ Native alert()/confirm() replaced with MUI Dialog/Snackbar | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
+| [[wiki/features/loading-states/loading-states]] | ✅ Loading indicators on Dashboard, Transactions, Investments during sync | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 
 ## Plans
 

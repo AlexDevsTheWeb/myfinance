@@ -22,6 +22,7 @@ export interface InvestmentState {
   currentPrice: number | null;
   lastPriceUpdate: string | null;
   isSaving: boolean;
+  isLoading: boolean;
   saveError: string | null;
   cashAdjustments: CashAdjustment[];
   dividendEntries: DividendEntry[];
@@ -109,6 +110,7 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
   currentPrice: null,
   lastPriceUpdate: null,
   isSaving: false,
+  isLoading: true,
   saveError: null,
   cashAdjustments: [],
   dividendEntries: [],

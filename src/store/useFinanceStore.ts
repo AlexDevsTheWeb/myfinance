@@ -52,6 +52,7 @@ interface FinanceState {
   isSaving: boolean;
   isCheckingRecurring: boolean;
   hasLocalChanges: boolean;
+  isLoading: boolean;
   saveError: string | null;
   language: string;
   setLanguage: (lang: string) => void;
@@ -124,6 +125,7 @@ export const useFinanceStore = create<FinanceState>()(
       isSaving: false,
       isCheckingRecurring: false,
       hasLocalChanges: false,
+      isLoading: true,
       saveError: null,
       language: localStorage.getItem('myfinance_language') || i18n.language || Defaults.DEFAULT_LANGUAGE,
 
