@@ -1,9 +1,9 @@
 ---
 title: "Yearly recurring transactions ignore monthOfYear — generated in wrong month"
-tags: [bug, recurring, critical, open]
+tags: [bug, recurring, critical, fixed]
 created: 2026-07-16
 updated: 2026-07-16
-status: open
+status: fixed
 severity: critical
 sources: ["raw/recurring-transaction-monthofyear/recurring-transaction-monthofyear.md"]
 related: ["plans/go-to-market", "architecture/system-architecture"]
@@ -11,7 +11,7 @@ related: ["plans/go-to-market", "architecture/system-architecture"]
 
 # Bug: Yearly Recurring Transactions Ignore `monthOfYear`
 
-Status: **open**
+Status: **fixed**
 Severity: **critical**
 
 ## Symptom
@@ -45,38 +45,31 @@ For yearly transactions, `current` advances by year only, so the month is perman
 - All users with yearly recurring templates are affected
 - The data is stored correctly in Firestore — it's purely a generation-time bug
 
-## Proposed Fix
+## Implemented Fix (PR #142)
 
-### Fix 1: Apply `monthOfYear` during target date computation
+### File: `src/store/useFinanceStore.ts` — `checkRecurring()`
 
-In `src/store/useFinanceStore.ts`, after line 837:
+**Fix 1 — Apply `monthOfYear` during target date computation** (lines 862-868):
+
+After the existing day-of-month overflow guard, added:
 
 ```typescript
-let targetDate = current.date(payload.dayOfMonth);
 if (payload.frequency === 'yearly' && payload.monthOfYear != null) {
-  targetDate = targetDate.month(payload.monthOfYear - 1);
+  const intendedMonth = payload.monthOfYear - 1;
+  targetDate = targetDate.month(intendedMonth);
+  if (targetDate.month() !== intendedMonth) {
+    targetDate = dayjs(targetDate).date(1).month(intendedMonth).endOf('month');
+  }
 }
 ```
 
-Adjust the overflow guard to use the **intended month** rather than `current.month()`:
+This sets the correct month after the day is applied, then handles day overflow in the new month (e.g., day 31 in a 30-day month snaps to end-of-month).
 
-```typescript
-const intendedMonth = payload.frequency === 'yearly' && payload.monthOfYear != null
-  ? payload.monthOfYear - 1
-  : current.month();
-if (targetDate.month() !== intendedMonth) {
-  targetDate = dayjs(targetDate).endOf('month');
-}
-```
+**Fix 2 — Auto-cleanup of existing wrong instances** (lines 826-842):
 
-### Fix 2: Regenerate existing incorrectly-dated transactions
+Added a one-time cleanup pass at the start of `checkRecurring()` that detects yearly-generated transactions whose date month doesn't match the template's `monthOfYear` and removes them. The subsequent generation loop then recreates them with the correct dates. The cleanup is persisted to Firestore even when no new transactions are generated.
 
-After Fix 1, existing yearly transactions need correction. Options:
-
-- **A — Delete & regenerate**: Remove generated instances with wrong dates; let `checkRecurring()` recreate them correctly
-- **B — Fix dates in place**: Update transaction dates to match template's `monthOfYear`/`dayOfMonth`
-
-Approach A is cleaner — it works automatically after `checkRecurring()` runs, since the dedup for yearly is by year only. Delete the wrong instances and the next run fills them in correctly.
+**Migration**: The fix is transparent — it runs on the next `checkRecurring()` call (page reload or session start). Wrong instances are removed and correct ones generated automatically.
 
 ## Related
 

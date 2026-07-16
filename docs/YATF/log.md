@@ -423,3 +423,11 @@
 - Secondary issues documented: `lastGeneratedUpTo` not persisted, yearly dedup blocking correct re-gen
 - Updated index.md (57 pages) and log.md
 - Created GitHub issue to track
+
+## [2026-07-16] fix | Bug | #142 — monthOfYear fix implemented
+- Implemented fix in `src/store/useFinanceStore.ts`:
+  - Added `monthOfYear` read in target date computation for yearly transactions (lines 862-868)
+  - Added auto-cleanup of existing wrong-date yearly instances (lines 826-842)
+  - Persists cleanup to Firestore even when no new transactions generated
+- Updated [[wiki/bugs/recurring-transaction-monthofyear]] → status: **fixed**
+- Updated index.md and log.md
