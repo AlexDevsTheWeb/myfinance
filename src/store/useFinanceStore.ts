@@ -817,6 +817,7 @@ setBalanceStartDate: async (date) => {
         try {
           let hasNewTransactions = false;
           let hasCleanup = false;
+          const orphanedIds = new Set<string>();
 
           set((state) => {
             const newTransactions: Transaction[] = [];
@@ -841,6 +842,22 @@ setBalanceStartDate: async (date) => {
               if (hasCleanup) {
                 transactions = corrected;
               }
+            }
+
+            const deduped: Transaction[] = [];
+            const seen = new Set<string>();
+            for (const t of transactions) {
+              const key = t.recurringLinkId ? `${t.recurringLinkId}|${t.date}` : t.id;
+              if (!seen.has(key)) {
+                seen.add(key);
+                deduped.push(t);
+              } else {
+                hasCleanup = true;
+                orphanedIds.add(t.id);
+              }
+            }
+            if (deduped.length !== transactions.length) {
+              transactions = deduped;
             }
 
             const updatedRecurring = state.recurringTransactions.map(payload => {
@@ -943,6 +960,10 @@ setBalanceStartDate: async (date) => {
             for (const txn of useFinanceStore.getState().transactions) {
               const txnRef = doc(collRef, txn.id);
               batch.set(txnRef, Sanitization.sanitizeTransaction(txn));
+            }
+            for (const orphanId of orphanedIds) {
+              const orphanRef = doc(collRef, orphanId);
+              batch.delete(orphanRef);
             }
             await batch.commit();
 

@@ -79,6 +79,7 @@ Now uses `writeBatch` on the sub-collection via `getTransactionsCollectionRef()`
 
 ## Related
 
+- [[wiki/bugs/recurring-transaction-duplicates-same-period]] — the sub-collection write fix exposed this duplicate-generation bug
 - [[wiki/plans/go-to-market]] — Phase 1.3 touched `lastGeneratedUpTo` persistence in recurring code
 - [[wiki/architecture/system-architecture]] — recurring check flow in system architecture
 - Source: [raw/recurring-transaction-monthofyear/recurring-transaction-monthofyear.md](raw/recurring-transaction-monthofyear/recurring-transaction-monthofyear.md)
