@@ -65,11 +65,17 @@ if (payload.frequency === 'yearly' && payload.monthOfYear != null) {
 
 This sets the correct month after the day is applied, then handles day overflow in the new month (e.g., day 31 in a 30-day month snaps to end-of-month).
 
-**Fix 2 — Auto-cleanup of existing wrong instances** (lines 826-842):
+**Fix 2 — Auto-correct dates of existing wrong instances** (lines 826-842):
 
-Added a one-time cleanup pass at the start of `checkRecurring()` that detects yearly-generated transactions whose date month doesn't match the template's `monthOfYear` and removes them. The subsequent generation loop then recreates them with the correct dates. The cleanup is persisted to Firestore even when no new transactions are generated.
+Instead of delete-and-regenerate (which had a `lastGeneratedUpTo` gap problem), the fix corrects dates in-place: finds yearly-generated transactions whose month doesn't match the template's `monthOfYear` and rewrites their date to the correct month/day.
 
-**Migration**: The fix is transparent — it runs on the next `checkRecurring()` call (page reload or session start). Wrong instances are removed and correct ones generated automatically.
+**Fix 3 — Write to sub-collection instead of legacy `UserDoc.transactions`** (lines 940-960):
+
+After Phase 1.1 sub-collection migration, `checkRecurring()` was still writing modified/regenerated transactions to the legacy `UserDoc.transactions` field — which is no longer read. Transactions never persisted across page loads.
+
+Now uses `writeBatch` on the sub-collection via `getTransactionsCollectionRef()`, matching the pattern used by `setTransactions` and other CRUD functions.
+
+**Migration**: The fix is transparent — it runs on the next `checkRecurring()` call (page reload or session start). Wrong dates are corrected in Firestore automatically.
 
 ## Related
 
