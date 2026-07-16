@@ -446,3 +446,14 @@
 - Cross-linked both bug pages
 - Updated index.md (58 pages) and log.md
 - GitHub issue [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146)
+
+## [2026-07-16] fix | Bug | #146 — corrected root cause: race condition (not manual-tx dedup)
+- Previous hypothesis was wrong (description+amount matching in `existsInPeriod` reverted)
+- Actual root cause: UserDoc `onSnapshot` fires `checkRecurring()` before sub-collection snapshot loads
+  → `transactions = []` → every period looks missing → generates new txs → sub-collection snapshot overwrites them → lost → repeat on every page load → 5 copies accumulate
+- Fix 1: timing guard — `checkRecurring()` waits for **both** UserDoc AND sub-collection snapshots
+- Fix 2: dedup cleanup — removes extra copies by `recurringLinkId|date` before generation
+- Verified: 487 total txs, 345 unique, x5 on recurring entries like Google One, Netflix
+- Updated [[raw/recurring-duplicate-same-period/recurring-duplicate-same-period.md]]
+- Updated [[wiki/bugs/recurring-transaction-duplicates-same-period]]
+- Updated index.md and log.md
