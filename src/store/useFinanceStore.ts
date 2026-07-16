@@ -813,14 +813,34 @@ setBalanceStartDate: async (date) => {
           if (timeSinceLastCheck < 5000) return;
         }
 
-        set({ saveError: null, isSaving: true, isCheckingRecurring: true });
+          set({ saveError: null, isSaving: true, isCheckingRecurring: true });
         try {
           let hasNewTransactions = false;
+          let hasCleanup = false;
 
           set((state) => {
             const newTransactions: Transaction[] = [];
             const now = dayjs();
             const balanceStart = dayjs(state.balanceStartDate);
+
+            let transactions = state.transactions;
+            const needsCleanup = state.recurringTransactions.some(r => r.frequency === 'yearly' && r.monthOfYear != null);
+            if (needsCleanup) {
+              const wrongIds = new Set(
+                state.transactions
+                  .filter(t => {
+                    if (!t.recurringLinkId) return false;
+                    const r = state.recurringTransactions.find(x => x.id === t.recurringLinkId);
+                    return r?.frequency === 'yearly' && r.monthOfYear != null
+                      && dayjs(t.date).month() !== r.monthOfYear - 1;
+                  })
+                  .map(t => t.id)
+              );
+              if (wrongIds.size > 0) {
+                transactions = state.transactions.filter(t => !wrongIds.has(t.id));
+                hasCleanup = true;
+              }
+            }
 
             const updatedRecurring = state.recurringTransactions.map(payload => {
               const startFrom = payload.lastGeneratedUpTo
@@ -837,6 +857,14 @@ setBalanceStartDate: async (date) => {
                 let targetDate = current.date(payload.dayOfMonth);
                 if (targetDate.month() !== current.month()) {
                   targetDate = current.endOf('month');
+                }
+
+                if (payload.frequency === 'yearly' && payload.monthOfYear != null) {
+                  const intendedMonth = payload.monthOfYear - 1;
+                  targetDate = targetDate.month(intendedMonth);
+                  if (targetDate.month() !== intendedMonth) {
+                    targetDate = dayjs(targetDate).date(1).month(intendedMonth).endOf('month');
+                  }
                 }
 
                 if (targetDate.isAfter(now, 'day')) break;
@@ -857,7 +885,7 @@ setBalanceStartDate: async (date) => {
                   return dayjs(d.date).isSame(targetDate, 'month');
                 });
 
-                const existsInPeriod = state.transactions.some(t => {
+                const existsInPeriod = transactions.some(t => {
                   if (t.recurringLinkId !== payload.id) return false;
                   if (payload.frequency === 'yearly') {
                     return dayjs(t.date).year() === targetDate.year();
@@ -888,10 +916,18 @@ setBalanceStartDate: async (date) => {
             hasNewTransactions = newTransactions.length > 0;
 
             if (!hasNewTransactions) {
+              if (transactions !== state.transactions) {
+                return {
+                  transactions,
+                  recurringTransactions: updatedRecurring,
+                  isSaving: false,
+                  isCheckingRecurring: false,
+                };
+              }
               return { isSaving: false, isCheckingRecurring: false, recurringTransactions: updatedRecurring };
             }
 
-            const allTransactions = [...state.transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
+            const allTransactions = [...transactions, ...newTransactions].sort((a, b) => dayjs(b.date).unix() - dayjs(a.date).unix());
             return {
               transactions: allTransactions,
               recurringTransactions: updatedRecurring,
@@ -901,6 +937,14 @@ setBalanceStartDate: async (date) => {
           });
 
           if (hasNewTransactions) {
+            const docRef = doc(db, 'users', userId);
+            const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
+            const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
+            await updateDoc(docRef, {
+              transactions: sanitizedTransactions,
+              recurringTransactions: sanitizedRecurring,
+            });
+          } else if (hasCleanup) {
             const docRef = doc(db, 'users', userId);
             const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
             const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
