@@ -447,6 +447,14 @@
 - Updated index.md (58 pages) and log.md
 - GitHub issue [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146)
 
+## [2026-07-16] fix | Bug | #146 — checkRecurring never ran: isInitializing guard blocked UserDoc onSnapshot
+- The `!isInitializing.current` guard prevented UserDoc `onSnapshot` from EVER processing initial data
+- `isInitializing=true` during `initializeUser()`, handler returns early → `hasCheckedRecurring` never set → no path triggers `checkRecurring()`
+- Sub-collection `onSnapshot` also blocked if it fires before `initializeUser()` completes
+- Removed `isInitializing` guard from UserDoc handler (initial load dedup via `hasLoaded` ref already prevents double-processing)
+- Added safety trigger in `initializeUser()` `finally` block
+- User confirmed 5 copies per month persisted because `checkRecurring()` simply never ran
+
 ## [2026-07-16] fix | Bug | #146 — corrected root cause: race condition (not manual-tx dedup)
 - Previous hypothesis was wrong (description+amount matching in `existsInPeriod` reverted)
 - Actual root cause: UserDoc `onSnapshot` fires `checkRecurring()` before sub-collection snapshot loads
