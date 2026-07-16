@@ -1,4 +1,10 @@
 
+### [2026.10.3](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.2...v2026.10.3) (2026-07-16)
+
+
+* update wiki with sub-collection write fix for checkRecurring ([5d2f3d8](https://github.com/AlexDevsTheWeb/myfinance/commit/5d2f3d824f41631443f3286f93d5ca21d7ec556b))
+* write checkRecurring modified transactions to sub-collection instead of legacy UserDoc field ([5d24aa3](https://github.com/AlexDevsTheWeb/myfinance/commit/5d24aa3f4b5789cd51b2ac4c672c88b271bb7206))
+
 ### [2026.10.2](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.1...v2026.10.2) (2026-07-16)
 
 
