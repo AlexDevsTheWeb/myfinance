@@ -1,4 +1,16 @@
 
+### [2026.10.4](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.3...v2026.10.4) (2026-07-16)
+
+
+* add dedup filter in sub-collection onSnapshot + trace logging ([cb488f9](https://github.com/AlexDevsTheWeb/myfinance/commit/cb488f9480c0796f446272920708461190c4e2ff))
+* broaden existsInPeriod dedup to match manual transactions by description+amount ([6fde963](https://github.com/AlexDevsTheWeb/myfinance/commit/6fde963cd89f3b8cf14643292c8b16f9b615199e)), closes [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146)
+* checkRecurring never ran — isInitializing guard blocked UserDoc onSnapshot ([b295a63](https://github.com/AlexDevsTheWeb/myfinance/commit/b295a63c119878d2701104564c3487c5ac27c0a3))
+* correct root cause of [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146) — race condition between onSnapshot listeners ([ab0a789](https://github.com/AlexDevsTheWeb/myfinance/commit/ab0a78940737af7529419d5e77bc833a82068898))
+* delete orphaned duplicate documents from Firestore sub-collection ([fd3e96e](https://github.com/AlexDevsTheWeb/myfinance/commit/fd3e96ef7902ef1d3870ea54e97d2af55fc645d3))
+* delete orphaned duplicates directly in onSnapshot handler, with hasCleanedOrphans guard ([92b16c4](https://github.com/AlexDevsTheWeb/myfinance/commit/92b16c4d0746ee43832b4f22ed4e6032a9830d4b))
+* log isInitializing block fix for [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146) ([82a34c6](https://github.com/AlexDevsTheWeb/myfinance/commit/82a34c6c8db2bdb6bfe03c2da285d8505e951eb9))
+* race condition in checkRecurring causing duplicate generated transactions ([9d5224e](https://github.com/AlexDevsTheWeb/myfinance/commit/9d5224ef573d3366e5acacfc51cde2ff76225aa3))
+
 ### [2026.10.3](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.2...v2026.10.3) (2026-07-16)
 
 
