@@ -9,7 +9,7 @@ import { useFinanceStore } from '../store/useFinanceStore';
 export const useSyncFinance = () => {
   const { user } = useAuthStore();
   const { setAll } = useFinanceStore();
-
+  (window as never as Record<string, unknown>).__finance = useFinanceStore;
 
   const isInitializing = useRef(false);
   const hasLoaded = useRef(false);
@@ -49,6 +49,10 @@ export const useSyncFinance = () => {
         useFinanceStore.getState().setAll({ isLoading: false });
       } finally {
         isInitializing.current = false;
+        if (!hasCheckedRecurring.current && hasLoaded.current && subColLoaded.current) {
+          hasCheckedRecurring.current = true;
+          useFinanceStore.getState().checkRecurring();
+        }
       }
     };
 
@@ -56,7 +60,7 @@ export const useSyncFinance = () => {
 
     const unsubDoc = onSnapshot(docRef, (doc) => {
       if (doc.metadata.hasPendingWrites) return;
-      if (doc.exists() && !isInitializing.current) {
+      if (doc.exists()) {
         const storeState = useFinanceStore.getState();
         if (storeState.isSaving || storeState.hasLocalChanges) return;
         const data = doc.data();
