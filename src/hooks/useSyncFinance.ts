@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { runTransaction, onSnapshot } from 'firebase/firestore';
+import { runTransaction, onSnapshot, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { getDefaultUserConfig, getUserDocRef } from '../store/sync';
 import { getTransactionsCollectionRef } from '../lib/converters';
@@ -15,6 +15,7 @@ export const useSyncFinance = () => {
   const hasLoaded = useRef(false);
   const hasCheckedRecurring = useRef(false);
   const subColLoaded = useRef(false);
+  const hasCleanedOrphans = useRef(false);
 
   useEffect(() => {
     if (!user) {
@@ -87,28 +88,38 @@ export const useSyncFinance = () => {
     });
 
     const unsubTxns = onSnapshot(txnsRef, (snapshot) => {
-      console.log('[TRACE] subCol onSnapshot fired, count=', snapshot.docs.length, 'hasPendingWrites=', snapshot.metadata.hasPendingWrites);
       if (!subColLoaded.current) {
         subColLoaded.current = true;
-        console.log('[TRACE] subCol: set subColLoaded=true');
       }
-      const transactions = snapshot.docs.map(d => d.data());
-      const sorted = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-      // TEMP: dedup BEFORE storing to prevent onSnapshot from adding dupes
+      const allDocs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+      const sorted = allDocs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
       const seen = new Set<string>();
-      const deduped = sorted.filter(t => {
+      const orphanedIds: string[] = [];
+      const deduped: typeof sorted = [];
+      for (const t of sorted) {
         const key = t.recurringLinkId ? `${t.recurringLinkId}|${t.date}` : t.id;
-        if (!seen.has(key)) { seen.add(key); return true; }
-        console.log('[TRACE] subCol: filtered duplicate:', t.date, t.description);
-        return false;
-      });
-      console.log('[TRACE] subCol: sorted=', sorted.length, 'deduped=', deduped.length, 'filtered=', sorted.length - deduped.length);
+        if (!seen.has(key)) {
+          seen.add(key);
+          deduped.push(t);
+        } else {
+          orphanedIds.push(t.id);
+        }
+      }
+
+      if (orphanedIds.length > 0 && !snapshot.metadata.hasPendingWrites && !hasCleanedOrphans.current) {
+        hasCleanedOrphans.current = true;
+        const batch = writeBatch(db);
+        for (const orphanId of orphanedIds) {
+          batch.delete(doc(txnsRef, orphanId));
+        }
+        batch.commit().catch(err => console.error('orphan cleanup failed:', err));
+      }
 
       const { setAll, checkRecurring } = useFinanceStore.getState();
       setAll({ transactions: deduped as never[], isLoading: false });
       if (!hasCheckedRecurring.current && hasLoaded.current) {
-        console.log('[TRACE] subCol: triggering checkRecurring');
         hasCheckedRecurring.current = true;
         checkRecurring();
       }
