@@ -431,3 +431,18 @@
   - Persists cleanup to Firestore even when no new transactions generated
 - Updated [[wiki/bugs/recurring-transaction-monthofyear]] → status: **fixed**
 - Updated index.md and log.md
+
+## [2026-07-16] fix | Bug | #142 — sub-collection write fix (follow-up)
+- `checkRecurring()` was still writing to legacy `UserDoc.transactions` field (ignored after Phase 1.1 migration)
+- Changed to `writeBatch` on sub-collection via `getTransactionsCollectionRef()` — matches `setTransactions` pattern
+- Builds batch from `getState().transactions` to capture all corrected/generated transactions
+- Updated [[wiki/bugs/recurring-transaction-monthofyear]] — added Fix 3 to implemented fix section
+
+## [2026-07-16] fix | Bug | #146 — duplicates alongside manually-added transactions
+- Root cause: `existsInPeriod` dedup in `checkRecurring()` skipped manual transactions (no `recurringLinkId`)
+- Broadened check to match by `description` + `amount` in same period as fallback
+- Created [[raw/recurring-duplicate-same-period/recurring-duplicate-same-period.md]]
+- Created [[wiki/bugs/recurring-transaction-duplicates-same-period]]
+- Cross-linked both bug pages
+- Updated index.md (58 pages) and log.md
+- GitHub issue [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146)

@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-07-16* (Recurring monthOfYear bug)
-*Total pages: 57*
+*Last updated: 2026-07-16* (Duplicate recurring bug)
+*Total pages: 58*
 
 ---
 
@@ -72,6 +72,7 @@
 | [[wiki/bugs/car-statistics-year]] | ✅ Car page "Statistics {year}" shows literal `{year}` | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
 | [[wiki/bugs/ticker-persistence]] | ✅ BrokerAccount ticker not persisted; PAC uses brokerId as ticker — **fixed** | [`#108`](https://github.com/AlexDevsTheWeb/myfinance/issues/108) |
 | [[wiki/bugs/recurring-transaction-monthofyear]] | ✅ Yearly recurring transactions ignore `monthOfYear` — **fixed** | [`#142`](https://github.com/AlexDevsTheWeb/myfinance/issues/142) |
+| [[wiki/bugs/recurring-transaction-duplicates-same-period]] | ✅ `checkRecurring` generates duplicates alongside manual transactions — **fixed** | [`#146`](https://github.com/AlexDevsTheWeb/myfinance/issues/146) |
 
 ## Architecture
 

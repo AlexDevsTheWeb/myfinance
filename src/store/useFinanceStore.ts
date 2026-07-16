@@ -887,11 +887,19 @@ setBalanceStartDate: async (date) => {
                 });
 
                 const existsInPeriod = transactions.some(t => {
-                  if (t.recurringLinkId !== payload.id) return false;
-                  if (payload.frequency === 'yearly') {
-                    return dayjs(t.date).year() === targetDate.year();
+                  if (t.recurringLinkId === payload.id) {
+                    if (payload.frequency === 'yearly') {
+                      return dayjs(t.date).year() === targetDate.year();
+                    }
+                    return dayjs(t.date).isSame(targetDate, 'month');
                   }
-                  return dayjs(t.date).isSame(targetDate, 'month');
+                  if (t.description === payload.description && Math.abs(t.amount) === Math.abs(payload.amount)) {
+                    if (payload.frequency === 'yearly') {
+                      return dayjs(t.date).year() === targetDate.year();
+                    }
+                    return dayjs(t.date).isSame(targetDate, 'month');
+                  }
+                  return false;
                 });
 
                 if (!isDeleted && !existsInPeriod) {
