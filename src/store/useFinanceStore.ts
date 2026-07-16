@@ -824,21 +824,22 @@ setBalanceStartDate: async (date) => {
             const balanceStart = dayjs(state.balanceStartDate);
 
             let transactions = state.transactions;
-            const needsCleanup = state.recurringTransactions.some(r => r.frequency === 'yearly' && r.monthOfYear != null);
-            if (needsCleanup) {
-              const wrongIds = new Set(
-                state.transactions
-                  .filter(t => {
-                    if (!t.recurringLinkId) return false;
-                    const r = state.recurringTransactions.find(x => x.id === t.recurringLinkId);
-                    return r?.frequency === 'yearly' && r.monthOfYear != null
-                      && dayjs(t.date).month() !== r.monthOfYear - 1;
-                  })
-                  .map(t => t.id)
-              );
-              if (wrongIds.size > 0) {
-                transactions = state.transactions.filter(t => !wrongIds.has(t.id));
-                hasCleanup = true;
+            if (state.recurringTransactions.some(r => r.frequency === 'yearly' && r.monthOfYear != null)) {
+              const corrected = state.transactions.map(t => {
+                if (!t.recurringLinkId) return t;
+                const r = state.recurringTransactions.find(x => x.id === t.recurringLinkId);
+                if (r?.frequency === 'yearly' && r.monthOfYear != null) {
+                  const tDate = dayjs(t.date);
+                  if (tDate.month() !== r.monthOfYear - 1) {
+                    hasCleanup = true;
+                    const fixed = dayjs(t.date).month(r.monthOfYear - 1).date(r.dayOfMonth);
+                    return { ...t, date: fixed.format('YYYY-MM-DD') };
+                  }
+                }
+                return t;
+              });
+              if (hasCleanup) {
+                transactions = corrected;
               }
             }
 
@@ -936,22 +937,18 @@ setBalanceStartDate: async (date) => {
             };
           });
 
-          if (hasNewTransactions) {
+          if (hasNewTransactions || hasCleanup) {
+            const collRef = getTransactionsCollectionRef(userId);
+            const batch = writeBatch(db);
+            for (const txn of useFinanceStore.getState().transactions) {
+              const txnRef = doc(collRef, txn.id);
+              batch.set(txnRef, Sanitization.sanitizeTransaction(txn));
+            }
+            await batch.commit();
+
             const docRef = doc(db, 'users', userId);
-            const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
             const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
-            await updateDoc(docRef, {
-              transactions: sanitizedTransactions,
-              recurringTransactions: sanitizedRecurring,
-            });
-          } else if (hasCleanup) {
-            const docRef = doc(db, 'users', userId);
-            const sanitizedTransactions = useFinanceStore.getState().transactions.map(Sanitization.sanitizeTransaction);
-            const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
-            await updateDoc(docRef, {
-              transactions: sanitizedTransactions,
-              recurringTransactions: sanitizedRecurring,
-            });
+            await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
           } else {
             const docRef = doc(db, 'users', userId);
             const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
