@@ -414,3 +414,12 @@
 - Backfill utility preserved with type-safe legacy read for any remaining cleanup
 - Backup/restore unaffected: backup reads store (sub-collection populated), restore writes to sub-collection via batch
 - Only safe because single user with backups confirmed
+
+## [2026-07-16] bug | Critical | Yearly recurring transactions ignore `monthOfYear` — generated in wrong month
+- Discovered Google One subscription (yearly) invisible in dashboard
+- Root cause: `checkRecurring()` in `src/store/useFinanceStore.ts:837` never reads `payload.monthOfYear`
+- Created [[raw/recurring-transaction-monthofyear/recurring-transaction-monthofyear.md]] — full analysis with root cause, impact, proposed fix
+- Created [[wiki/bugs/recurring-transaction-monthofyear]] — status: **open**, severity: **critical**
+- Secondary issues documented: `lastGeneratedUpTo` not persisted, yearly dedup blocking correct re-gen
+- Updated index.md (57 pages) and log.md
+- Created GitHub issue to track
