@@ -1,4 +1,11 @@
 
+### [2026.10.2](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.1...v2026.10.2) (2026-07-16)
+
+
+* mark [#142](https://github.com/AlexDevsTheWeb/myfinance/issues/142) as fixed in wiki ([a1db3eb](https://github.com/AlexDevsTheWeb/myfinance/commit/a1db3ebe04ea9df8d3aa3162c7cc4ab4d3ab6b69))
+* yearly recurring transactions ignore monthOfYear — bug analysis + issue [#142](https://github.com/AlexDevsTheWeb/myfinance/issues/142) ([6ccae5e](https://github.com/AlexDevsTheWeb/myfinance/commit/6ccae5ed67b32baa03dd8aba38068e386bf34b6a))
+* yearly recurring transactions now use monthOfYear in checkRecurring() ([d8ddc4f](https://github.com/AlexDevsTheWeb/myfinance/commit/d8ddc4fbc83339f39b83d7251fbf42cfb783ace3)), closes [#142](https://github.com/AlexDevsTheWeb/myfinance/issues/142)
+
 ### [2026.10.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.0...v2026.10.1) (2026-07-12)
 
 ## [2026.10.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.9.0...v2026.10.0) (2026-07-12)
