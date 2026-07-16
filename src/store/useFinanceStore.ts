@@ -817,6 +817,7 @@ setBalanceStartDate: async (date) => {
         try {
           let hasNewTransactions = false;
           let hasCleanup = false;
+          const orphanedIds = new Set<string>();
 
           set((state) => {
             const newTransactions: Transaction[] = [];
@@ -852,6 +853,7 @@ setBalanceStartDate: async (date) => {
                 deduped.push(t);
               } else {
                 hasCleanup = true;
+                orphanedIds.add(t.id);
               }
             }
             if (deduped.length !== transactions.length) {
@@ -958,6 +960,10 @@ setBalanceStartDate: async (date) => {
             for (const txn of useFinanceStore.getState().transactions) {
               const txnRef = doc(collRef, txn.id);
               batch.set(txnRef, Sanitization.sanitizeTransaction(txn));
+            }
+            for (const orphanId of orphanedIds) {
+              const orphanRef = doc(collRef, orphanId);
+              batch.delete(orphanRef);
             }
             await batch.commit();
 
