@@ -431,3 +431,37 @@
   - Persists cleanup to Firestore even when no new transactions generated
 - Updated [[wiki/bugs/recurring-transaction-monthofyear]] → status: **fixed**
 - Updated index.md and log.md
+
+## [2026-07-16] fix | Bug | #142 — sub-collection write fix (follow-up)
+- `checkRecurring()` was still writing to legacy `UserDoc.transactions` field (ignored after Phase 1.1 migration)
+- Changed to `writeBatch` on sub-collection via `getTransactionsCollectionRef()` — matches `setTransactions` pattern
+- Builds batch from `getState().transactions` to capture all corrected/generated transactions
+- Updated [[wiki/bugs/recurring-transaction-monthofyear]] — added Fix 3 to implemented fix section
+
+## [2026-07-16] fix | Bug | #146 — duplicates alongside manually-added transactions
+- Root cause: `existsInPeriod` dedup in `checkRecurring()` skipped manual transactions (no `recurringLinkId`)
+- Broadened check to match by `description` + `amount` in same period as fallback
+- Created [[raw/recurring-duplicate-same-period/recurring-duplicate-same-period.md]]
+- Created [[wiki/bugs/recurring-transaction-duplicates-same-period]]
+- Cross-linked both bug pages
+- Updated index.md (58 pages) and log.md
+- GitHub issue [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146)
+
+## [2026-07-16] fix | Bug | #146 — checkRecurring never ran: isInitializing guard blocked UserDoc onSnapshot
+- The `!isInitializing.current` guard prevented UserDoc `onSnapshot` from EVER processing initial data
+- `isInitializing=true` during `initializeUser()`, handler returns early → `hasCheckedRecurring` never set → no path triggers `checkRecurring()`
+- Sub-collection `onSnapshot` also blocked if it fires before `initializeUser()` completes
+- Removed `isInitializing` guard from UserDoc handler (initial load dedup via `hasLoaded` ref already prevents double-processing)
+- Added safety trigger in `initializeUser()` `finally` block
+- User confirmed 5 copies per month persisted because `checkRecurring()` simply never ran
+
+## [2026-07-16] fix | Bug | #146 — corrected root cause: race condition (not manual-tx dedup)
+- Previous hypothesis was wrong (description+amount matching in `existsInPeriod` reverted)
+- Actual root cause: UserDoc `onSnapshot` fires `checkRecurring()` before sub-collection snapshot loads
+  → `transactions = []` → every period looks missing → generates new txs → sub-collection snapshot overwrites them → lost → repeat on every page load → 5 copies accumulate
+- Fix 1: timing guard — `checkRecurring()` waits for **both** UserDoc AND sub-collection snapshots
+- Fix 2: dedup cleanup — removes extra copies by `recurringLinkId|date` before generation
+- Verified: 487 total txs, 345 unique, x5 on recurring entries like Google One, Netflix
+- Updated [[raw/recurring-duplicate-same-period/recurring-duplicate-same-period.md]]
+- Updated [[wiki/bugs/recurring-transaction-duplicates-same-period]]
+- Updated index.md and log.md

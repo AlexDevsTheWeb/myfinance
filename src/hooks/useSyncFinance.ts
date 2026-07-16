@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { runTransaction, onSnapshot } from 'firebase/firestore';
+import { runTransaction, onSnapshot, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { getDefaultUserConfig, getUserDocRef } from '../store/sync';
 import { getTransactionsCollectionRef } from '../lib/converters';
@@ -14,6 +14,7 @@ export const useSyncFinance = () => {
   const hasLoaded = useRef(false);
   const hasCheckedRecurring = useRef(false);
   const subColLoaded = useRef(false);
+  const hasCleanedOrphans = useRef(false);
 
   useEffect(() => {
     if (!user) {
@@ -48,6 +49,10 @@ export const useSyncFinance = () => {
         useFinanceStore.getState().setAll({ isLoading: false });
       } finally {
         isInitializing.current = false;
+        if (!hasCheckedRecurring.current && hasLoaded.current && subColLoaded.current) {
+          hasCheckedRecurring.current = true;
+          useFinanceStore.getState().checkRecurring();
+        }
       }
     };
 
@@ -55,7 +60,7 @@ export const useSyncFinance = () => {
 
     const unsubDoc = onSnapshot(docRef, (doc) => {
       if (doc.metadata.hasPendingWrites) return;
-      if (doc.exists() && !isInitializing.current) {
+      if (doc.exists()) {
         const storeState = useFinanceStore.getState();
         if (storeState.isSaving || storeState.hasLocalChanges) return;
         const data = doc.data();
@@ -64,7 +69,7 @@ export const useSyncFinance = () => {
         if (!hasLoaded.current) {
           hasLoaded.current = true;
         }
-        if (!hasCheckedRecurring.current) {
+        if (!hasCheckedRecurring.current && subColLoaded.current) {
           hasCheckedRecurring.current = true;
           checkRecurring();
         }
@@ -75,9 +80,38 @@ export const useSyncFinance = () => {
       if (!subColLoaded.current) {
         subColLoaded.current = true;
       }
-      const transactions = snapshot.docs.map(d => d.data());
-      const sorted = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      useFinanceStore.getState().setAll({ transactions: sorted as never[], isLoading: false });
+
+      const allDocs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+      const sorted = allDocs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+      const seen = new Set<string>();
+      const orphanedIds: string[] = [];
+      const deduped: typeof sorted = [];
+      for (const t of sorted) {
+        const key = t.recurringLinkId ? `${t.recurringLinkId}|${t.date}` : t.id;
+        if (!seen.has(key)) {
+          seen.add(key);
+          deduped.push(t);
+        } else {
+          orphanedIds.push(t.id);
+        }
+      }
+
+      if (orphanedIds.length > 0 && !snapshot.metadata.hasPendingWrites && !hasCleanedOrphans.current) {
+        hasCleanedOrphans.current = true;
+        const batch = writeBatch(db);
+        for (const orphanId of orphanedIds) {
+          batch.delete(doc(txnsRef, orphanId));
+        }
+        batch.commit().catch(err => console.error('orphan cleanup failed:', err));
+      }
+
+      const { setAll, checkRecurring } = useFinanceStore.getState();
+      setAll({ transactions: deduped as never[], isLoading: false });
+      if (!hasCheckedRecurring.current && hasLoaded.current) {
+        hasCheckedRecurring.current = true;
+        checkRecurring();
+      }
     });
 
     return () => {
