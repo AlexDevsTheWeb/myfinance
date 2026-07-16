@@ -9,7 +9,6 @@ import { useFinanceStore } from '../store/useFinanceStore';
 export const useSyncFinance = () => {
   const { user } = useAuthStore();
   const { setAll } = useFinanceStore();
-  (window as never as Record<string, unknown>).__finance = useFinanceStore;
 
   const isInitializing = useRef(false);
   const hasLoaded = useRef(false);
@@ -31,7 +30,6 @@ export const useSyncFinance = () => {
     const txnsRef = getTransactionsCollectionRef(user.uid);
 
     const initializeUser = async () => {
-      console.log('[TRACE] initializeUser start');
       isInitializing.current = true;
       try {
         await runTransaction(db, async (transaction) => {
@@ -45,20 +43,15 @@ export const useSyncFinance = () => {
             setAll({ ...defaultConfig, isLoading: false });
           }
           hasLoaded.current = true;
-          console.log('[TRACE] runTransaction done, hasLoaded=true');
         });
       } catch (error) {
-        console.error('[TRACE] Error in initializeUser transaction:', error);
+        console.error('Error in initializeUser transaction:', error);
         useFinanceStore.getState().setAll({ isLoading: false });
       } finally {
-        console.log('[TRACE] finally block, hasLoaded=', hasLoaded.current, 'subColLoaded=', subColLoaded.current, 'hasCheckedRecurring=', hasCheckedRecurring.current);
         isInitializing.current = false;
         if (!hasCheckedRecurring.current && hasLoaded.current && subColLoaded.current) {
-          console.log('[TRACE] finally: triggering checkRecurring');
           hasCheckedRecurring.current = true;
           useFinanceStore.getState().checkRecurring();
-        } else {
-          console.log('[TRACE] finally: NOT triggering checkRecurring');
         }
       }
     };
@@ -66,21 +59,17 @@ export const useSyncFinance = () => {
     initializeUser();
 
     const unsubDoc = onSnapshot(docRef, (doc) => {
-      console.log('[TRACE] doc onSnapshot fired, isInit=', isInitializing.current, 'hasPendingWrites=', doc.metadata.hasPendingWrites);
       if (doc.metadata.hasPendingWrites) return;
       if (doc.exists()) {
         const storeState = useFinanceStore.getState();
-        if (storeState.isSaving || storeState.hasLocalChanges) { console.log('[TRACE] doc: skipping (isSaving/hasLocalChanges)'); return; }
+        if (storeState.isSaving || storeState.hasLocalChanges) return;
         const data = doc.data();
         const { setAll, checkRecurring } = useFinanceStore.getState();
         setAll({ ...data, isLoading: !(hasLoaded.current || subColLoaded.current) });
         if (!hasLoaded.current) {
           hasLoaded.current = true;
-          console.log('[TRACE] doc: set hasLoaded=true');
         }
-        console.log('[TRACE] doc: hasCheckedRecurring=', hasCheckedRecurring.current, 'subColLoaded=', subColLoaded.current);
         if (!hasCheckedRecurring.current && subColLoaded.current) {
-          console.log('[TRACE] doc: triggering checkRecurring');
           hasCheckedRecurring.current = true;
           checkRecurring();
         }
