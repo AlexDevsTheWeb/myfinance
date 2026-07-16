@@ -10,6 +10,7 @@ export const useSyncFinance = () => {
   const { user } = useAuthStore();
   const { setAll } = useFinanceStore();
 
+
   const isInitializing = useRef(false);
   const hasLoaded = useRef(false);
   const hasCheckedRecurring = useRef(false);
@@ -64,7 +65,7 @@ export const useSyncFinance = () => {
         if (!hasLoaded.current) {
           hasLoaded.current = true;
         }
-        if (!hasCheckedRecurring.current) {
+        if (!hasCheckedRecurring.current && subColLoaded.current) {
           hasCheckedRecurring.current = true;
           checkRecurring();
         }
@@ -77,7 +78,12 @@ export const useSyncFinance = () => {
       }
       const transactions = snapshot.docs.map(d => d.data());
       const sorted = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      useFinanceStore.getState().setAll({ transactions: sorted as never[], isLoading: false });
+      const { setAll, checkRecurring } = useFinanceStore.getState();
+      setAll({ transactions: sorted as never[], isLoading: false });
+      if (!hasCheckedRecurring.current && hasLoaded.current) {
+        hasCheckedRecurring.current = true;
+        checkRecurring();
+      }
     });
 
     return () => {

@@ -843,6 +843,21 @@ setBalanceStartDate: async (date) => {
               }
             }
 
+            const deduped: Transaction[] = [];
+            const seen = new Set<string>();
+            for (const t of transactions) {
+              const key = t.recurringLinkId ? `${t.recurringLinkId}|${t.date}` : t.id;
+              if (!seen.has(key)) {
+                seen.add(key);
+                deduped.push(t);
+              } else {
+                hasCleanup = true;
+              }
+            }
+            if (deduped.length !== transactions.length) {
+              transactions = deduped;
+            }
+
             const updatedRecurring = state.recurringTransactions.map(payload => {
               const startFrom = payload.lastGeneratedUpTo
                 ? dayjs(payload.lastGeneratedUpTo).add(1, payload.frequency === 'yearly' ? 'year' : 'month')
@@ -887,19 +902,11 @@ setBalanceStartDate: async (date) => {
                 });
 
                 const existsInPeriod = transactions.some(t => {
-                  if (t.recurringLinkId === payload.id) {
-                    if (payload.frequency === 'yearly') {
-                      return dayjs(t.date).year() === targetDate.year();
-                    }
-                    return dayjs(t.date).isSame(targetDate, 'month');
+                  if (t.recurringLinkId !== payload.id) return false;
+                  if (payload.frequency === 'yearly') {
+                    return dayjs(t.date).year() === targetDate.year();
                   }
-                  if (t.description === payload.description && Math.abs(t.amount) === Math.abs(payload.amount)) {
-                    if (payload.frequency === 'yearly') {
-                      return dayjs(t.date).year() === targetDate.year();
-                    }
-                    return dayjs(t.date).isSame(targetDate, 'month');
-                  }
-                  return false;
+                  return dayjs(t.date).isSame(targetDate, 'month');
                 });
 
                 if (!isDeleted && !existsInPeriod) {
