@@ -11,10 +11,10 @@ export default function BudgetSummaryCards({ summary }: Props) {
   const savingsPercent = Math.round(summary.savingsRate * 100);
 
   const cards = [
-    { label: t('budget.totalBudgeted'), value: `€${summary.totalBudgeted.toLocaleString('it-IT')}`, color: '#6366f1' },
-    { label: t('budget.totalSpent'), value: `€${summary.totalSpent.toLocaleString('it-IT')}`, color: '#f59e0b' },
-    { label: t('budget.remaining'), value: `€${Math.max(0, summary.surplus).toLocaleString('it-IT')}`, color: '#22c55e' },
-    { label: t('budget.savingsRate'), value: `${savingsPercent}%`, color: savingsPercent >= 20 ? '#22c55e' : savingsPercent >= 10 ? '#f59e0b' : '#ef4444', large: true },
+    { label: t('budget.totalBudgeted'), value: `€${summary.totalBudgeted.toLocaleString('it-IT')}`, color: 'primary.main' },
+    { label: t('budget.totalSpent'), value: `€${summary.totalSpent.toLocaleString('it-IT')}`, color: 'warning.main' },
+    { label: t('budget.remaining'), value: `€${Math.max(0, summary.surplus).toLocaleString('it-IT')}`, color: 'success.main' },
+    { label: t('budget.savingsRate'), value: `${savingsPercent}%`, color: savingsPercent >= 20 ? 'success.main' : savingsPercent >= 10 ? 'warning.main' : 'error.main', large: true },
   ];
 
   return (

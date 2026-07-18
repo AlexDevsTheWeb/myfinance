@@ -6,9 +6,9 @@ interface Props {
 }
 
 function getRateColor(rate: number): string {
-  if (rate >= 0.2) return '#22c55e';
-  if (rate >= 0.1) return '#f59e0b';
-  return '#ef4444';
+  if (rate >= 0.2) return 'success.main';
+  if (rate >= 0.1) return 'warning.main';
+  return 'error.main';
 }
 
 export default function SavingsRateGauge({ rate }: Props) {

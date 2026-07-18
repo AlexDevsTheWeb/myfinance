@@ -27,7 +27,7 @@ const CashInterestCard: React.FC<CashInterestCardProps> = ({ cashBalance, intere
             <Typography variant="body2" sx={{ opacity: 0.7, mb: 1 }}>
               Accrued Interest: <strong>{formatEur(accruedInterest)}/month</strong>
             </Typography>
-            <Chip label={`APY ${interestRate}%`} size="small" sx={{ background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', fontWeight: 700 }} />
+            <Chip label={`APY ${interestRate}%`} size="small" sx={{ background: 'rgba(16, 185, 129, 0.2)', color: 'success.main', fontWeight: 700 }} />
           </>
         )}
       </CardContent>

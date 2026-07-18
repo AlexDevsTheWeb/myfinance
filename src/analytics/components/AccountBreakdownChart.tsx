@@ -1,8 +1,7 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { PieChart } from '@mui/x-charts/PieChart';
 import type { IAccountBreakdown } from '../types';
-
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'];
 
 interface AccountBreakdownChartProps {
   data: IAccountBreakdown[];
@@ -10,6 +9,8 @@ interface AccountBreakdownChartProps {
 }
 
 const AccountBreakdownChart: React.FC<AccountBreakdownChartProps> = ({ data, title }) => {
+  const theme = useTheme();
+  const palette = theme.chart.palette.slice(0, 6);
   const chartData = data.map(d => ({
     name: d.accountName,
     value: d.balance,
@@ -30,7 +31,7 @@ const AccountBreakdownChart: React.FC<AccountBreakdownChartProps> = ({ data, tit
                 id: d.name,
                 label: d.name,
                 value: d.value,
-                color: COLORS[i % COLORS.length],
+                color: palette[i % palette.length],
               })),
               innerRadius: 60,
               outerRadius: 100,

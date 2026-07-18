@@ -144,11 +144,11 @@ const AnalysisTables: React.FC<AnalysisTablesProps> = ({ selectedYear }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       {renderTable('Financial Summary', summaryData, [
-        { label: 'Income', key: 'income', color: '#10b981' },
-        { label: 'Expenses', key: 'expense', color: '#ef4444' },
+        { label: 'Income', key: 'income', color: 'success.main' },
+        { label: 'Expenses', key: 'expense', color: 'error.main' },
         { label: '', key: 'separator' },
-        { label: 'Net Savings', key: 'net', color: '#f59e0b' },
-        { label: 'Final Balance', key: 'balance', color: '#6366f1' },
+        { label: 'Net Savings', key: 'net', color: 'warning.main' },
+        { label: 'Final Balance', key: 'balance', color: 'primary.main' },
       ])}
 
       {/* <Grid container spacing={4}>

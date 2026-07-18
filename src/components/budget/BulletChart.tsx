@@ -7,19 +7,19 @@ interface Props {
 
 function getStatusColor(status: string): string {
   switch (status) {
-    case 'safe': return '#22c55e';
-    case 'warning': return '#f59e0b';
-    case 'breach': return '#ef4444';
-    default: return '#6366f1';
+    case 'safe': return 'success.main';
+    case 'warning': return 'warning.main';
+    case 'breach': return 'error.main';
+    default: return 'primary.main';
   }
 }
 
 function getStatusBg(status: string): string {
   switch (status) {
-    case 'safe': return 'rgba(34,197,94,0.15)';
-    case 'warning': return 'rgba(245,158,11,0.15)';
+    case 'safe': return 'rgba(16,185,129,0.15)';
+    case 'warning': return 'rgba(237,108,2,0.15)';
     case 'breach': return 'rgba(239,68,68,0.15)';
-    default: return 'rgba(99,102,241,0.15)';
+    default: return 'rgba(67,100,247,0.15)';
   }
 }
 
@@ -56,7 +56,7 @@ export default function BulletChart({ snapshots }: Props) {
                 variant="caption"
                 sx={{
                   position: 'absolute', right: 4, top: -2, fontWeight: 700, fontSize: 11,
-                  color: s.percentage >= 100 ? '#ef4444' : 'rgba(255,255,255,0.8)',
+                  color: s.percentage >= 100 ? 'error.main' : 'rgba(255,255,255,0.8)',
                 }}
               >
                 {Math.round(s.percentage)}%

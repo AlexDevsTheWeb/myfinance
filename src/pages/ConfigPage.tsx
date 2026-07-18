@@ -86,7 +86,7 @@ const DroppableCategory: React.FC<{ cat: any; type: 'income' | 'expense'; childr
       sx={{
         mb: 3,
         background: isOver ? 'rgba(99, 102, 241, 0.1)' : 'rgba(30, 41, 59, 0.5)',
-        border: `1px solid ${isOver ? '#6366f1' : 'rgba(255,255,255,0.1)'}`,
+        border: `1px solid ${isOver ? '#4364f7' : 'rgba(255,255,255,0.1)'}`,
         transition: 'all 0.2s',
         minHeight: 150,
         display: 'flex',
@@ -642,14 +642,15 @@ const ConfigPage: React.FC = () => {
                         background: 'rgba(255,255,255,0.02)',
                         mb: 1,
                         borderRadius: 3,
-                        border: acc.isDefault ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.05)'
+                        border: acc.isDefault ? '1px solid' : '1px solid rgba(255,255,255,0.05)',
+                        borderColor: acc.isDefault ? 'primary.main' : 'rgba(255,255,255,0.05)'
                       }}
                     >
                       <ListItemText
                         primary={
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Typography sx={{ fontWeight: 700 }}>{acc.name}</Typography>
-                            {acc.isDefault && <Typography variant="caption" sx={{ background: '#6366f1', px: 1, borderRadius: 1 }}>DEFAULT</Typography>}
+                            {acc.isDefault && <Typography variant="caption" sx={{ bgcolor: 'primary.main', px: 1, borderRadius: 1 }}>DEFAULT</Typography>}
                           </Box>
                         }
                         secondary={`Initial Balance: € ${acc.initialBalance.toLocaleString('it-IT')}`}

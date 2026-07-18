@@ -1,4 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { axisClasses } from '@mui/x-charts';
 import dayjs from 'dayjs';
@@ -14,6 +15,7 @@ const formatEuro = (v: number | null) => v === null ? '' : `€ ${v.toLocaleStri
 
 const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, title }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
 
   const chartData = [
     {
@@ -51,9 +53,9 @@ const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, t
       <Box sx={{ height: 300, width: '100%' }}>
         <BarChart
           series={[
-            { data: chartData.map(d => d.current), label: `${monthLabel} ${data.year}`, color: '#6366f1', valueFormatter: formatEuro },
-            { data: chartData.map(d => d.previous), label: t('insights.vsPrevMonth'), color: '#10b981', valueFormatter: formatEuro },
-            { data: chartData.map(d => d.lastYear), label: `${monthLabel} ${data.year - 1}`, color: '#f59e0b', valueFormatter: formatEuro },
+            { data: chartData.map(d => d.current), label: `${monthLabel} ${data.year}`, color: theme.chart.primary, valueFormatter: formatEuro },
+            { data: chartData.map(d => d.previous), label: t('insights.vsPrevMonth'), color: theme.chart.income, valueFormatter: formatEuro },
+            { data: chartData.map(d => d.lastYear), label: `${monthLabel} ${data.year - 1}`, color: theme.palette.warning.main, valueFormatter: formatEuro },
           ]}
           xAxis={[{ scaleType: 'band', data: chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
           yAxis={[{ disableLine: true, disableTicks: true }]}

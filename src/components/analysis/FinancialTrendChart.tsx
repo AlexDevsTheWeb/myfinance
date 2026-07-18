@@ -1,5 +1,5 @@
 import { BarChart as BarChartIcon } from '@mui/icons-material';
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography, useTheme } from '@mui/material';
 import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
 import { AreaPlot, LinePlot } from '@mui/x-charts/LineChart';
 import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
@@ -15,6 +15,7 @@ interface FinancialTrendChartProps {
 }
 
 const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear }) => {
+  const theme = useTheme();
   const { t } = useTranslation();
   const { transactions, initialBalance, balanceStartDate } = useFinanceStore();
 
@@ -88,7 +89,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
               type: 'line',
               data: chartData.map(d => d.balance),
               label: t('insights.accountBalance'),
-              color: '#6366f1',
+              color: theme.chart.primary,
               area: true,
               showMark: false,
             },
@@ -97,7 +98,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
               type: 'line',
               data: chartData.map(d => d.income),
               label: t('insights.totalIncome'),
-              color: '#10b981',
+              color: theme.chart.income,
               showMark: true,
             },
             {
@@ -105,7 +106,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
               type: 'line',
               data: chartData.map(d => d.expense),
               label: t('insights.totalExpenses'),
-              color: '#ef4444',
+              color: theme.chart.expense,
               showMark: true,
             },
             {
@@ -113,7 +114,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
               type: 'line',
               data: chartData.map(d => d.netGain),
               label: t('insights.netEarnings'),
-              color: '#f59e0b',
+              color: theme.palette.warning.main,
               showMark: true,
             },
           ]}
@@ -127,8 +128,8 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
             <ChartsSurface>
               <defs>
                 <linearGradient id="balanceGradient-financial" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+                  <stop offset="0%" stopColor={theme.chart.primary} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={theme.chart.primary} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <ChartsGrid vertical={false} horizontal />

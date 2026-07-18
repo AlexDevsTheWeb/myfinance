@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { auth, googleProvider } from '../lib/firebase';
 import { useAuthStore } from '../store/useAuthStore';
-import { getEnvVar } from '../utils/variables.utils';
+import BalancrLogo from '../components/BalancrLogo';
 
 const LoginPage: React.FC = () => {
   const { user } = useAuthStore();
@@ -31,7 +31,6 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const appTitle = getEnvVar('VITE_REACT_APP_TITLE');
   if (user) {
     return <Navigate to="/dashboard" />;
   }
@@ -56,9 +55,9 @@ const LoginPage: React.FC = () => {
     }}>
       <Container maxWidth="xs">
         <Paper elevation={24} sx={{ p: 4, textAlign: 'center', borderRadius: 1, background: 'rgba(30, 41, 59, 0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, color: '#6366f1' }}>
-            {appTitle}
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <BalancrLogo size={64} showText />
+          </Box>
           <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
             Track your finances with ease and precision.
           </Typography>
@@ -100,7 +99,7 @@ const LoginPage: React.FC = () => {
 
             <Typography
               variant="body2"
-              sx={{ mt: 2, cursor: 'pointer', color: '#6366f1', textAlign: 'center' }}
+              sx={{ mt: 2, cursor: 'pointer', color: 'primary.main', textAlign: 'center' }}
               onClick={() => setIsRegistering(!isRegistering)}
             >
               {isRegistering

@@ -65,21 +65,21 @@ const RecapCards: React.FC<RecapCardsProps> = ({
             title: t("dashboard.currentBalance"),
             amount: currentBalance,
             icon: <Wallet size={24} />,
-            color: "#5b6cb8",
+            color: 'primary.main',
         },
         {
             id: "totalIncome",
             title: t("dashboard.totalIncome"),
             amount: totalIncome,
             icon: <TrendingUp size={24} />,
-            color: "#10b981",
+            color: 'success.main',
         },
         {
             id: "totalExpenses",
             title: t("dashboard.totalExpenses"),
             amount: totalExpenses,
             icon: <TrendingDown size={24} />,
-            color: "#ef4444",
+            color: 'error.main',
         },
     ];
 
@@ -88,19 +88,19 @@ const RecapCards: React.FC<RecapCardsProps> = ({
             id: "incomeMonth",
             title: t("dashboard.incomeMonth"),
             amount: monthlyStats.income,
-            color: "#10b981",
+            color: 'success.main',
         },
         {
             id: "expensesMonth",
             title: t("dashboard.expensesMonth"),
             amount: monthlyStats.expense,
-            color: "#ef4444",
+            color: 'error.main',
         },
         {
             id: "netDeltaMonth",
             title: t("dashboard.netDeltaMonth"),
             amount: monthlyStats.delta,
-            color: monthlyStats.delta >= 0 ? "#10b981" : "#ef4444",
+            color: monthlyStats.delta >= 0 ? 'success.main' : 'error.main',
         },
     ];
 
@@ -112,8 +112,8 @@ const RecapCards: React.FC<RecapCardsProps> = ({
                         onClick={() => card.id === "currentBalance" && onOpenAccountDialog?.()}
                         sx={{
                             p: 1.5,
-                            background: "#161b2e",
-                            border: `1px solid ${card.color}30`,
+                            bgcolor: 'background.paper',
+                            border: '1px solid rgba(255,255,255,0.05)',
                             display: "flex",
                             alignItems: "center",
                             gap: 1.5,
@@ -152,7 +152,7 @@ const RecapCards: React.FC<RecapCardsProps> = ({
                     <Paper
                         sx={{
                             p: 1.5,
-                            background: "#161b2e",
+                            bgcolor: 'background.paper',
                             border: "1px solid rgba(255,255,255,0.05)",
                             display: "flex",
                             flexDirection: "column",

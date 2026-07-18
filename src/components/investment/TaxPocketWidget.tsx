@@ -18,20 +18,20 @@ const TaxPocketWidget: React.FC = () => {
           <Chip
             label={`26%`}
             size="small"
-            sx={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', fontWeight: 700 }}
+            sx={{ background: 'rgba(239, 68, 68, 0.2)', color: 'error.main', fontWeight: 700 }}
           />
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1.5, mb: 2 }}>
           <Box>
             <Typography variant="caption" sx={{ opacity: 0.6 }}>{t('investment.realizedGains')}</Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: totalRealizedGains > 0 ? '#f59e0b' : 'inherit' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: totalRealizedGains > 0 ? 'warning.main' : 'inherit' }}>
               {formatEur(totalRealizedGains)}
             </Typography>
           </Box>
           <Box>
             <Typography variant="caption" sx={{ opacity: 0.6 }}>{t('investment.taxDue')}</Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: totalTaxDue > 0 ? '#ef4444' : 'inherit' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: totalTaxDue > 0 ? 'error.main' : 'inherit' }}>
               {formatEur(totalTaxDue)}
             </Typography>
           </Box>
@@ -50,10 +50,10 @@ const TaxPocketWidget: React.FC = () => {
               {yearly.map((y) => (
                 <TableRow key={y.year}>
                   <TableCell sx={{ fontWeight: 600 }}>{y.year}</TableCell>
-                  <TableCell align="right" sx={{ color: y.realizedGains > 0 ? '#f59e0b' : 'inherit' }}>
+                  <TableCell align="right" sx={{ color: y.realizedGains > 0 ? 'warning.main' : 'inherit' }}>
                     {formatEur(y.realizedGains)}
                   </TableCell>
-                  <TableCell align="right" sx={{ color: y.taxDue > 0 ? '#ef4444' : 'inherit', fontWeight: 600 }}>
+                  <TableCell align="right" sx={{ color: y.taxDue > 0 ? 'error.main' : 'inherit', fontWeight: 600 }}>
                     {formatEur(y.taxDue)}
                   </TableCell>
                 </TableRow>

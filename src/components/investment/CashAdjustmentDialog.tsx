@@ -58,7 +58,7 @@ const CashAdjustmentDialog: React.FC<CashAdjustmentDialogProps> = ({ open, onClo
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: '#1e293b' } } }}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: 'background.paper' } } }}>
       <DialogTitle sx={{ fontWeight: 700 }}>{t('investment.addCashAdjustment')}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>

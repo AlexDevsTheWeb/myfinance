@@ -32,7 +32,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ name, currentBalance, initial
         flexDirection: 'column',
         height: '100%',
         transition: 'all 0.2s',
-        '&:hover': { borderColor: 'rgba(99, 102, 241, 0.5)', bgcolor: 'rgba(255, 255, 255, 0.05)' }
+        '&:hover': { borderColor: 'rgba(67, 100, 247, 0.5)', bgcolor: 'rgba(255, 255, 255, 0.05)' }
       }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
@@ -44,7 +44,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ name, currentBalance, initial
             € {currentBalance.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
           </Typography>
         </Box>
-        <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: 'rgba(99, 102, 241, 0.1)', color: '#6366f1' }}>
+        <Box sx={{ p: 1, borderRadius: 1.5, bgcolor: 'rgba(67, 100, 247, 0.1)', color: 'primary.main' }}>
           <Wallet size={20} />
         </Box>
       </Box>
@@ -77,7 +77,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ name, currentBalance, initial
         <Typography variant="caption" sx={{ opacity: 0.6 }}>
           Init: €{initialBalance.toLocaleString('it-IT')}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', color: isPositive ? '#10b981' : '#ef4444' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', color: isPositive ? 'success.main' : 'error.main' }}>
           {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
           <Typography variant="caption" sx={{ fontWeight: 700, ml: 0.5 }}>
             {diff > 0 ? '+' : ''}{diff.toLocaleString('it-IT', { minimumFractionDigits: 2 })} €

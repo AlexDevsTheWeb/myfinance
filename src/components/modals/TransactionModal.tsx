@@ -87,7 +87,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: '#161b2e' } } }}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: 'background.paper' } } }}>
       <DialogTitle sx={{ fontWeight: 700 }}>
         {transaction ? 'Edit' : 'New'} {type === 'income' ? 'Income' : type === 'transfer' ? 'Transfer' : 'Expense'}
       </DialogTitle>

@@ -1,4 +1,5 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { axisClasses } from '@mui/x-charts';
 import type { ICategoryBreakdown } from '../types';
@@ -9,6 +10,7 @@ interface CategoryBarChartProps {
 }
 
 const CategoryBarChart: React.FC<CategoryBarChartProps> = ({ data, title }) => {
+  const theme = useTheme();
   const chartData = data.map(d => ({
     name: d.category,
     amount: d.total,
@@ -25,7 +27,7 @@ const CategoryBarChart: React.FC<CategoryBarChartProps> = ({ data, title }) => {
         <BarChart
           layout="horizontal"
           series={[
-            { data: chartData.map(d => d.amount), label: 'Amount', color: '#6366f1' },
+            { data: chartData.map(d => d.amount), label: 'Amount', color: theme.chart.primary },
           ]}
           xAxis={[{ scaleType: 'linear', disableLine: true, disableTicks: true }]}
           yAxis={[{ scaleType: 'band', data: chartData.map(d => d.name), disableLine: true, disableTicks: true }]}

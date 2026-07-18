@@ -184,7 +184,7 @@ export function createBackup(state: IFinanceState): BackupData {
   return {
     version: '1.0',
     exportedAt: new Date().toISOString(),
-    app: 'myfinance',
+    app: 'balancr',
     data: {
       initialBalance: state.initialBalance,
       accounts: state.accounts,
@@ -216,7 +216,7 @@ export function downloadBackup(backup: BackupData): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `myfinance-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `balancr-backup-${new Date().toISOString().split('T')[0]}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -238,8 +238,8 @@ export async function parseBackup(fileOrData: File | object): Promise<{ data: Ba
   }
 
   if (backup.version) {
-    if (backup.app !== 'myfinance') {
-      return { data: null, error: 'Invalid backup: not a MyFinance backup file' };
+    if (backup.app !== 'balancr' && backup.app !== 'myfinance') {
+      return { data: null, error: 'Invalid backup: not a Balancr backup file' };
     }
     return { data: backup.data ?? {} };
   } else if (backup.state) {
@@ -257,14 +257,14 @@ export async function previewBackup(file: File): Promise<BackupPreview> {
     let data: BackupPayload | undefined;
     let exportedAt = 'Unknown';
 
-    if (backup.version && backup.app === 'myfinance') {
+    if (backup.version && (backup.app === 'balancr' || backup.app === 'myfinance')) {
       data = backup.data;
       exportedAt = backup.exportedAt ?? 'Unknown';
     } else if (backup.state) {
       data = backup.state;
       exportedAt = backup.exportedAt ?? backup.createdAt ?? 'Unknown';
     } else {
-      return { valid: false, error: 'Invalid backup: not a MyFinance backup file', summary: null };
+      return { valid: false, error: 'Invalid backup: not a Balancr backup file', summary: null };
     }
 
     return {

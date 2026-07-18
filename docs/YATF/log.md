@@ -482,6 +482,13 @@
 - Updated [[wiki/plans/beta-launch-playbook]] → Section 1 marked ✅
 - Updated [[wiki/plans/go-to-market]] → Phase 2 disclaimer checkbox checked
 
+## [2026-07-18] ingest | Feature | Balancr rebranding — identity system + app rename
+- Moved `raw/balancr_identity_system.md` → `raw/balancr-identity-system/balancr-identity-system.md` (subfolder convention)
+- Created [[wiki/features/balancr-branding/balancr-branding]] — complete rebrand feature page
+- Created [[wiki/decisions/balancr-identity-system]] — Linked Hexagons identity design decision
+- Updated index.md (61 pages) and log.md
+- Source: [raw/balancr-identity-system/balancr-identity-system.md](raw/balancr-identity-system/balancr-identity-system.md)
+
 ## [2026-07-18] verify | Plan | #150 — Backup/Restore verification protocol
 - Analyzed `createBackup()` (reads from Zustand store populated by sub-collection `onSnapshot`) — ✅
 - Analyzed `importAllData()` (writes to sub-collection via `batch.set()`) — ✅

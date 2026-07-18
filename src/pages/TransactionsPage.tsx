@@ -151,7 +151,7 @@ const TransactionsPage: React.FC = () => {
 
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Card sx={{ borderRadius: 0, background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+            <Card sx={{ borderRadius: 0, background: 'rgba(17, 24, 39, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
               <CardContent sx={{ py: 2 }}>
                 <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>{t('transactions.filters.title')}</Typography>

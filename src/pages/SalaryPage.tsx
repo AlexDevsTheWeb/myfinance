@@ -1,5 +1,5 @@
 import { BarChart as BarChartIcon, TrendingUp } from '@mui/icons-material';
-import { Box, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { axisClasses } from '@mui/x-charts';
 import dayjs from 'dayjs';
@@ -16,6 +16,7 @@ interface MonthlySalaryData {
 const SalaryPage: React.FC = () => {
   const { transactions } = useFinanceStore();
   const { t } = useTranslation();
+  const theme = useTheme();
 
   const salaryData = useMemo(() => {
     return transactions
@@ -95,7 +96,7 @@ const SalaryPage: React.FC = () => {
     }).filter(m => Object.values(m.yearValues).some(v => v > 0));
   }, [transactions]);
 
-  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+  const COLORS = [theme.palette.primary.main, theme.palette.success.main, theme.palette.warning.main, theme.palette.error.main, theme.palette.primary.main, theme.palette.secondary.main];
 
   const months = trendChartData.map(d => d.monthName);
   const series = availableYears.map((year, index) => ({
