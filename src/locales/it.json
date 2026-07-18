@@ -90,7 +90,9 @@
     "totalExpenses": "Uscite Totali",
     "incomeMonth": "Entrate (Mese)",
     "expensesMonth": "Uscite (Mese)",
-    "netDeltaMonth": "Delta Netto (Mese)"
+    "netDeltaMonth": "Delta Netto (Mese)",
+    "betaDisclaimer": "Benvenuto nella Soft Beta di Balancr!",
+    "betaDisclaimerText": "L'applicazione è attualmente in fase di test sperimentale. Sebbene le trasmissioni dati siano crittografate e protette su un database Firestore isolato, si prega di non inserire credenziali bancarie reali o dati sensibili di conti privati. Questa piattaforma funge unicamente da registro di tracciamento simulato e autonomo, e non ha alcun collegamento diretto con istituti di credito."
   },
   "salary": {
     "title": "Stipendio",

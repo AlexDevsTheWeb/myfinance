@@ -97,6 +97,11 @@ const DashboardPage: React.FC = () => {
         </Typography>
       </Box>
 
+      <Alert severity="warning" variant="outlined" sx={{ mb: 3, borderRadius: 2 }}>
+        <AlertTitle sx={{ fontWeight: 700 }}>{t('dashboard.betaDisclaimer')}</AlertTitle>
+        {t('dashboard.betaDisclaimerText')}
+      </Alert>
+
       {showMileageReminder && (
         <Alert
           severity="info"
