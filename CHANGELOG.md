@@ -1,4 +1,10 @@
 
+### [2026.11.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.11.0...v2026.11.1) (2026-07-18)
+
+
+* hardcode app title constant instead of env var ([#82](https://github.com/AlexDevsTheWeb/myfinance/issues/82)) ([e0b291c](https://github.com/AlexDevsTheWeb/myfinance/commit/e0b291c5b64a46f5e09e26ea80434c4171036470))
+* update wiki with theme migration and UI polish details ([6401f82](https://github.com/AlexDevsTheWeb/myfinance/commit/6401f825c61edcdc3dd2c382eb10424d776fdcb5))
+
 ## [2026.11.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.4...v2026.11.0) (2026-07-18)
 
 
