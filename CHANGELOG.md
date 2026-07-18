@@ -1,4 +1,12 @@
 
+## [2026.11.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.4...v2026.11.0) (2026-07-18)
+
+
+* add beta disclaimer banner to Dashboard ([#149](https://github.com/AlexDevsTheWeb/myfinance/issues/149)) ([c4c83c8](https://github.com/AlexDevsTheWeb/myfinance/commit/c4c83c81885685c1fe29a75a55966d70153d75cd))
+* ingest beta-launch-playbook into wiki ([916e210](https://github.com/AlexDevsTheWeb/myfinance/commit/916e210af4103e41d0378e27e1378fcc3bad54e1))
+* rebrand YAFT → Balancr with new identity system ([#82](https://github.com/AlexDevsTheWeb/myfinance/issues/82)) ([66e45b3](https://github.com/AlexDevsTheWeb/myfinance/commit/66e45b303d19163c331c7230771e25cf69fb2849)), closes [#0b0f19](https://github.com/AlexDevsTheWeb/myfinance/issues/0b0f19) [#111827](https://github.com/AlexDevsTheWeb/myfinance/issues/111827) [#4364f7](https://github.com/AlexDevsTheWeb/myfinance/issues/4364f7) [#00c9](https://github.com/AlexDevsTheWeb/myfinance/issues/00c9)
+* update wiki with [#149](https://github.com/AlexDevsTheWeb/myfinance/issues/149) implementation and [#150](https://github.com/AlexDevsTheWeb/myfinance/issues/150) verification status ([ae54279](https://github.com/AlexDevsTheWeb/myfinance/commit/ae54279b8f985095f9996128e168e6c31b4658e8))
+
 ### [2026.10.4](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.3...v2026.10.4) (2026-07-16)
 
 
