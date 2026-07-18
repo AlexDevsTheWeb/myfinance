@@ -90,7 +90,9 @@
     "totalExpenses": "Total Expenses",
     "incomeMonth": "Income (Month)",
     "expensesMonth": "Expenses (Month)",
-    "netDeltaMonth": "Net Delta (Month)"
+    "netDeltaMonth": "Net Delta (Month)",
+    "betaDisclaimer": "Welcome to the Balancr Soft Beta!",
+    "betaDisclaimerText": "This application is currently in an experimental testing phase. While all data transmissions are encrypted and isolated inside a dedicated Firestore database, please do not input real banking credentials or highly sensitive financial passwords. This platform operates purely as a self-contained tracking sandbox and has no integrations with external banking institutions."
   },
   "salary": {
     "title": "Salary",
