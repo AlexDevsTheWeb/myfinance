@@ -3,7 +3,7 @@ title: "Beta Launch Playbook"
 tags: [plan, beta, launch, go-to-market]
 created: 2026-07-18
 updated: 2026-07-18
-status: draft
+status: active
 sources: ["raw/beta-launch-playbook/beta-launch-playbook.md"]
 related: ["wiki/plans/go-to-market", "wiki/plans/backup-restore-data-coverage", "wiki/features/error-boundary/error-boundary", "wiki/features/mui-dialogs/mui-dialogs", "wiki/features/loading-states/loading-states"]
 ---
@@ -14,6 +14,8 @@ Status: `draft` — ready for Phase 2 execution
 Priority: **high**
 
 This playbook is the detailed execution guide for **Phase 2 (Soft Beta Launch)** of the [[wiki/plans/go-to-market|Go-to-Market plan]]. It covers the beta disclaimer banner, backup/restore verification, and the tester invitation process.
+
+**Progress:** Section 1 ✅ implemented ([#149](https://github.com/AlexDevsTheWeb/myfinance/pull/151)), Section 2 ✅ verified ([#150](https://github.com/AlexDevsTheWeb/myfinance/issues/150)), Section 3 ⬜ pending
 
 ---
 
