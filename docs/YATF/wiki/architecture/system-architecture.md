@@ -39,7 +39,7 @@ Client-side SPA with centralized Zustand state and Firebase Firestore backend sy
 │                        Data / Persistence Layer                       │
 │                Firebase · Firestore · i18n · localStorage              │
 ├───────────────────────────────────────────────────────────────────────┤
-│  Firestore: users/{userId} (single doc) + 3 subcollections            │
+│  Firestore: users/{userId} (single doc) + 4 subcollections            │
 │  Firestore Converter: userDocConverter (src/lib/converters.ts)        │
 │  Backup/Import: JSON export via Backup module                         │
 └───────────────────────────────────────────────────────────────────────┘

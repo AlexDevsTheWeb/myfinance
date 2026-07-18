@@ -2,10 +2,10 @@
 title: "Codebase Concerns and Tech Debt"
 tags: [architecture, tech-debt, bugs, security, performance]
 created: 2026-06-22
-updated: 2026-07-11
+updated: 2026-07-18
 status: active
 sources: ["raw/codebase/CONCERNS.md"]
-related: ["architecture/project-state", "architecture/testing-status", "architecture/system-architecture"]
+related: ["architecture/project-state", "architecture/testing-status", "architecture/system-architecture", "queries/new-user-auth-flow"]
 ---
 
 # Codebase Concerns and Tech Debt
@@ -32,6 +32,10 @@ related: ["architecture/project-state", "architecture/testing-status", "architec
 | Env var crashes app on missing | `src/utils/variables.utils.tsx` | Low | [#130](https://github.com/AlexDevsTheWeb/myfinance/issues/130) |
 | `VITE_REACT_APP_TITLE` undocumented | `AGENTS.md` | Low | [#130](https://github.com/AlexDevsTheWeb/myfinance/issues/130) |
 | Unused subcollection rules in firestore.rules | `firestore.rules` | Low | [#129](https://github.com/AlexDevsTheWeb/myfinance/issues/129) |
+| Silent login errors — no user-facing feedback on auth failure | `src/pages/LoginPage.tsx` | Medium | [#157](https://github.com/AlexDevsTheWeb/myfinance/issues/157) |
+| No account deletion — no way to remove own data | Not implemented | Medium | [#158](https://github.com/AlexDevsTheWeb/myfinance/issues/158) |
+| Three concurrent transactions on new user init | `useSyncFinance`, `useInvestmentSync`, `useBudgetSync` | Low | [#128](https://github.com/AlexDevsTheWeb/myfinance/issues/128) |
+| No Firestore write rate limiting | `firestore.rules` | Low-Medium | [#159](https://github.com/AlexDevsTheWeb/myfinance/issues/159) |
 
 ## Performance Bottlenecks
 

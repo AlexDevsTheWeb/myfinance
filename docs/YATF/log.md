@@ -489,6 +489,16 @@
 - Updated index.md (61 pages) and log.md
 - Source: [raw/balancr-identity-system/balancr-identity-system.md](raw/balancr-identity-system/balancr-identity-system.md)
 
+## [2026-07-18] query | "What happens when a new user logs in via Google Auth?"
+- Analyzed full auth flow: LoginPage → onAuthStateChanged → 3 sync hooks → Firestore init
+- Confirmed data isolation is solid: Firestore rules enforce `request.auth.uid == userId` on all paths
+- Found 6 concerns (silent login errors, no account deletion, 3 concurrent transactions, no onboarding, _migrateToMultiAccount on mount, no rate limiting)
+- Created [[raw/new-user-auth-flow/new-user-auth-flow.md]] — full analysis
+- Created [[wiki/queries/new-user-auth-flow]] — summary with findings
+- Updated [[wiki/architecture/external-integrations]] — added transactions subcollection, updated subcollection count
+- Updated [[wiki/architecture/concerns-and-tech-debt]] — added 3 new security concerns from findings
+- Updated index.md (62 pages) and log.md
+
 ## [2026-07-18] implement | Feature | Balancr — theme migration, UI polish
 - Migrated ~160 hardcoded color refs across 45+ files to MUI theme tokens
 - Replaced `#6366f1`/`#5b6cb8` → `primary.main`, `#0f172a` → `background.default`, `#1e293b` → `background.paper`
