@@ -1,4 +1,9 @@
 
+### [2026.11.2](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.11.1...v2026.11.2) (2026-07-18)
+
+
+* replace old favicon with Balancr linked hexagons SVG ([4a10417](https://github.com/AlexDevsTheWeb/myfinance/commit/4a10417f490cd716b0348f86be58795f82ffc0e1))
+
 ### [2026.11.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.11.0...v2026.11.1) (2026-07-18)
 
 
