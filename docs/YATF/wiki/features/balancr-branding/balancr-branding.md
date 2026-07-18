@@ -34,6 +34,23 @@ Complete app rebranding from "YAFT - Yet Another Finance Tracker" to **Balancr**
 - localStorage key migrated from `myfinance_language` → `balancr_language`
 - New `BalancrLogo` SVG component integrated in Sidebar and LoginPage
 
+### Theme Migration (~45 files)
+- All ~160 hardcoded color references across 45+ files migrated to MUI theme tokens
+- `#6366f1` (old indigo, 18 files) → `primary.main`
+- `#5b6cb8` (older muted indigo, 7 files) → `primary.main`
+- `#0f172a` backgrounds → `background.default` (`#0b0f19`)
+- `#1e293b`/`#161b2e` surfaces → `background.paper` (`#111827`)
+- Semantic colors → `success.main`/`error.main`/`warning.main`
+- Chart palettes in 5 components now read `theme.chart.palette`
+- Dialog backgrounds use `background.paper`
+- Global cursor pointer via `MuiButtonBase` theme override
+
+### UI Polish
+- Empty AppBar removed on desktop; mobile hamburger preserved
+- Sidebar logo enlarged (56px collapsed, 48px expanded)
+- Sidebar selected state uses `alpha(primary.main, 0.15)` from theme
+- `cursor: pointer` on all interactive elements
+
 ### Backward Compatibility
 - Old backups with `app: 'myfinance'` are still accepted during import
 - Old localStorage key `myfinance_language` is migrated to `balancr_language` on first load
@@ -43,6 +60,7 @@ Complete app rebranding from "YAFT - Yet Another Finance Tracker" to **Balancr**
 - Branch naming convention `feat/YATF-{n}` / `fix/YATF-{n}` retained for historical continuity
 - SVG logo created as reusable React component
 - Color palette applied to MUI theme
+- Changing `theme.ts` now propagates globally across the app
 
 ## Related
 - Issue: [#82](https://github.com/AlexDevsTheWeb/myfinance/issues/82)

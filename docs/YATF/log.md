@@ -489,6 +489,16 @@
 - Updated index.md (61 pages) and log.md
 - Source: [raw/balancr-identity-system/balancr-identity-system.md](raw/balancr-identity-system/balancr-identity-system.md)
 
+## [2026-07-18] implement | Feature | Balancr — theme migration, UI polish
+- Migrated ~160 hardcoded color refs across 45+ files to MUI theme tokens
+- Replaced `#6366f1`/`#5b6cb8` → `primary.main`, `#0f172a` → `background.default`, `#1e293b` → `background.paper`
+- Consolidated chart palettes into `theme.chart.palette` (5 components)
+- Removed empty AppBar on desktop; mobile hamburger preserved
+- Added global `cursor: pointer` via MuiButtonBase theme override
+- Enlarged sidebar logo (56px collapsed, 48px expanded)
+- Updated [[wiki/features/balancr-branding/balancr-branding]] — added theme migration + UI polish sections
+- Updated index.md and log.md
+
 ## [2026-07-18] verify | Plan | #150 — Backup/Restore verification protocol
 - Analyzed `createBackup()` (reads from Zustand store populated by sub-collection `onSnapshot`) — ✅
 - Analyzed `importAllData()` (writes to sub-collection via `batch.set()`) — ✅
