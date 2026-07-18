@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-07-16* (Duplicate recurring bug)
-*Total pages: 58*
+*Last updated: 2026-07-18* (Beta launch playbook)
+*Total pages: 59*
 
 ---
 
@@ -49,6 +49,7 @@
 | [[wiki/plans/user-configurable-rates-implementation]] | ✅ 6-step plan — completed | [`raw/103/103.md`](raw/103/103.md) |
 | [[wiki/plans/italian-tax-enhancements]] | 📋 Stamp duty (0.20%) + capital losses tracking — 5-wave task breakdown | [`#110`](https://github.com/AlexDevsTheWeb/myfinance/issues/110) |
 | [[wiki/plans/go-to-market]] | 🔴 **MAX PRIORITY** — 6-phase SaaS launch plan (quick wins → data security → beta → validate → monetize → cleanup) | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
+| [[wiki/plans/beta-launch-playbook]] | 📋 Phase 2 execution details: disclaimer banner, backup/restore verification protocol, tester invitation template | [`raw/beta-launch-playbook/beta-launch-playbook.md`](raw/beta-launch-playbook/beta-launch-playbook.md) |
 
 ## Decisions
 

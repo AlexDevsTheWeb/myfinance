@@ -465,3 +465,10 @@
 - Updated [[raw/recurring-duplicate-same-period/recurring-duplicate-same-period.md]]
 - Updated [[wiki/bugs/recurring-transaction-duplicates-same-period]]
 - Updated index.md and log.md
+
+## [2026-07-18] ingest | Plan | Beta Launch Playbook
+- Moved `raw/beta-launch-playbook.md` → `raw/beta-launch-playbook/beta-launch-playbook.md` (subfolder per convention)
+- Created [[wiki/plans/beta-launch-playbook]] — English translation with 3 sections: beta disclaimer component, backup/restore verification protocol (post sub-collection migration), tester invitation template
+- Updated [[wiki/plans/go-to-market]] — Phase 2 now links to beta playbook, added detailed checkboxes
+- Updated [[wiki/plans/backup-restore-data-coverage]] — cross-reference to beta playbook verification protocol
+- Updated index.md (59 pages) and log.md
