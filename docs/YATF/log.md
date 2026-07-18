@@ -465,3 +465,36 @@
 - Updated [[raw/recurring-duplicate-same-period/recurring-duplicate-same-period.md]]
 - Updated [[wiki/bugs/recurring-transaction-duplicates-same-period]]
 - Updated index.md and log.md
+
+## [2026-07-18] ingest | Plan | Beta Launch Playbook
+- Moved `raw/beta-launch-playbook.md` → `raw/beta-launch-playbook/beta-launch-playbook.md` (subfolder per convention)
+- Created [[wiki/plans/beta-launch-playbook]] — English translation with 3 sections: beta disclaimer component, backup/restore verification protocol (post sub-collection migration), tester invitation template
+- Updated [[wiki/plans/go-to-market]] — Phase 2 now links to beta playbook, added detailed checkboxes
+- Updated [[wiki/plans/backup-restore-data-coverage]] — cross-reference to beta playbook verification protocol
+- Updated index.md (59 pages) and log.md
+
+## [2026-07-18] implement | Plan | #149 — Beta disclaimer banner
+- Created branch `feat/YATF-149-beta-disclaimer`
+- Added `betaDisclaimer` + `betaDisclaimerText` i18n keys to en.json and it.json
+- Added `<Alert severity="warning">` component to DashboardPage.tsx (after title, before mileage reminder)
+- Build passes clean
+- PR [#151](https://github.com/AlexDevsTheWeb/myfinance/pull/151) → development
+- Updated [[wiki/plans/beta-launch-playbook]] → Section 1 marked ✅
+- Updated [[wiki/plans/go-to-market]] → Phase 2 disclaimer checkbox checked
+
+## [2026-07-18] ingest | Feature | Balancr rebranding — identity system + app rename
+- Moved `raw/balancr_identity_system.md` → `raw/balancr-identity-system/balancr-identity-system.md` (subfolder convention)
+- Created [[wiki/features/balancr-branding/balancr-branding]] — complete rebrand feature page
+- Created [[wiki/decisions/balancr-identity-system]] — Linked Hexagons identity design decision
+- Updated index.md (61 pages) and log.md
+- Source: [raw/balancr-identity-system/balancr-identity-system.md](raw/balancr-identity-system/balancr-identity-system.md)
+
+## [2026-07-18] verify | Plan | #150 — Backup/Restore verification protocol
+- Analyzed `createBackup()` (reads from Zustand store populated by sub-collection `onSnapshot`) — ✅
+- Analyzed `importAllData()` (writes to sub-collection via `batch.set()`) — ✅
+- Confirmed `batch.set()` by ID provides idempotent re-import — ✅
+- No code changes required; all 3 code-level AC pass
+- Manual staging test (AC #4) documented for future execution
+- Closed [#150](https://github.com/AlexDevsTheWeb/myfinance/issues/150) with verification comment
+- Updated [[wiki/plans/beta-launch-playbook]] → Section 2 marked ✅
+- Updated [[wiki/plans/go-to-market]] → Phase 2 verification checkbox checked

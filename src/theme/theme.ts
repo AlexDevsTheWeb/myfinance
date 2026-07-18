@@ -23,14 +23,14 @@ export const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#5b6cb8', // Muted indigo - less saturated
+      main: '#4364f7', // Electric blue from Balancr identity
     },
     secondary: {
-      main: '#c026d3', // Less saturated pink
+      main: '#00c9ff', // Bright cyan from Balancr identity
     },
     background: {
-      default: '#0f1523', // Darker slate
-      paper: '#161b2e', // Slightly darker than before
+      default: '#0b0f19', // Deep night blue per Balancr spec
+      paper: '#111827', // Dark slate per Balancr spec
     },
     success: {
       main: '#10b981',
@@ -40,7 +40,7 @@ export const theme = createTheme({
     },
   },
   chart: {
-    primary: '#5b6cb8',
+    primary: '#4364f7',
     income: '#10b981',
     expense: '#ef4444',
     palette: [
@@ -60,6 +60,13 @@ export const theme = createTheme({
     borderRadius: 2, // Minimal corners
   },
   components: {
+    MuiButtonBase: {
+      styleOverrides: {
+        root: {
+          cursor: 'pointer',
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
@@ -74,7 +81,7 @@ export const theme = createTheme({
         root: {
           borderRadius: 2, // Minimal corners
           overflow: 'hidden',
-          background: '#161b2e',
+          background: '#111827',
           border: '1px solid rgba(255, 255, 255, 0.05)',
         },
       },

@@ -148,7 +148,7 @@ const UtilitiesPage: React.FC = () => {
             <Card sx={{ background: `rgba(30, 41, 59, 0.4)`, borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
               <CardContent sx={{ p: 2 }}>
                 <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>{t('utilities.unitCost')}</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#f59e0b' }}>{stats.avgUnitCost.toFixed(3)} <small style={{ fontSize: '0.8rem', opacity: 0.7 }}>€/{unit}</small></Typography>
+                <Typography variant="h5" sx={{ fontWeight: 900, color: 'warning.main' }}>{stats.avgUnitCost.toFixed(3)} <small style={{ fontSize: '0.8rem', opacity: 0.7 }}>€/{unit}</small></Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -202,7 +202,7 @@ const UtilitiesPage: React.FC = () => {
                 {
                   data: stats.chartData.map(d => d.unitCost),
                   label: 'Costo Unit.',
-                  color: '#f59e0b',
+                  color: '#ed6c02',
                   yAxisId: 'right',
                   showMark: false,
                 },
@@ -255,10 +255,10 @@ const UtilitiesPage: React.FC = () => {
       </Box>
 
       <TabPanel value={tabValue} index={0}>
-        {renderDashboard(elecStats, 'Luce', 'kWh', '#eab308', <ElecIcon sx={{ opacity: 0.8, color: '#eab308' }} />)}
+        {renderDashboard(elecStats, 'Luce', 'kWh', '#ed6c02', <ElecIcon sx={{ opacity: 0.8, color: 'warning.main' }} />)}
       </TabPanel>
       <TabPanel value={tabValue} index={1}>
-        {renderDashboard(gasStats, 'Gas', 'smc', '#3b82f6', <GasIcon sx={{ opacity: 0.8, color: '#3b82f6' }} />)}
+        {renderDashboard(gasStats, 'Gas', 'smc', '#4364f7', <GasIcon sx={{ opacity: 0.8, color: 'primary.main' }} />)}
       </TabPanel>
     </Box>
   );

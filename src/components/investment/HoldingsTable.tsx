@@ -45,7 +45,7 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings, onEdit, onDelet
               <TableCell>{formatEur(h.avgCost)}</TableCell>
               <TableCell>{formatEur(h.currentPrice)}</TableCell>
               <TableCell>{formatEur(h.value)}</TableCell>
-              <TableCell sx={{ color: h.returnPercent >= 0 ? '#10b981' : '#ef4444', fontWeight: 700 }}>
+              <TableCell sx={{ color: h.returnPercent >= 0 ? 'success.main' : 'error.main', fontWeight: 700 }}>
                 {h.returnPercent >= 0 ? '+' : ''}{h.returnPercent.toFixed(2)}%
               </TableCell>
               {hasActions && (

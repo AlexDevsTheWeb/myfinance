@@ -1,7 +1,7 @@
 # Wiki Index
 
-*Last updated: 2026-07-16* (Duplicate recurring bug)
-*Total pages: 58*
+*Last updated: 2026-07-18* (Balancr rebranding)
+*Total pages: 61*
 
 ---
 
@@ -31,6 +31,7 @@
 | [[wiki/features/error-boundary/error-boundary]] | ✅ React error boundary wrapping the app — catches render crashes | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/features/mui-dialogs/mui-dialogs]] | ✅ Native alert()/confirm() replaced with MUI Dialog/Snackbar | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/features/loading-states/loading-states]] | ✅ Loading indicators on Dashboard, Transactions, Investments during sync | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
+| [[wiki/features/balancr-branding/balancr-branding]] | ✅ Complete rebrand: YAFT → Balancr, Linked Hexagons logo, new color palette | [`#82`](https://github.com/AlexDevsTheWeb/myfinance/issues/82) |
 
 ## Plans
 
@@ -49,6 +50,7 @@
 | [[wiki/plans/user-configurable-rates-implementation]] | ✅ 6-step plan — completed | [`raw/103/103.md`](raw/103/103.md) |
 | [[wiki/plans/italian-tax-enhancements]] | 📋 Stamp duty (0.20%) + capital losses tracking — 5-wave task breakdown | [`#110`](https://github.com/AlexDevsTheWeb/myfinance/issues/110) |
 | [[wiki/plans/go-to-market]] | 🔴 **MAX PRIORITY** — 6-phase SaaS launch plan (quick wins → data security → beta → validate → monetize → cleanup) | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
+| [[wiki/plans/beta-launch-playbook]] | 📋 Phase 2 execution details: disclaimer banner ✅, backup/restore verification ✅, tester invitation template ⬜ | [`raw/beta-launch-playbook/beta-launch-playbook.md`](raw/beta-launch-playbook/beta-launch-playbook.md) |
 
 ## Decisions
 
@@ -58,6 +60,7 @@
 | [[wiki/decisions/chart-migration-mui]] | ✅ Migrated 16 chart components from Recharts to MUI X Charts — theme-aware, phased migration | [`raw/chart-migration/`](raw/chart-migration/) |
 | [[wiki/decisions/saas-readiness]] | 🔴 **MAX PRIORITY** — Hard blockers vs ship-as-is: fix 6 critical items, launch, iterate with real users | [`raw/saas-readiness/saas-readiness.md`](raw/saas-readiness/saas-readiness.md) |
 | [[wiki/decisions/pwa-strategy]] | 🟢 PWA prima, Flutter dopo — mobile senza riscrittura, 2-step plan | [`raw/go-to-market/go-to-market.md`](raw/go-to-market/go-to-market.md) |
+| [[wiki/decisions/balancr-identity-system]] | ✅ Balancr identity: Linked Hexagons logo, dark palette, gradient system | [`raw/balancr-identity-system/balancr-identity-system.md`](raw/balancr-identity-system/balancr-identity-system.md) |
 
 ## Queries
 

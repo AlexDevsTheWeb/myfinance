@@ -1,12 +1,7 @@
 import { Box, Paper, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { PieChart } from '@mui/x-charts/PieChart';
 import type { ICategoryBreakdown } from '../types';
-
-const COLORS = [
-  '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6',
-  '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#06b6d4',
-  '#84cc16', '#d946ef',
-];
 
 interface CategoryPieChartProps {
   data: ICategoryBreakdown[];
@@ -18,6 +13,8 @@ const BASE_HEIGHT = 300;
 const LEGEND_ROW_HEIGHT = 24;
 
 const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
+  const theme = useTheme();
+  const palette = theme.chart.palette;
   const chartData = data.map(d => ({
     name: d.category,
     value: d.total,
@@ -43,7 +40,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
                 id: d.name,
                 label: d.name,
                 value: d.value,
-                color: COLORS[i % COLORS.length],
+                color: palette[i % palette.length],
               })),
               innerRadius: 60,
               outerRadius: 110,

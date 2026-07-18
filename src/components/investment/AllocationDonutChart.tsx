@@ -1,11 +1,5 @@
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography, useTheme } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
-
-const COLORS = [
-  '#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6',
-  '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#06b6d4',
-  '#84cc16', '#d946ef',
-];
 
 interface AllocationDonutChartProps {
   data: { name: string; value: number }[];
@@ -13,6 +7,7 @@ interface AllocationDonutChartProps {
 }
 
 const AllocationDonutChart: React.FC<AllocationDonutChartProps> = ({ data, title }) => {
+  const theme = useTheme();
   return (
     <Paper sx={{ p: 1.5 }}>
       {title && (
@@ -33,7 +28,7 @@ const AllocationDonutChart: React.FC<AllocationDonutChartProps> = ({ data, title
                   id: d.name,
                   label: d.name,
                   value: d.value,
-                  color: COLORS[i % COLORS.length],
+                  color: theme.chart.palette[i % theme.chart.palette.length],
                 })),
                 innerRadius: 60,
                 outerRadius: 110,

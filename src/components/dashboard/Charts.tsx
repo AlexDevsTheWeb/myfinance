@@ -1,4 +1,4 @@
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography, useTheme } from '@mui/material';
 import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
 import { AreaPlot, LinePlot } from '@mui/x-charts/LineChart';
 import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
@@ -9,6 +9,7 @@ import React from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
 
 const Charts: React.FC = () => {
+  const theme = useTheme();
   const { transactions } = useFinanceStore();
   const emptyYear: Record<string, { dateKey: string; displayDate: string; income: number; expense: number }> = {};
 
@@ -50,8 +51,8 @@ const Charts: React.FC = () => {
       <Box sx={{ height: 280, width: '100%' }}>
         <ChartsDataProvider
           series={[
-            { type: 'line', id: 'income', data: data.map(d => d.income), label: 'Income', color: '#10b981', area: true, showMark: false },
-            { type: 'line', id: 'expense', data: data.map(d => d.expense), label: 'Expense', color: '#ef4444', area: true, showMark: false },
+            { type: 'line', id: 'income', data: data.map(d => d.income), label: 'Income', color: theme.palette.success.main, area: true, showMark: false },
+            { type: 'line', id: 'expense', data: data.map(d => d.expense), label: 'Expense', color: theme.palette.error.main, area: true, showMark: false },
           ]}
           xAxis={[{ scaleType: 'band', data: data.map(d => d.displayDate), id: 'x', disableLine: true, disableTicks: true }]}
           yAxis={[{ id: 'y', disableLine: true, disableTicks: true }]}

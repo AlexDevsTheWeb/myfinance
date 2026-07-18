@@ -5,7 +5,7 @@ created: 2026-07-11
 updated: 2026-07-12
 status: active
 sources: ["raw/go-to-market/go-to-market.md", "raw/138-go-to-market/phase-1-analysis.md"]
-related: ["wiki/plans/roadmap", "wiki/architecture/concerns-and-tech-debt", "wiki/decisions/saas-readiness", "wiki/queries/app-review", "wiki/features/pac-automation/pac-automation"]
+related: ["wiki/plans/roadmap", "wiki/architecture/concerns-and-tech-debt", "wiki/decisions/saas-readiness", "wiki/queries/app-review", "wiki/features/pac-automation/pac-automation", "wiki/plans/beta-launch-playbook"]
 ---
 
 # Plan: Go-to-Market
@@ -92,6 +92,10 @@ All transactions stored as array in `users/{uid}` doc. Every write rewrites the 
 
 ### Phase 2 — Soft Beta Launch (Week 4)
 
+See the detailed [[wiki/plans/beta-launch-playbook|Beta Launch Playbook]] for execution checklist, disclaimer component, backup/restore verification, and invitation template.
+
+- [x] Implement beta disclaimer banner on Dashboard — [#149](https://github.com/AlexDevsTheWeb/myfinance/pull/151)
+- [x] Execute backup/restore verification protocol (post sub-collection migration) — verified, no code changes needed [#150](https://github.com/AlexDevsTheWeb/myfinance/issues/150)
 - [ ] Recruit 10-15 beta testers from: r/ItaliaPersonalFinance, r/ETFs_Italia, Forum FinanzaOnline, dev Twitter/LinkedIn, personal network
 - [ ] Beta deal: free access in exchange for bug reports + feature feedback
 - [ ] Set up feedback channel (Telegram or Discord)

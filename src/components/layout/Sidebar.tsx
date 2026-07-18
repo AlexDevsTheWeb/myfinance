@@ -1,6 +1,5 @@
 import {
   AccountBalance as BudgetIcon,
-  AccountBalance as FinanceIcon,
   BarChart as BarChartIcon,
   Bolt as ElecIcon,
   ChevronLeft,
@@ -31,6 +30,8 @@ import { useFinanceStore } from '../../store/useFinanceStore';
 import { useLogout } from '../../hooks/useLogout';
 import { useAuthStore } from '../../store/useAuthStore';
 import { getEnvVar } from '../../utils/variables.utils';
+import { alpha, useTheme } from '@mui/material/styles';
+import BalancrLogo from '../BalancrLogo';
 
 const drawerWidthExpanded = 240;
 const drawerWidthCollapsed = 64;
@@ -46,6 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
   const { user } = useAuthStore();
   const logout = useLogout();
   const isMobile = useMediaQuery('(max-width: 899.95px)');
+  const theme = useTheme();
   const appTitle = getEnvVar('VITE_REACT_APP_TITLE');
   const [collapsed, setCollapsed] = useState(false);
 
@@ -59,21 +61,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
         to={to}
         selected={active}
         onClick={onNavClick}
-        sx={{
+          sx={{
           borderRadius: 1,
           mx: collapsed ? 0 : 1,
           px: collapsed ? 1 : undefined,
           justifyContent: collapsed ? 'center' : undefined,
-          '&.Mui-selected': { bgcolor: 'rgba(99, 102, 241, 0.15)', '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.2)' } },
+          cursor: 'pointer',
+          '&.Mui-selected': { bgcolor: alpha(theme.palette.primary.main, 0.15), '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.2) } },
         }}
       >
-        <ListItemIcon sx={{ minWidth: collapsed ? 0 : 40, justifyContent: collapsed ? 'center' : undefined, color: active ? '#818cf8' : 'rgba(255,255,255,0.6)' }}>
+        <ListItemIcon sx={{ minWidth: collapsed ? 0 : 40, justifyContent: collapsed ? 'center' : undefined, color: active ? 'primary.main' : 'rgba(255,255,255,0.6)' }}>
           {icon}
         </ListItemIcon>
         {!collapsed && (
           <ListItemText
             primary={label}
-            sx={{ '& .MuiListItemText-primary': { fontWeight: active ? 700 : 500, fontSize: '0.875rem', color: active ? '#818cf8' : 'inherit' } }}
+            sx={{ '& .MuiListItemText-primary': { fontWeight: active ? 700 : 500, fontSize: '0.875rem', color: active ? 'primary.main' : 'inherit' } }}
           />
         )}
       </ListItemButton>
@@ -90,12 +93,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
       {/* Logo / Title */}
       {collapsed ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-          <FinanceIcon sx={{ color: '#6366f1' }} />
+          <BalancrLogo size={56} />
         </Box>
       ) : (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 2 }}>
-          <FinanceIcon sx={{ color: '#6366f1' }} />
-          <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: -1, color: '#6366f1', whiteSpace: 'nowrap' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 2 }}>
+          <BalancrLogo size={48} />
+          <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: -1, color: 'common.white', whiteSpace: 'nowrap' }}>
             {appTitle}
           </Typography>
         </Box>
@@ -132,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
             <Avatar
               src={user.photoURL || undefined}
               alt={user.displayName || 'User'}
-              sx={{ width: 32, height: 32, border: '2px solid rgba(99, 102, 241, 0.5)' }}
+               sx={{ width: 32, height: 32, border: '2px solid rgba(67, 100, 247, 0.5)' }}
             >
               {user.displayName?.charAt(0)}
             </Avatar>
@@ -152,7 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
               <Avatar
                 src={user.photoURL || undefined}
                 alt={user.displayName || 'User'}
-                sx={{ width: 32, height: 32, border: '2px solid rgba(99, 102, 241, 0.5)' }}
+                sx={{ width: 32, height: 32, border: '2px solid rgba(67, 100, 247, 0.5)' }}
               >
                 {user.displayName?.charAt(0)}
               </Avatar>
@@ -161,13 +164,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
         )}
         <ListItemButton
           onClick={logout}
-          sx={{ borderRadius: 1, mx: collapsed ? 0 : 1, px: collapsed ? 1 : undefined, justifyContent: collapsed ? 'center' : undefined }}
+          sx={{ borderRadius: 1, mx: collapsed ? 0 : 1, px: collapsed ? 1 : undefined, justifyContent: collapsed ? 'center' : undefined, cursor: 'pointer' }}
         >
-          <ListItemIcon sx={{ minWidth: collapsed ? 0 : 40, justifyContent: collapsed ? 'center' : undefined, color: '#ef4444' }}>
+          <ListItemIcon sx={{ minWidth: collapsed ? 0 : 40, justifyContent: collapsed ? 'center' : undefined, color: 'error.main' }}>
             <LogoutIcon />
           </ListItemIcon>
           {!collapsed && (
-            <ListItemText primary={t('common.logout')} sx={{ '& .MuiListItemText-primary': { fontWeight: 500, fontSize: '0.875rem', color: '#ef4444' } }} />
+            <ListItemText primary={t('common.logout')} sx={{ '& .MuiListItemText-primary': { fontWeight: 500, fontSize: '0.875rem', color: 'error.main' } }} />
           )}
         </ListItemButton>
       </List>
@@ -190,7 +193,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
         '& .MuiDrawer-paper': {
           width: w,
           boxSizing: 'border-box',
-          background: '#0f172a',
+          bgcolor: 'background.default',
           borderRight: '1px solid rgba(255,255,255,0.1)',
           overflowX: 'hidden',
           transition: 'width 0.2s ease',

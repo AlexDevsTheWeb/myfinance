@@ -5,7 +5,7 @@ created: 2026-06-30
 updated: 2026-06-30
 status: planned
 sources: ["raw/101-backup-restore-gaps.md"]
-related: ["architecture/concerns-and-tech-debt", "features/budget-savings-engine", "features/investment-tracking-v3"]
+related: ["architecture/concerns-and-tech-debt", "features/budget-savings-engine", "features/investment-tracking-v3", "plans/beta-launch-playbook"]
 ---
 
 # Plan: Backup/Restore Data Coverage

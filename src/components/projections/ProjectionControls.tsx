@@ -34,7 +34,7 @@ const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange
               { value: 50, label: '50yr' },
             ]}
             onChange={(_, v) => onChange('years', v as number)}
-            sx={{ color: '#5b6cb8' }}
+            sx={{ color: 'primary.main' }}
           />
         </Stack>
 
@@ -59,7 +59,7 @@ const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange
               { value: 20, label: '20%' },
             ]}
             onChange={(_, v) => onChange('etfAnnualReturn', (v as number) / 100)}
-            sx={{ color: '#5b6cb8' }}
+            sx={{ color: 'primary.main' }}
           />
           {hasRealData && (
             <FormControlLabel
@@ -68,7 +68,7 @@ const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange
                   checked={useRealPerformance ?? false}
                   onChange={(e) => onRealPerformanceToggle?.(e.target.checked)}
                   size="small"
-                  sx={{ color: '#5b6cb8' }}
+                  sx={{ color: 'primary.main' }}
                 />
               }
               label={t('investment.useRealPerformance') || 'Use Real Performance'}
@@ -94,7 +94,7 @@ const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange
               { value: 10, label: '10%' },
             ]}
             onChange={(_, v) => onChange('cashAnnualRate', (v as number) / 100)}
-            sx={{ color: '#5b6cb8' }}
+            sx={{ color: 'primary.main' }}
           />
         </Stack>
 
@@ -142,7 +142,7 @@ const ProjectionControls: React.FC<ProjectionControlsProps> = ({ input, onChange
             <Switch
               checked={input.adjustForInflation ?? false}
               onChange={(e) => onInflationToggle?.(e.target.checked)}
-              sx={{ color: '#5b6cb8' }}
+              sx={{ color: 'primary.main' }}
             />
           }
           label={`${t('projections.adjustForInflation')} (${((input.inflationRate ?? 0.02) * 100).toFixed(0)}%)`}

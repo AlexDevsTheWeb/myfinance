@@ -56,7 +56,7 @@ const AccountDetailDialog: React.FC<AccountDetailDialogProps> = ({ open, onClose
 
   return (
     <Dialog fullScreen open={open} onClose={onClose}>
-      <AppBar position="sticky" elevation={0} sx={{ background: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+      <AppBar position="sticky" elevation={0} sx={{ bgcolor: 'background.paper', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700 }}>
             {t('dashboard.accountsDetail')}

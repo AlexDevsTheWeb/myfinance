@@ -1,4 +1,4 @@
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography, useTheme } from '@mui/material';
 import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
 import { AreaPlot, LinePlot } from '@mui/x-charts/LineChart';
 import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
@@ -25,6 +25,7 @@ const formatEuro = (v: number) => {
 };
 
 const ProjectionChart: React.FC<ProjectionChartProps> = ({ data, showRealValue }) => {
+  const theme = useTheme();
   const { t } = useTranslation();
 
   const series = [
@@ -33,7 +34,7 @@ const ProjectionChart: React.FC<ProjectionChartProps> = ({ data, showRealValue }
       type: 'line' as const,
       data: data.map(d => d.netWorth),
       label: t('projections.seriesNetWorth'),
-      color: '#5b6cb8',
+      color: theme.chart.primary,
       area: true,
       showMark: false,
     },
@@ -42,7 +43,7 @@ const ProjectionChart: React.FC<ProjectionChartProps> = ({ data, showRealValue }
       type: 'line' as const,
       data: data.map(d => d.totalInvested),
       label: t('projections.seriesInvested'),
-      color: '#10b981',
+      color: theme.chart.income,
       area: true,
       showMark: false,
     },
@@ -51,7 +52,7 @@ const ProjectionChart: React.FC<ProjectionChartProps> = ({ data, showRealValue }
       type: 'line' as const,
       data: data.map(d => d.nominalValue ?? 0),
       label: t('projections.seriesNominalValue'),
-      color: '#ef4444',
+      color: theme.chart.expense,
       showMark: false,
     }] : []),
   ];
@@ -74,12 +75,12 @@ const ProjectionChart: React.FC<ProjectionChartProps> = ({ data, showRealValue }
             <ChartsSurface>
               <defs>
                 <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#5b6cb8" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#5b6cb8" stopOpacity={0} />
+                  <stop offset="0%" stopColor={theme.chart.primary} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={theme.chart.primary} stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="totalInvestedGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                  <stop offset="0%" stopColor={theme.chart.income} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={theme.chart.income} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <ChartsGrid vertical={false} horizontal />

@@ -337,7 +337,7 @@ const CarPage: React.FC = () => {
         <Grid container spacing={3}>
           {/* Column 1: Total Odometer + New Reading Form */}
           <Grid size={{ xs: 12, md: 3 }}>
-            <Card sx={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', borderRadius: 4, boxShadow: '0 8px 32px rgba(37, 99, 235, 0.3)', mb: 3 }}>
+            <Card sx={{ background: 'linear-gradient(135deg, #4364f7 0%, #4364f7 100%)', borderRadius: 4, boxShadow: '0 8px 32px rgba(37, 99, 235, 0.3)', mb: 3 }}>
               <CardContent sx={{ p: 1.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <SpeedIcon sx={{ mr: 1, opacity: 0.8 }} />
@@ -378,7 +378,7 @@ const CarPage: React.FC = () => {
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
                   <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{selectedYearFilter}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#6366f1' }}>{yearStats.totalKmYear.toLocaleString()} km</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: 'primary.main' }}>{yearStats.totalKmYear.toLocaleString()} km</Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -426,7 +426,7 @@ const CarPage: React.FC = () => {
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.trend')}</Typography>
               <Box sx={{ height: 200, width: '100%' }}>
                 <LineChart
-                  series={[{ data: yearStats.chartData.map(d => d.km), color: '#3b82f6', showMark: false }]}
+                  series={[{ data: yearStats.chartData.map(d => d.km), color: '#4364f7', showMark: false }]}
                   xAxis={[{ scaleType: 'band', data: yearStats.chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
                   yAxis={[{ disableLine: true, disableTicks: true }]}
                   grid={{ vertical: false, horizontal: true }}
@@ -485,20 +485,20 @@ const CarPage: React.FC = () => {
             <Grid container spacing={2} sx={{ mb: 3 }}>
               {/* Summer Total */}
               <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'rgba(245, 158, 11, 0.1)', borderRadius: 4, border: '1px solid #f59e0b' }}>
+                <Card sx={{ background: 'rgba(237, 108, 2, 0.1)', borderRadius: 4, border: '1px solid', borderColor: 'warning.main' }}>
                   <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.summer')}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#f59e0b' }}>{tireStats.summerTotal.toLocaleString()} km</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: 'warning.main' }}>{tireStats.summerTotal.toLocaleString()} km</Typography>
                   </CardContent>
                 </Card>
               </Grid>
 
               {/* Winter Total */}
               <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'rgba(59, 130, 246, 0.1)', borderRadius: 4, border: '1px solid #3b82f6' }}>
+                <Card sx={{ background: 'rgba(67, 100, 247, 0.1)', borderRadius: 4, border: '1px solid', borderColor: 'primary.main' }}>
                   <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.winter')}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#3b82f6' }}>{tireStats.winterTotal.toLocaleString()} km</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: 'primary.main' }}>{tireStats.winterTotal.toLocaleString()} km</Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -556,7 +556,7 @@ const CarPage: React.FC = () => {
                     {tireStats.history.map((row) => (
                       <TableRow key={row.id}>
                         <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('L')}</TableCell>
-                        <TableCell sx={{ p: 1, color: row.type === 'summer' ? '#f59e0b' : '#3b82f6' }}>{row.type === 'summer' ? t('car.summer') : t('car.winter')}</TableCell>
+                        <TableCell sx={{ p: 1, color: row.type === 'summer' ? 'warning.main' : 'primary.main' }}>{row.type === 'summer' ? t('car.summer') : t('car.winter')}</TableCell>
                         <TableCell align="right" sx={{ p: 1, fontWeight: 600 }}>{row.runKm.toLocaleString()}</TableCell>
                         <TableCell align="right" sx={{ p: 1 }}>
                           <IconButton size="small" onClick={() => handleEditTireChange(row)}><EditIcon fontSize="small" /></IconButton>
@@ -575,7 +575,7 @@ const CarPage: React.FC = () => {
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.tireUsage')}</Typography>
               <Box sx={{ height: 250, width: '100%' }}>
                 <LineChart
-                  series={[{ data: tireStats.history.slice(0, 10).map(t => t.runKm), color: '#f59e0b', showMark: false }]}
+                  series={[{ data: tireStats.history.slice(0, 10).map(t => t.runKm), color: '#ed6c02', showMark: false }]}
                   xAxis={[{ scaleType: 'band', data: tireStats.history.slice(0, 10).map((_, i) => `${i + 1}`), disableLine: true, disableTicks: true }]}
                   yAxis={[{ disableLine: true, disableTicks: true }]}
                   grid={{ vertical: false, horizontal: true }}
@@ -602,7 +602,7 @@ const CarPage: React.FC = () => {
             <Grid container spacing={2} sx={{ mb: 3 }}>
               {/* Total Spent */}
               <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', borderRadius: 4 }}>
+                <Card sx={{ background: 'linear-gradient(135deg, #10b981 0%, #10b981 100%)', borderRadius: 4 }}>
                   <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700 }}>Total Spent</Typography>
                     <Typography variant="h6" sx={{ fontWeight: 900 }}>{costStats.totalCostYear.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
@@ -615,7 +615,7 @@ const CarPage: React.FC = () => {
                 <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
                   <CardContent sx={{ p: 1.5 }}>
                     <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Efficiency</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#10b981' }}>{costStats.avgEfficiencyYear.toFixed(3)} €/km</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: 'success.main' }}>{costStats.avgEfficiencyYear.toFixed(3)} €/km</Typography>
                   </CardContent>
                 </Card>
               </Grid>

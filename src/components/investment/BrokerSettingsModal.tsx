@@ -137,7 +137,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: '#1e293b' } } }}>
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: 'background.paper' } } }}>
       <DialogTitle sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
         <AccountBalance sx={{ opacity: 0.7 }} />
         {mode === 'list' ? 'Broker Accounts' : editingBrokerId ? 'Edit Broker' : 'Add Broker Account'}

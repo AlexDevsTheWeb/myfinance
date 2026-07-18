@@ -130,10 +130,10 @@ export const useFinanceStore = create<FinanceState>()(
       hasLocalChanges: false,
       isLoading: true,
       saveError: null,
-      language: localStorage.getItem('myfinance_language') || i18n.language || Defaults.DEFAULT_LANGUAGE,
+      language: localStorage.getItem('balancr_language') || localStorage.getItem('myfinance_language') || i18n.language || Defaults.DEFAULT_LANGUAGE,
 
       setLanguage: (lang) => {
-        localStorage.setItem('myfinance_language', lang);
+        localStorage.setItem('balancr_language', lang);
         i18n.changeLanguage(lang);
         set({ language: lang });
       },
@@ -1267,8 +1267,8 @@ setBalanceStartDate: async (date) => {
           let data: Record<string, unknown>;
 
           if (backup.version) {
-            if (backup.app !== 'myfinance') {
-              set({ saveError: 'Invalid backup: not a MyFinance backup file', isSaving: false });
+            if (backup.app !== 'balancr' && backup.app !== 'myfinance') {
+              set({ saveError: 'Invalid backup: not a Balancr backup file', isSaving: false });
               return false;
             }
             data = backup.data ?? {};
