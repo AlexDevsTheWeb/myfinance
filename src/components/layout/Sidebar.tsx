@@ -29,9 +29,10 @@ import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useLogout } from '../../hooks/useLogout';
 import { useAuthStore } from '../../store/useAuthStore';
-import { getEnvVar } from '../../utils/variables.utils';
 import { alpha, useTheme } from '@mui/material/styles';
 import BalancrLogo from '../BalancrLogo';
+
+const APP_TITLE = 'BALANCR';
 
 const drawerWidthExpanded = 240;
 const drawerWidthCollapsed = 64;
@@ -48,7 +49,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
   const logout = useLogout();
   const isMobile = useMediaQuery('(max-width: 899.95px)');
   const theme = useTheme();
-  const appTitle = getEnvVar('VITE_REACT_APP_TITLE');
   const [collapsed, setCollapsed] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
@@ -99,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 2 }}>
           <BalancrLogo size={48} />
           <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: -1, color: 'common.white', whiteSpace: 'nowrap' }}>
-            {appTitle}
+            {APP_TITLE}
           </Typography>
         </Box>
       )}
