@@ -15,7 +15,7 @@ const DividendBadge: React.FC<DividendBadgeProps> = ({ totalDividends }) => {
       size="small"
       sx={{
         background: 'rgba(16, 185, 129, 0.2)',
-        color: '#10b981',
+        color: 'success.main',
         fontWeight: 700,
       }}
     />

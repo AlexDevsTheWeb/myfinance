@@ -108,7 +108,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                       sx={{ fontWeight: 700, fontSize: '0.65rem' }}
                     />
                   </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700, color: t.type === 'income' ? '#10b981' : '#ef4444' }}>
+                  <TableCell align="right" sx={{ fontWeight: 700, color: t.type === 'income' ? 'success.main' : 'error.main' }}>
                     {t.type === 'income' ? '+' : '-'} € {t.amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
                   </TableCell>
                   <TableCell align="right">

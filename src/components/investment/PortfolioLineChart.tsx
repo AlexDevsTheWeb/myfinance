@@ -1,4 +1,4 @@
-import { Box, Button, Paper, Typography } from '@mui/material';
+import { Box, Button, Paper, Typography, useTheme } from '@mui/material';
 import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
 import { AreaPlot, LinePlot, MarkPlot } from '@mui/x-charts/LineChart';
 import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
@@ -15,6 +15,7 @@ interface PortfolioLineChartProps {
 const TIME_RANGES = ['1M', '6M', '1Y', 'ALL'];
 
 const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange, onTimeRangeChange }) => {
+  const theme = useTheme();
   const filtered = timeRange === 'ALL' ? data : (() => {
     const cutoff = timeRange === '1M' ? dayjs().subtract(30, 'day')
       : timeRange === '6M' ? dayjs().subtract(6, 'month')
@@ -48,7 +49,7 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
               type: 'line',
               data: filtered.map(d => d.value),
               label: 'Portfolio Value',
-              color: '#5b6cb8',
+              color: theme.chart.primary,
               area: true,
               showMark: filtered.length <= 1,
             },
@@ -57,7 +58,7 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
               type: 'line',
               data: filtered.map(d => d.invested),
               label: 'Invested',
-              color: '#10b981',
+              color: theme.chart.income,
               showMark: filtered.length <= 1,
             },
           ]}
@@ -71,8 +72,8 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
             <ChartsSurface>
               <defs>
                 <linearGradient id="portfolioGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#5b6cb8" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#5b6cb8" stopOpacity={0} />
+                  <stop offset="0%" stopColor={theme.chart.primary} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={theme.chart.primary} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <ChartsGrid vertical={false} horizontal />

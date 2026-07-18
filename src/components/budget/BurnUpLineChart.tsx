@@ -1,4 +1,4 @@
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, useTheme } from '@mui/material';
 import { ChartsDataProvider, ChartsSurface, ChartsWrapper, ChartsTooltip } from '@mui/x-charts';
 import { AreaPlot, LinePlot } from '@mui/x-charts/LineChart';
 import { ChartsAxis } from '@mui/x-charts/ChartsAxis';
@@ -14,6 +14,7 @@ interface Props {
 }
 
 export default function BurnUpLineChart({ transactions, budgetTargets, dateRange }: Props) {
+  const theme = useTheme();
   const { t } = useTranslation();
 
   const data = computeBurnUpData(transactions, budgetTargets, dateRange);
@@ -43,7 +44,7 @@ export default function BurnUpLineChart({ transactions, budgetTargets, dateRange
             type: 'line',
             data: data.map(d => d.actual),
             label: t('budget.actualSpend'),
-            color: '#6366f1',
+            color: theme.palette.primary.main,
             showMark: false,
             area: true,
           },
@@ -57,8 +58,8 @@ export default function BurnUpLineChart({ transactions, budgetTargets, dateRange
           <ChartsSurface>
             <defs>
               <linearGradient id="actualGradient-burnup" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+                <stop offset="0%" stopColor={theme.palette.primary.main} stopOpacity={0.3} />
+                <stop offset="100%" stopColor={theme.palette.primary.main} stopOpacity={0} />
               </linearGradient>
             </defs>
             <ChartsGrid vertical={false} horizontal />

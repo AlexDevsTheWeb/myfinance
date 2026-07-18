@@ -47,7 +47,7 @@ const ProjectionSummary: React.FC<ProjectionSummaryProps> = ({
           icon={<AccountBalance />}
           label={t('projections.finalCapital')}
           value={finalCapital !== null ? formatCurrency(finalCapital) : '\u2014'}
-          color="#5b6cb8"
+          color="primary.main"
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 4 }}>
@@ -55,7 +55,7 @@ const ProjectionSummary: React.FC<ProjectionSummaryProps> = ({
           icon={<TrendingUp />}
           label={t('projections.totalInterests')}
           value={totalInterests !== null ? formatCurrency(totalInterests) : '\u2014'}
-          color={totalInterests && totalInterests > 0 ? '#10b981' : 'inherit'}
+          color={totalInterests && totalInterests > 0 ? 'success.main' : 'inherit'}
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 4 }}>
@@ -63,7 +63,7 @@ const ProjectionSummary: React.FC<ProjectionSummaryProps> = ({
           icon={<Receipt />}
           label={t('projections.estimatedTaxes')}
           value={estimatedTaxes !== null ? formatCurrency(estimatedTaxes) : '\u2014'}
-          color="#ef4444"
+          color="error.main"
         />
       </Grid>
       {showRealValue && realFinalCapital != null && (
@@ -72,7 +72,7 @@ const ProjectionSummary: React.FC<ProjectionSummaryProps> = ({
             icon={<AccountBalance />}
             label={t('projections.realFinalCapital')}
             value={formatCurrency(realFinalCapital!)}
-            color="#ef4444"
+            color="error.main"
           />
         </Grid>
       )}

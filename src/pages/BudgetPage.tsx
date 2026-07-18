@@ -87,7 +87,7 @@ export default function BudgetPage() {
       <BudgetSummaryCards summary={summary} />
 
       {budgetTargets.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 3, background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <Paper sx={{ p: 4, textAlign: 'center', borderRadius: 3, bgcolor: 'background.paper', border: '1px solid rgba(255,255,255,0.05)' }}>
           <Typography variant="h6" sx={{ opacity: 0.6 }}>{t('budget.noTargets')}</Typography>
           <Typography variant="body2" sx={{ opacity: 0.4, mb: 2 }}>{t('budget.noTargetsDescription')}</Typography>
           <Button variant="outlined" startIcon={<AddIcon />} onClick={() => { setEditingTarget(null); setDialogOpen(true); }}>
@@ -96,22 +96,22 @@ export default function BudgetPage() {
         </Paper>
       ) : (
         <>
-          <Paper sx={{ p: 2, mb: 3, borderRadius: 3, background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <Paper sx={{ p: 2, mb: 3, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid rgba(255,255,255,0.05)' }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('budget.progressByCategory')}</Typography>
             <BulletChart snapshots={snapshots} />
           </Paper>
 
-          <Paper sx={{ p: 2, mb: 3, borderRadius: 3, background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <Paper sx={{ p: 2, mb: 3, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid rgba(255,255,255,0.05)' }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('budget.targetVsActual')}</Typography>
             <ComparisonBarChart snapshots={snapshots} />
           </Paper>
 
-          <Paper sx={{ p: 2, mb: 3, borderRadius: 3, background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <Paper sx={{ p: 2, mb: 3, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid rgba(255,255,255,0.05)' }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('budget.burnUp')}</Typography>
             <BurnUpLineChart transactions={transactions} budgetTargets={budgetTargets} dateRange={dateRange} />
           </Paper>
 
-          <Paper sx={{ p: 2, borderRadius: 3, background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <Paper sx={{ p: 2, borderRadius: 3, bgcolor: 'background.paper', border: '1px solid rgba(255,255,255,0.05)' }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('budget.budgetTargets')}</Typography>
             {budgetTargets.map((target) => (
               <Box key={target.id} sx={{

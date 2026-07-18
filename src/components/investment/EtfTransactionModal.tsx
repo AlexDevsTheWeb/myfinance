@@ -100,7 +100,7 @@ const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: '#1e293b' } } }}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { borderRadius: 2, backgroundImage: 'none', background: 'background.paper' } } }}>
       <DialogTitle sx={{ fontWeight: 700 }}>{isEditMode ? 'Edit ETF Transaction' : 'Add ETF Transaction'}</DialogTitle>
       <DialogContent>
         <EtfTransactionForm formData={formData} setFormData={setFormData} errors={errors} />

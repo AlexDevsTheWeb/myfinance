@@ -1,3 +1,4 @@
+import { useTheme } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { axisClasses } from '@mui/x-charts';
 import type { BudgetProgressSnapshot } from '../../store/types';
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export default function ComparisonBarChart({ snapshots }: Props) {
+  const theme = useTheme();
   const data = snapshots.map((s) => ({
     name: s.category,
     Target: s.targetAmount,
@@ -16,8 +18,8 @@ export default function ComparisonBarChart({ snapshots }: Props) {
   return (
     <BarChart
       series={[
-        { data: data.map(d => d.Target), label: 'Target', color: 'rgba(99,102,241,0.3)' },
-        { data: data.map(d => d.Actual), label: 'Actual', color: '#6366f1' },
+        { data: data.map(d => d.Target), label: 'Target', color: 'rgba(67,100,247,0.3)' },
+        { data: data.map(d => d.Actual), label: 'Actual', color: theme.palette.primary.main },
       ]}
       xAxis={[{ scaleType: 'band', data: data.map(d => d.name), disableLine: true, disableTicks: true }]}
       yAxis={[{ disableLine: true, disableTicks: true }]}

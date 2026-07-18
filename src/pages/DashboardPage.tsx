@@ -128,12 +128,12 @@ const DashboardPage: React.FC = () => {
               value={
                 <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   €{portfolio.currentValue.toLocaleString('it-IT', { minimumFractionDigits: 0 })}
-                  <Typography component="span" variant="caption" sx={{ color: portfolio.isPositive ? '#10b981' : '#ef4444', fontWeight: 700 }}>
+                    <Typography component="span" variant="caption" sx={{ color: portfolio.isPositive ? 'success.main' : 'error.main', fontWeight: 700 }}>
                     {portfolio.totalReturnPercent >= 0 ? '+' : ''}{portfolio.totalReturnPercent.toFixed(1)}%
                   </Typography>
                 </Box>
               }
-              color="#5b6cb8"
+              color="primary.main"
               onClick={() => navigate('/invest')}
             />
           </Grid>
@@ -144,7 +144,7 @@ const DashboardPage: React.FC = () => {
               icon={<BudgetIcon fontSize="small" />}
               label={t('budget.title')}
               value={`${Math.round(budgetSummary.savingsRate * 100)}% ${t('budget.savingsRate').toLowerCase()}`}
-              color={budgetSummary.savingsRate >= 0.2 ? '#22c55e' : budgetSummary.savingsRate >= 0.1 ? '#f59e0b' : '#ef4444'}
+              color={budgetSummary.savingsRate >= 0.2 ? 'success.main' : budgetSummary.savingsRate >= 0.1 ? 'warning.main' : 'error.main'}
               onClick={() => navigate('/budget')}
             />
           </Grid>
@@ -155,7 +155,7 @@ const DashboardPage: React.FC = () => {
               icon={<CarIcon fontSize="small" />}
               label={t('car.title')}
               value={carLatestKm !== null ? `${carLatestKm.toLocaleString()} km` : '—'}
-              color="#3b82f6"
+              color="primary.main"
               onClick={() => navigate('/car')}
             />
           </Grid>
@@ -166,7 +166,7 @@ const DashboardPage: React.FC = () => {
               icon={<ElecIcon fontSize="small" />}
               label={t('utilities.title')}
               value={`€${monthlyUtilities.toLocaleString('it-IT', { minimumFractionDigits: 0 })}`}
-              color="#f59e0b"
+              color="warning.main"
               onClick={() => navigate('/utilities')}
             />
           </Grid>

@@ -13,7 +13,7 @@ const PERIOD_OPTIONS: { value: BudgetTarget['period']; labelKey: string }[] = [
   { value: 'annual', labelKey: 'budget.periodAnnual' },
 ];
 
-const PRESET_COLORS = ['#6366f1', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#14b8a6', '#f97316'];
+const PRESET_COLORS = ['primary.main', 'success.main', 'warning.main', 'error.main', 'primary.main', 'secondary.main', 'primary.main', 'warning.main'];
 
 interface Props {
   open: boolean;
@@ -55,7 +55,7 @@ export default function BudgetTargetDialog({ open, onClose, onSave, editTarget }
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth
-      slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 3 } } }}>
+      slotProps={{ paper: { sx: { bgcolor: 'background.paper', borderRadius: 3 } } }}>
       <DialogTitle sx={{ fontWeight: 700 }}>
         {editTarget ? t('budget.editBudget') : t('budget.addBudget')}
       </DialogTitle>
