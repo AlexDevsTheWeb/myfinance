@@ -94,8 +94,8 @@ All transactions stored as array in `users/{uid}` doc. Every write rewrites the 
 
 See the detailed [[wiki/plans/beta-launch-playbook|Beta Launch Playbook]] for execution checklist, disclaimer component, backup/restore verification, and invitation template.
 
-- [ ] Implement beta disclaimer banner on Dashboard
-- [ ] Execute backup/restore verification protocol (post sub-collection migration)
+- [x] Implement beta disclaimer banner on Dashboard — [#149](https://github.com/AlexDevsTheWeb/myfinance/pull/151)
+- [x] Execute backup/restore verification protocol (post sub-collection migration) — verified, no code changes needed [#150](https://github.com/AlexDevsTheWeb/myfinance/issues/150)
 - [ ] Recruit 10-15 beta testers from: r/ItaliaPersonalFinance, r/ETFs_Italia, Forum FinanzaOnline, dev Twitter/LinkedIn, personal network
 - [ ] Beta deal: free access in exchange for bug reports + feature feedback
 - [ ] Set up feedback channel (Telegram or Discord)
