@@ -533,3 +533,18 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Updated [[wiki/AGENTS.md]] with OKF-compliant frontmatter template
 - Script archived at `docs/YATF/scripts/okf_migrate.py`
 - Reference: https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md
+
+## [2026-07-18] migrate | OKF Hardening | Templates, pre-commit hook, resource fields, wiki index
+- Updated AGENTS.md: OKF frontmatter on AGENTS.md itself (type: Schema)
+- Updated AGENTS.md: page templates now include full OKF frontmatter (type, description, resource)
+- Updated AGENTS.md: ingest workflow hardened — explicit steps for type, description, resource, subdir index update
+- Updated AGENTS.md: lint workflow now starts with `python3 docs/YATF/scripts/okf_migrate.py --check`
+- Updated okf_migrate.py: added --check / --dry-run mode (exits 1 if violations, 0 if clean)
+- Added resource: field to 16 pages sourced from GitHub issues
+- Created docs/YATF/templates/feature.md — OKF-compliant Feature template
+- Created docs/YATF/templates/bug.md — OKF-compliant Bug template
+- Created docs/YATF/templates/decision.md — OKF-compliant Decision template
+- Created docs/YATF/templates/plan.md — OKF-compliant Plan template
+- Created docs/YATF/wiki/index.md — wiki root category index for progressive agent traversal
+- Created docs/YATF/scripts/pre-commit-hook.sh + installed to .git/hooks/pre-commit
+- Ran --check: ✅ 0 violations

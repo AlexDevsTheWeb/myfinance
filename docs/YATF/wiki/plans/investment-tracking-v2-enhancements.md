@@ -1,6 +1,7 @@
 ---
 type: Plan
 description: "Phase 12 complete — six GSD plans: multi-broker, CRUD, PAC, snapshots, inflation, ticker."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/89"
 title: "Investment Tracking V2 — UX & Architecture Enhancements"
 tags: [plan, investment, architecture, ux, completed]
 created: 2026-06-27

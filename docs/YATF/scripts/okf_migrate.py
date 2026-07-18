@@ -5,8 +5,13 @@ Adds `type` and `description` fields to every wiki page frontmatter
 to make the Knowledge Bundle compliant with Open Knowledge Format v0.1.
 https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md
 
-Run from project root:
+Usage:
+    # Apply missing fields (default — safe, idempotent)
     python3 docs/YATF/scripts/okf_migrate.py
+
+    # Check-only mode: report violations without modifying files, exit 1 if any
+    python3 docs/YATF/scripts/okf_migrate.py --check
+    python3 docs/YATF/scripts/okf_migrate.py --dry-run   # alias for --check
 """
 import os
 import re
@@ -309,7 +314,60 @@ timestamp: {today}
 # Main
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Check-only mode
+# ---------------------------------------------------------------------------
+
+def check_compliance():
+    """Scan all wiki pages and report OKF violations. Returns number of violations."""
+    violations = []
+
+    for root, dirs, files in os.walk(WIKI_ROOT):
+        dirs.sort()
+        for fn in sorted(files):
+            if fn.endswith('.md') and fn not in ('index.md',):
+                path = os.path.join(root, fn)
+                with open(path, encoding='utf-8') as f:
+                    content = f.read()
+                rel = os.path.relpath(path, WIKI_ROOT)
+
+                has_type = bool(re.search(r'^type:', content, re.MULTILINE))
+                has_desc = bool(re.search(r'^description:', content, re.MULTILINE))
+
+                issues = []
+                if not has_type:
+                    issues.append('missing type')
+                if not has_desc:
+                    issues.append('missing description')
+
+                if issues:
+                    violations.append((rel, issues))
+
+    if violations:
+        print(f"\n❌ OKF compliance violations found: {len(violations)} page(s)")
+        for rel, issues in violations:
+            print(f"  [{', '.join(issues)}] {rel}")
+        print(f"\nRun without --check to auto-fix, or manually add the missing fields.")
+    else:
+        print(f"\n✅ OKF compliance: all wiki pages have `type` and `description`.")
+
+    return len(violations)
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
 def main():
+    import sys
+    check_only = '--check' in sys.argv or '--dry-run' in sys.argv
+
+    if check_only:
+        print("=== OKF Compliance Check (read-only) ===")
+        violations = check_compliance()
+        sys.exit(1 if violations else 0)
+
+    # --- Migration mode ---
     updated = 0
     skipped = 0
 
@@ -329,7 +387,6 @@ def main():
         cat_dir = os.path.join(WIKI_ROOT, category)
         if not os.path.isdir(cat_dir):
             continue
-        # Collect all md files relative to cat_dir
         rel_files = []
         for root, dirs, files in os.walk(cat_dir):
             for fn in files:
@@ -346,6 +403,7 @@ def main():
     print(f"  Pages updated : {updated}")
     print(f"  Pages skipped : {skipped}")
     print(f"  Subdir indexes: {len(TYPE_MAP)}")
+    print(f"\nRun with --check to verify compliance at any time.")
 
 
 if __name__ == '__main__':

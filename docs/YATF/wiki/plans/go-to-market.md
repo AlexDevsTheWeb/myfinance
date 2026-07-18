@@ -1,6 +1,7 @@
 ---
 type: Plan
 description: "MAX PRIORITY: six-phase SaaS launch plan from quick wins through beta to monetization."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/150"
 title: "Go-to-Market Plan"
 tags: [plan, strategy, go-to-market, saas]
 created: 2026-07-11

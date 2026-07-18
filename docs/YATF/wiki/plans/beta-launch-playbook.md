@@ -1,6 +1,7 @@
 ---
 type: Plan
 description: "Phase 2 execution details: disclaimer banner, backup/restore verification, tester invitation."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/150"
 title: "Beta Launch Playbook"
 tags: [plan, beta, launch, go-to-market]
 created: 2026-07-18

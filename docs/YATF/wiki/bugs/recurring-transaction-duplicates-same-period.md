@@ -1,6 +1,7 @@
 ---
 type: Bug
 description: "checkRecurring generates duplicate transactions alongside manual ones on every page load — fixed."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/146"
 title: "checkRecurring generates 5+ copies of same transaction on every page load"
 tags: [bug, recurring, critical, fixed]
 created: 2026-07-16

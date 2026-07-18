@@ -1,6 +1,7 @@
 ---
 type: Architecture
 description: "Known tech debt, open bugs, security gaps, and performance concerns."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/122"
 title: "Codebase Concerns and Tech Debt"
 tags: [architecture, tech-debt, bugs, security, performance]
 created: 2026-06-22

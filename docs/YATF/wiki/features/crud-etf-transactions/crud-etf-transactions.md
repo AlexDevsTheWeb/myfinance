@@ -1,6 +1,7 @@
 ---
 type: Feature
 description: "Edit and delete ETF transactions with safe cascade recalculation."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/90"
 title: "ETF Transactions CRUD & Settings Persistence"
 tags: [feature, investment, crud, implemented]
 created: 2026-06-27

@@ -1,6 +1,7 @@
 ---
 type: Feature
 description: "Loading indicators on Dashboard, Transactions, and Investments pages during data sync."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/138"
 title: "Loading States"
 tags: [feature, ux, go-to-market]
 created: 2026-07-12

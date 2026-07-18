@@ -1,3 +1,9 @@
+---
+type: Schema
+title: "YATF Wiki — Agent Instructions"
+description: "Schema, conventions, templates, workflows, and traversal protocol for the YATF Knowledge Bundle (OKF v0.1)."
+---
+
 # AGENTS.md — MyFinance Project Wiki
 
 You are the LLM Wiki maintainer for the **MyFinance** project codebase. Your job is to maintain a persistent, interlinked wiki of project knowledge — features, bugs, decisions, architecture, conventions, and implementation plans. You never write the wiki yourself; the LLM does all writing and maintenance based on conversation and ingestion.
@@ -52,10 +58,15 @@ When the user places a new `.md` file in `raw/` and asks you to ingest it:
 1. **Read** the source file in full.
 2. **Discuss** with the user: what's important? what should be emphasized? Any nuances?
 3. **Create a subfolder** for the source — move the file as `raw/<topic>/<topic>.md` (each raw source gets its own folder, named after the topic).
-4. **Write a summary page** — place a digest in the appropriate wiki subdirectory (e.g., `wiki/features/`, `wiki/bugs/`, `wiki/plans/`).
-5. **Update or create entity pages** — e.g., if the source discusses a feature, update that feature's page with new info. If it mentions an architecture concept, cross-reference it.
-6. **Update `index.md`** — add the new page to the catalog.
-7. **Append to `log.md`** — with prefix: `## [YYYY-MM-DD] ingest | <Category> | <Title>`
+4. **Write a summary page** — place a digest in the appropriate wiki subdirectory (e.g., `wiki/features/`, `wiki/bugs/`, `wiki/plans/`). Use the template from `docs/YATF/templates/` as the starting point.
+5. **Set OKF frontmatter** on the new page — this is mandatory:
+   - `type` — the correct value for the directory (Feature, Bug, Decision, Plan, Architecture, Convention, Query, Reference)
+   - `description` — a single sentence summary of the concept
+   - `resource` — if the source is a GitHub issue or PR, set this to the URL (e.g., `https://github.com/AlexDevsTheWeb/myfinance/issues/123`)
+6. **Update or create entity pages** — e.g., if the source discusses a feature, update that feature's page with new info. If it mentions an architecture concept, cross-reference it.
+7. **Update `index.md`** — add the new page row to the correct category table.
+8. **Update `wiki/<category>/index.md`** — add the new page row to the subdirectory catalog.
+9. **Append to `log.md`** — with prefix: `## [YYYY-MM-DD] ingest | <Category> | <Title>`
 
 An ingest typically touches 5–15 wiki pages. Do all updates in a single pass.
 
@@ -65,13 +76,14 @@ When the user says to import a GitHub issue:
 
 1. Fetch the issue via `gh issue view <number>` or the user provides the URL/content.
 2. Classify it: is it about a **bug**, a **feature request**, a **question**, a **decision**, or a **task**?
-3. Create or update pages accordingly:
+3. Create or update pages accordingly (use templates from `docs/YATF/templates/`):
    - **Bug** → create `wiki/bugs/<slug>.md`
    - **Feature request** → create `wiki/features/<slug>/<slug>.md`
    - **Decision** → create `wiki/decisions/<slug>.md`
    - **Question/answered** → file result into `wiki/queries/<slug>.md`
-4. Add cross-references to any related existing wiki pages.
-5. Update `index.md` and `log.md` as above.
+4. **Set `resource`** to the full GitHub issue URL — e.g., `https://github.com/AlexDevsTheWeb/myfinance/issues/123`.
+5. Add cross-references to any related existing wiki pages.
+6. Update root `index.md`, subdirectory `wiki/<category>/index.md`, and `log.md`.
 
 ---
 
@@ -117,9 +129,25 @@ related: ["wiki/features/other-feature/other-feature.md", "wiki/architecture/com
 
 ### Page Templates
 
+Templates are stored as ready-to-copy files in `docs/YATF/templates/`. Copy the relevant file and fill in the placeholders. The templates below show the full structure including mandatory OKF frontmatter.
+
 **Feature page** (`wiki/features/<slug>/<slug>.md`):
-```
+````
+---
+type: Feature
+title: "<Feature Name>"
+description: "<One-line summary of what the feature does.>"
+resource: "<optional: GitHub issue URL>"
+tags: [feature]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+status: planned | in-progress | implemented | deprecated
+sources: ["raw/<topic>/<topic>.md"]
+related: []
+---
+
 # Feature: <Name>
+
 Status: planned | in-progress | implemented | deprecated
 Priority: high | medium | low
 
@@ -130,16 +158,31 @@ Brief description of the feature.
 - Bullet list of requirements
 
 ## Implementation Notes
-Key decisions, constraints, dependencies
+Key decisions, constraints, dependencies.
 
 ## Related
 - [[wiki/architecture/related-component]]
 - Source: [raw/...](raw/...)
-```
+````
 
 **Bug page** (`wiki/bugs/<slug>.md`):
-```
+````
+---
+type: Bug
+title: "<Bug Title>"
+description: "<One-line summary of the symptom and status.>"
+resource: "<optional: GitHub issue URL>"
+tags: [bug]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+status: open | investigating | fixed | wontfix
+severity: critical | major | minor
+sources: ["raw/<topic>/<topic>.md"]
+related: []
+---
+
 # Bug: <Title>
+
 Status: open | investigating | fixed | wontfix
 Severity: critical | major | minor
 
@@ -158,11 +201,25 @@ How it was fixed (or proposed fix).
 ## Related
 - [[wiki/features/related-feature]]
 - Source: [raw/...](raw/...)
-```
+````
 
 **Decision/ADR page** (`wiki/decisions/<slug>.md`):
-```
+````
+---
+type: Decision
+title: "<Decision Title>"
+description: "<One-line summary of what was decided and why.>"
+resource: "<optional: GitHub issue or PR URL>"
+tags: [decision]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+status: proposed | accepted | superseded | rejected
+sources: ["raw/<topic>/<topic>.md"]
+related: []
+---
+
 # Decision: <Title>
+
 Status: proposed | accepted | superseded | rejected
 
 ## Context
@@ -180,11 +237,25 @@ What this decision affects.
 
 ## Related
 - [[wiki/architecture/related-component]]
-```
+````
 
 **Plan page** (`wiki/plans/<slug>.md`):
-```
+````
+---
+type: Plan
+title: "<Plan Title>"
+description: "<One-line summary of what this plan achieves.>"
+resource: "<optional: GitHub issue or PR URL>"
+tags: [plan]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+status: draft | in-progress | completed | abandoned
+sources: ["raw/<topic>/<topic>.md"]
+related: []
+---
+
 # Plan: <Title>
+
 Status: draft | in-progress | completed | abandoned
 
 ## Goal
@@ -200,7 +271,7 @@ What this plan achieves.
 
 ## Verification
 How to confirm completion.
-```
+````
 
 ---
 
@@ -219,11 +290,19 @@ When the user asks a question:
 
 Periodically (or on request), health-check the wiki:
 
+**Step 0 — OKF compliance check (run first, always):**
+```bash
+python3 docs/YATF/scripts/okf_migrate.py --check
+```
+This exits non-zero and prints any pages missing `type` or `description`. Fix those before proceeding.
+
+**Semantic checks (manual):**
 - **Contradictions** — flag pages that disagree on facts. Open a decision page to resolve.
 - **Stale claims** — flag pages whose sources are superseded by newer data.
 - **Orphans** — pages with no inbound `[[links]]`.
 - **Gaps** — concepts mentioned across multiple pages that lack their own dedicated page.
 - **Missing cross-references** — pages that should link to each other but don't.
+- **Missing `resource`** — pages sourced from a GitHub issue but lacking the `resource` URI.
 - Suggest new sources or questions to investigate.
 
 ### Branch Strategy
