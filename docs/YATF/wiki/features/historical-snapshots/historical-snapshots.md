@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Persistent portfolio history stored in Firestore subcollection."
 title: "Historical Portfolio Snapshot Persistence"
 tags: [feature, investment, persistence, implemented]
 created: 2026-06-27

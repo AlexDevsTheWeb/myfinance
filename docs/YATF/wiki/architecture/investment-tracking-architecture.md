@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "Investment data flow, V1+V2 Firestore schema, store architecture, and component tree."
 title: "Investment Tracking Architecture"
 tags: [architecture, investment, data-flow, firestore, active]
 created: 2026-06-26

@@ -1,3 +1,10 @@
+---
+type: Index
+title: "YATF Wiki — Knowledge Bundle Index"
+description: "Master catalog of all knowledge pages for the MyFinance (Balancr) project. Entry point for agent traversal."
+timestamp: 2026-07-18
+---
+
 # Wiki Index
 
 *Last updated: 2026-07-18* (New user auth flow analysis)

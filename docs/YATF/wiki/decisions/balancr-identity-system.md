@@ -1,4 +1,6 @@
 ---
+type: Decision
+description: "Balancr visual identity: Linked Hexagons logo, dark palette, and gradient system."
 title: "Balancr Identity System — Linked Hexagons"
 tags: [decision, branding, identity, design]
 created: 2026-07-18

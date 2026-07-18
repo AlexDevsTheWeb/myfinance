@@ -1,4 +1,6 @@
 ---
+type: Decision
+description: "TypeScript 7.0 Go-rewrite adoption with ESLint linting workaround via @typescript/typescript6."
 title: "Decision: TypeScript 7.0 Go-Rewrite Upgrade"
 tags: [decision, build, tooling, typescript]
 created: 2026-07-11

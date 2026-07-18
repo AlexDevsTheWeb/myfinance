@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Compound interest simulator with parametric sliders and real-time interactive chart."
 title: "Financial Projections & Compound Interest Simulator"
 tags: [feature, projections, charting, implemented]
 created: 2026-06-26

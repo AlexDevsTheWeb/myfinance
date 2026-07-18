@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Automated recurring PAC transactions with user confirmation UI."
 title: "PAC Automation — Recurring Transactions"
 tags: [feature, investment, automation, implemented]
 created: 2026-06-27

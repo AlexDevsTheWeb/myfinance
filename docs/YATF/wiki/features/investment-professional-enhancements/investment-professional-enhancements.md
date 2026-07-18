@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Draft: per-ticker pricing, stamp duty, capital losses tracking, fees, and privacy mode."
 title: "Investment Professional Enhancements: Multi-Ticker Pricing, Tax & UX"
 tags: [feature, investment, tax, pricing, ux, planned]
 created: 2026-07-03

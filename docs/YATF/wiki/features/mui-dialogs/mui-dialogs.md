@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Native alert()/confirm() replaced with MUI Dialog and Snackbar components."
 title: "MUI Dialogs"
 tags: [feature, ux, go-to-market]
 created: 2026-07-12

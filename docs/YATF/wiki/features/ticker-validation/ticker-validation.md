@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Yahoo Finance ticker validation triggered at broker config save."
 title: "Yahoo Finance Ticker Validation"
 tags: [feature, investment, validation, implemented]
 created: 2026-06-27

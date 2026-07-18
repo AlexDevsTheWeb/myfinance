@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Five-wave plan: bug fixes, padding, account dialog, dashboard charts, and sidebar."
 title: "Manual Review #99 — Implementation Plan"
 tags: [plan, ui, frontend]
 created: 2026-06-28

@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "React error boundary wrapping the app to catch and display render crashes gracefully."
 title: "Error Boundary"
 tags: [feature, stability, go-to-market]
 created: 2026-07-12

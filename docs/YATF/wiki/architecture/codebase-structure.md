@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "Directory layout, file naming conventions, and source organization."
 title: "Codebase Structure"
 tags: [architecture, structure, codebase]
 created: 2026-06-22

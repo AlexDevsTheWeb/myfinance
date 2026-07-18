@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Architecture reference for the Budget & Savings Rate module: data flow, Firestore schema, and component tree."
 title: "Budget & Savings Rate Architecture"
 tags: [architecture, budget, savings, data-flow, planned]
 created: 2026-06-28

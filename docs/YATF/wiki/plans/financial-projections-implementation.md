@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Three-plan implementation for the simulation engine, UI shell, and routing + i18n."
 title: "Financial Projections Implementation Plan"
 tags: [plans, implementation, projections, charting, completed]
 created: 2026-06-26

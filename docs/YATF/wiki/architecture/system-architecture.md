@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "System overview, component responsibilities, and end-to-end data flow."
 title: "System Architecture"
 tags: [architecture, system, data-flow]
 created: 2026-06-22

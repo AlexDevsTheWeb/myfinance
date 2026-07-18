@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Dashboard split view, account detail dialog, additional charts, and overview stat cards."
 title: "Dashboard Redesign"
 tags: [feature, frontend, planned]
 created: 2026-06-28

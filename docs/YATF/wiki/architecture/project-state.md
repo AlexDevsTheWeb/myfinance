@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "Current project state, active focus areas, and next prioritized steps."
 title: "Project State"
 tags: [architecture, state, project]
 created: 2026-06-22

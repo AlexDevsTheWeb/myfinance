@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Project roadmap with phases, status, and priorities across all milestone areas."
 title: "Project Roadmap"
 tags: [plans, roadmap, project]
 created: 2026-06-22

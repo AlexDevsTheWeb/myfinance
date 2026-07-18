@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Six-step implementation plan for user-configurable inflation and tax rates — completed."
 title: "Plan: User-Configurable Inflation & Tax Rates"
 tags: [plan, projections, settings, completed]
 created: 2026-07-05

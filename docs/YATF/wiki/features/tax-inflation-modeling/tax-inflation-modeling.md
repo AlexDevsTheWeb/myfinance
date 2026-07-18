@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Inflation-adjusted financial projections with real vs nominal toggle."
 title: "Financial Projections — Smart Tax & Inflation Modeling"
 tags: [feature, projections, tax, inflation, implemented]
 created: 2026-06-27

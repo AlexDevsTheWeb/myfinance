@@ -1,4 +1,6 @@
 ---
+type: Query
+description: "New user registration flow analysis via Google Auth — data isolation, concerns, and false alarms."
 title: "New User Auth Flow Analysis"
 tags: [query, auth, security, data-flow]
 created: 2026-07-18

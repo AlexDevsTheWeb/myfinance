@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Six-plan GSD implementation for ETF tracking, broker integration, and PAC strategy."
 title: "Investment Tracking Implementation Plan"
 tags: [plans, implementation, investment, broker, frontend, completed]
 created: 2026-06-26

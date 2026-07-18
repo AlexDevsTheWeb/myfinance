@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Sidebar flat links, /finance + /investments tabbed pages, removed duplicate title."
 title: "Sidebar & Routing Refactor"
 tags: [feature, sidebar, routing, navigation, implemented]
 created: 2026-07-03

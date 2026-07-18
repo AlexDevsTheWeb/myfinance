@@ -12,23 +12,33 @@ This wiki lives in `docs/YATF/`. The user browses it in Obsidian. You are the "p
 docs/YATF/
 ├── AGENTS.md              # This file — your schema/instructions
 ├── .obsidian/             # Obsidian vault configuration
-├── index.md               # Catalog of all wiki pages, organized by category
+├── index.md               # OKF bundle root — master catalog of all pages
 ├── log.md                 # Append-only chronological record of all operations
+├── scripts/               # Maintenance scripts (e.g. okf_migrate.py)
 ├── raw/                   # Immutable source documents (one subfolder per analysis)
 │   ├── <topic>/           # Standalone analysis (e.g., 103/, SPEC/)
 │   │   └── <topic>.md      # The source document (named after the topic)
 │   ├── codebase/          # Multi-file codebase mapping (STACK, STRUCTURE, etc.)
 │   └── ...
-└── wiki/                  # Compiled wiki pages
+└── wiki/                  # Compiled wiki pages (OKF Knowledge Bundle)
     ├── features/          # Feature descriptions, scoping, status
+    │   ├── index.md       # OKF subdirectory index — lists all feature pages
     │   └── <feature>/     # Each feature is a subfolder with <feature>.md
     │       └── <feature>.md
     ├── bugs/              # Bug analysis, reproduction, resolution
+    │   └── index.md       # OKF subdirectory index
     ├── decisions/         # Architecture Decision Records (ADRs) and trade-off analyses
+    │   └── index.md
     ├── architecture/      # System architecture, component diagrams, data flow
+    │   └── index.md
     ├── conventions/       # Branch strategy, naming, coding style, workflow rules
+    │   └── index.md
     ├── plans/             # Implementation plans, step-by-step breakdowns
+    │   └── index.md
+    ├── queries/           # Answered queries and analyses filed for reference
+    │   └── index.md
     └── references/        # External references, links, resources
+        └── index.md
 ```
 
 ---
@@ -69,11 +79,14 @@ When the user says to import a GitHub issue:
 
 ### Frontmatter
 
-Every wiki page should have YAML frontmatter for Obsidian Dataview compatibility:
+Every wiki page MUST have YAML frontmatter. The bundle is compliant with [Open Knowledge Format v0.1](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md).
 
 ```yaml
 ---
+type: <Feature | Bug | Decision | Plan | Architecture | Convention | Query | Reference>  # REQUIRED (OKF)
 title: "Page Title"
+description: "One-line summary of this concept."  # OKF recommended — used by index generators and agents
+resource: "<optional canonical URI — GitHub issue URL, PR, external doc>"  # OKF recommended
 tags: [feature, frontend, planned]
 created: 2026-06-22
 updated: 2026-06-22
@@ -82,6 +95,19 @@ sources: ["raw/source-folder/source-file.md"]
 related: ["wiki/features/other-feature/other-feature.md", "wiki/architecture/component-x.md"]
 ---
 ```
+
+**OKF type values by directory:**
+
+| Directory | `type` value |
+|---|---|
+| `wiki/features/` | `Feature` |
+| `wiki/bugs/` | `Bug` |
+| `wiki/decisions/` | `Decision` |
+| `wiki/plans/` | `Plan` |
+| `wiki/architecture/` | `Architecture` |
+| `wiki/conventions/` | `Convention` |
+| `wiki/queries/` | `Query` |
+| `wiki/references/` | `Reference` |
 
 ### Linking
 
@@ -228,6 +254,50 @@ grep "^## \[" docs/YATF/log.md | tail -5
 
 ---
 
+## Agent Traversal Protocol
+
+This bundle follows [Open Knowledge Format v0.1](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md). Use this protocol to traverse it efficiently.
+
+### Step 1 — Orient (read once)
+```
+docs/YATF/index.md          ← master catalog with all pages, summaries, and sources
+docs/YATF/log.md            ← recent operations (tail -20 lines for latest changes)
+```
+
+### Step 2 — Narrow by category (read the subdir index)
+```
+docs/YATF/wiki/<category>/index.md   ← lists all pages in that category with one-line descriptions
+```
+Categories: `features`, `bugs`, `decisions`, `plans`, `architecture`, `conventions`, `queries`, `references`
+
+### Step 3 — Read the target concept
+Each page frontmatter has:
+- `type` — what kind of concept this is (Feature, Bug, Decision, etc.)
+- `description` — one-line summary (read without opening the body)
+- `status` — current state (implemented, draft, fixed, accepted, etc.)
+- `related` — direct links to cross-referenced pages
+- `sources` — link back to raw source documents
+
+### Step 4 — Fetch raw sources if needed
+Raw sources live in `docs/YATF/raw/<topic>/<topic>.md`. They are immutable and contain the original analysis. Read them only when the wiki page is insufficient.
+
+### Quick terminal commands
+```bash
+# Find all pages of a type
+grep -r "^type: Feature" docs/YATF/wiki/ -l
+
+# Find all active features
+grep -r "^status: implemented" docs/YATF/wiki/features/ -l
+
+# Check recent wiki operations
+grep "^## \[" docs/YATF/log.md | tail -10
+
+# Find pages mentioning a concept
+grep -r "budget" docs/YATF/wiki/ -l
+```
+
+---
+
 ## Guiding Principles
 
 1. **The wiki compounds.** Every ingest, query, and lint pass makes the wiki richer. File results back into the wiki — don't let insights vanish into chat history.
@@ -235,3 +305,4 @@ grep "^## \[" docs/YATF/log.md | tail -5
 3. **Cross-reference aggressively.** A well-linked wiki is more valuable than a detailed but isolated page.
 4. **Keep raw sources immutable.** Never modify files in `raw/`. The wiki is the compiled artifact; raw sources are the source of truth.
 5. **Evolve the schema.** As patterns emerge that work well, update this AGENTS.md to reflect them. The user and you co-evolve this file over time.
+6. **Maintain OKF compliance.** Every new wiki page must include `type` (required) and `description` (recommended). Run `python3 docs/YATF/scripts/okf_migrate.py` after bulk ingests to verify coverage.

@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "V3 investment tracking: dividend ledger, capital gains tax, cash adjustments, and performance prefill."
 title: "Investment Tracking V3: Dividend, Tax & Performance"
 tags: [feature, investment, tax, dividend, planned]
 created: 2026-06-28

@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "V4 budget targets, savings rate engine, progress tracking, and investment bridge."
 title: "Budget & Savings Rate Engine"
 tags: [feature, budget, savings, planned]
 created: 2026-06-28

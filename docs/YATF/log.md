@@ -1,3 +1,9 @@
+---
+type: Log
+title: "YATF Wiki — Update Log"
+description: "Chronological append-only record of all wiki operations: ingests, queries, lints, and migrations."
+---
+
 # Wiki Log
 
 ## [2026-07-06] ingest | Feature | Italian Tax Enhancements — Issue #110
@@ -518,3 +524,12 @@
 - Closed [#150](https://github.com/AlexDevsTheWeb/myfinance/issues/150) with verification comment
 - Updated [[wiki/plans/beta-launch-playbook]] → Section 2 marked ✅
 - Updated [[wiki/plans/go-to-market]] → Phase 2 verification checkbox checked
+
+## [2026-07-18] migrate | OKF Compliance | Open Knowledge Format v0.1
+- Applied OKF frontmatter (`type`, `description`) to all 63 wiki pages
+- Created 8 subdirectory `index.md` files: architecture, bugs, conventions, decisions, features, plans, queries, references
+- Updated root `index.md` with OKF frontmatter (`type: Index`, `description`, `timestamp`)
+- Updated root `log.md` with OKF frontmatter (`type: Log`, `description`)
+- Updated [[wiki/AGENTS.md]] with OKF-compliant frontmatter template
+- Script archived at `docs/YATF/scripts/okf_migrate.py`
+- Reference: https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md

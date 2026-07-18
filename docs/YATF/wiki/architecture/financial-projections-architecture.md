@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "Simulation data flow, component tree, design decisions, and integration points."
 title: "Financial Projections Architecture"
 tags: [architecture, projections, data-flow, active]
 created: 2026-06-26

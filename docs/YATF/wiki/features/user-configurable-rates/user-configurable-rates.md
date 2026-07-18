@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "User-configurable inflation and tax rates in ConfigPage > Projections tab."
 title: "User-Configurable Inflation & Tax Rates for Projections"
 tags: [feature, projections, settings, implemented]
 created: 2026-07-05

@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "Firebase configuration, environment variables, and CI/CD integration status."
 title: "External Integrations"
 tags: [architecture, integrations, firebase, deploy]
 created: 2026-06-22

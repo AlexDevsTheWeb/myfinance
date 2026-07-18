@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Complete rebrand from YAFT to Balancr: Linked Hexagons logo and new color palette."
 title: "Balancr — Complete Rebranding"
 tags: [feature, frontend, branding, identity]
 created: 2026-07-18

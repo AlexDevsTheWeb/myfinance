@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Vertical left sidebar with grouped navigation, collapsible mode, and user avatar."
 title: "Sidebar Navigation Redesign"
 tags: [feature, frontend, planned]
 created: 2026-06-28

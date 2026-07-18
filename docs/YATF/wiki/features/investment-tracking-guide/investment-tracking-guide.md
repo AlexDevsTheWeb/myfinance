@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "User guide and code analysis covering the Investment & Projections feature set (EN)."
 title: "Investment Tracking & Projections — Feature Guide & Code Analysis"
 tags: [feature, investment, projections, guide, code-analysis]
 created: 2026-07-03

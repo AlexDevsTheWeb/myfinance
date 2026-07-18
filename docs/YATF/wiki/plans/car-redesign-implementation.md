@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Step-by-step implementation plan for the car management page redesign."
 title: "Car Management Redesign Implementation Plan"
 tags: [plans, implementation, car, frontend]
 created: 2026-06-22

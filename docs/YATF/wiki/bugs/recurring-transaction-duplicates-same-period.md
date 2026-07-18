@@ -1,4 +1,6 @@
 ---
+type: Bug
+description: "checkRecurring generates duplicate transactions alongside manual ones on every page load — fixed."
 title: "checkRecurring generates 5+ copies of same transaction on every page load"
 tags: [bug, recurring, critical, fixed]
 created: 2026-07-16

@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "Versioning scheme using conventional commits and the standard-version release pipeline."
 title: "Versioning"
 tags: [architecture, versioning, ci, release]
 created: 2026-06-22

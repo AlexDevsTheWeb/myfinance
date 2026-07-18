@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Phase 2 execution details: disclaimer banner, backup/restore verification, tester invitation."
 title: "Beta Launch Playbook"
 tags: [plan, beta, launch, go-to-market]
 created: 2026-07-18
