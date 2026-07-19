@@ -17,6 +17,7 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[features/budget-savings-architecture/budget-savings-architecture|budget-savings-architecture]] | Architecture reference for the Budget & Savings Rate module: data flow, Firestore schema, and component tree. |
 | [[features/budget-savings-engine/budget-savings-engine|budget-savings-engine]] | V4 budget targets, savings rate engine, progress tracking, and investment bridge. |
 | [[features/car-management-redesign/car-management-redesign|car-management-redesign]] | Car page bento grid redesign with monthly cost averages and improved UX. |
+| [[features/dynamic-portfolio-chart/dynamic-portfolio-chart|dynamic-portfolio-chart]] | Recompute portfolio chart from current market prices — live valuations for historical data. |
 | [[features/crud-etf-transactions/crud-etf-transactions|crud-etf-transactions]] | Edit and delete ETF transactions with safe cascade recalculation. |
 | [[features/dashboard-redesign/dashboard-redesign|dashboard-redesign]] | Dashboard split view, account detail dialog, additional charts, and overview stat cards. |
 | [[features/error-boundary/error-boundary|error-boundary]] | React error boundary wrapping the app to catch and display render crashes gracefully. |

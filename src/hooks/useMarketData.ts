@@ -24,29 +24,47 @@ export async function fetchQuote(ticker: string): Promise<YfinQuote | null> {
   }
 }
 
+export async function fetchQuotes(tickers: string[]): Promise<Record<string, number>> {
+  if (tickers.length === 0) return {};
+  try {
+    const response = await fetch(`${YFIN_BASE}/quote?symbols=${tickers.join(',')}`);
+    if (!response.ok) return {};
+    const data = await response.json();
+    const quotes: YfinQuote[] = data?.quotes ?? [];
+    const prices: Record<string, number> = {};
+    for (const q of quotes) {
+      if (q.symbol && typeof q.regularMarketPrice === 'number') {
+        prices[q.symbol] = q.regularMarketPrice;
+      }
+    }
+    return prices;
+  } catch (err) {
+    console.error('fetchQuotes error:', err);
+    return {};
+  }
+}
+
 export function useMarketData() {
   const [isUpdating, setIsUpdating] = useState(false);
-  const { setCurrentPrice } = useInvestmentStore();
+  const { setPrices, recomputeSnapshots } = useInvestmentStore();
 
   const refreshPrices = useCallback(async () => {
-    const { assetHoldings } = useInvestmentStore.getState();
-    // Collect all unique tickers from asset holdings across all broker accounts
-    const tickers = [...new Set(assetHoldings.map(h => h.ticker).filter(Boolean))];
+    const { etfTransactions } = useInvestmentStore.getState();
+    const tickers = [...new Set(etfTransactions.map(t => t.ticker).filter(Boolean))];
     if (tickers.length === 0) return;
 
     setIsUpdating(true);
     try {
-      // Single batch call to yfin.dev (supports comma-separated symbols)
-      const quote = await fetchQuote(tickers.join(','));
-      // yfin.dev batch returns quotes array — set the first quote's price for now
-      // This maintains backward compat with single-ticker price in store
-      if (quote?.regularMarketPrice) {
-        setCurrentPrice(quote.regularMarketPrice);
+      const prices = await fetchQuotes(tickers);
+      if (Object.keys(prices).length > 0) {
+        setPrices(prices);
+        recomputeSnapshots();
       }
     } finally {
       setIsUpdating(false);
     }
-  }, [setCurrentPrice]);
+    useInvestmentStore.getState().takeSnapshot();
+  }, [setPrices, recomputeSnapshots]);
 
   return { refreshPrices, isUpdating };
 }

@@ -548,3 +548,16 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Created docs/YATF/wiki/index.md — wiki root category index for progressive agent traversal
 - Created docs/YATF/scripts/pre-commit-hook.sh + installed to .git/hooks/pre-commit
 - Ran --check: ✅ 0 violations
+
+## [2026-07-19] ingest | Feature | Dynamic Portfolio Chart
+- Created [[raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md]] — full impact analysis for per-ticker pricing + snapshot recomputation
+- Created [[wiki/features/dynamic-portfolio-chart/dynamic-portfolio-chart]] — feature page with problem, solution, and scope
+- Opened GitHub [Issue #160](https://github.com/AlexDevsTheWeb/myfinance/issues/160)
+- Updated index.md (63 pages), features/index.md
+- Source: [raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md](raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md)
+
+## [2026-07-19] research | Plan | Daily Historical Portfolio Chart
+- Created [[raw/daily-historical-chart/daily-historical-chart.md]] — research & spec for daily time series chart
+- Created [[wiki/plans/daily-historical-chart/daily-historical-chart]] — plan page with API research and design
+- Updated index.md (64 pages), plans/index.md
+- Source: [raw/daily-historical-chart/daily-historical-chart.md](raw/daily-historical-chart/daily-historical-chart.md)

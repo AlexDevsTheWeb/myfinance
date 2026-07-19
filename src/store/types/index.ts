@@ -19,6 +19,7 @@ export type {
   IBrokerConfig,
   IInvestmentHolding,
   IPortfolioPoint,
+  IPortfolioHoldingInfo,
   BrokerAccount,
   AssetHolding,
   CashAdjustment,
