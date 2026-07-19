@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { create } from 'zustand';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, getDocs, query, orderBy, limit as fbLimit } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from './useAuthStore';
 import type { PacState } from '../lib/converters';
@@ -20,6 +20,7 @@ export interface InvestmentState {
   brokerTransactions: Record<string, IETFTransaction[]>;
   pacState: PacState;
   currentPrice: number | null;
+  prices: Record<string, number>;
   lastPriceUpdate: string | null;
   isSaving: boolean;
   isLoading: boolean;
@@ -33,6 +34,10 @@ export interface InvestmentState {
   setBrokerConfig: (config: IBrokerConfig) => Promise<void>;
   addPortfolioSnapshot: (snapshot: IPortfolioSnapshot) => Promise<void>;
   setCurrentPrice: (price: number) => void;
+  setPrices: (prices: Record<string, number>) => void;
+  recomputeSnapshots: () => void;
+  takeSnapshot: () => Promise<void>;
+  loadHistoricalSnapshots: () => Promise<void>;
   setAll: (data: Partial<InvestmentState>) => void;
   clearSaveError: () => void;
 
@@ -53,7 +58,7 @@ export function calcAccruedInterest(cashBalance: number, annualRate: number): nu
   return cashBalance * (annualRate / 100) / 12;
 }
 
-function computeSnapshot(etfTxs: IETFTransaction[], currentPrice: number | null): Omit<IPortfolioSnapshot, 'id' | 'date'> {
+function computeSnapshot(etfTxs: IETFTransaction[], prices: Record<string, number>): Omit<IPortfolioSnapshot, 'id' | 'date'> {
   let totalInvested = 0;
   const holdingsMap = new Map<string, { units: number; totalCost: number }>();
 
@@ -81,7 +86,7 @@ function computeSnapshot(etfTxs: IETFTransaction[], currentPrice: number | null)
 
   for (const [ticker, h] of holdingsMap.entries()) {
     const avgCost = h.units > 0 ? h.totalCost / h.units : 0;
-    const price = currentPrice ?? avgCost;
+    const price = prices[ticker] ?? avgCost;
     const value = h.units * price;
     currentValue += value;
     holdings.push({
@@ -107,6 +112,7 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
   brokerTransactions: {},
   pacState: { lastGenerationDate: null, pendingTransaction: null, perBrokerLastGeneration: {} },
   currentPrice: null,
+  prices: {},
   lastPriceUpdate: null,
   isSaving: false,
   isLoading: true,
@@ -134,7 +140,7 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       const sanitizedTxs = useInvestmentStore.getState().etfTransactions.map(sanitizeEtfTransaction);
       await updateDoc(docRef, { etfTransactions: sanitizedTxs });
 
-      const computed = computeSnapshot(useInvestmentStore.getState().etfTransactions, get().currentPrice);
+      const computed = computeSnapshot(useInvestmentStore.getState().etfTransactions, get().prices);
       const snapshot: IPortfolioSnapshot = {
         id: crypto.randomUUID(),
         date: tx.date,
@@ -222,7 +228,7 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
 
       // 4. Compute new portfolio snapshot after deletion
       const freshState = useInvestmentStore.getState();
-      const computed = computeSnapshot(freshState.etfTransactions, freshState.currentPrice);
+      const computed = computeSnapshot(freshState.etfTransactions, freshState.prices);
       const snapshot: IPortfolioSnapshot = {
         id: crypto.randomUUID(),
         date: dayjs().format('YYYY-MM-DD'),
@@ -318,6 +324,122 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
     set({ currentPrice: price, lastPriceUpdate: new Date().toISOString() });
   },
 
+  setPrices: (prices) => {
+    const current = get().prices;
+    set({ prices: { ...current, ...prices }, lastPriceUpdate: new Date().toISOString() });
+  },
+
+  recomputeSnapshots: () => {
+    const { portfolioSnapshots, prices } = get();
+    const updated = portfolioSnapshots.map(snapshot => {
+      const updatedHoldings = snapshot.holdings.map(h => {
+        const marketPrice = prices[h.ticker] ?? h.avgCost;
+        return {
+          ...h,
+          currentPrice: marketPrice,
+          value: h.units * marketPrice,
+          returnPercent: h.avgCost > 0 ? ((marketPrice - h.avgCost) / h.avgCost) * 100 : 0,
+        };
+      });
+      const currentValue = updatedHoldings.reduce((sum, h) => sum + h.value, 0);
+      return {
+        ...snapshot,
+        holdings: updatedHoldings,
+        currentValue,
+      };
+    });
+    set({ portfolioSnapshots: updated });
+  },
+
+  takeSnapshot: async () => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    const { etfTransactions: txs, prices: currentPrices } = get();
+    if (txs.length === 0) return;
+
+    const today = dayjs().format('YYYY-MM-DD');
+    const computed = computeSnapshot(txs, currentPrices);
+    const snapshot: IPortfolioSnapshot = {
+      id: crypto.randomUUID(),
+      date: today,
+      ...computed,
+    };
+
+    const prevSnapshots = get().portfolioSnapshots;
+    const existingToday = prevSnapshots.some(s => s.date === today);
+    if (existingToday) {
+      const recomputed = prevSnapshots.map(s => {
+        if (s.date !== today) return s;
+        const updatedHoldings = s.holdings.map(h => {
+          const mp = currentPrices[h.ticker] ?? h.avgCost;
+          return { ...h, currentPrice: mp, value: h.units * mp, returnPercent: h.avgCost > 0 ? ((mp - h.avgCost) / h.avgCost) * 100 : 0 };
+        });
+        return { ...s, holdings: updatedHoldings, currentValue: updatedHoldings.reduce((sum, h) => sum + h.value, 0) };
+      });
+      set({ portfolioSnapshots: recomputed });
+    } else {
+      set({ portfolioSnapshots: [...prevSnapshots, snapshot] });
+    }
+
+    try {
+      const docRef = doc(db, 'users', userId);
+      const sanitizedSnapshots = useInvestmentStore.getState().portfolioSnapshots.map(s => ({
+        id: s.id, date: s.date, totalInvested: s.totalInvested,
+        currentValue: s.currentValue, cashBalance: s.cashBalance,
+        accruedInterest: s.accruedInterest, holdings: s.holdings,
+      }));
+      await updateDoc(docRef, { portfolioSnapshots: sanitizedSnapshots });
+    } catch (err) {
+      console.error('takeSnapshot persist error:', err);
+    }
+
+    recordPortfolioSnapshot(userId).catch(() => {});
+  },
+
+  loadHistoricalSnapshots: async () => {
+    const userId = useAuthStore.getState().user?.uid;
+    if (!userId) return;
+
+    try {
+      const historyRef = collection(db, 'users', userId, 'portfolio_history');
+      const q = query(historyRef, orderBy('date', 'asc'), fbLimit(365));
+      const snapshotDocs = await getDocs(q);
+
+      const existingDates = new Set(get().portfolioSnapshots.map(s => s.date));
+      const newSnapshots: IPortfolioSnapshot[] = [];
+
+      snapshotDocs.forEach(doc => {
+        const data = doc.data() as { date: string; totalInvested: number; currentValue: number; cashBalance: number; holdings: { ticker: string; units: number; avgCost: number; price: number; value: number }[] };
+        if (!data.date || existingDates.has(data.date)) return;
+        newSnapshots.push({
+          id: doc.id,
+          date: data.date,
+          totalInvested: data.totalInvested ?? 0,
+          currentValue: data.currentValue ?? 0,
+          cashBalance: data.cashBalance ?? 0,
+          accruedInterest: 0,
+          holdings: (data.holdings ?? []).map(h => ({
+            ticker: h.ticker,
+            units: h.units,
+            avgCost: h.avgCost,
+            currentPrice: h.price,
+            value: h.value,
+            returnPercent: h.avgCost > 0 ? ((h.price - h.avgCost) / h.avgCost) * 100 : 0,
+          })),
+        });
+        existingDates.add(data.date);
+      });
+
+      if (newSnapshots.length > 0) {
+        const current = get().portfolioSnapshots;
+        set({ portfolioSnapshots: [...current, ...newSnapshots].sort((a, b) => a.date.localeCompare(b.date)) });
+      }
+    } catch (err) {
+      console.error('loadHistoricalSnapshots error:', err);
+    }
+  },
+
   setAll: (data) => {
     const {
       etfTransactions,
@@ -329,6 +451,7 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       brokerTransactions,
       pacState,
       currentPrice,
+      prices,
       lastPriceUpdate,
       isSaving,
       saveError,
@@ -347,6 +470,7 @@ export const useInvestmentStore = create<InvestmentState>((set, get) => ({
       brokerTransactions: brokerTransactions ?? get().brokerTransactions,
       pacState: pacState ?? get().pacState,
       currentPrice: currentPrice !== undefined ? currentPrice : get().currentPrice,
+      prices: prices !== undefined ? prices : get().prices,
       lastPriceUpdate: lastPriceUpdate !== undefined ? lastPriceUpdate : get().lastPriceUpdate,
       isSaving: isSaving ?? get().isSaving,
       saveError: saveError !== undefined ? saveError : get().saveError,
