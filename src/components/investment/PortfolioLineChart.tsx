@@ -51,7 +51,7 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
               label: 'Portfolio Value',
               color: theme.chart.primary,
               area: true,
-              showMark: filtered.length <= 1,
+              showMark: filtered.length <= 60,
             },
             {
               id: 'invested',
@@ -59,13 +59,13 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
               data: filtered.map(d => d.invested),
               label: 'Invested',
               color: theme.chart.income,
-              showMark: filtered.length <= 1,
+              showMark: false,
             },
           ]}
           xAxis={[{ scaleType: 'point', data: filtered.map(d => d.date), disableLine: true, disableTicks: true }]}
           yAxis={[{ disableLine: true, disableTicks: true }]}
           height={300}
-          margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+          margin={{ top: 10, right: 10, bottom: 30, left: 60 }}
         >
           <ChartsWrapper>
             <ChartsLegend />
@@ -89,7 +89,7 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
               <ChartsAxis />
             </ChartsSurface>
           </ChartsWrapper>
-          <ChartsTooltip />
+          <ChartsTooltip trigger="item" />
         </ChartsDataProvider>
       </Box>
     </Paper>

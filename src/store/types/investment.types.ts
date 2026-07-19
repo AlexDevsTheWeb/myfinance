@@ -72,8 +72,16 @@ export interface DividendEntry {
   notes?: string;
 }
 
+export interface IPortfolioHoldingInfo {
+  ticker: string;
+  units: number;
+  price: number;
+  avgCost: number;
+}
+
 export interface IPortfolioPoint {
   date: string;
   value: number;
   invested: number;
+  holdings: IPortfolioHoldingInfo[];
 }

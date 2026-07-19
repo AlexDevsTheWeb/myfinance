@@ -16,7 +16,7 @@ function sumDividends(entries: DividendEntry[], brokerIds: string[]): number {
 }
 
 export function usePortfolio() {
-  const { etfTransactions, portfolioSnapshots, brokerAccounts, currentPrice, selectedBrokerId, cashAdjustments, dividendEntries } = useInvestmentStore();
+  const { etfTransactions, portfolioSnapshots, brokerAccounts, prices, selectedBrokerId, cashAdjustments, dividendEntries } = useInvestmentStore();
 
   return useMemo(() => {
     // Filter by selected broker
@@ -50,17 +50,23 @@ export function usePortfolio() {
       }
     }
 
-    const latestSnapshot = portfolioSnapshots.length > 0
-      ? portfolioSnapshots[portfolioSnapshots.length - 1]
-      : null;
-
-    const price = currentPrice ?? (latestSnapshot && totalUnits > 0
-      ? latestSnapshot.currentValue / totalUnits
-      : null);
-
-    const currentValue = price != null && totalUnits > 0
-      ? totalUnits * price
-      : (latestSnapshot?.currentValue ?? 0);
+    const currentValue = (() => {
+      let val = 0;
+      let hasPrice = false;
+      for (const [ticker, h] of holdingsMap.entries()) {
+        if (h.units <= 0) continue;
+        const price = prices[ticker];
+        if (price != null) {
+          val += h.units * price;
+          hasPrice = true;
+        }
+      }
+      if (hasPrice) return val;
+      const latestSnapshot = portfolioSnapshots.length > 0
+        ? portfolioSnapshots[portfolioSnapshots.length - 1]
+        : null;
+      return latestSnapshot?.currentValue ?? 0;
+    })();
 
     const totalReturn = currentValue - totalInvested;
     const totalReturnPercent = totalInvested > 0 ? (totalReturn / totalInvested) * 100 : 0;
@@ -72,6 +78,12 @@ export function usePortfolio() {
         date: s.date,
         value: s.currentValue,
         invested: s.totalInvested,
+        holdings: s.holdings.map(h => ({
+          ticker: h.ticker,
+          units: h.units,
+          price: h.currentPrice,
+          avgCost: h.avgCost,
+        })),
       }));
 
     // Compute cash balance: aggregated or per-broker
@@ -94,7 +106,7 @@ export function usePortfolio() {
     for (const [ticker, h] of holdingsMap.entries()) {
       if (h.units <= 0) continue;
       const avgCost = h.totalCost / h.units;
-      const unitPrice = price ?? avgCost;
+      const unitPrice = prices[ticker] ?? avgCost;
       const value = h.units * unitPrice;
       holdings.push({
         ticker,
@@ -129,5 +141,5 @@ export function usePortfolio() {
       brokerName,
       monthlyDividends,
     };
-  }, [etfTransactions, portfolioSnapshots, brokerAccounts, currentPrice, selectedBrokerId, cashAdjustments, dividendEntries]);
+  }, [etfTransactions, portfolioSnapshots, brokerAccounts, prices, selectedBrokerId, cashAdjustments, dividendEntries]);
 }

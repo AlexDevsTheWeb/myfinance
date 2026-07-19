@@ -23,7 +23,7 @@ export interface HistorySnapshot {
 
 function computeHistorySnapshot(
   etfTransactions: IETFTransaction[],
-  currentPrice: number | null,
+  prices: Record<string, number>,
   cashBalance: number
 ): Omit<HistorySnapshot, 'date' | 'createdAt'> {
   let totalInvested = 0;
@@ -60,7 +60,7 @@ function computeHistorySnapshot(
   for (const [ticker, h] of holdingsMap.entries()) {
     if (h.units <= 0) continue;
     const avgCost = h.totalCost / h.units;
-    const price = currentPrice ?? avgCost;
+    const price = prices[ticker] ?? avgCost;
     const value = h.units * price;
     currentValue += value;
     holdings.push({ ticker, units: h.units, avgCost, price, value });
@@ -81,7 +81,7 @@ function computeHistorySnapshot(
  * Returns true if written, false if skipped (already recorded today).
  */
 export async function recordPortfolioSnapshot(userId: string): Promise<boolean> {
-  const { currentPrice } = useInvestmentStore.getState();
+  const { prices } = useInvestmentStore.getState();
   const today = dayjs().format('YYYY-MM-DD');
 
   const historyRef = collection(db, 'users', userId, 'portfolio_history');
@@ -106,7 +106,7 @@ export async function recordPortfolioSnapshot(userId: string): Promise<boolean> 
   }
   const cashBalance = Math.max(0, totalLumpSum - totalInvestedComputed);
 
-  const snapshot = computeHistorySnapshot(txs, currentPrice, cashBalance);
+  const snapshot = computeHistorySnapshot(txs, prices, cashBalance);
 
   await addDoc(historyRef, {
     date: today,

@@ -8,7 +8,7 @@ timestamp: 2026-07-18
 # Wiki Index
 
 *Last updated: 2026-07-18* (New user auth flow analysis)
-*Total pages: 62*
+*Total pages: 64*
 
 ---
 
@@ -23,6 +23,7 @@ timestamp: 2026-07-18
 | [[wiki/features/investment-tracking-guide/investment-tracking-guide]] | 📘 User guide + code analysis — Investment & Projections (EN) | [`raw/FEATURES-GUIDE/FEATURES-GUIDE.md`](raw/FEATURES-GUIDE/FEATURES-GUIDE.md) |
 | [[wiki/features/guida-investimenti/guida-investimenti]] | 📘 Guida utente — Investimenti, Proiezioni e Budget (IT) | [`raw/FEATURES-GUIDE.it/FEATURES-GUIDE.it.md`](raw/FEATURES-GUIDE.it/FEATURES-GUIDE.it.md) |
 | [[wiki/features/pac-automation/pac-automation]] | ✅ Automated recurring PAC transactions with confirmation UI | [`#89`](https://github.com/AlexDevsTheWeb/myfinance/issues/89) |
+| [[wiki/features/dynamic-portfolio-chart/dynamic-portfolio-chart]] | 📋 Recompute portfolio chart from current market prices — live valuations | [`#160`](https://github.com/AlexDevsTheWeb/myfinance/issues/160) |
 | [[wiki/features/crud-etf-transactions/crud-etf-transactions]] | ✅ Edit/delete ETF transactions with safe cascade recalculation | [`#90`](https://github.com/AlexDevsTheWeb/myfinance/issues/90) |
 | [[wiki/features/multi-broker-architecture/multi-broker-architecture]] | ✅ Multi-broker & multi-asset schema refactor with BrokerSelect | [`#91`](https://github.com/AlexDevsTheWeb/myfinance/issues/91) |
 | [[wiki/features/historical-snapshots/historical-snapshots]] | ✅ Persistent portfolio history in Firestore subcollection | [`#92`](https://github.com/AlexDevsTheWeb/myfinance/issues/92) |
@@ -51,6 +52,7 @@ timestamp: 2026-07-18
 | [[wiki/plans/financial-projections-implementation]] | ✅ 3-plan implementation for simulation engine, UI shell, routing + i18n | [`raw/83-financial-projections/83-financial-projections.md`](raw/83-financial-projections/83-financial-projections.md) |
 | [[wiki/plans/investment-tracking-v2-enhancements]] | ✅ Phase 12 complete — 6 GSD plans implemented (multi-broker, CRUD, PAC, snapshots, inflation, ticker) | [`.planning/phases/12-investment-tracking-v2/`](.planning/phases/12-investment-tracking-v2/) |
 | [[wiki/plans/investment-tracking-v3-implementation]] | ✅ V3 implementation: dividend, tax, cash adjustments, performance prefill | [`#98`](https://github.com/AlexDevsTheWeb/myfinance/issues/98) |
+| [[wiki/plans/daily-historical-chart/daily-historical-chart]] | 📋 Research & spec for daily historical chart using ticker price history | [`#160`](https://github.com/AlexDevsTheWeb/myfinance/issues/160) |
 | [[wiki/plans/budget-savings-engine-implementation]] | ✅ V4 Budget & Savings Rate implementation: 6 waves, 11 new files, 10 modified | [`#100`](https://github.com/AlexDevsTheWeb/myfinance/issues/100) |
 | [[wiki/plans/manual-review-99-implementation]] | ✅ 5-wave plan: bug fixes, padding, account dialog, dashboard charts, sidebar | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
 | [[wiki/plans/backup-restore-data-coverage]] | Plan to add missing budget + investment data to backup/restore | [`raw/101-backup-restore-gaps/101-backup-restore-gaps.md`](raw/101-backup-restore-gaps/101-backup-restore-gaps.md) |

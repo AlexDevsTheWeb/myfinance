@@ -98,7 +98,9 @@ export const useInvestmentSync = () => {
       }
     };
 
-    initializeUser();
+    initializeUser().then(() => {
+      useInvestmentStore.getState().loadHistoricalSnapshots();
+    });
 
     const unsub = onSnapshot(docRef, (doc) => {
       if (doc.metadata.hasPendingWrites) {
