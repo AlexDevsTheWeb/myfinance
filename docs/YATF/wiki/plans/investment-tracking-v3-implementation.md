@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "V3 implementation plan: dividend tracking, capital gains tax, cash adjustments, performance prefill."
 title: "Investment Tracking V3 — Implementation Plan"
 tags: [plan, investment, tax, dividend, draft]
 created: 2026-06-28

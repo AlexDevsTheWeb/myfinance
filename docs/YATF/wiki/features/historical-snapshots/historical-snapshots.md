@@ -1,4 +1,7 @@
 ---
+type: Feature
+description: "Persistent portfolio history stored in Firestore subcollection."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/92"
 title: "Historical Portfolio Snapshot Persistence"
 tags: [feature, investment, persistence, implemented]
 created: 2026-06-27

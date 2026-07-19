@@ -1,4 +1,6 @@
 ---
+type: Query
+description: "Comprehensive app audit: strengths, weaknesses, architecture anti-patterns, and improvement suggestions."
 title: "Full App Review — MyFinance (YAFT)"
 tags: [query, review, audit, architecture]
 created: 2026-07-11

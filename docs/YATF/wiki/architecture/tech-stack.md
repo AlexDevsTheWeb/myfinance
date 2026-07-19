@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "Full technology stack with library versions and dependency overview."
 title: "Technology Stack"
 tags: [architecture, tech-stack, dependencies]
 created: 2026-06-22

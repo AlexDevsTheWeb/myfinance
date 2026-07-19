@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Two-column transaction layout with filter panel and chart on the left side."
 title: "Transaction Layout Improvement"
 tags: [feature, frontend, transactions, planned]
 created: 2026-06-22

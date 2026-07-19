@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Car page bento grid redesign with monthly cost averages and improved UX."
 title: "Car Management Redesign"
 tags: [feature, frontend, car, planned]
 created: 2026-06-22

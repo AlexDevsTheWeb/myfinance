@@ -1,7 +1,14 @@
+---
+type: Index
+title: "YATF Wiki — Knowledge Bundle Index"
+description: "Master catalog of all knowledge pages for the MyFinance (Balancr) project. Entry point for agent traversal."
+timestamp: 2026-07-18
+---
+
 # Wiki Index
 
-*Last updated: 2026-07-18* (Balancr rebranding)
-*Total pages: 61*
+*Last updated: 2026-07-18* (New user auth flow analysis)
+*Total pages: 62*
 
 ---
 
@@ -67,6 +74,7 @@
 | Page | Summary | Sources |
 |------|---------|---------|
 | [[wiki/queries/app-review]] | 🔴 Comprehensive app audit: strengths, weaknesses, architecture anti-patterns, improvement suggestions | [`raw/app-review/app-review.md`](raw/app-review/app-review.md) |
+| [[wiki/queries/new-user-auth-flow]] | New user registration flow analysis via Google Auth — data isolation, concerns, false alarms | [`raw/new-user-auth-flow/new-user-auth-flow.md`](raw/new-user-auth-flow/new-user-auth-flow.md) |
 
 ## Bugs
 

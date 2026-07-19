@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "V4 Budget & Savings Rate implementation: six waves, eleven new files, ten modified."
 title: "Budget & Savings Rate Engine — Implementation Plan"
 tags: [plan, budget, savings, draft]
 created: 2026-06-28

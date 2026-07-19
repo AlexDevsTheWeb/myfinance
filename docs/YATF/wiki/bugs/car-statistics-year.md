@@ -1,4 +1,6 @@
 ---
+type: Bug
+description: "Car page 'Statistics {year}' heading shows literal '{year}' placeholder — fixed."
 title: "Car Statistics Year Not Displaying"
 tags: [bug, frontend, resolved]
 created: 2026-06-28

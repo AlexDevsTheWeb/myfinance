@@ -1,4 +1,6 @@
 ---
+type: Reference
+description: "Karpathy's LLM Wiki pattern — original article and rationale behind this wiki's design."
 title: "LLM Wiki Pattern — Karpathy"
 tags: [references, methodology, llm-wiki]
 created: 2026-06-22

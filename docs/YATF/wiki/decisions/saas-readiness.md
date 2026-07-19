@@ -1,4 +1,6 @@
 ---
+type: Decision
+description: "Hard blockers vs ship-as-is analysis: fix 6 critical items, launch, iterate with real users."
 title: "SaaS Readiness — Hard Blockers vs Ship-As-Is"
 tags: [decision, strategy, saas, go-to-market]
 created: 2026-07-11

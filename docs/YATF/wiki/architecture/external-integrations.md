@@ -1,11 +1,13 @@
 ---
+type: Architecture
+description: "Firebase configuration, environment variables, and CI/CD integration status."
 title: "External Integrations"
 tags: [architecture, integrations, firebase, deploy]
 created: 2026-06-22
-updated: 2026-07-11
+updated: 2026-07-18
 status: active
 sources: ["raw/codebase/INTEGRATIONS.md"]
-related: ["architecture/tech-stack", "architecture/system-architecture"]
+related: ["architecture/tech-stack", "architecture/system-architecture", "queries/new-user-auth-flow"]
 ---
 
 # External Integrations
@@ -17,10 +19,11 @@ related: ["architecture/tech-stack", "architecture/system-architecture"]
 | Service | Usage | Files |
 |---------|-------|-------|
 | **Auth** | Google OAuth (`GoogleAuthProvider`) + email/password | `src/lib/firebase.ts`, `src/pages/LoginPage.tsx` |
-| **Firestore** | Single doc per user at `users/{userId}` + 3 subcollections, realtime sync via `onSnapshot` | `src/lib/firebase.ts`, `src/lib/converters.ts`, `src/hooks/useSyncFinance.ts` |
+| **Firestore** | Single doc per user at `users/{userId}` + 4 subcollections, realtime sync via `onSnapshot` | `src/lib/firebase.ts`, `src/lib/converters.ts`, `src/hooks/useSyncFinance.ts` |
 | **Hosting** | Serves `dist/`, SPA rewrites (`**` → `/index.html`), project: `myfinancetracker-b257e` | `firebase.json`, `.firebaserc` |
 
 ### Firestore Subcollections
+- `/users/{userId}/transactions/{txnId}` — Transaction records (migrated from legacy array)
 - `/users/{userId}/portfolio_history/{snapshotId}` — Daily portfolio snapshots
 - `/users/{userId}/dividends/{entryId}` — Dividend records
 - `/users/{userId}/tax_events/{eventId}` — Tax tracking events

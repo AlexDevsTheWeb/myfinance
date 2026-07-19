@@ -1,4 +1,6 @@
 ---
+type: Bug
+description: "BrokerAccount ticker field not persisted; PAC creates transactions with wrong ticker — fixed."
 title: "BrokerAccount ticker field not persisted — PAC creates transactions with wrong ticker"
 tags: [bug, investment, broker, critical, fixed]
 created: 2026-07-03

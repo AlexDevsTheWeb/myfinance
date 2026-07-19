@@ -1,4 +1,6 @@
 ---
+type: Convention
+description: "Naming conventions, import order, error handling patterns, and code style."
 title: "Coding Conventions"
 tags: [conventions, coding-style, naming]
 created: 2026-06-22

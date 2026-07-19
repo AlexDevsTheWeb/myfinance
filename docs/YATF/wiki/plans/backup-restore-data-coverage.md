@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Plan to add missing budget and investment data to the backup/restore feature."
 title: "Plan: Backup/Restore Data Coverage"
 tags: [plan, backup, budget, investment, needed]
 created: 2026-06-30

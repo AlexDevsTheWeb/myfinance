@@ -1,4 +1,6 @@
 ---
+type: Convention
+description: "Git branch naming rules, PR workflow, and merge conventions."
 title: "Branch Strategy"
 tags: [conventions, git, workflow, branch]
 created: 2026-06-22

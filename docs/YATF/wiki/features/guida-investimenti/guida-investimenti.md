@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "Guida utente in italiano — Investimenti, Proiezioni e Budget."
 title: "Monitoraggio Investimenti, Proiezioni e Budget — Guida Utente"
 tags: [feature, investment, projections, budget, guide, italiano]
 created: 2026-06-27

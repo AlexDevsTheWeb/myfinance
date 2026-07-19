@@ -1,4 +1,6 @@
 ---
+type: Decision
+description: "Migration of 16 chart components from Recharts to MUI X Charts for theme-awareness."
 title: "Decision: Migrate from Recharts to MUI X Charts"
 tags: [decision, charts, ui, migration]
 created: 2026-07-11

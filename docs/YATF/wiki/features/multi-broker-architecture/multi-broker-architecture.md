@@ -1,4 +1,7 @@
 ---
+type: Feature
+description: "Multi-broker and multi-asset schema refactor with BrokerSelect component."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/91"
 title: "Multi-Broker & Multi-Asset Architecture"
 tags: [feature, investment, architecture, implemented]
 created: 2026-06-27

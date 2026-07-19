@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Implementation plan for restructuring the transaction page layout."
 title: "Transaction Layout Improvement Implementation Plan"
 tags: [plans, implementation, transactions, frontend]
 created: 2026-06-22

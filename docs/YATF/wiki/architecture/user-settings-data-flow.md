@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "User settings architecture: Firestore field, Zustand store, and component tree."
 title: "User Settings Architecture — Configurable Rates"
 tags: [architecture, settings, projections, active]
 created: 2026-07-05

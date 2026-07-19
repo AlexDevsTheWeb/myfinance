@@ -1,4 +1,7 @@
 ---
+type: Feature
+description: "Native alert()/confirm() replaced with MUI Dialog and Snackbar components."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/138"
 title: "MUI Dialogs"
 tags: [feature, ux, go-to-market]
 created: 2026-07-12

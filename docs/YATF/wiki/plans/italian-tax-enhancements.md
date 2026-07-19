@@ -1,4 +1,6 @@
 ---
+type: Plan
+description: "Stamp duty (0.20%) and capital losses tracking — five-wave task breakdown."
 title: "Italian Tax Enhancements — Stamp Duty & Capital Losses"
 tags: [plan, investment, tax, italian]
 created: 2026-07-06

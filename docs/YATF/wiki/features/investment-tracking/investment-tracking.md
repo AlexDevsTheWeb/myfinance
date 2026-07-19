@@ -1,4 +1,6 @@
 ---
+type: Feature
+description: "ETF portfolio tracking, broker integration, PAC strategy, and asset-vs-expense separation."
 title: "Investment Tracking & Broker Integration"
 tags: [feature, investment, broker, implemented]
 created: 2026-06-26

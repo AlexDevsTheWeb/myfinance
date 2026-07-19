@@ -1,4 +1,6 @@
 ---
+type: Decision
+description: "PWA-first mobile strategy before Flutter — mobile support without a full rewrite."
 title: "PWA Strategy — Mobile senza riscrittura"
 tags: [decision, strategy, pwa, mobile, go-to-market]
 created: 2026-07-11

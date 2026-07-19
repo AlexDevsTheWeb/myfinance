@@ -1,3 +1,9 @@
+---
+type: Log
+title: "YATF Wiki — Update Log"
+description: "Chronological append-only record of all wiki operations: ingests, queries, lints, and migrations."
+---
+
 # Wiki Log
 
 ## [2026-07-06] ingest | Feature | Italian Tax Enhancements — Issue #110
@@ -489,6 +495,16 @@
 - Updated index.md (61 pages) and log.md
 - Source: [raw/balancr-identity-system/balancr-identity-system.md](raw/balancr-identity-system/balancr-identity-system.md)
 
+## [2026-07-18] query | "What happens when a new user logs in via Google Auth?"
+- Analyzed full auth flow: LoginPage → onAuthStateChanged → 3 sync hooks → Firestore init
+- Confirmed data isolation is solid: Firestore rules enforce `request.auth.uid == userId` on all paths
+- Found 6 concerns (silent login errors, no account deletion, 3 concurrent transactions, no onboarding, _migrateToMultiAccount on mount, no rate limiting)
+- Created [[raw/new-user-auth-flow/new-user-auth-flow.md]] — full analysis
+- Created [[wiki/queries/new-user-auth-flow]] — summary with findings
+- Updated [[wiki/architecture/external-integrations]] — added transactions subcollection, updated subcollection count
+- Updated [[wiki/architecture/concerns-and-tech-debt]] — added 3 new security concerns from findings
+- Updated index.md (62 pages) and log.md
+
 ## [2026-07-18] implement | Feature | Balancr — theme migration, UI polish
 - Migrated ~160 hardcoded color refs across 45+ files to MUI theme tokens
 - Replaced `#6366f1`/`#5b6cb8` → `primary.main`, `#0f172a` → `background.default`, `#1e293b` → `background.paper`
@@ -508,3 +524,27 @@
 - Closed [#150](https://github.com/AlexDevsTheWeb/myfinance/issues/150) with verification comment
 - Updated [[wiki/plans/beta-launch-playbook]] → Section 2 marked ✅
 - Updated [[wiki/plans/go-to-market]] → Phase 2 verification checkbox checked
+
+## [2026-07-18] migrate | OKF Compliance | Open Knowledge Format v0.1
+- Applied OKF frontmatter (`type`, `description`) to all 63 wiki pages
+- Created 8 subdirectory `index.md` files: architecture, bugs, conventions, decisions, features, plans, queries, references
+- Updated root `index.md` with OKF frontmatter (`type: Index`, `description`, `timestamp`)
+- Updated root `log.md` with OKF frontmatter (`type: Log`, `description`)
+- Updated [[wiki/AGENTS.md]] with OKF-compliant frontmatter template
+- Script archived at `docs/YATF/scripts/okf_migrate.py`
+- Reference: https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md
+
+## [2026-07-18] migrate | OKF Hardening | Templates, pre-commit hook, resource fields, wiki index
+- Updated AGENTS.md: OKF frontmatter on AGENTS.md itself (type: Schema)
+- Updated AGENTS.md: page templates now include full OKF frontmatter (type, description, resource)
+- Updated AGENTS.md: ingest workflow hardened — explicit steps for type, description, resource, subdir index update
+- Updated AGENTS.md: lint workflow now starts with `python3 docs/YATF/scripts/okf_migrate.py --check`
+- Updated okf_migrate.py: added --check / --dry-run mode (exits 1 if violations, 0 if clean)
+- Added resource: field to 16 pages sourced from GitHub issues
+- Created docs/YATF/templates/feature.md — OKF-compliant Feature template
+- Created docs/YATF/templates/bug.md — OKF-compliant Bug template
+- Created docs/YATF/templates/decision.md — OKF-compliant Decision template
+- Created docs/YATF/templates/plan.md — OKF-compliant Plan template
+- Created docs/YATF/wiki/index.md — wiki root category index for progressive agent traversal
+- Created docs/YATF/scripts/pre-commit-hook.sh + installed to .git/hooks/pre-commit
+- Ran --check: ✅ 0 violations

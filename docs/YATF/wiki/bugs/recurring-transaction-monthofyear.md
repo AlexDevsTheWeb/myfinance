@@ -1,4 +1,6 @@
 ---
+type: Bug
+description: "Yearly recurring transactions ignore monthOfYear and generate in wrong month — fixed."
 title: "Yearly recurring transactions ignore monthOfYear — generated in wrong month"
 tags: [bug, recurring, critical, fixed]
 created: 2026-07-16

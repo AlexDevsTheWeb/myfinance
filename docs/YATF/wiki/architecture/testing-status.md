@@ -1,4 +1,6 @@
 ---
+type: Architecture
+description: "Current testing infrastructure status — no test suite exists."
 title: "Testing Status"
 tags: [architecture, testing, quality]
 created: 2026-06-22
