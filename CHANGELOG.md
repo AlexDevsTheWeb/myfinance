@@ -1,4 +1,12 @@
 
+## [2026.12.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.11.2...v2026.12.0) (2026-07-19)
+
+
+* dynamic portfolio chart with per-ticker pricing, snapshot recompute, historical subcollection load, and tooltip fix ([33de84e](https://github.com/AlexDevsTheWeb/myfinance/commit/33de84e32d1b48506959edbf2ae1a38bd70d86d4)), closes [#160](https://github.com/AlexDevsTheWeb/myfinance/issues/160)
+* new user auth flow analysis — data isolation verified, 3 GitHub issues created ([#157](https://github.com/AlexDevsTheWeb/myfinance/issues/157), [#158](https://github.com/AlexDevsTheWeb/myfinance/issues/158), [#159](https://github.com/AlexDevsTheWeb/myfinance/issues/159)) ([3c6ea76](https://github.com/AlexDevsTheWeb/myfinance/commit/3c6ea76051c54d9fe85936e49f2cf325b837d36e))
+* **wiki:** OKF hardening — templates, pre-commit hook, resource fields, wiki index ([83a22c0](https://github.com/AlexDevsTheWeb/myfinance/commit/83a22c0cc0aa7e737130aee163504f68128a4b01))
+* **wiki:** OKF v0.1 compliance — type+description on all 63 pages, 8 subdir indexes, agent traversal protocol ([8e3eb3a](https://github.com/AlexDevsTheWeb/myfinance/commit/8e3eb3ace0da4ad867b7d3e72dc86cfd4fa1714b))
+
 ### [2026.11.2](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.11.1...v2026.11.2) (2026-07-18)
 
 
