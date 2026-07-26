@@ -586,3 +586,17 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Created [[wiki/plans/daily-historical-chart/daily-historical-chart]] — plan page with API research and design
 - Updated index.md (64 pages), plans/index.md
 - Source: [raw/daily-historical-chart/daily-historical-chart.md](raw/daily-historical-chart/daily-historical-chart.md)
+
+## [2026-07-26] ingest | Feature | Card Plafond Tracking — Issue #165
+- Created [[raw/165-card-plafond-tracking/165-card-plafond-tracking.md]] from GitHub [Issue #165](https://github.com/AlexDevsTheWeb/myfinance/issues/165)
+- Created [[wiki/features/card-plafond-tracking/card-plafond-tracking]] — per-card plafond tracking feature page
+- Updated index.md (67 pages), wiki/features/index.md, and log.md
+- Source: [raw/165-card-plafond-tracking/165-card-plafond-tracking.md](raw/165-card-plafond-tracking/165-card-plafond-tracking.md)
+
+## [2026-07-26] implement | Feature | Card Plafond Tracking — Issue #165 (PR pending)
+- Implemented full card plafond tracking on `feat/YATF-165`
+- Data layer: `ICard` interface, `cardId` on `ITransaction`, CRUD actions in store, Firestore converters
+- UI: card management in ConfigPage > Accounts tab, card dropdown on transaction form, card utilization widget on dashboard, card filter + sort toggle on transactions page
+- Created OpenSpec change `card-plafond-tracking` with proposal, design, specs, tasks
+- Updated [[wiki/features/card-plafond-tracking/card-plafond-tracking]] → status: **implemented**
+- Updated index.md (mark card-plafond as implemented) and log.md

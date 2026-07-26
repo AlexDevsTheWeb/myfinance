@@ -14,6 +14,7 @@ interface TransactionFormProps {
     subcategory: string;
     amount: string | number;
     accountId: string;
+    cardId?: string;
     dayOfMonth?: number;
     startDate?: string;
     endDate?: string | null;
@@ -89,7 +90,7 @@ function validateTransactionForm(
 }
 
 const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFormData, isRecurring = false }) => {
-  const { categories, incomeCategories, transactions, accounts } = useFinanceStore();
+  const { categories, incomeCategories, transactions, accounts, cards } = useFinanceStore();
   const transferCategory = { name: 'Internal Transfer', subcategories: ['Bonifico', 'Trasferimento'] };
   const currentCategories = type === 'income' ? incomeCategories : type === 'transfer' ? [transferCategory] : categories;
   const { t } = useTranslation();
@@ -302,7 +303,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
             label={t('transactions.account')}
             variant="filled"
             value={formData.accountId}
-            onChange={(e: any) => setFormData({ ...formData, accountId: e.target.value })}
+            onChange={(e: any) => setFormData({ ...formData, accountId: e.target.value, cardId: undefined })}
             error={!!formErrors.accountId}
           >
             {accounts.map((acc) => (
@@ -313,6 +314,30 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
           </TextField>
           {formErrors.accountId && <FormHelperText error>{formErrors.accountId}</FormHelperText>}
         </Grid>
+
+        {type === 'expense' && !isRecurring && (() => {
+          const accountCards = cards.filter(c => c.accountId === formData.accountId);
+          if (accountCards.length === 0) return null;
+          return (
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                select
+                label="Card"
+                variant="filled"
+                value={formData.cardId || ''}
+                onChange={(e: any) => setFormData({ ...formData, cardId: e.target.value || undefined })}
+              >
+                <MenuItem value="">None</MenuItem>
+                {accountCards.map(card => (
+                  <MenuItem key={card.id} value={card.id}>
+                    {card.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          );
+        })()}
 
         {isRecurring && (
           <>

@@ -11,6 +11,7 @@ export function getDefaultUserConfig(): UserDoc {
   return {
     initialBalance: Defaults.DEFAULT_INITIAL_BALANCE,
     accounts: Defaults.DEFAULT_ACCOUNTS,
+    cards: [],
     categories: Defaults.DEFAULT_CATEGORIES,
     incomeCategories: Defaults.DEFAULT_INCOME_CATEGORIES,
     recurringTransactions: [],

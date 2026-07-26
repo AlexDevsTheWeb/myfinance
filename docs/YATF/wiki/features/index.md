@@ -38,4 +38,5 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[features/tax-inflation-modeling/tax-inflation-modeling|tax-inflation-modeling]] | Inflation-adjusted financial projections with real vs nominal toggle. |
 | [[features/ticker-validation/ticker-validation|ticker-validation]] | Yahoo Finance ticker validation triggered at broker config save. |
 | [[features/transaction-layout-improvement/transaction-layout-improvement|transaction-layout-improvement]] | Two-column transaction layout with filter panel and chart on the left side. |
+| [[features/card-plafond-tracking/card-plafond-tracking|card-plafond-tracking]] | Track spending per card with monthly plafond, configurable per account in settings. |
 | [[features/user-configurable-rates/user-configurable-rates|user-configurable-rates]] | User-configurable inflation and tax rates in ConfigPage > Projections tab. |

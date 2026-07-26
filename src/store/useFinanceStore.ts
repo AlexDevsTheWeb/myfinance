@@ -22,6 +22,7 @@ export { Validation };
 // Backward-compatible type aliases (no prefix for existing code)
 export type Category = Types.ICategory;
 export type Account = Types.IAccount;
+export type Card = Types.ICard;
 export type Transaction = Types.ITransaction;
 export type RecurringTransaction = Types.IRecurringTransaction;
 export type AppModules = Types.IAppModules;
@@ -41,6 +42,7 @@ interface FinanceState {
   categories: Category[];
   incomeCategories: Category[];
   accounts: Account[];
+  cards: Types.ICard[];
   transactions: Transaction[];
   recurringTransactions: RecurringTransaction[];
   carMileage: CarMileageRecord[];
@@ -92,6 +94,11 @@ interface FinanceState {
   updateAccount: (account: Account) => void;
   deleteAccount: (id: string) => void;
   setDefaultAccount: (id: string) => void;
+  // Card actions
+  setCards: (cards: Types.ICard[]) => void;
+  addCard: (card: Types.ICard) => void;
+  updateCard: (card: Types.ICard) => void;
+  deleteCard: (id: string) => void;
   // Car Mileage actions
   addCarMileage: (record: CarMileageRecord) => void;
   updateCarMileage: (record: CarMileageRecord) => void;
@@ -113,6 +120,7 @@ export const useFinanceStore = create<FinanceState>()(
     (set) => ({
       initialBalance: 0,
       accounts: Defaults.DEFAULT_ACCOUNTS,
+      cards: [],
       categories: Defaults.DEFAULT_CATEGORIES,
       incomeCategories: Defaults.DEFAULT_INCOME_CATEGORIES,
       transactions: [],
@@ -1079,6 +1087,66 @@ setBalanceStartDate: async (date) => {
         }
       },
 
+      setCards: async (cards) => {
+        set({ cards });
+      },
+
+      addCard: async (card) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => ({ cards: [...state.cards, card], isSaving: false }));
+          const docRef = doc(db, 'users', userId);
+          await updateDoc(docRef, { cards: arrayUnion(card) });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to add card';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('addCard error:', err);
+        }
+      },
+
+      updateCard: async (card) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedCards = state.cards.map(c => c.id === card.id ? card : c);
+            return { cards: updatedCards, isSaving: false };
+          });
+          const docRef = doc(db, 'users', userId);
+          const updatedCards = useFinanceStore.getState().cards;
+          await updateDoc(docRef, { cards: updatedCards });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to update card';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('updateCard error:', err);
+        }
+      },
+
+      deleteCard: async (id) => {
+        const userId = useAuthStore.getState().user?.uid;
+        if (!userId) return;
+
+        set({ saveError: null, isSaving: true });
+        try {
+          set((state) => {
+            const updatedCards = state.cards.filter(c => c.id !== id);
+            return { cards: updatedCards, isSaving: false };
+          });
+          const docRef = doc(db, 'users', userId);
+          const updatedCards = useFinanceStore.getState().cards;
+          await updateDoc(docRef, { cards: updatedCards });
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete card';
+          set({ saveError: errorMessage, isSaving: false });
+          console.error('deleteCard error:', err);
+        }
+      },
+
       addCarMileage: async (record) => {
         const userId = useAuthStore.getState().user?.uid;
         if (!userId) return;
@@ -1293,6 +1361,7 @@ setBalanceStartDate: async (date) => {
           await updateDoc(docRef, {
             initialBalance: payload.initialBalance ?? 0,
             accounts: payload.accounts ?? Defaults.DEFAULT_ACCOUNTS,
+            cards: payload.cards ?? [],
             recurringTransactions: payload.recurringTransactions ?? [],
             categories: payload.categories ?? Defaults.DEFAULT_CATEGORIES,
             incomeCategories: payload.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
@@ -1324,6 +1393,7 @@ setBalanceStartDate: async (date) => {
           set({
             initialBalance: payload.initialBalance ?? 0,
             accounts: payload.accounts ?? Defaults.DEFAULT_ACCOUNTS,
+            cards: payload.cards ?? [],
             transactions: payload.transactions ?? [],
             recurringTransactions: payload.recurringTransactions ?? [],
             categories: payload.categories ?? Defaults.DEFAULT_CATEGORIES,

@@ -19,5 +19,6 @@ export const sanitizeTransaction = (t: ITransaction): any => {
     consumption: (t.consumption !== undefined && t.consumption !== null && String(t.consumption) !== '') ? Number(t.consumption) : null,
     readingDateStart: t.readingDateStart ?? null,
     readingDateEnd: t.readingDateEnd ?? null,
+    cardId: t.cardId ?? null,
   };
 };
