@@ -139,6 +139,7 @@ export interface BackupData {
 export interface BackupPayload {
   initialBalance?: number;
   accounts?: IFinanceState['accounts'];
+  cards?: IFinanceState['cards'];
   transactions?: IFinanceState['transactions'];
   recurringTransactions?: IFinanceState['recurringTransactions'];
   categories?: IFinanceState['categories'];
@@ -166,6 +167,7 @@ export interface BackupPreview {
   summary: {
     transactionCount: number;
     accountCount: number;
+    cardCount: number;
     recurringCount: number;
     categoryCount: number;
     incomeCategoryCount: number;
@@ -188,6 +190,7 @@ export function createBackup(state: IFinanceState): BackupData {
     data: {
       initialBalance: state.initialBalance,
       accounts: state.accounts,
+      cards: state.cards,
       transactions: state.transactions,
       recurringTransactions: state.recurringTransactions,
       categories: state.categories,
@@ -272,6 +275,7 @@ export async function previewBackup(file: File): Promise<BackupPreview> {
       summary: {
         transactionCount: data?.transactions?.length ?? 0,
         accountCount: data?.accounts?.length ?? 0,
+        cardCount: data?.cards?.length ?? 0,
         recurringCount: data?.recurringTransactions?.length ?? 0,
         categoryCount: data?.categories?.length ?? 0,
         incomeCategoryCount: data?.incomeCategories?.length ?? 0,

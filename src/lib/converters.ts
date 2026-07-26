@@ -2,7 +2,7 @@
 import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions, Timestamp, doc, collection } from 'firebase/firestore';
 import { db } from './firebase';
-import { type IAccount, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
+import { type IAccount, type ICard, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
 
 export interface TransactionDoc {
   id: string;
@@ -17,6 +17,7 @@ export interface TransactionDoc {
   consumption?: number | null;
   readingDateStart?: string | null;
   readingDateEnd?: string | null;
+  cardId?: string | null;
   createdAt?: ReturnType<typeof Timestamp.now>;
 }
 
@@ -34,6 +35,7 @@ export const transactionConverter: FirestoreDataConverter<TransactionDoc> = {
     consumption: tx.consumption ?? null,
     readingDateStart: tx.readingDateStart ?? null,
     readingDateEnd: tx.readingDateEnd ?? null,
+    cardId: tx.cardId ?? null,
     createdAt: tx.createdAt ?? Timestamp.now(),
   }),
   fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): TransactionDoc => {
@@ -51,6 +53,7 @@ export const transactionConverter: FirestoreDataConverter<TransactionDoc> = {
       consumption: typeof data.consumption === 'number' ? data.consumption : (typeof data.consumption === 'string' && data.consumption !== '' ? Number(data.consumption) : undefined),
       readingDateStart: data.readingDateStart,
       readingDateEnd: data.readingDateEnd,
+      cardId: data.cardId || undefined,
     };
   },
 };
@@ -79,6 +82,7 @@ export interface UserDoc {
   categories: ICategory[];
   incomeCategories: ICategory[];
   accounts: IAccount[];
+  cards: ICard[];
   recurringTransactions: IRecurringTransaction[];
   carMileage: ICarMileageRecord[];
   carInitialMileage: number;
@@ -106,6 +110,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       categories: userDoc.categories,
       incomeCategories: userDoc.incomeCategories,
       accounts: userDoc.accounts,
+      cards: userDoc.cards || [],
       recurringTransactions: userDoc.recurringTransactions.map(r => ({
         id: r.id,
         description: r.description,
@@ -158,6 +163,15 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       name: a.name ?? '',
       initialBalance: typeof a.initialBalance === 'number' ? a.initialBalance : 0,
       isDefault: !!a.isDefault,
+    })) : [];
+
+    const cards: ICard[] = Array.isArray(data.cards) ? data.cards.map((c: any) => ({
+      id: c.id ?? '',
+      name: c.name ?? '',
+      type: c.type === 'debit' ? 'debit' : 'credit',
+      plafond: typeof c.plafond === 'number' ? c.plafond : 0,
+      billingDay: typeof c.billingDay === 'number' ? c.billingDay : 1,
+      accountId: c.accountId ?? '',
     })) : [];
 
     const recurringTransactions: IRecurringTransaction[] = Array.isArray(data.recurringTransactions) ? data.recurringTransactions.map((r: any) => ({
@@ -295,6 +309,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       categories,
       incomeCategories,
       accounts,
+      cards,
       recurringTransactions,
       carMileage,
       carInitialMileage,

@@ -15,6 +15,15 @@ export interface IAccount {
   isDefault: boolean;
 }
 
+export interface ICard {
+  id: string;
+  name: string;
+  type: 'credit' | 'debit';
+  plafond: number;
+  billingDay: number;
+  accountId: string;
+}
+
 export interface ITransaction {
   id: string;
   date: string;
@@ -28,6 +37,7 @@ export interface ITransaction {
   consumption?: number;
   readingDateStart?: string;
   readingDateEnd?: string;
+  cardId?: string;
 }
 
 export interface IRecurringTransaction {
@@ -79,6 +89,7 @@ export interface IFinanceState {
   categories: ICategory[];
   incomeCategories: ICategory[];
   accounts: IAccount[];
+  cards: ICard[];
   transactions: ITransaction[];
   recurringTransactions: IRecurringTransaction[];
   carMileage: ICarMileageRecord[];

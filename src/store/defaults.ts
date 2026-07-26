@@ -57,6 +57,8 @@ export const DEFAULT_BROKER_ACCOUNTS: BrokerAccount[] = [
   { id: 'broker-1', name: 'Trade Republic', ticker: 'SWDA.MI', baseLumpSum: 0, monthlyPacAmount: 0, interestRate: 0 },
 ];
 
+export const DEFAULT_CARDS = [];
+
 export const DEFAULT_BROKER_CONFIG: IBrokerConfig = {
   brokerName: 'Trade Republic',
   lumpSumAmount: 0,
