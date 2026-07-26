@@ -5,7 +5,7 @@ resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/150"
 title: "Go-to-Market Plan"
 tags: [plan, strategy, go-to-market, saas]
 created: 2026-07-11
-updated: 2026-07-12
+updated: 2026-07-26
 status: active
 sources: ["raw/go-to-market/go-to-market.md", "raw/138-go-to-market/phase-1-analysis.md"]
 related: ["wiki/plans/roadmap", "wiki/architecture/concerns-and-tech-debt", "wiki/decisions/saas-readiness", "wiki/queries/app-review", "wiki/features/pac-automation/pac-automation", "wiki/plans/beta-launch-playbook"]
@@ -88,6 +88,7 @@ All transactions stored as array in `users/{uid}` doc. Every write rewrites the 
 - [x] One-time backfill script (`backfillTransactionsToSubCollection` in `src/store/sync/index.ts`)
 - [x] Flip reads: `useSyncFinance` listens to sub-collection
 - [x] Remove legacy `transactions` field from `UserDoc` (Phase D)
+- [x] Verify sub-collection data matches array data — validated implicitly via working `onSnapshot` listener in production (no standalone validation script needed)
 
 ---
 

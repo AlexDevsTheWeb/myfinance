@@ -23,7 +23,7 @@ const NetWorthChart: React.FC<NetWorthChartProps> = ({ data, title }) => {
           {title}
         </Typography>
       )}
-      <Box sx={{ height: 300, width: '100%' }}>
+      <Box sx={{ height: 300, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
         <ChartsDataProvider
           series={[
             {
@@ -39,7 +39,7 @@ const NetWorthChart: React.FC<NetWorthChartProps> = ({ data, title }) => {
           xAxis={[{ scaleType: 'point', data: data.map(d => d.date), disableLine: true, disableTicks: true }]}
           yAxis={[{ disableLine: true, disableTicks: true }]}
           height={300}
-          margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+          margin={{ top: 10, right: 10, bottom: 20, left: 30 }}
         >
           <ChartsWrapper>
             <ChartsSurface>

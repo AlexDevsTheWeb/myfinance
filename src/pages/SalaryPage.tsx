@@ -1,11 +1,12 @@
-import { BarChart as BarChartIcon, TrendingUp } from '@mui/icons-material';
-import { Box, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useTheme } from '@mui/material';
+import { BarChart as BarChartIcon, TrendingUp, OpenInFull } from '@mui/icons-material';
+import { Box, Button, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { axisClasses } from '@mui/x-charts';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFinanceStore } from '../store/useFinanceStore';
+import SalaryChartDialog from '../components/salary/SalaryChartDialog';
 
 interface MonthlySalaryData {
   monthName: string;
@@ -17,6 +18,8 @@ const SalaryPage: React.FC = () => {
   const { transactions } = useFinanceStore();
   const { t } = useTranslation();
   const theme = useTheme();
+  const isLargeViewport = useMediaQuery('(min-width: 2000px)');
+  const [chartDialogOpen, setChartDialogOpen] = React.useState(false);
 
   const salaryData = useMemo(() => {
     return transactions
@@ -107,6 +110,54 @@ const SalaryPage: React.FC = () => {
     valueFormatter: (v: number | null) => v === null ? '' : `€ ${v.toLocaleString()}`,
   }));
 
+  const yoyTable = (
+    <TableContainer component={Paper} sx={{ background: 'transparent', boxShadow: 'none' }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{t('car.month')}</TableCell>
+            {availableYears.map(year => (
+              <TableCell key={year} align="right" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{year}</TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {yoyData.map((row) => (
+            <TableRow key={row.month} sx={{ '&:hover': { background: 'rgba(255,255,255,0.02)' } }}>
+              <TableCell sx={{ fontWeight: 600, verticalAlign: 'top', pt: 2 }}>{row.month}</TableCell>
+              {availableYears.map((year, yIdx) => {
+                const amount = row.yearValues[year] || 0;
+                const nextYear = availableYears[yIdx + 1];
+                const prevAmount = nextYear ? (row.yearValues[nextYear] || 0) : 0;
+
+                const hasPrev = nextYear && prevAmount > 0;
+                const diff = hasPrev ? ((amount - prevAmount) / prevAmount) * 100 : 0;
+                const absDiff = amount - prevAmount;
+                const isIncrease = amount >= prevAmount;
+
+                return (
+                  <TableCell key={year} align="right" sx={{ verticalAlign: 'top', py: 1.5 }}>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                      € {amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                    </Typography>
+
+                    {hasPrev && (
+                      <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', display: 'block', color: isIncrease ? 'success.main' : 'error.main', opacity: 0.9 }}>
+                        {isIncrease ? '+' : ''}{diff.toFixed(1)}% | {absDiff >= 0 ? '+' : ''}€ {absDiff.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                      </Typography>
+                    )}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  const commonCardStyle = { background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' };
+
   return (
     <Box sx={{ pb: 6 }}>
       <Box sx={{ mb: 4 }}>
@@ -119,86 +170,74 @@ const SalaryPage: React.FC = () => {
         </Typography>
       </Box>
 
-      <Grid container spacing={3}>
-        {/* YoY Comparison Table - Left Column */}
-        <Grid size={{ xs: 12, lg: 7 }}>
-          <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>{t('salary.comparison')}</Typography>
-              <TableContainer component={Paper} sx={{ background: 'transparent', boxShadow: 'none' }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{t('car.month')}</TableCell>
-                      {availableYears.map(year => (
-                        <TableCell key={year} align="right" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{year}</TableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {yoyData.map((row) => (
-                      <TableRow key={row.month} sx={{ '&:hover': { background: 'rgba(255,255,255,0.02)' } }}>
-                        <TableCell sx={{ fontWeight: 600, verticalAlign: 'top', pt: 2 }}>{row.month}</TableCell>
-                        {availableYears.map((year, yIdx) => {
-                          const amount = row.yearValues[year] || 0;
-                          const nextYear = availableYears[yIdx + 1];
-                          const prevAmount = nextYear ? (row.yearValues[nextYear] || 0) : 0;
-
-                          const hasPrev = nextYear && prevAmount > 0;
-                          const diff = hasPrev ? ((amount - prevAmount) / prevAmount) * 100 : 0;
-                          const absDiff = amount - prevAmount;
-                          const isIncrease = amount >= prevAmount;
-
-                          return (
-                            <TableCell key={year} align="right" sx={{ verticalAlign: 'top', py: 1.5 }}>
-                              <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                                € {amount.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                              </Typography>
-
-                              {hasPrev && (
-                                <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', display: 'block', color: isIncrease ? 'success.main' : 'error.main', opacity: 0.9 }}>
-                                  {isIncrease ? '+' : ''}{diff.toFixed(1)}% | {absDiff >= 0 ? '+' : ''}€ {absDiff.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
-                                </Typography>
-                              )}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
+      {isLargeViewport ? (
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, lg: 7 }}>
+            <Card sx={commonCardStyle}>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>{t('salary.comparison')}</Typography>
+                {yoyTable}
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 12, lg: 5 }}>
+            <Card sx={commonCardStyle}>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <BarChartIcon /> Monthly Salary Trend
+                </Typography>
+                <Box sx={{ height: 400, mt: 2, '&, & *, & svg': { overflow: 'visible !important' } }}>
+                  <LineChart
+                    series={series}
+                    xAxis={[{ scaleType: 'band', data: months, disableLine: true, disableTicks: true }]}
+                    yAxis={[{ disableLine: true, disableTicks: true }]}
+                    grid={{ vertical: false, horizontal: true }}
+                    height={400}
+                    margin={{ top: 10, right: 10, bottom: 30, left: 30 }}
+                    sx={{
+                      '& svg': { overflow: 'visible !important' },
+                      [`.${axisClasses.tickLabel}`]: {
+                        fill: 'rgba(255,255,255,0.5)',
+                        fontSize: 12,
+                      },
+                    }}
+                  />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
-
-        {/* Monthly Trend Chart - Right Column */}
-        <Grid size={{ xs: 12, lg: 5 }}>
-          <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <BarChartIcon /> Monthly Salary Trend
-              </Typography>
-              <Box sx={{ height: 400, mt: 2 }}>
-                <LineChart
-                  series={series}
-                  xAxis={[{ scaleType: 'band', data: months, disableLine: true, disableTicks: true }]}
-                  yAxis={[{ disableLine: true, disableTicks: true }]}
-                  grid={{ vertical: false, horizontal: true }}
-                  height={400}
-                  margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
-                  sx={{
-                    [`.${axisClasses.tickLabel}`]: {
-                      fill: 'rgba(255,255,255,0.5)',
-                      fontSize: 12,
-                    },
-                  }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+      ) : (
+        <>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
+              <Card sx={commonCardStyle}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('salary.comparison')}</Typography>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<OpenInFull />}
+                      onClick={() => setChartDialogOpen(true)}
+                      sx={{ textTransform: 'none', whiteSpace: 'nowrap' }}
+                    >
+                      Monthly Salary Trend
+                    </Button>
+                  </Box>
+                  {yoyTable}
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+          <SalaryChartDialog
+            open={chartDialogOpen}
+            onClose={() => setChartDialogOpen(false)}
+            months={months}
+            series={series}
+          />
+        </>
+      )}
     </Box>
   );
 };

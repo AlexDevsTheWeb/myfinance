@@ -1,5 +1,6 @@
 import { Box, Paper, Typography, useTheme } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
+import LegendWithTooltip from '../charts/LegendWithTooltip';
 
 interface AllocationDonutChartProps {
   data: { name: string; value: number }[];
@@ -8,6 +9,9 @@ interface AllocationDonutChartProps {
 
 const AllocationDonutChart: React.FC<AllocationDonutChartProps> = ({ data, title }) => {
   const theme = useTheme();
+
+  const chartHeight = Math.max(300, Math.ceil(data.length / 2) * 32);
+
   return (
     <Paper sx={{ p: 1.5 }}>
       {title && (
@@ -15,7 +19,7 @@ const AllocationDonutChart: React.FC<AllocationDonutChartProps> = ({ data, title
           {title}
         </Typography>
       )}
-      <Box sx={{ height: 300, width: '100%' }}>
+      <Box sx={{ height: chartHeight, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
         {data.length === 0 ? (
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
             <Typography variant="body2" sx={{ opacity: 0.5 }}>No holdings data</Typography>
@@ -30,20 +34,20 @@ const AllocationDonutChart: React.FC<AllocationDonutChartProps> = ({ data, title
                   value: d.value,
                   color: theme.chart.palette[i % theme.chart.palette.length],
                 })),
-                innerRadius: 60,
-                outerRadius: 110,
+              innerRadius: '48%',
+              outerRadius: '100%',
                 paddingAngle: 2,
                 highlightScope: { fade: 'global', highlight: 'item' },
                 faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
                 highlighted: { additionalRadius: 10 },
               },
             ]}
-            height={300}
-            margin={{ bottom: 100 }}
-            slotProps={{
+            height={chartHeight}
+            margin={{ right: 120, top: 10, bottom: 10, left: 10 }}
+            slots={{ legend: LegendWithTooltip }}
+          slotProps={{
               legend: {
-                direction: 'horizontal',
-                position: { vertical: 'bottom', horizontal: 'center' },
+                position: { vertical: 'middle', horizontal: 'end' },
               },
             }}
           />

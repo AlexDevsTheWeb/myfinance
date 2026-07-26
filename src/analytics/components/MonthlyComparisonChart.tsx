@@ -50,7 +50,7 @@ const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, t
       <Typography variant="body2" sx={{ opacity: 0.6, mb: 2 }}>
         {monthLabel} {data.year} {t('insights.vsPrevMonth')} vs {monthLabel} {data.year - 1}
       </Typography>
-      <Box sx={{ height: 300, width: '100%' }}>
+      <Box sx={{ height: 300, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
         <BarChart
           series={[
             { data: chartData.map(d => d.current), label: `${monthLabel} ${data.year}`, color: theme.chart.primary, valueFormatter: formatEuro },
@@ -61,8 +61,9 @@ const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({ data, t
           yAxis={[{ disableLine: true, disableTicks: true }]}
           grid={{ vertical: false, horizontal: true }}
           height={300}
-          margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+          margin={{ top: 10, right: 20, bottom: 50, left: 35 }}
           sx={{
+            '& svg': { overflow: 'visible !important' },
             [`.${axisClasses.tickLabel}`]: {
               fill: 'rgba(255,255,255,0.5)',
               fontSize: 12,

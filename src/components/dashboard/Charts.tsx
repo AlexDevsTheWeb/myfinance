@@ -48,7 +48,7 @@ const Charts: React.FC = () => {
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
         Cash Flow Trend
       </Typography>
-      <Box sx={{ height: 280, width: '100%' }}>
+      <Box sx={{ height: 280, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
         <ChartsDataProvider
           series={[
             { type: 'line', id: 'income', data: data.map(d => d.income), label: 'Income', color: theme.palette.success.main, area: true, showMark: false },
@@ -57,7 +57,7 @@ const Charts: React.FC = () => {
           xAxis={[{ scaleType: 'band', data: data.map(d => d.displayDate), id: 'x', disableLine: true, disableTicks: true }]}
           yAxis={[{ id: 'y', disableLine: true, disableTicks: true }]}
           height={280}
-          margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+          margin={{ top: 10, right: 20, bottom: 50, left: 35 }}
         >
           <ChartsWrapper legendDirection="horizontal" legendPosition={{ vertical: 'bottom', horizontal: 'center' }}>
             <ChartsLegend direction="horizontal" />
