@@ -23,7 +23,7 @@ const CategoryBarChart: React.FC<CategoryBarChartProps> = ({ data, title }) => {
           {title}
         </Typography>
       )}
-      <Box sx={{ height: 320, width: '100%' }}>
+      <Box sx={{ height: 320, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
         <BarChart
           layout="horizontal"
           series={[
@@ -33,8 +33,9 @@ const CategoryBarChart: React.FC<CategoryBarChartProps> = ({ data, title }) => {
           yAxis={[{ scaleType: 'band', data: chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
           grid={{ vertical: true, horizontal: false }}
           height={320}
-          margin={{ left: 100, right: 20 }}
+          margin={{ left: 60, right: 20 }}
           sx={{
+            '& svg': { overflow: 'visible !important' },
             [`.${axisClasses.tickLabel}`]: {
               fill: 'rgba(255,255,255,0.5)',
               fontSize: 12,

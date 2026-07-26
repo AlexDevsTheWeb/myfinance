@@ -81,7 +81,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
       <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}>
         <BarChartIcon /> {t('insights.financialTrendTitle', { year: selectedYear })}
       </Typography>
-      <Box sx={{ height: 400, mt: 2 }}>
+      <Box sx={{ height: 400, mt: 2, '&, & *, & svg': { overflow: 'visible !important' } }}>
         <ChartsDataProvider
           series={[
             {
@@ -121,7 +121,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
           xAxis={[{ scaleType: 'band', data: chartData.map(d => d.month), disableLine: true, disableTicks: true }]}
           yAxis={[{ disableLine: true, disableTicks: true }]}
           height={400}
-          margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+          margin={{ top: 10, right: 20, bottom: 50, left: 35 }}
         >
           <ChartsWrapper>
             <ChartsLegend />

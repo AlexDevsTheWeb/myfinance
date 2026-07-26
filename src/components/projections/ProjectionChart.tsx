@@ -62,13 +62,13 @@ const ProjectionChart: React.FC<ProjectionChartProps> = ({ data, showRealValue }
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
         {t('projections.chartTitle')}
       </Typography>
-      <Box sx={{ height: 400, width: '100%' }}>
+      <Box sx={{ height: 400, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
         <ChartsDataProvider
           series={series}
           xAxis={[{ scaleType: 'band', data: data.map(d => d.label), disableLine: true, disableTicks: true }]}
           yAxis={[{ disableLine: true, disableTicks: true, valueFormatter: formatEuro }]}
           height={400}
-          margin={{ top: 10, right: 10, bottom: 30, left: 60 }}
+          margin={{ top: 10, right: 10, bottom: 50, left: 60 }}
         >
           <ChartsWrapper>
             <ChartsLegend />

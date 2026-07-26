@@ -32,6 +32,7 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[features/mui-dialogs/mui-dialogs|mui-dialogs]] | Native alert()/confirm() replaced with MUI Dialog and Snackbar components. |
 | [[features/multi-broker-architecture/multi-broker-architecture|multi-broker-architecture]] | Multi-broker and multi-asset schema refactor with BrokerSelect component. |
 | [[features/pac-automation/pac-automation|pac-automation]] | Automated recurring PAC transactions with user confirmation UI. |
+| [[features/responsive-chart-layout/responsive-chart-layout|responsive-chart-layout]] | Salary + Insights pages: inline charts at ≥2000px, full-screen dialog at <2000px. |
 | [[features/sidebar-redesign/sidebar-redesign|sidebar-redesign]] | Vertical left sidebar with grouped navigation, collapsible mode, and user avatar. |
 | [[features/sidebar-routing-refactor/sidebar-routing-refactor|sidebar-routing-refactor]] | Sidebar flat links, /finance + /investments tabbed pages, removed duplicate title. |
 | [[features/tax-inflation-modeling/tax-inflation-modeling|tax-inflation-modeling]] | Inflation-adjusted financial projections with real vs nominal toggle. |

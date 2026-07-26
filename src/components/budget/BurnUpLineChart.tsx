@@ -28,7 +28,7 @@ export default function BurnUpLineChart({ transactions, budgetTargets, dateRange
   }
 
   return (
-    <Box sx={{ height: 300, width: '100%' }}>
+    <Box sx={{ height: 300, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
       <ChartsDataProvider
         series={[
           {
@@ -52,11 +52,11 @@ export default function BurnUpLineChart({ transactions, budgetTargets, dateRange
         xAxis={[{ scaleType: 'band', data: data.map(d => d.date), disableLine: true, disableTicks: true }]}
         yAxis={[{ disableLine: true, disableTicks: true }]}
         height={300}
-        margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+        margin={{ top: 10, right: 10, bottom: 20, left: 30 }}
       >
         <ChartsWrapper>
           <ChartsSurface>
-            <defs>
+                <defs>
               <linearGradient id="actualGradient-burnup" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={theme.palette.primary.main} stopOpacity={0.3} />
                 <stop offset="100%" stopColor={theme.palette.primary.main} stopOpacity={0} />

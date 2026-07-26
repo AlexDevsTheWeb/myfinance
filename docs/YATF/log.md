@@ -12,6 +12,14 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Created [[wiki/plans/italian-tax-enhancements]] — 5-wave breakdown (15 subtasks) for stamp duty + capital losses
 - Updated index.md (48 pages) and log.md
 
+## [2026-07-26] ingest | Feature | Responsive chart layout — Salary + Insights
+- Created [[raw/responsive-chart-layout/responsive-chart-layout.md]] — inline charts at ≥2000px, full-screen dialog at <2000px
+- Created [[wiki/features/responsive-chart-layout/responsive-chart-layout]] — design, breakpoint rationale, implementation
+- Removed `AnalyticsFilters` from Insights page (date pickers, granularity/category selects)
+- Created `SalaryChartDialog.tsx` and `InsightsChartsDialog.tsx` — full-screen chart dialogs
+- Updated index.md (66 pages) and log.md
+- Source: [raw/responsive-chart-layout/responsive-chart-layout.md](raw/responsive-chart-layout/responsive-chart-layout.md)
+
 ## [2026-07-03] implement | Feature | Sidebar/routing refactor — flat links, tabbed pages, duplicate title removed
 - Removed duplicate app title from Layout.tsx AppBar (sidebar retains it)
 - Created [[wiki/features/sidebar-routing-refactor/sidebar-routing-refactor]] — `FinancePage` (/finance, tabs: Salary + Insights) and `InvestmentsPage` (/investments, tabs: Investments + Projections)
@@ -555,6 +563,23 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Opened GitHub [Issue #160](https://github.com/AlexDevsTheWeb/myfinance/issues/160)
 - Updated index.md (63 pages), features/index.md
 - Source: [raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md](raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md)
+
+## [2026-07-26] fix | Bugs | Charts UI — layout, padding, label cutoff, broken investment link
+- Ingested [[raw/bugs/charts-ui/charts-ui.md]] → created [[wiki/bugs/charts-ui]]
+- **Root cause:** MUI X Charts SVG has `overflow: hidden` → labels outside viewport clipped regardless of container CSS
+- **Core fix:** added `sx={{ overflow: 'visible' }}` to `ChartsSurface` (6 files) and convenience chart components (8 files) — stops SVG viewport from clipping labels
+- Adjusted margins on 12 chart files: reduced `left` padding (50→30-35), increased `bottom` for legend-bearing charts (30→50), increased `right` on some (10→20)
+- Fixed 3 pie charts: increased `outerRadius` 100-110 → 120, added `overflow: visible`
+- Fixed broken investment link in `DashboardPage.tsx`: `/invest` → `/investments`
+- `npm run build` passes clean (0 errors)
+- Updated index.md (65 pages) and log.md
+
+## [2026-07-26] ship | Phase 1 | Archived OpenSpec change `go-to-market-phase-1`
+- Marked task 4.3 (verify sub-collection data matches array data) as done — validated implicitly via working `onSnapshot` listener
+- Archives: `openspec/changes/archive/2026-07-26-go-to-market-phase-1/`
+- Main specs updated: pac-state-persistence, recurring-dedup, transaction-sub-collection
+- Updated [[wiki/plans/go-to-market]] — Phase 1.1 all tasks checked
+- Updated index.md and log.md
 
 ## [2026-07-19] research | Plan | Daily Historical Portfolio Chart
 - Created [[raw/daily-historical-chart/daily-historical-chart.md]] — research & spec for daily time series chart
