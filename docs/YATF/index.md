@@ -2,13 +2,13 @@
 type: Index
 title: "YATF Wiki — Knowledge Bundle Index"
 description: "Master catalog of all knowledge pages for the MyFinance (Balancr) project. Entry point for agent traversal."
-timestamp: 2026-07-18
+timestamp: 2026-07-26
 ---
 
 # Wiki Index
 
-*Last updated: 2026-07-18* (New user auth flow analysis)
-*Total pages: 64*
+*Last updated: 2026-07-26* (Responsive chart layout for Salary + Insights)
+*Total pages: 66*
 
 ---
 
@@ -23,6 +23,7 @@ timestamp: 2026-07-18
 | [[wiki/features/investment-tracking-guide/investment-tracking-guide]] | 📘 User guide + code analysis — Investment & Projections (EN) | [`raw/FEATURES-GUIDE/FEATURES-GUIDE.md`](raw/FEATURES-GUIDE/FEATURES-GUIDE.md) |
 | [[wiki/features/guida-investimenti/guida-investimenti]] | 📘 Guida utente — Investimenti, Proiezioni e Budget (IT) | [`raw/FEATURES-GUIDE.it/FEATURES-GUIDE.it.md`](raw/FEATURES-GUIDE.it/FEATURES-GUIDE.it.md) |
 | [[wiki/features/pac-automation/pac-automation]] | ✅ Automated recurring PAC transactions with confirmation UI | [`#89`](https://github.com/AlexDevsTheWeb/myfinance/issues/89) |
+| [[wiki/features/responsive-chart-layout/responsive-chart-layout]] | ✅ Salary + Insights: inline charts at ≥2000px, dialog at <2000px | [`raw/responsive-chart-layout/responsive-chart-layout.md`](raw/responsive-chart-layout/responsive-chart-layout.md) |
 | [[wiki/features/dynamic-portfolio-chart/dynamic-portfolio-chart]] | 📋 Recompute portfolio chart from current market prices — live valuations | [`#160`](https://github.com/AlexDevsTheWeb/myfinance/issues/160) |
 | [[wiki/features/crud-etf-transactions/crud-etf-transactions]] | ✅ Edit/delete ETF transactions with safe cascade recalculation | [`#90`](https://github.com/AlexDevsTheWeb/myfinance/issues/90) |
 | [[wiki/features/multi-broker-architecture/multi-broker-architecture]] | ✅ Multi-broker & multi-asset schema refactor with BrokerSelect | [`#91`](https://github.com/AlexDevsTheWeb/myfinance/issues/91) |
@@ -86,6 +87,7 @@ timestamp: 2026-07-18
 | [[wiki/bugs/ticker-persistence]] | ✅ BrokerAccount ticker not persisted; PAC uses brokerId as ticker — **fixed** | [`#108`](https://github.com/AlexDevsTheWeb/myfinance/issues/108) |
 | [[wiki/bugs/recurring-transaction-monthofyear]] | ✅ Yearly recurring transactions ignore `monthOfYear` — **fixed** | [`#142`](https://github.com/AlexDevsTheWeb/myfinance/issues/142) |
 | [[wiki/bugs/recurring-transaction-duplicates-same-period]] | ✅ `checkRecurring` generates duplicates alongside manual transactions — **fixed** | [`#146`](https://github.com/AlexDevsTheWeb/myfinance/issues/146) |
+| [[wiki/bugs/charts-ui]] | ✅ All charts across the app had layout issues: padding, cutoff labels, pie spacing — **fixed** | [`raw/bugs/charts-ui/charts-ui.md`](raw/bugs/charts-ui/charts-ui.md) |
 
 ## Architecture
 

@@ -134,7 +134,7 @@ const DashboardPage: React.FC = () => {
                 </Box>
               }
               color="primary.main"
-              onClick={() => navigate('/invest')}
+              onClick={() => navigate('/investments')}
             />
           </Grid>
         )}

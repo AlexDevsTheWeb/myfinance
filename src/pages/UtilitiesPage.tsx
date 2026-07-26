@@ -189,7 +189,7 @@ const UtilitiesPage: React.FC = () => {
       <Grid size={{ xs: 12, lg: 5 }}>
         <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('utilities.consumptionTrend')}</Typography>
-          <Box sx={{ height: 300, width: '100%' }}>
+          <Box sx={{ height: 300, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
             <LineChart
               series={[
                 {
@@ -214,8 +214,9 @@ const UtilitiesPage: React.FC = () => {
               ]}
               grid={{ vertical: false, horizontal: true }}
               height={300}
-              margin={{ top: 10, right: 10, bottom: 30, left: 50 }}
+              margin={{ top: 10, right: 20, bottom: 30, left: 30 }}
               sx={{
+                '& svg': { overflow: 'visible !important' },
                 [`.${axisClasses.tickLabel}`]: {
                   fill: 'rgba(255,255,255,0.5)',
                   fontSize: 11,

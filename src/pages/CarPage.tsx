@@ -424,7 +424,7 @@ const CarPage: React.FC = () => {
             {/* Mileage Trend Chart */}
             <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.trend')}</Typography>
-              <Box sx={{ height: 200, width: '100%' }}>
+              <Box sx={{ height: 200, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
                 <LineChart
                   series={[{ data: yearStats.chartData.map(d => d.km), color: '#4364f7', showMark: false }]}
                   xAxis={[{ scaleType: 'band', data: yearStats.chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
@@ -433,6 +433,7 @@ const CarPage: React.FC = () => {
                   height={200}
                   margin={{ top: 10, right: 10, bottom: 20, left: 40 }}
                   sx={{
+                    '& svg': { overflow: 'visible !important' },
                     [`.${axisClasses.tickLabel}`]: {
                       fill: 'rgba(255,255,255,0.5)',
                       fontSize: 11,
@@ -573,7 +574,7 @@ const CarPage: React.FC = () => {
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.tireUsage')}</Typography>
-              <Box sx={{ height: 250, width: '100%' }}>
+              <Box sx={{ height: 250, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
                 <LineChart
                   series={[{ data: tireStats.history.slice(0, 10).map(t => t.runKm), color: '#ed6c02', showMark: false }]}
                   xAxis={[{ scaleType: 'band', data: tireStats.history.slice(0, 10).map((_, i) => `${i + 1}`), disableLine: true, disableTicks: true }]}
@@ -582,6 +583,7 @@ const CarPage: React.FC = () => {
                   height={250}
                   margin={{ top: 10, right: 10, bottom: 20, left: 40 }}
                   sx={{
+                    '&, & *, & svg': { overflow: 'visible !important' },
                     [`.${axisClasses.tickLabel}`]: {
                       fill: 'rgba(255,255,255,0.5)',
                       fontSize: 11,
@@ -668,7 +670,7 @@ const CarPage: React.FC = () => {
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Fuel Efficiency Trend</Typography>
-              <Box sx={{ height: 250, width: '100%' }}>
+              <Box sx={{ height: 250, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
                 <LineChart
                   series={[{ data: costStats.chartData.map(d => d.val), color: '#10b981', showMark: false }]}
                   xAxis={[{ scaleType: 'band', data: costStats.chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
@@ -677,6 +679,7 @@ const CarPage: React.FC = () => {
                   height={250}
                   margin={{ top: 10, right: 10, bottom: 20, left: 40 }}
                   sx={{
+                    '&, & *, & svg': { overflow: 'visible !important' },
                     [`.${axisClasses.tickLabel}`]: {
                       fill: 'rgba(255,255,255,0.5)',
                       fontSize: 11,

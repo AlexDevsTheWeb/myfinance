@@ -50,7 +50,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ name, currentBalance, initial
       </Box>
 
       {/* Sparkline Chart */}
-      <Box sx={{ height: 50, width: '100%', my: 1 }}>
+      <Box sx={{ height: 50, width: '100%', my: 1, '&, & *, & svg': { overflow: 'visible !important' } }}>
         <ChartsDataProvider
           series={[{
             id: 'sparkline',

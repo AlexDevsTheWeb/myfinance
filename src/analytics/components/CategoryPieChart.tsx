@@ -1,6 +1,7 @@
 import { Box, Paper, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { PieChart } from '@mui/x-charts/PieChart';
+import LegendWithTooltip from '../../components/charts/LegendWithTooltip';
 import type { ICategoryBreakdown } from '../types';
 
 interface CategoryPieChartProps {
@@ -8,9 +9,7 @@ interface CategoryPieChartProps {
   title?: string;
 }
 
-const ITEMS_PER_ROW = 2;
 const BASE_HEIGHT = 300;
-const LEGEND_ROW_HEIGHT = 24;
 
 const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
   const theme = useTheme();
@@ -20,10 +19,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
     value: d.total,
   }));
 
-  const chartHeight = Math.max(
-    BASE_HEIGHT,
-    BASE_HEIGHT + Math.ceil(chartData.length / ITEMS_PER_ROW) * LEGEND_ROW_HEIGHT
-  );
+  const chartHeight = Math.max(BASE_HEIGHT, Math.ceil(chartData.length / 2) * 32);
 
   return (
     <Paper sx={{ p: 2 }}>
@@ -32,7 +28,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
           {title}
         </Typography>
       )}
-      <Box sx={{ height: chartHeight, width: '100%' }}>
+      <Box sx={{ height: chartHeight, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
         <PieChart
           series={[
             {
@@ -42,8 +38,8 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
                 value: d.value,
                 color: palette[i % palette.length],
               })),
-              innerRadius: 60,
-              outerRadius: 110,
+              innerRadius: '48%',
+              outerRadius: '100%',
               paddingAngle: 2,
               highlightScope: { fade: 'global', highlight: 'item' },
               faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
@@ -51,11 +47,11 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title }) => {
             },
           ]}
           height={chartHeight}
-          margin={{ bottom: 100 }}
+          margin={{ right: 120, top: 10, bottom: 10, left: 10 }}
+          slots={{ legend: LegendWithTooltip }}
           slotProps={{
             legend: {
-              direction: 'horizontal',
-              position: { vertical: 'bottom', horizontal: 'center' },
+              position: { vertical: 'middle', horizontal: 'end' },
             },
           }}
         />
