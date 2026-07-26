@@ -1,4 +1,9 @@
 
+## [2026.13.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.12.0...v2026.13.0) (2026-07-26)
+
+
+* responsive chart layout + charts UI fixes ([2101382](https://github.com/AlexDevsTheWeb/myfinance/commit/2101382b8811a1ece6b88687fdc38c0e4fa96d98))
+
 ## [2026.12.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.11.2...v2026.12.0) (2026-07-19)
 
 
