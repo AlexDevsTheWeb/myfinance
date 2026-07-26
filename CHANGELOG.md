@@ -1,4 +1,10 @@
 
+## [2026.14.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.13.0...v2026.14.0) (2026-07-26)
+
+
+* card plafond tracking per account with dashboard utilization and filter ([420cb8d](https://github.com/AlexDevsTheWeb/myfinance/commit/420cb8dabc097c397c5813146b3cdd8c07ad59af))
+* **development:** updated openspecs ([dff91e4](https://github.com/AlexDevsTheWeb/myfinance/commit/dff91e49803a48f862df16af88eae4a37e2aa553))
+
 ## [2026.13.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.12.0...v2026.13.0) (2026-07-26)
 
 
