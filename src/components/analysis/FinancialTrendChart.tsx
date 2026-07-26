@@ -121,7 +121,7 @@ const FinancialTrendChart: React.FC<FinancialTrendChartProps> = ({ selectedYear 
           xAxis={[{ scaleType: 'band', data: chartData.map(d => d.month), disableLine: true, disableTicks: true }]}
           yAxis={[{ disableLine: true, disableTicks: true }]}
           height={400}
-          margin={{ top: 10, right: 20, bottom: 50, left: 35 }}
+          margin={{ top: 10, right: 20, bottom: 50, left: 20 }}
         >
           <ChartsWrapper>
             <ChartsLegend />

@@ -26,7 +26,7 @@ export default function ComparisonBarChart({ snapshots }: Props) {
         yAxis={[{ disableLine: true, disableTicks: true }]}
         grid={{ vertical: false, horizontal: true }}
         height={300}
-        margin={{ top: 10, right: 10, bottom: 30, left: 30 }}
+        margin={{ top: 10, right: 15, bottom: 30, left: 15 }}
         sx={{
           [`.${axisClasses.tickLabel}`]: {
           fill: 'rgba(255,255,255,0.5)',

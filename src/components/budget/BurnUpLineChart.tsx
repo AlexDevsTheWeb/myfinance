@@ -52,7 +52,7 @@ export default function BurnUpLineChart({ transactions, budgetTargets, dateRange
         xAxis={[{ scaleType: 'band', data: data.map(d => d.date), disableLine: true, disableTicks: true }]}
         yAxis={[{ disableLine: true, disableTicks: true }]}
         height={300}
-        margin={{ top: 10, right: 10, bottom: 20, left: 30 }}
+        margin={{ top: 10, right: 15, bottom: 20, left: 15 }}
       >
         <ChartsWrapper>
           <ChartsSurface>

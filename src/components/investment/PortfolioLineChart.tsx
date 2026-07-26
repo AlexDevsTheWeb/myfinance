@@ -65,7 +65,7 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
           xAxis={[{ scaleType: 'point', data: filtered.map(d => d.date), disableLine: true, disableTicks: true }]}
           yAxis={[{ disableLine: true, disableTicks: true }]}
           height={300}
-          margin={{ top: 10, right: 10, bottom: 50, left: 60 }}
+          margin={{ top: 10, right: 20, bottom: 50, left: 20 }}
         >
           <ChartsWrapper>
             <ChartsLegend />
