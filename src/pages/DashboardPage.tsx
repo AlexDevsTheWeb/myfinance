@@ -173,42 +173,44 @@ const DashboardPage: React.FC = () => {
         )}
       </Grid>
 
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, lg: 7 }}>
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid size={{ xs: 12 }}>
           <RecapCards onOpenAccountDialog={() => setAccountDialogOpen(true)} />
-
-          {enabledModules?.investmentTracking && portfolio.chartData.length > 0 && (
-            <Box sx={{ mt: 3 }}>
-              <PortfolioLineChart
-                data={portfolio.chartData}
-                timeRange={portfolioTimeRange}
-                onTimeRangeChange={setPortfolioTimeRange}
-              />
-            </Box>
-          )}
-
-          {enabledModules?.budgetTracking && budgetTargets.length > 0 && (
-            <Box sx={{ mt: 3 }}>
-              <Paper sx={{ p: 1.5 }}>
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 2 }}>
-                  <Box sx={{ flex: { xs: 'none', sm: '0 0 auto' }, width: { xs: '100%', sm: 'auto' } }}>
-                    <SavingsRateGauge rate={budgetSummary.savingsRate} />
-                  </Box>
-                  <Box sx={{ flex: 1, width: '100%' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
-                      {t('budget.progressByCategory')}
-                    </Typography>
-                    <BulletChart snapshots={budgetSnapshots} />
-                  </Box>
-                </Box>
-              </Paper>
-            </Box>
-          )}
-        </Grid>
-        <Grid size={{ xs: 12, lg: 5 }}>
-          <Charts />
         </Grid>
       </Grid>
+
+      <Grid container spacing={3} sx={{ mt: 0 }}>
+        <Grid size={{ xs: 12, md: enabledModules?.investmentTracking && portfolio.chartData.length > 0 ? 6 : 12 }}>
+          <Charts />
+        </Grid>
+        {enabledModules?.investmentTracking && portfolio.chartData.length > 0 && (
+          <Grid size={{ xs: 12, md: 6 }}>
+            <PortfolioLineChart
+              data={portfolio.chartData}
+              timeRange={portfolioTimeRange}
+              onTimeRangeChange={setPortfolioTimeRange}
+            />
+          </Grid>
+        )}
+      </Grid>
+
+      {enabledModules?.budgetTracking && budgetTargets.length > 0 && (
+        <Box sx={{ mt: 3 }}>
+          <Paper sx={{ p: 1.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 2 }}>
+              <Box sx={{ flex: { xs: 'none', sm: '0 0 auto' }, width: { xs: '100%', sm: 'auto' } }}>
+                <SavingsRateGauge rate={budgetSummary.savingsRate} />
+              </Box>
+              <Box sx={{ flex: 1, width: '100%' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
+                  {t('budget.progressByCategory')}
+                </Typography>
+                <BulletChart snapshots={budgetSnapshots} />
+              </Box>
+            </Box>
+          </Paper>
+        </Box>
+      )}
 
       <AccountDetailDialog open={accountDialogOpen} onClose={() => setAccountDialogOpen(false)} />
     </Box>

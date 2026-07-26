@@ -8,7 +8,7 @@ timestamp: 2026-07-26
 # Wiki Index
 
 *Last updated: 2026-07-26* (Responsive chart layout for Salary + Insights)
-*Total pages: 66*
+*Total pages: 67*
 
 ---
 
@@ -40,6 +40,7 @@ timestamp: 2026-07-26
 | [[wiki/features/error-boundary/error-boundary]] | ✅ React error boundary wrapping the app — catches render crashes | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/features/mui-dialogs/mui-dialogs]] | ✅ Native alert()/confirm() replaced with MUI Dialog/Snackbar | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/features/loading-states/loading-states]] | ✅ Loading indicators on Dashboard, Transactions, Investments during sync | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
+| [[wiki/features/card-plafond-tracking/card-plafond-tracking]] | ✅ Per-card monthly plafond tracking with configurable cards per account, dashboard utilization, card filter + sort toggle | [`#165`](https://github.com/AlexDevsTheWeb/myfinance/issues/165) |
 | [[wiki/features/balancr-branding/balancr-branding]] | ✅ Complete rebrand: YAFT → Balancr, Linked Hexagons logo, new color palette | [`#82`](https://github.com/AlexDevsTheWeb/myfinance/issues/82) |
 
 ## Plans

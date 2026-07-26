@@ -22,6 +22,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
     subcategory: '',
     amount: '',
     accountId: '',
+    cardId: '',
     consumption: '',
     readingDateStart: '',
     readingDateEnd: '',
@@ -38,6 +39,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
           subcategory: transaction.subcategory,
           amount: transaction.amount.toString(),
           accountId: transaction.accountId,
+          cardId: transaction.cardId || '',
           consumption: transaction.consumption?.toString() || '',
           readingDateStart: transaction.readingDateStart || '',
           readingDateEnd: transaction.readingDateEnd || '',
@@ -50,6 +52,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
           subcategory: '',
           amount: '',
           accountId: accounts.find(a => a.isDefault)?.id || accounts[0]?.id || '',
+          cardId: '',
           consumption: '',
           readingDateStart: '',
           readingDateEnd: '',
@@ -59,6 +62,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
   }, [open, transaction, accounts]);
 
   const handleSubmit = () => {
+    const sanitizedCardId = formData.cardId || undefined;
     if (transaction) {
       updateTransaction({
         ...transaction,
@@ -66,6 +70,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
         amount: Number(formData.amount),
         type,
         accountId: formData.accountId,
+        cardId: sanitizedCardId,
         consumption: formData.consumption !== '' ? Number(formData.consumption) : undefined,
         readingDateStart: formData.readingDateStart || undefined,
         readingDateEnd: formData.readingDateEnd || undefined,
@@ -77,6 +82,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
         amount: Number(formData.amount),
         type,
         accountId: formData.accountId,
+        cardId: sanitizedCardId,
         consumption: formData.consumption !== '' ? Number(formData.consumption) : undefined,
         readingDateStart: formData.readingDateStart || undefined,
         readingDateEnd: formData.readingDateEnd || undefined,

@@ -4,6 +4,7 @@
 export type {
   ICategory,
   IAccount,
+  ICard,
   ITransaction,
   IRecurringTransaction,
   IAppModules,

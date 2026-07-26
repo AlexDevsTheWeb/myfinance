@@ -13,7 +13,7 @@ import {
 } from '../analytics';
 
 const TransactionsPage: React.FC = () => {
-  const { transactions, categories, incomeCategories, isLoading } = useFinanceStore();
+  const { transactions, categories, incomeCategories, cards, isLoading } = useFinanceStore();
   const { t } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'income' | 'expense' | 'transfer'>('expense');
@@ -25,6 +25,7 @@ const TransactionsPage: React.FC = () => {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [category, setCategory] = useState<string>('all');
   const [subcategory, setSubcategory] = useState<string>('all');
+  const [cardFilter, setCardFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('date-desc');
   const [page, setPage] = useState(0);
   const rowsPerPage = 20;
@@ -66,6 +67,15 @@ const TransactionsPage: React.FC = () => {
       result = result.filter(t => t.subcategory === subcategory);
     }
 
+    // Card
+    if (cardFilter !== 'all') {
+      if (cardFilter === 'none') {
+        result = result.filter(t => !t.cardId);
+      } else {
+        result = result.filter(t => t.cardId === cardFilter);
+      }
+    }
+
     // Sorting
     result.sort((a, b) => {
       const [field, direction] = sortBy.split('-');
@@ -93,7 +103,7 @@ const TransactionsPage: React.FC = () => {
     });
 
     return result;
-  }, [transactions, search, startDate, endDate, category, subcategory, sortBy]);
+  }, [transactions, search, startDate, endDate, category, subcategory, cardFilter, sortBy]);
 
   const paginatedTransactions = useMemo(() => {
     return filteredTransactions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -111,6 +121,7 @@ const TransactionsPage: React.FC = () => {
     setEndDate(null);
     setCategory('all');
     setSubcategory('all');
+    setCardFilter('all');
     setSortBy('date-desc');
     setPage(0);
   };
@@ -153,12 +164,41 @@ const TransactionsPage: React.FC = () => {
           <Grid size={{ xs: 12, md: 4 }}>
             <Card sx={{ borderRadius: 0, background: 'rgba(17, 24, 39, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
               <CardContent sx={{ py: 2 }}>
-                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>{t('transactions.filters.title')}</Typography>
-                  <Button size="small" variant="outlined" startIcon={<FilterList />} onClick={handleClearFilters} sx={{ borderRadius: 2 }}>
-                    Clear
-                  </Button>
-                </Box>
+                  <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>{t('transactions.filters.title')}</Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                      {[
+                        { field: 'date', label: 'Date' },
+                        { field: 'amount', label: 'Amount' },
+                      ].map(s => {
+                        const currentField = sortBy.split('-')[0];
+                        const currentDir = sortBy.split('-')[1];
+                        const isActive = currentField === s.field;
+                        return (
+                          <Button
+                            key={s.field}
+                            size="small"
+                            variant={isActive ? 'contained' : 'outlined'}
+                            onClick={() => {
+                              if (isActive) {
+                                setSortBy(`${s.field}-${currentDir === 'asc' ? 'desc' : 'asc'}`);
+                              } else {
+                                setSortBy(`${s.field}-desc`);
+                              }
+                            }}
+                            startIcon={isActive ? (currentDir === 'asc' ? <ArrowUpward sx={{ fontSize: 16 }} /> : <ArrowDownward sx={{ fontSize: 16 }} />) : undefined}
+                            endIcon={!isActive ? <ArrowDownward sx={{ fontSize: 16 }} /> : undefined}
+                            sx={{ borderRadius: 4, textTransform: 'none', minWidth: 0 }}
+                          >
+                            {s.label}
+                          </Button>
+                        );
+                      })}
+                      <Button size="small" variant="outlined" startIcon={<FilterList />} onClick={handleClearFilters} sx={{ borderRadius: 2 }}>
+                        Clear
+                      </Button>
+                    </Box>
+                  </Box>
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12 }}>
                     <TextField
@@ -227,28 +267,26 @@ const TransactionsPage: React.FC = () => {
                       </Select>
                     </FormControl>
                   </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-                      <Typography variant="body2" sx={{ mr: 1, opacity: 0.5 }}>{t('transactions.filters.sortBy')}</Typography>
-                      {[
-                        { val: 'date-desc', label: 'Date', icon: <ArrowDownward sx={{ fontSize: 16 }} /> },
-                        { val: 'date-asc', label: 'Date', icon: <ArrowUpward sx={{ fontSize: 16 }} /> },
-                        { val: 'amount-desc', label: 'Amount', icon: <ArrowDownward sx={{ fontSize: 16 }} /> },
-                        { val: 'amount-asc', label: 'Amount', icon: <ArrowUpward sx={{ fontSize: 16 }} /> },
-                      ].map((s) => (
-                        <Button
-                          key={s.val}
-                          size="small"
-                          variant={sortBy === s.val ? 'contained' : 'outlined'}
-                          onClick={() => setSortBy(s.val)}
-                          startIcon={s.icon}
-                          sx={{ borderRadius: 4, textTransform: 'none' }}
+                  {cards.length > 0 && (
+                    <Grid size={{ xs: 12 }}>
+                      <FormControl fullWidth>
+                        <InputLabel>Card</InputLabel>
+                        <Select
+                          value={cardFilter}
+                          label="Card"
+                          onChange={(e) => setCardFilter(e.target.value)}
                         >
-                          {s.label}
-                        </Button>
-                      ))}
-                    </Box>
-                  </Grid>
+                          <MenuItem value="all">All cards</MenuItem>
+                          <MenuItem value="none">Without card</MenuItem>
+                          {cards.map(card => (
+                            <MenuItem key={card.id} value={card.id}>
+                              {card.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  )}
                 </Grid>
               </CardContent>
             </Card>

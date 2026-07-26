@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "65af4cb6bf7962c8",
+        "id": "1576611b2b248ce1",
         "type": "tabs",
         "children": [
           {
-            "id": "d887a166aab5bbb6",
+            "id": "57166d463bffd1ec",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "wiki/plans/go-to-market.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "go-to-market"
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
             }
           }
         ]
@@ -183,8 +179,16 @@
       "bases:Create new base": false
     }
   },
-  "active": "d887a166aab5bbb6",
+  "active": "60dfeab5928d7f52",
   "lastOpenFiles": [
+    "wiki/features/card-plafond-tracking/card-plafond-tracking.md",
+    "wiki/features/card-plafond-tracking",
+    "raw/165-card-plafond-tracking/165-card-plafond-tracking.md",
+    "raw/165-card-plafond-tracking",
+    "wiki/index.md",
+    "index.md",
+    "log.md",
+    "wiki/plans/go-to-market.md",
     "wiki/features/loading-states/loading-states.md",
     "wiki/features/mui-dialogs/mui-dialogs.md",
     "wiki/features/error-boundary/error-boundary.md",
@@ -211,15 +215,6 @@
     "raw/investment-report/investment-report.md",
     "raw/FEATURES-GUIDE/FEATURES-GUIDE.md",
     "raw/FEATURES-GUIDE.it/FEATURES-GUIDE.it.md",
-    "raw/99-manual-review-2706/99-manual-review-2706.md",
-    "raw/98-investment-tracking-v3/98-investment-tracking-v3.md",
-    "raw/94-ticker-validation/94-ticker-validation.md",
-    "raw/93-tax-inflation/93-tax-inflation.md",
-    "raw/92-historical-snapshots/92-historical-snapshots.md",
-    "raw/90-crud-transactions/90-crud-transactions.md",
-    "raw/89-pac-automation/89-pac-automation.md",
-    "wiki/features/user-configurable-rates",
-    "wiki/features/transaction-layout-improvement",
-    "wiki/features/ticker-validation"
+    "wiki/features/user-configurable-rates"
   ]
 }

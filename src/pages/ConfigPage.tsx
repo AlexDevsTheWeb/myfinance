@@ -12,6 +12,7 @@ import { AlertSnackbar } from '../components/shared/AlertSnackbar';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { useInvestmentStore } from '../store/useInvestmentStore';
 import { useProjectionSettingsStore, DEFAULT_PROJECTION_SETTINGS } from '../store/useProjectionSettingsStore';
+import type { ICard } from '../store/types/finance.types';
 import type { ITabPanelProps } from '../types/props.types';
 
 function TabPanel(props: ITabPanelProps) {
@@ -136,11 +137,15 @@ const ConfigPage: React.FC = () => {
     deleteSubcategoryAndRemap,
     moveSubcategory,
     accounts,
+    cards,
     transactions,
     addAccount,
     updateAccount,
     deleteAccount,
     setDefaultAccount,
+    addCard,
+    updateCard,
+    deleteCard,
     recurringTransactions,
     addRecurring,
     updateRecurring,
@@ -216,6 +221,58 @@ const ConfigPage: React.FC = () => {
     frequency: 'monthly' as 'monthly' | 'yearly',
     monthOfYear: 1
   });
+
+  const [cardDialogOpen, setCardDialogOpen] = useState(false);
+  const [cardDialogMode, setCardDialogMode] = useState<'add' | 'edit'>('add');
+  const [editingCard, setEditingCard] = useState<ICard | null>(null);
+  const [cardForm, setCardForm] = useState({ name: '', type: 'credit' as 'credit' | 'debit', plafond: '', billingDay: 1, accountId: '' });
+
+  const resetCardForm = (accountId?: string) => {
+    setCardForm({ name: '', type: 'credit', plafond: '', billingDay: 1, accountId: accountId || '' });
+  };
+
+  const handleOpenAddCard = (accountId: string) => {
+    setCardDialogMode('add');
+    setEditingCard(null);
+    resetCardForm(accountId);
+    setCardDialogOpen(true);
+  };
+
+  const handleOpenEditCard = (card: ICard) => {
+    setCardDialogMode('edit');
+    setEditingCard(card);
+    setCardForm({
+      name: card.name,
+      type: card.type,
+      plafond: card.plafond.toString(),
+      billingDay: card.billingDay,
+      accountId: card.accountId,
+    });
+    setCardDialogOpen(true);
+  };
+
+  const handleSaveCard = () => {
+    if (!cardForm.name.trim() || !cardForm.plafond) return;
+    if (cardDialogMode === 'add') {
+      addCard({
+        id: crypto.randomUUID(),
+        name: cardForm.name.trim(),
+        type: cardForm.type,
+        plafond: Number(cardForm.plafond),
+        billingDay: Number(cardForm.billingDay),
+        accountId: cardForm.accountId,
+      });
+    } else if (editingCard) {
+      updateCard({
+        ...editingCard,
+        name: cardForm.name.trim(),
+        type: cardForm.type,
+        plafond: Number(cardForm.plafond),
+        billingDay: Number(cardForm.billingDay),
+      });
+    }
+    setCardDialogOpen(false);
+  };
 
   const [brokerDialogOpen, setBrokerDialogOpen] = useState(false);
   const brokerAccounts = useInvestmentStore(s => s.brokerAccounts);
@@ -635,39 +692,92 @@ const ConfigPage: React.FC = () => {
                   </Button>
                 </Box>
                 <List>
-                  {accounts.map((acc) => (
-                    <ListItem
-                      key={acc.id}
-                      sx={{
-                        background: 'rgba(255,255,255,0.02)',
-                        mb: 1,
-                        borderRadius: 3,
-                        border: acc.isDefault ? '1px solid' : '1px solid rgba(255,255,255,0.05)',
-                        borderColor: acc.isDefault ? 'primary.main' : 'rgba(255,255,255,0.05)'
-                      }}
-                    >
-                      <ListItemText
-                        primary={
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography sx={{ fontWeight: 700 }}>{acc.name}</Typography>
-                            {acc.isDefault && <Typography variant="caption" sx={{ bgcolor: 'primary.main', px: 1, borderRadius: 1 }}>DEFAULT</Typography>}
-                          </Box>
-                        }
-                        secondary={`Initial Balance: € ${acc.initialBalance.toLocaleString('it-IT')}`}
-                      />
-                      <ListItemSecondaryAction>
-                        {!acc.isDefault && (
-                          <Button size="small" variant="text" onClick={() => setDefaultAccount(acc.id)} sx={{ mr: 1, fontSize: '0.7rem' }}>{t('config.setDefault')}</Button>
-                        )}
-                        <IconButton size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'edit', accountId: acc.id })}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" color="error" disabled={accounts.length <= 1} onClick={() => handleOpenConfirm(`Delete account "${acc.name}"?`, 'This action cannot be undone.', () => deleteAccount(acc.id))}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  ))}
+                  {accounts.map((acc) => {
+                    const accountCards = cards.filter(c => c.accountId === acc.id);
+                    return (
+                      <Box key={acc.id} sx={{ mb: 2 }}>
+                        <ListItem
+                          sx={{
+                            background: 'rgba(255,255,255,0.02)',
+                            borderRadius: 3,
+                            border: acc.isDefault ? '1px solid' : '1px solid rgba(255,255,255,0.05)',
+                            borderColor: acc.isDefault ? 'primary.main' : 'rgba(255,255,255,0.05)'
+                          }}
+                        >
+                          <ListItemText
+                            primary={
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography sx={{ fontWeight: 700 }}>{acc.name}</Typography>
+                                {acc.isDefault && <Typography variant="caption" sx={{ bgcolor: 'primary.main', px: 1, borderRadius: 1 }}>DEFAULT</Typography>}
+                              </Box>
+                            }
+                            secondary={`Initial Balance: € ${acc.initialBalance.toLocaleString('it-IT')}`}
+                          />
+                          <ListItemSecondaryAction>
+                            {!acc.isDefault && (
+                              <Button size="small" variant="text" onClick={() => setDefaultAccount(acc.id)} sx={{ mr: 1, fontSize: '0.7rem' }}>{t('config.setDefault')}</Button>
+                            )}
+                            <IconButton size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'edit', accountId: acc.id })}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton size="small" color="error" disabled={accounts.length <= 1} onClick={() => handleOpenConfirm(`Delete account "${acc.name}"?`, 'This action cannot be undone.', () => deleteAccount(acc.id))}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                        <Box sx={{ pl: 4, pr: 2, mt: 1 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.6, textTransform: 'uppercase', fontSize: '0.65rem' }}>
+                            Cards
+                          </Typography>
+                          {accountCards.map(card => (
+                            <ListItem
+                              key={card.id}
+                              sx={{
+                                background: 'rgba(255,255,255,0.01)',
+                                mb: 0.5,
+                                borderRadius: 2,
+                                border: '1px solid rgba(255,255,255,0.03)',
+                                py: 0.5,
+                              }}
+                            >
+                              <ListItemText
+                                primary={
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{card.name}</Typography>
+                                    <Typography variant="caption" sx={{
+                                      bgcolor: card.type === 'credit' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(16, 185, 129, 0.2)',
+                                      color: card.type === 'credit' ? '#818cf8' : '#34d399',
+                                      px: 0.8, borderRadius: 1, fontSize: '0.6rem', fontWeight: 700
+                                    }}>
+                                      {card.type.toUpperCase()}
+                                    </Typography>
+                                  </Box>
+                                }
+                                secondary={`Plafond: €${card.plafond.toLocaleString('it-IT')} · resets day ${card.billingDay}`}
+                                slotProps={{ secondary: { variant: 'caption', sx: { opacity: 0.6 } } }}
+                              />
+                              <ListItemSecondaryAction>
+                                <IconButton size="small" onClick={() => handleOpenEditCard(card)}>
+                                  <EditIcon fontSize="inherit" />
+                                </IconButton>
+                                <IconButton size="small" color="error" onClick={() => handleOpenConfirm(`Delete card "${card.name}"?`, 'This action cannot be undone.', () => deleteCard(card.id))}>
+                                  <DeleteIcon fontSize="inherit" />
+                                </IconButton>
+                              </ListItemSecondaryAction>
+                            </ListItem>
+                          ))}
+                          <Button
+                            size="small"
+                            startIcon={<AddIcon />}
+                            onClick={() => handleOpenAddCard(acc.id)}
+                            sx={{ mt: 0.5, fontSize: '0.75rem', opacity: 0.6 }}
+                          >
+                            Add Card
+                          </Button>
+                        </Box>
+                      </Box>
+                    );
+                  })}
                 </List>
 
                 <Typography variant="h6" sx={{ fontWeight: 700, mt: 4, mb: 2 }}>Broker Accounts</Typography>
@@ -1015,6 +1125,32 @@ const ConfigPage: React.FC = () => {
           </DialogActions>
         </Dialog>
 
+        <Dialog open={cardDialogOpen} onClose={() => setCardDialogOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
+          <DialogTitle sx={{ fontWeight: 800 }}>{cardDialogMode === 'add' ? 'Add Card' : 'Edit Card'}</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} sx={{ mt: 0.5 }}>
+              <Grid size={{ xs: 12 }}>
+                <TextField autoFocus fullWidth label="Card Name" variant="filled" value={cardForm.name} onChange={(e) => setCardForm({ ...cardForm, name: e.target.value })} />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <TextField fullWidth select label="Card Type" variant="filled" value={cardForm.type} onChange={(e) => setCardForm({ ...cardForm, type: e.target.value as 'credit' | 'debit' })}>
+                  <MenuItem value="credit">Credit</MenuItem>
+                  <MenuItem value="debit">Debit</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField fullWidth label="Plafond (€)" type="number" variant="filled" value={cardForm.plafond} onChange={(e) => setCardForm({ ...cardForm, plafond: e.target.value })} slotProps={{ htmlInput: { min: 0 } }} />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField fullWidth label="Reset Day" type="number" variant="filled" value={cardForm.billingDay} onChange={(e) => setCardForm({ ...cardForm, billingDay: Number(e.target.value) })} slotProps={{ htmlInput: { min: 1, max: 28 } }} helperText="Day of month plafond resets" />
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={() => setCardDialogOpen(false)} color="inherit">Cancel</Button>
+            <Button onClick={handleSaveCard} variant="contained" disabled={!cardForm.name.trim() || !cardForm.plafond}>Save</Button>
+          </DialogActions>
+        </Dialog>
         <BrokerSettingsModal open={brokerDialogOpen} onClose={() => setBrokerDialogOpen(false)} />
 
         <ConfirmDialog
