@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { runTransaction, onSnapshot, updateDoc } from 'firebase/firestore';
+import { runTransaction, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { getDefaultUserConfig, getUserDocRef } from '../store/sync';
 import { useAuthStore } from '../store/useAuthStore';
 import { useInvestmentStore } from '../store/useInvestmentStore';
-import type { BrokerAccount, IBrokerConfig } from '../store/types';
+import { sanitizeEtfTransaction } from '../store/sanitization';
+import type { BrokerAccount, IBrokerConfig, IETFTransaction } from '../store/types';
 import * as Defaults from '../store/defaults';
 
 /**
@@ -36,6 +37,31 @@ function migrateBrokerConfig(data: Record<string, unknown>): BrokerAccount[] {
   return Defaults.DEFAULT_BROKER_ACCOUNTS;
 }
 
+/**
+ * Assign a broker to legacy ETF transactions that lack one.
+ * Priority: existing brokerId > legacy PAC transactions (broker stored in accountId) > single-broker inference.
+ * Idempotent — returns true when any transaction was newly linked.
+ */
+function migrateEtfTransactions(
+  txs: IETFTransaction[],
+  brokerAccounts: BrokerAccount[]
+): { transactions: IETFTransaction[]; changed: boolean } {
+  let changed = false;
+  const transactions = txs.map(tx => {
+    if (tx.brokerId) return tx;
+    if (brokerAccounts.some(b => b.id === tx.accountId)) {
+      changed = true;
+      return { ...tx, brokerId: tx.accountId };
+    }
+    if (brokerAccounts.length === 1) {
+      changed = true;
+      return { ...tx, brokerId: brokerAccounts[0].id };
+    }
+    return tx;
+  });
+  return { transactions, changed };
+}
+
 export const useInvestmentSync = () => {
   const { user } = useAuthStore();
   const { setAll } = useInvestmentStore();
@@ -64,8 +90,16 @@ export const useInvestmentSync = () => {
             const brokerAccounts = migrateBrokerConfig(data);
             const convertedData = data as Record<string, unknown>;
             const snapshots = Array.isArray(convertedData.portfolioSnapshots) ? convertedData.portfolioSnapshots as never[] : [];
+            const rawEtfTxs = Array.isArray(convertedData.etfTransactions) ? convertedData.etfTransactions as never[] as IETFTransaction[] : [];
+            const { transactions: etfTransactions, changed } = migrateEtfTransactions(rawEtfTxs, brokerAccounts);
+            if (changed) {
+              const uid = useAuthStore.getState().user?.uid;
+              if (uid) {
+                updateDoc(doc(db, 'users', uid), { etfTransactions: etfTransactions.map(sanitizeEtfTransaction) }).catch(() => {});
+              }
+            }
             setAll({
-              etfTransactions: Array.isArray(convertedData.etfTransactions) ? convertedData.etfTransactions as never[] : [],
+              etfTransactions,
               portfolioSnapshots: snapshots,
               brokerConfig: convertedData.brokerConfig as never ?? Defaults.DEFAULT_BROKER_CONFIG,
               brokerAccounts,
@@ -102,22 +136,27 @@ export const useInvestmentSync = () => {
       useInvestmentStore.getState().loadHistoricalSnapshots();
     });
 
-    const unsub = onSnapshot(docRef, (doc) => {
-      if (doc.metadata.hasPendingWrites) {
+    const unsub = onSnapshot(docRef, (snap) => {
+      if (snap.metadata.hasPendingWrites) {
         return;
       }
-      if (doc.exists() && !isInitializing.current && !migrationAttempted.current) {
+      if (snap.exists() && !isInitializing.current && !migrationAttempted.current) {
         const storeState = useInvestmentStore.getState();
         if (storeState.isSaving) {
           return;
         }
-        const rawData = doc.data() as unknown as Record<string, unknown>;
+        const rawData = snap.data() as unknown as Record<string, unknown>;
         const { setAll } = useInvestmentStore.getState();
         const brokerAccounts = migrateBrokerConfig(rawData);
         migrationAttempted.current = true;
         const snapshots = Array.isArray(rawData.portfolioSnapshots) ? rawData.portfolioSnapshots as never[] : [];
+        const rawEtfTxs = Array.isArray(rawData.etfTransactions) ? rawData.etfTransactions as never[] as IETFTransaction[] : [];
+        const { transactions: etfTransactions, changed } = migrateEtfTransactions(rawEtfTxs, brokerAccounts);
+        if (changed) {
+          updateDoc(doc(db, 'users', user.uid), { etfTransactions: etfTransactions.map(sanitizeEtfTransaction) }).catch(() => {});
+        }
         setAll({
-          etfTransactions: Array.isArray(rawData.etfTransactions) ? rawData.etfTransactions as never[] : [],
+          etfTransactions,
           portfolioSnapshots: snapshots,
           brokerConfig: rawData.brokerConfig as never ?? Defaults.DEFAULT_BROKER_CONFIG,
           brokerAccounts,

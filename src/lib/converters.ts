@@ -238,6 +238,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       price: typeof t.price === 'number' ? t.price : 0,
       totalAmount: typeof t.totalAmount === 'number' ? t.totalAmount : 0,
       accountId: t.accountId ?? '',
+      brokerId: t.brokerId ?? undefined,
       notes: t.notes ?? undefined,
     })) : [];
 
