@@ -1,4 +1,13 @@
 
+## [2026.15.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.14.0...v2026.15.0) (2026-08-03)
+
+
+* card selection (None/credit/debit) for recurring expense templates ([975f6e0](https://github.com/AlexDevsTheWeb/myfinance/commit/975f6e01aecee93a84862ba1a4f46491909c44ff))
+* card utilization counter now counts reset-day expenses ([#168](https://github.com/AlexDevsTheWeb/myfinance/issues/168)) ([3a34762](https://github.com/AlexDevsTheWeb/myfinance/commit/3a3476223661344e5389dcf25ea021d024c511bb))
+* **development:** started fix charts positions ([b7e4f39](https://github.com/AlexDevsTheWeb/myfinance/commit/b7e4f3931c24cde418ea12794876ddfd82d60dcf))
+* **wiki:** analyze and ingest card counter bug [#168](https://github.com/AlexDevsTheWeb/myfinance/issues/168) — status fixed ([3413bdb](https://github.com/AlexDevsTheWeb/myfinance/commit/3413bdbecece5641c237c021548c4e74c5478328))
+* **wiki:** card selection for recurring expenses — design ingest + feature page ([9ecb1d7](https://github.com/AlexDevsTheWeb/myfinance/commit/9ecb1d7a296334c1c31957a75393972be00a6e99))
+
 ## [2026.14.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.13.0...v2026.14.0) (2026-07-26)
 
 
