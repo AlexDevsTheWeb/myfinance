@@ -1,4 +1,12 @@
 
+### [2026.15.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.15.0...v2026.15.1) (2026-08-03)
+
+
+* persist brokerId on ETF transactions and migrate legacy data ([7884853](https://github.com/AlexDevsTheWeb/myfinance/commit/78848539159adefa4dcafe754717ecad40f05322))
+* use Yahoo Finance for ETF prices and consolidate SWDA/EUNL ticker ([d4d2299](https://github.com/AlexDevsTheWeb/myfinance/commit/d4d229988900fed7d90c9a70f7a9a5a29f3d2dbc))
+* **wiki:** broker transaction filter bug — analysis, bug page, cross-links ([bbab075](https://github.com/AlexDevsTheWeb/myfinance/commit/bbab0755f7261a4ca83aae127ff7fb95080e7bd8))
+* **wiki:** ETF pricing / Total Return bug — provider switch + ticker consolidation ([61f2afe](https://github.com/AlexDevsTheWeb/myfinance/commit/61f2afe3f9230070b58501b0fc77301782a133f5))
+
 ## [2026.15.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.14.0...v2026.15.0) (2026-08-03)
 
 
