@@ -8,7 +8,7 @@ created: 2026-07-19
 updated: 2026-07-19
 status: planned
 sources: ["raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md"]
-related: ["wiki/features/investment-tracking/investment-tracking", "wiki/architecture/investment-tracking-architecture", "wiki/features/investment-tracking-guide/investment-tracking-guide", "wiki/features/historical-snapshots/historical-snapshots"]
+related: ["wiki/features/investment-tracking/investment-tracking", "wiki/architecture/investment-tracking-architecture", "wiki/features/investment-tracking-guide/investment-tracking-guide", "wiki/features/historical-snapshots/historical-snapshots", "wiki/bugs/broker-transaction-filter"]
 ---
 
 # Feature: Dynamic Portfolio Chart
@@ -50,5 +50,6 @@ See [raw analysis](raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md) for f
 - [[wiki/architecture/investment-tracking-architecture]] — Current architecture with single-price limitation
 - [[wiki/features/historical-snapshots/historical-snapshots]] — Snapshot persistence that needs recalculation
 - [[wiki/features/investment-tracking-guide/investment-tracking-guide]] — User guide documenting the current limitation
+- [[wiki/bugs/broker-transaction-filter/broker-transaction-filter]] — Broker filter bug; chart "always grows" because snapshots mirror invested until prices are refreshed
 - GitHub: [#160](https://github.com/AlexDevsTheWeb/myfinance/issues/160)
 - Source: [raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md](raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md)

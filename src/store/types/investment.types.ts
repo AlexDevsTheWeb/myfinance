@@ -8,6 +8,7 @@ export interface IETFTransaction {
   price: number;
   totalAmount: number;
   accountId: string;
+  brokerId?: string;
   notes?: string;
 }
 

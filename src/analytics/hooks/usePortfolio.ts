@@ -22,7 +22,7 @@ export function usePortfolio() {
     // Filter by selected broker
     const filteredTxs = selectedBrokerId === 'all'
       ? etfTransactions
-      : etfTransactions.filter(tx => tx.accountId === selectedBrokerId || (tx as any).brokerId === selectedBrokerId);
+      : etfTransactions.filter(tx => tx.brokerId === selectedBrokerId || tx.accountId === selectedBrokerId);
 
     // If no broker selected or filtered, show aggregated from all
     let totalInvested = 0;
@@ -50,23 +50,23 @@ export function usePortfolio() {
       }
     }
 
-    const currentValue = (() => {
-      let val = 0;
-      let hasPrice = false;
-      for (const [ticker, h] of holdingsMap.entries()) {
-        if (h.units <= 0) continue;
-        const price = prices[ticker];
-        if (price != null) {
-          val += h.units * price;
-          hasPrice = true;
-        }
-      }
-      if (hasPrice) return val;
-      const latestSnapshot = portfolioSnapshots.length > 0
-        ? portfolioSnapshots[portfolioSnapshots.length - 1]
-        : null;
-      return latestSnapshot?.currentValue ?? 0;
-    })();
+    const holdings: IInvestmentHolding[] = [];
+    for (const [ticker, h] of holdingsMap.entries()) {
+      if (h.units <= 0) continue;
+      const avgCost = h.totalCost / h.units;
+      const unitPrice = prices[ticker] ?? avgCost;
+      const value = h.units * unitPrice;
+      holdings.push({
+        ticker,
+        units: h.units,
+        avgCost,
+        currentPrice: unitPrice,
+        value,
+        returnPercent: avgCost > 0 ? ((unitPrice - avgCost) / avgCost) * 100 : 0,
+      });
+    }
+
+    const currentValue = holdings.reduce((sum, h) => sum + h.value, 0);
 
     const totalReturn = currentValue - totalInvested;
     const totalReturnPercent = totalInvested > 0 ? (totalReturn / totalInvested) * 100 : 0;
@@ -101,22 +101,6 @@ export function usePortfolio() {
       ? activeBrokers.reduce((sum, b) => sum + b.interestRate, 0) / activeBrokers.length
       : 0;
     const accruedInterest = calcAccruedInterest(cashBalance, weightedRate);
-
-    const holdings: IInvestmentHolding[] = [];
-    for (const [ticker, h] of holdingsMap.entries()) {
-      if (h.units <= 0) continue;
-      const avgCost = h.totalCost / h.units;
-      const unitPrice = prices[ticker] ?? avgCost;
-      const value = h.units * unitPrice;
-      holdings.push({
-        ticker,
-        units: h.units,
-        avgCost,
-        currentPrice: unitPrice,
-        value,
-        returnPercent: avgCost > 0 ? ((unitPrice - avgCost) / avgCost) * 100 : 0,
-      });
-    }
 
     const brokerName = selectedBrokerId === 'all'
       ? 'All Accounts'

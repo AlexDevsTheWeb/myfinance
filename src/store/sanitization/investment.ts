@@ -12,6 +12,7 @@ export const sanitizeEtfTransaction = (tx: IETFTransaction): any => {
     price: Number(tx.price),
     totalAmount: Number(tx.totalAmount) || Number(tx.units) * Number(tx.price),
     accountId: tx.accountId,
+    brokerId: tx.brokerId ?? null,
     notes: tx.notes ?? null,
   };
 };

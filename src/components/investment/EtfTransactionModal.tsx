@@ -16,7 +16,7 @@ interface EtfTransactionModalProps {
   defaultBrokerId?: string;
 }
 
-const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose, editTransaction }) => {
+const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose, editTransaction, defaultBrokerId }) => {
   const { accounts } = useFinanceStore();
   const { addEtfTransaction, updateEtfTransaction } = useInvestmentStore();
   const defaultAccountId = accounts.find(a => a.isDefault)?.id || accounts[0]?.id || '';
@@ -30,6 +30,7 @@ const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose
     totalAmount: '',
     date: dayjs().format('YYYY-MM-DD'),
     accountId: defaultAccountId,
+    brokerId: defaultBrokerId ?? '',
     description: '',
     notes: '',
   });
@@ -47,6 +48,7 @@ const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose
           totalAmount: editTransaction.totalAmount.toString(),
           date: editTransaction.date,
           accountId: editTransaction.accountId,
+          brokerId: editTransaction.brokerId ?? '',
           description: editTransaction.description,
           notes: editTransaction.notes || '',
         });
@@ -59,13 +61,14 @@ const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose
           totalAmount: '',
           date: dayjs().format('YYYY-MM-DD'),
           accountId: defaultAccountId,
+          brokerId: defaultBrokerId ?? '',
           description: '',
           notes: '',
         });
       }
       setErrors({});
     }
-  }, [open, editTransaction, defaultAccountId]);
+  }, [open, editTransaction, defaultAccountId, defaultBrokerId]);
 
   const handleSubmit = async () => {
     const units = Number(formData.units) || 0;
@@ -80,6 +83,7 @@ const EtfTransactionModal: React.FC<EtfTransactionModalProps> = ({ open, onClose
       totalAmount: Number(formData.totalAmount) || autoTotal,
       date: formData.date,
       accountId: formData.accountId,
+      brokerId: formData.brokerId || undefined,
       description: formData.description,
       notes: formData.notes || undefined,
     };
