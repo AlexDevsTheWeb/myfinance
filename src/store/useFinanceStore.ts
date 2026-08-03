@@ -930,6 +930,7 @@ setBalanceStartDate: async (date) => {
                     type: payload.type,
                     accountId: payload.accountId,
                     recurringLinkId: payload.id,
+                    ...(payload.cardId ? { cardId: payload.cardId } : {}),
                   });
                 }
                 current = current.add(1, payload.frequency === 'yearly' ? 'year' : 'month');

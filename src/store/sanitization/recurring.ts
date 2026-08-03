@@ -19,5 +19,6 @@ export const sanitizeRecurring = (r: IRecurringTransaction): any => {
     endDate: r.endDate || null,
     frequency: r.frequency || 'monthly',
     ...(r.frequency === 'yearly' && r.monthOfYear ? { monthOfYear: r.monthOfYear } : {}),
+    ...(r.cardId ? { cardId: r.cardId } : {}),
   };
 };

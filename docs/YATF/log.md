@@ -612,3 +612,17 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Reset-day expenses now count toward the current period's spent; next period stays exclusive
 - Verified: simulation passes, `npm run build` clean, no new lint issues
 - Updated [[wiki/bugs/card-counter-zero]] → status: **fixed**; updated index.md, wiki/bugs/index.md
+
+## [2026-08-03] ingest | Feature | Card Selection for Recurring Expenses
+- Created [[raw/recurring-card-selection/recurring-card-selection.md]] — design doc for card selection on recurring expense templates (future-only propagation)
+- Created [[wiki/features/recurring-card-selection/recurring-card-selection]] — feature page, status: **planned**
+- Updated [[wiki/features/card-plafond-tracking/card-plafond-tracking]] — cross-linked to recurring-card-selection
+- Updated index.md (68 pages), wiki/features/index.md, and log.md
+- Source: [raw/recurring-card-selection/recurring-card-selection.md](raw/recurring-card-selection/recurring-card-selection.md)
+
+## [2026-08-03] fix | Bug | #168 resurfaced — Card Utilization drops credit card expenses on reset day
+- Reported: debit card counter OK, credit card counter €0 despite existing expenses (credit `billingDay: 1`, expenses dated Aug 1)
+- Root cause: the #168 fix lived only on `fix/YATF-168`; **PR #169 was unmerged** so branches based on `development` still had the strict-window bug
+- Re-applied inclusive-window fix locally; verified boundary logic and build clean
+- PR #169 later **merged to `development`** (2026-08-03) — fix now permanent; this branch merged `origin/development`
+- Note: no duplicate bug docs created — canonical #168 pages already on `development` via PR #169
