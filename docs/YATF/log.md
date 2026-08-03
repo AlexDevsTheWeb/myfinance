@@ -626,3 +626,18 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Re-applied inclusive-window fix locally; verified boundary logic and build clean
 - PR #169 later **merged to `development`** (2026-08-03) — fix now permanent; this branch merged `origin/development`
 - Note: no duplicate bug docs created — canonical #168 pages already on `development` via PR #169
+
+## [2026-08-03] ingest | Bug | Per-broker filter shows zero invested — ETF transactions never linked to broker
+- User report: selecting Trade Republic in Broker Select shows 0 invested / no holdings / +400 € return, while All Brokers shows the correct 400 €. Chart also "always grows".
+- Root cause: manual ETF transactions never persisted a broker link — `EtfTransactionModal` dropped the form's Broker Account value, `IETFTransaction` had no `brokerId`, sanitizer/converter stripped any reference. `usePortfolio` filter then matched nothing; `currentValue` fell back to the aggregate snapshot.
+- Created [[raw/bugs/broker-transaction-filter/broker-transaction-filter.md]] — full analysis
+- Created [[wiki/bugs/broker-transaction-filter]] — bug page (status: fixed)
+- Updated index.md (69 pages), wiki/bugs/index.md, and cross-linked [[wiki/features/multi-broker-architecture/multi-broker-architecture]], [[wiki/features/crud-etf-transactions/crud-etf-transactions]], [[wiki/features/dynamic-portfolio-chart/dynamic-portfolio-chart]]
+
+## [2026-08-03] fix | Bug | Per-broker filter zero invested
+- Added `brokerId?: string` to `IETFTransaction` (type + sanitizer + Firestore converter)
+- `EtfTransactionModal` honors `defaultBrokerId`, pre-fills on edit, persists `brokerId` on submit
+- `migrateEtfTransactions()` in `useInvestmentSync.ts` links legacy transactions (existing brokerId > PAC accountId > single-broker inference), persisted once on load
+- `usePortfolio` filters by `tx.brokerId || tx.accountId` and derives current value from per-broker holdings (price ?? avgCost) instead of the aggregate snapshot
+- Chart auto-fetch intentionally left as manual refresh (user decision)
+- Verified: `npm run build` clean; `npm run lint` no new issues

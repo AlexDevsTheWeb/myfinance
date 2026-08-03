@@ -8,7 +8,7 @@ created: 2026-06-27
 updated: 2026-06-27
 status: implemented
 sources: ["raw/91-multi-broker/91-multi-broker.md", "raw/12-investment-tracking-v2/implementation.md"]
-related: ["features/investment-tracking", "architecture/investment-tracking-architecture", "plans/investment-tracking-v2-enhancements", "features/crud-etf-transactions"]
+related: ["features/investment-tracking", "architecture/investment-tracking-architecture", "plans/investment-tracking-v2-enhancements", "features/crud-etf-transactions", "bugs/broker-transaction-filter"]
 ---
 
 # Feature: Multi-Broker & Multi-Asset Architecture
@@ -24,7 +24,7 @@ Refactor the current single-broker, single-ETF schema to support multiple broker
 
 ### Data Layer (12-01)
 
-- **Types:** `BrokerAccount` and `AssetHolding` interfaces in `investment.types.ts`. `IBrokerConfig` marked `@deprecated`.
+- **Types:** `BrokerAccount` and `AssetHolding` interfaces in `investment.types.ts`. `IBrokerConfig` marked `@deprecated`. `IETFTransaction` gained `brokerId?: string` (2026-08-03) so manual transactions carry an explicit broker link — see [[wiki/bugs/broker-transaction-filter]].
 - **Defaults:** `DEFAULT_BROKER_ACCOUNTS` array replaces `DEFAULT_BROKER_CONFIG` (kept for migration).
 - **Store:** `brokerAccounts[]`, `assetHoldings[]`, `selectedBrokerId`, `brokerTransactions` state fields. CRUD actions: `addBrokerAccount`, `updateBrokerAccount`, `deleteBrokerAccount`, `setSelectedBroker`.
 - **Migration:** `migrateBrokerConfig()` in `useInvestmentSync.ts` detects old `brokerConfig`, converts to `BrokerAccount[]`, fire-and-forget Firestore write. `migrationAttempted` ref ensures run-once.
@@ -54,6 +54,7 @@ Refactor the current single-broker, single-ETF schema to support multiple broker
 
 - [[wiki/features/investment-tracking/investment-tracking]]
 - [[wiki/features/crud-etf-transactions/crud-etf-transactions]]
+- [[wiki/bugs/broker-transaction-filter/broker-transaction-filter]]
 - [[wiki/architecture/investment-tracking-architecture]]
 - [[wiki/plans/investment-tracking-v2-enhancements]]
 - GitHub: [#91](https://github.com/AlexDevsTheWeb/myfinance/issues/91)

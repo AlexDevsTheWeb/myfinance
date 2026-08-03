@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-08-03* (Card selection for recurring expenses)
-*Total pages: 68*
+*Last updated: 2026-08-03* (Broker transaction filter bug)
+*Total pages: 69*
 
 ---
 
@@ -91,6 +91,7 @@ timestamp: 2026-08-03
 | [[wiki/bugs/recurring-transaction-duplicates-same-period]] | ✅ `checkRecurring` generates duplicates alongside manual transactions — **fixed** | [`#146`](https://github.com/AlexDevsTheWeb/myfinance/issues/146) |
 | [[wiki/bugs/charts-ui]] | ✅ All charts across the app had layout issues: padding, cutoff labels, pie spacing — **fixed** | [`raw/bugs/charts-ui/charts-ui.md`](raw/bugs/charts-ui/charts-ui.md) |
 | [[wiki/bugs/card-counter-zero]] | ✅ Card Utilization counter always €0 — reset-day expenses excluded by strict window bounds — **fixed** | [`raw/bugs/card-counter-zero/card-counter-zero.md`](raw/bugs/card-counter-zero/card-counter-zero.md) |
+| [[wiki/bugs/broker-transaction-filter]] | ✅ Broker filter shows 0 invested / no holdings — manual ETF transactions never persisted `brokerId` — **fixed** | [`raw/bugs/broker-transaction-filter/broker-transaction-filter.md`](raw/bugs/broker-transaction-filter/broker-transaction-filter.md) |
 
 ## Architecture
 
