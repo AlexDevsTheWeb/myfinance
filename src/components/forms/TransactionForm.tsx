@@ -315,7 +315,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ type, formData, setFo
           {formErrors.accountId && <FormHelperText error>{formErrors.accountId}</FormHelperText>}
         </Grid>
 
-        {type === 'expense' && !isRecurring && (() => {
+        {type === 'expense' && (() => {
           const accountCards = cards.filter(c => c.accountId === formData.accountId);
           if (accountCards.length === 0) return null;
           return (
