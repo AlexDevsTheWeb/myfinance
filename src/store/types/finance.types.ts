@@ -54,6 +54,7 @@ export interface IRecurringTransaction {
   frequency?: 'monthly' | 'yearly';
   monthOfYear?: number;
   lastGeneratedUpTo?: string;
+  cardId?: string;
 }
 
 export interface IAppModules {

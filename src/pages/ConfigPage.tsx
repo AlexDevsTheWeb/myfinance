@@ -219,7 +219,8 @@ const ConfigPage: React.FC = () => {
     type: 'expense' as 'income' | 'expense' | 'transfer',
     accountId: '',
     frequency: 'monthly' as 'monthly' | 'yearly',
-    monthOfYear: 1
+    monthOfYear: 1,
+    cardId: ''
   });
 
   const [cardDialogOpen, setCardDialogOpen] = useState(false);
@@ -332,7 +333,8 @@ const ConfigPage: React.FC = () => {
             type: rec.type,
             accountId: rec.accountId,
             frequency: rec.frequency || 'monthly',
-            monthOfYear: rec.monthOfYear || 1
+            monthOfYear: rec.monthOfYear || 1,
+            cardId: rec.cardId || ''
           });
         }
       } else {
@@ -347,7 +349,8 @@ const ConfigPage: React.FC = () => {
           type: config.financeType,
           accountId: accounts.find(a => a.isDefault)?.id || accounts[0]?.id || '',
           frequency: 'monthly',
-          monthOfYear: 1
+          monthOfYear: 1,
+          cardId: ''
         });
       }
     } else if (config?.type === 'account') {
@@ -435,7 +438,8 @@ const ConfigPage: React.FC = () => {
         type: recurringForm.type,
         accountId: recurringForm.accountId,
         frequency: recurringForm.frequency,
-        monthOfYear: recurringForm.frequency === 'yearly' ? Number(recurringForm.monthOfYear) : undefined
+        monthOfYear: recurringForm.frequency === 'yearly' ? Number(recurringForm.monthOfYear) : undefined,
+        cardId: recurringForm.cardId || undefined
       };
 
       if (dialogConfig.mode === 'add') {
@@ -890,6 +894,9 @@ const ConfigPage: React.FC = () => {
                       secondary={
                         <Typography variant="caption" sx={{ opacity: 0.6 }}>
                           {rec.category} &gt; {rec.subcategory} | Every {rec.frequency === 'yearly' ? 'year in ' + dayjs().month((rec.monthOfYear || 1) - 1).format('MMMM') : t('config.month')} on day {rec.dayOfMonth}
+                          {rec.cardId && cards.find(c => c.id === rec.cardId) && (
+                            <> | Card: {cards.find(c => c.id === rec.cardId)?.name}</>
+                          )}
                         </Typography>
                       }
                     />

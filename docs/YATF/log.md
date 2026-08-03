@@ -600,3 +600,29 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Created OpenSpec change `card-plafond-tracking` with proposal, design, specs, tasks
 - Updated [[wiki/features/card-plafond-tracking/card-plafond-tracking]] → status: **implemented**
 - Updated index.md (mark card-plafond as implemented) and log.md
+
+## [2026-08-03] ingest | Bug | Card Utilization counter €0 — Issue #168
+- Analyzed GitHub [Issue #168](https://github.com/AlexDevsTheWeb/myfinance/issues/168) — home page card counter stuck at €0
+- Created [[raw/bugs/card-counter-zero/card-counter-zero.md]] — root cause: strict `isAfter`/`isBefore` exclude expenses dated on the billing reset day
+- Created [[wiki/bugs/card-counter-zero]] — bug page (status: investigating)
+- Updated index.md, wiki/bugs/index.md, and [[wiki/features/card-plafond-tracking/card-plafond-tracking]] (related link)
+
+## [2026-08-03] fix | Bug | Card Utilization counter €0 — Issue #168
+- Fixed `src/components/dashboard/RecapCards.tsx` — billing window made inclusive of the reset day (`valueOf() >= periodStart` instead of strict `isAfter`)
+- Reset-day expenses now count toward the current period's spent; next period stays exclusive
+- Verified: simulation passes, `npm run build` clean, no new lint issues
+- Updated [[wiki/bugs/card-counter-zero]] → status: **fixed**; updated index.md, wiki/bugs/index.md
+
+## [2026-08-03] ingest | Feature | Card Selection for Recurring Expenses
+- Created [[raw/recurring-card-selection/recurring-card-selection.md]] — design doc for card selection on recurring expense templates (future-only propagation)
+- Created [[wiki/features/recurring-card-selection/recurring-card-selection]] — feature page, status: **planned**
+- Updated [[wiki/features/card-plafond-tracking/card-plafond-tracking]] — cross-linked to recurring-card-selection
+- Updated index.md (68 pages), wiki/features/index.md, and log.md
+- Source: [raw/recurring-card-selection/recurring-card-selection.md](raw/recurring-card-selection/recurring-card-selection.md)
+
+## [2026-08-03] fix | Bug | #168 resurfaced — Card Utilization drops credit card expenses on reset day
+- Reported: debit card counter OK, credit card counter €0 despite existing expenses (credit `billingDay: 1`, expenses dated Aug 1)
+- Root cause: the #168 fix lived only on `fix/YATF-168`; **PR #169 was unmerged** so branches based on `development` still had the strict-window bug
+- Re-applied inclusive-window fix locally; verified boundary logic and build clean
+- PR #169 later **merged to `development`** (2026-08-03) — fix now permanent; this branch merged `origin/development`
+- Note: no duplicate bug docs created — canonical #168 pages already on `development` via PR #169

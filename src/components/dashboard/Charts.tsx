@@ -57,7 +57,7 @@ const Charts: React.FC = () => {
           xAxis={[{ scaleType: 'band', data: data.map(d => d.displayDate), id: 'x', disableLine: true, disableTicks: true }]}
           yAxis={[{ id: 'y', disableLine: true, disableTicks: true }]}
           height={280}
-          margin={{ top: 10, right: 20, bottom: 50, left: 35 }}
+          margin={{ top: 10, right: 15, bottom: 50, left: 15 }}
         >
           <ChartsWrapper legendDirection="horizontal" legendPosition={{ vertical: 'bottom', horizontal: 'center' }}>
             <ChartsLegend direction="horizontal" />

@@ -40,3 +40,4 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[features/transaction-layout-improvement/transaction-layout-improvement|transaction-layout-improvement]] | Two-column transaction layout with filter panel and chart on the left side. |
 | [[features/card-plafond-tracking/card-plafond-tracking|card-plafond-tracking]] | Track spending per card with monthly plafond, configurable per account in settings. |
 | [[features/user-configurable-rates/user-configurable-rates|user-configurable-rates]] | User-configurable inflation and tax rates in ConfigPage > Projections tab. |
+| [[features/recurring-card-selection/recurring-card-selection|recurring-card-selection]] | Card selection (None/credit/debit) on recurring expense templates, propagated to generated transactions. |
