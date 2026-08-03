@@ -600,3 +600,15 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Created OpenSpec change `card-plafond-tracking` with proposal, design, specs, tasks
 - Updated [[wiki/features/card-plafond-tracking/card-plafond-tracking]] → status: **implemented**
 - Updated index.md (mark card-plafond as implemented) and log.md
+
+## [2026-08-03] ingest | Bug | Card Utilization counter €0 — Issue #168
+- Analyzed GitHub [Issue #168](https://github.com/AlexDevsTheWeb/myfinance/issues/168) — home page card counter stuck at €0
+- Created [[raw/bugs/card-counter-zero/card-counter-zero.md]] — root cause: strict `isAfter`/`isBefore` exclude expenses dated on the billing reset day
+- Created [[wiki/bugs/card-counter-zero]] — bug page (status: investigating)
+- Updated index.md, wiki/bugs/index.md, and [[wiki/features/card-plafond-tracking/card-plafond-tracking]] (related link)
+
+## [2026-08-03] fix | Bug | Card Utilization counter €0 — Issue #168
+- Fixed `src/components/dashboard/RecapCards.tsx` — billing window made inclusive of the reset day (`valueOf() >= periodStart` instead of strict `isAfter`)
+- Reset-day expenses now count toward the current period's spent; next period stays exclusive
+- Verified: simulation passes, `npm run build` clean, no new lint issues
+- Updated [[wiki/bugs/card-counter-zero]] → status: **fixed**; updated index.md, wiki/bugs/index.md

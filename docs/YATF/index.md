@@ -89,6 +89,7 @@ timestamp: 2026-07-26
 | [[wiki/bugs/recurring-transaction-monthofyear]] | ✅ Yearly recurring transactions ignore `monthOfYear` — **fixed** | [`#142`](https://github.com/AlexDevsTheWeb/myfinance/issues/142) |
 | [[wiki/bugs/recurring-transaction-duplicates-same-period]] | ✅ `checkRecurring` generates duplicates alongside manual transactions — **fixed** | [`#146`](https://github.com/AlexDevsTheWeb/myfinance/issues/146) |
 | [[wiki/bugs/charts-ui]] | ✅ All charts across the app had layout issues: padding, cutoff labels, pie spacing — **fixed** | [`raw/bugs/charts-ui/charts-ui.md`](raw/bugs/charts-ui/charts-ui.md) |
+| [[wiki/bugs/card-counter-zero]] | ✅ Card Utilization counter always €0 — reset-day expenses excluded by strict window bounds — **fixed** | [`raw/bugs/card-counter-zero/card-counter-zero.md`](raw/bugs/card-counter-zero/card-counter-zero.md) |
 
 ## Architecture
 

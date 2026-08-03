@@ -81,4 +81,5 @@ Sort controls replaced 4 separate asc/desc buttons with 2 toggle buttons (Date, 
 
 ## Related
 
+- [[wiki/bugs/card-counter-zero]] — spent counter stuck at €0 due to billing-period boundary bug
 - Source: [raw/165-card-plafond-tracking/165-card-plafond-tracking.md](raw/165-card-plafond-tracking/165-card-plafond-tracking.md)

@@ -123,8 +123,8 @@ const RecapCards: React.FC<RecapCardsProps> = ({
                 .filter(t =>
                     t.type === 'expense' &&
                     t.cardId === card.id &&
-                    dayjs(t.date).isAfter(periodStart) &&
-                    dayjs(t.date).isBefore(periodEnd)
+                    dayjs(t.date).valueOf() >= periodStart.valueOf() &&
+                    dayjs(t.date).valueOf() < periodEnd.valueOf()
                 )
                 .reduce((sum, t) => sum + t.amount, 0);
 
