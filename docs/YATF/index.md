@@ -2,13 +2,13 @@
 type: Index
 title: "YATF Wiki — Knowledge Bundle Index"
 description: "Master catalog of all knowledge pages for the MyFinance (Balancr) project. Entry point for agent traversal."
-timestamp: 2026-07-26
+timestamp: 2026-08-03
 ---
 
 # Wiki Index
 
-*Last updated: 2026-07-26* (Responsive chart layout for Salary + Insights)
-*Total pages: 67*
+*Last updated: 2026-08-03* (Card selection for recurring expenses)
+*Total pages: 68*
 
 ---
 
@@ -42,6 +42,7 @@ timestamp: 2026-07-26
 | [[wiki/features/loading-states/loading-states]] | ✅ Loading indicators on Dashboard, Transactions, Investments during sync | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/features/card-plafond-tracking/card-plafond-tracking]] | ✅ Per-card monthly plafond tracking with configurable cards per account, dashboard utilization, card filter + sort toggle | [`#165`](https://github.com/AlexDevsTheWeb/myfinance/issues/165) |
 | [[wiki/features/balancr-branding/balancr-branding]] | ✅ Complete rebrand: YAFT → Balancr, Linked Hexagons logo, new color palette | [`#82`](https://github.com/AlexDevsTheWeb/myfinance/issues/82) |
+| [[wiki/features/recurring-card-selection/recurring-card-selection]] | 📋 Card selection (None/credit/debit) on recurring expense templates, propagated to generated transactions — **planned** | [`raw/recurring-card-selection/recurring-card-selection.md`](raw/recurring-card-selection/recurring-card-selection.md) |
 
 ## Plans
 
