@@ -641,3 +641,21 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `usePortfolio` filters by `tx.brokerId || tx.accountId` and derives current value from per-broker holdings (price ?? avgCost) instead of the aggregate snapshot
 - Chart auto-fetch intentionally left as manual refresh (user decision)
 - Verified: `npm run build` clean; `npm run lint` no new issues
+
+## [2026-08-03] ingest | Bug | ETF Total Return stuck at €0 — price provider dead
+- User report: Total Return always +€0,00 (+0.0 %) and portfolio never reflects real ETF value.
+- Root cause: `useMarketData` called the dead `api.yfin.dev` endpoint (DNS NXDOMAIN) → `prices` empty → `currentPrice = prices ?? avgCost` fallback → value == invested → return 0.
+- Discovered SWDA and EUNL are the SAME fund (iShares Core MSCI World USD Acc, ISIN IE00B4L5Y983) — SWDA = Milan/London listing, EUNL = Xetra/Stuttgart listing.
+- Discovered Trade Republic executes on Lang & Schwarz (Hamburg, `.HM`) but displays the reference (Xetra) price; Yahoo `.HM` quotes are frequently stale. TR app 126.04 € == `EUNL.DE` 126.045 € vs stale `EUNL.HM` 125.32 €.
+- Created [[raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md]] — full analysis
+- Created [[wiki/bugs/etf-pricing-total-return]] — bug page (status: fixed)
+- Updated index.md (70 pages), wiki/bugs/index.md
+- Cross-links: dynamic-portfolio-chart, ticker-validation, multi-broker-architecture, broker-transaction-filter
+
+## [2026-08-03] fix | Bug | ETF pricing provider + ticker consolidation
+- `useMarketData.ts`: switched to Yahoo Finance chart API (`query1.finance.yahoo.com/v8/finance/chart`); candidate order now Xetra-first `[.DE, .HM, .F, .MI]` (`.DE` preferred because TR shows reference price and `.HM` is stale); prices keyed by raw transaction ticker
+- `src/store/defaults.ts`: default broker ticker `SWDA.MI` → `EUNL` (both brokerAccounts + brokerConfig)
+- `useInvestmentSync.ts`: added idempotent `migrateTickerSymbols()` renaming SWDA-family transaction tickers to `EUNL`, chained with `migrateEtfTransactions`, persisted once on load; fallback ticker → `EUNL`
+- `src/lib/converters.ts`: legacy brokerConfig ticker fallback → `EUNL`
+- Placeholders/examples updated to `EUNL.DE` (locales it/en, validation msg, BrokerSettingsModal, EtfTransactionForm, DividendDialog)
+- Verified live: `EUNL`→`EUNL.DE` 126.045 € (== TR app), `SWDA`→`SWDA.MI` 126.03 €, `VWCE`→`VWCE.DE` 165 €; `npm run build` clean, no new lint issues
