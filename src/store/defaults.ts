@@ -54,7 +54,7 @@ export const DEFAULT_INITIAL_BALANCE = 0;
 export const DEFAULT_CAR_INITIAL_MILEAGE = 0;
 
 export const DEFAULT_BROKER_ACCOUNTS: BrokerAccount[] = [
-  { id: 'broker-1', name: 'Trade Republic', ticker: 'SWDA.MI', baseLumpSum: 0, monthlyPacAmount: 0, interestRate: 0 },
+  { id: 'broker-1', name: 'Trade Republic', ticker: 'EUNL', baseLumpSum: 0, monthlyPacAmount: 0, interestRate: 0 },
 ];
 
 export const DEFAULT_CARDS = [];
@@ -63,6 +63,6 @@ export const DEFAULT_BROKER_CONFIG: IBrokerConfig = {
   brokerName: 'Trade Republic',
   lumpSumAmount: 0,
   monthlyPacAmount: 0,
-  ticker: 'SWDA.MI',
+  ticker: 'EUNL',
   interestRate: 0,
 };

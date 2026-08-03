@@ -40,7 +40,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             variant="filled"
             value={formData.ticker}
             onChange={(e: any) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
-            placeholder="SWDA.MI"
+            placeholder="EUNL.DE"
             error={!!errors.ticker}
           />
           {errors.ticker && <FormHelperText error>{errors.ticker}</FormHelperText>}

@@ -8,6 +8,11 @@ import { sanitizeEtfTransaction } from '../store/sanitization';
 import type { BrokerAccount, IBrokerConfig, IETFTransaction } from '../store/types';
 import * as Defaults from '../store/defaults';
 
+/** iShares Core MSCI World (ISIN IE00B4L5Y983) single canonical ticker. */
+const EUNL_TICKER = 'EUNL';
+/** SWDA (Milan/London) is the same fund as EUNL (Xetra/Stuttgart). */
+const SWDA_TICKER_PATTERN = /^SWDA(?:\.[A-Z]{2,3})?$/i;
+
 /**
  * Detect old IBrokerConfig and convert to BrokerAccount[].
  * Idempotent — returns existing brokerAccounts if already migrated.
@@ -21,7 +26,7 @@ function migrateBrokerConfig(data: Record<string, unknown>): BrokerAccount[] {
     const migrated: BrokerAccount[] = [{
       id: 'broker-1',
       name: old.brokerName || 'Trade Republic',
-      ticker: old.ticker || 'SWDA.MI',
+      ticker: old.ticker || 'EUNL',
       baseLumpSum: old.lumpSumAmount || 0,
       monthlyPacAmount: old.monthlyPacAmount || 0,
       interestRate: old.interestRate || 0,
@@ -62,6 +67,24 @@ function migrateEtfTransactions(
   return { transactions, changed };
 }
 
+/**
+ * Consolidate the iShares Core MSCI World fund (ISIN IE00B4L5Y983) onto a
+ * single ticker. SWDA (Milan/London) and EUNL (Xetra/Stuttgart) are the same
+ * fund; legacy SWDA-family tickers are renamed to EUNL.
+ * Idempotent — returns true when any transaction was renamed.
+ */
+function migrateTickerSymbols(txs: IETFTransaction[]): { transactions: IETFTransaction[]; changed: boolean } {
+  let changed = false;
+  const transactions = txs.map(tx => {
+    if (tx.ticker && SWDA_TICKER_PATTERN.test(tx.ticker.trim())) {
+      changed = true;
+      return { ...tx, ticker: EUNL_TICKER };
+    }
+    return tx;
+  });
+  return { transactions, changed };
+}
+
 export const useInvestmentSync = () => {
   const { user } = useAuthStore();
   const { setAll } = useInvestmentStore();
@@ -91,8 +114,9 @@ export const useInvestmentSync = () => {
             const convertedData = data as Record<string, unknown>;
             const snapshots = Array.isArray(convertedData.portfolioSnapshots) ? convertedData.portfolioSnapshots as never[] : [];
             const rawEtfTxs = Array.isArray(convertedData.etfTransactions) ? convertedData.etfTransactions as never[] as IETFTransaction[] : [];
-            const { transactions: etfTransactions, changed } = migrateEtfTransactions(rawEtfTxs, brokerAccounts);
-            if (changed) {
+            const linked = migrateEtfTransactions(rawEtfTxs, brokerAccounts);
+            const { transactions: etfTransactions, changed } = migrateTickerSymbols(linked.transactions);
+            if (linked.changed || changed) {
               const uid = useAuthStore.getState().user?.uid;
               if (uid) {
                 updateDoc(doc(db, 'users', uid), { etfTransactions: etfTransactions.map(sanitizeEtfTransaction) }).catch(() => {});
@@ -151,8 +175,9 @@ export const useInvestmentSync = () => {
         migrationAttempted.current = true;
         const snapshots = Array.isArray(rawData.portfolioSnapshots) ? rawData.portfolioSnapshots as never[] : [];
         const rawEtfTxs = Array.isArray(rawData.etfTransactions) ? rawData.etfTransactions as never[] as IETFTransaction[] : [];
-        const { transactions: etfTransactions, changed } = migrateEtfTransactions(rawEtfTxs, brokerAccounts);
-        if (changed) {
+        const linked = migrateEtfTransactions(rawEtfTxs, brokerAccounts);
+        const { transactions: etfTransactions, changed } = migrateTickerSymbols(linked.transactions);
+        if (linked.changed || changed) {
           updateDoc(doc(db, 'users', user.uid), { etfTransactions: etfTransactions.map(sanitizeEtfTransaction) }).catch(() => {});
         }
         setAll({

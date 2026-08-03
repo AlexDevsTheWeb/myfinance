@@ -141,7 +141,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       budgetTargets: userDoc.budgetTargets || [],
       pacState: userDoc.pacState || { lastGenerationDate: null, pendingTransaction: null, perBrokerLastGeneration: {} },
       // Legacy brokerConfig — kept for backward-compatible reads during migration window
-      brokerConfig: userDoc.brokerConfig || { brokerName: 'Trade Republic', lumpSumAmount: 0, monthlyPacAmount: 0, ticker: 'SWDA.MI', interestRate: 0 },
+      brokerConfig: userDoc.brokerConfig || { brokerName: 'Trade Republic', lumpSumAmount: 0, monthlyPacAmount: 0, ticker: 'EUNL', interestRate: 0 },
     };
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): UserDoc => {
@@ -297,7 +297,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       brokerName: data.brokerConfig?.brokerName ?? 'Trade Republic',
       lumpSumAmount: typeof data.brokerConfig?.lumpSumAmount === 'number' ? data.brokerConfig.lumpSumAmount : 0,
       monthlyPacAmount: typeof data.brokerConfig?.monthlyPacAmount === 'number' ? data.brokerConfig.monthlyPacAmount : 0,
-      ticker: data.brokerConfig?.ticker ?? 'SWDA.MI',
+      ticker: data.brokerConfig?.ticker ?? 'EUNL',
       interestRate: typeof data.brokerConfig?.interestRate === 'number' ? data.brokerConfig.interestRate : 0,
     } : undefined;
 
