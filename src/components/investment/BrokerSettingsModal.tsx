@@ -227,7 +227,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
                 }}
                 error={!!tickerError}
                 helperText={tickerError || tickerWarning || 'Enter Yahoo Finance symbol format'}
-                placeholder="e.g. SWDA.MI"
+                placeholder="e.g. EUNL.DE"
               />
             </Grid>
             <Grid size={{ xs: 6 }}>

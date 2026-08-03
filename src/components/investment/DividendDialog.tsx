@@ -104,7 +104,7 @@ const DividendDialog: React.FC<DividendDialogProps> = ({ open, onClose, defaultB
               variant="filled"
               value={formData.ticker}
               onChange={(e) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
-              placeholder="SWDA.MI"
+              placeholder="EUNL.DE"
               error={!!errors.ticker}
             />
             {errors.ticker && <FormHelperText error>{errors.ticker}</FormHelperText>}

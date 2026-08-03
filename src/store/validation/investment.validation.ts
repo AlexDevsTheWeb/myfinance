@@ -61,7 +61,7 @@ export function validateTicker(ticker: string): { valid: boolean; error?: string
   if (!TICKER_REGEX.test(ticker.trim())) {
     return {
       valid: false,
-      error: 'Invalid ticker format. Expected format: SYMBOL or SYMBOL.EXCHANGE (e.g., SWDA.MI, VWCE.DE, AAPL)',
+      error: 'Invalid ticker format. Expected format: SYMBOL or SYMBOL.EXCHANGE (e.g., EUNL.DE, VWCE.DE, AAPL)',
     };
   }
   return { valid: true };

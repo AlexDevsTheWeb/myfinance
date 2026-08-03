@@ -8,7 +8,7 @@ created: 2026-06-27
 updated: 2026-06-27
 status: implemented
 sources: ["raw/90-crud-transactions/90-crud-transactions.md", "raw/12-investment-tracking-v2/implementation.md"]
-related: ["features/investment-tracking", "plans/investment-tracking-v2-enhancements", "features/multi-broker-architecture", "features/pac-automation"]
+related: ["features/investment-tracking", "plans/investment-tracking-v2-enhancements", "features/multi-broker-architecture", "features/pac-automation", "bugs/broker-transaction-filter"]
 ---
 
 # Feature: ETF Transactions CRUD & Settings Persistence
@@ -27,6 +27,8 @@ Add edit/delete capabilities for ETF transactions with safe cascading recalculat
 - **HoldingsTable.tsx:** Edit (MUI `EditIcon`) and Delete (MUI `DeleteIcon`) icon buttons per row. Actions column conditionally rendered via optional `onEdit`/`onDelete` callbacks.
 - **EtfTransactionModal.tsx:** Edit mode via optional `editTransaction` prop — pre-fills all fields, switches title to "Edit ETF Transaction", calls `updateEtfTransaction` instead of `addEtfTransaction`.
 - **EtfTransactionForm.tsx:** Broker Account select dropdown from `brokerAccounts` store state.
+
+> **Note (2026-08-03):** the form's Broker Account selection was previously dropped on submit — manual transactions never carried a broker link, breaking per-broker filtering. Fixed by persisting `brokerId` on `IETFTransaction`. See [[wiki/bugs/broker-transaction-filter]].
 
 ### Safe Delete Cascade (D-09)
 
@@ -56,6 +58,7 @@ The `deleteEtfTransaction` action implements a safe cascade:
 - [[wiki/features/investment-tracking/investment-tracking]]
 - [[wiki/features/multi-broker-architecture/multi-broker-architecture]]
 - [[wiki/features/pac-automation/pac-automation]]
+- [[wiki/bugs/broker-transaction-filter/broker-transaction-filter]]
 - [[wiki/plans/investment-tracking-v2-enhancements]]
 - GitHub: [#90](https://github.com/AlexDevsTheWeb/myfinance/issues/90)
 - Source: [raw/12-investment-tracking-v2/implementation.md](raw/12-investment-tracking-v2/implementation.md)

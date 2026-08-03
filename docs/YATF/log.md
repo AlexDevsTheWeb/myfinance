@@ -626,3 +626,36 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Re-applied inclusive-window fix locally; verified boundary logic and build clean
 - PR #169 later **merged to `development`** (2026-08-03) — fix now permanent; this branch merged `origin/development`
 - Note: no duplicate bug docs created — canonical #168 pages already on `development` via PR #169
+
+## [2026-08-03] ingest | Bug | Per-broker filter shows zero invested — ETF transactions never linked to broker
+- User report: selecting Trade Republic in Broker Select shows 0 invested / no holdings / +400 € return, while All Brokers shows the correct 400 €. Chart also "always grows".
+- Root cause: manual ETF transactions never persisted a broker link — `EtfTransactionModal` dropped the form's Broker Account value, `IETFTransaction` had no `brokerId`, sanitizer/converter stripped any reference. `usePortfolio` filter then matched nothing; `currentValue` fell back to the aggregate snapshot.
+- Created [[raw/bugs/broker-transaction-filter/broker-transaction-filter.md]] — full analysis
+- Created [[wiki/bugs/broker-transaction-filter]] — bug page (status: fixed)
+- Updated index.md (69 pages), wiki/bugs/index.md, and cross-linked [[wiki/features/multi-broker-architecture/multi-broker-architecture]], [[wiki/features/crud-etf-transactions/crud-etf-transactions]], [[wiki/features/dynamic-portfolio-chart/dynamic-portfolio-chart]]
+
+## [2026-08-03] fix | Bug | Per-broker filter zero invested
+- Added `brokerId?: string` to `IETFTransaction` (type + sanitizer + Firestore converter)
+- `EtfTransactionModal` honors `defaultBrokerId`, pre-fills on edit, persists `brokerId` on submit
+- `migrateEtfTransactions()` in `useInvestmentSync.ts` links legacy transactions (existing brokerId > PAC accountId > single-broker inference), persisted once on load
+- `usePortfolio` filters by `tx.brokerId || tx.accountId` and derives current value from per-broker holdings (price ?? avgCost) instead of the aggregate snapshot
+- Chart auto-fetch intentionally left as manual refresh (user decision)
+- Verified: `npm run build` clean; `npm run lint` no new issues
+
+## [2026-08-03] ingest | Bug | ETF Total Return stuck at €0 — price provider dead
+- User report: Total Return always +€0,00 (+0.0 %) and portfolio never reflects real ETF value.
+- Root cause: `useMarketData` called the dead `api.yfin.dev` endpoint (DNS NXDOMAIN) → `prices` empty → `currentPrice = prices ?? avgCost` fallback → value == invested → return 0.
+- Discovered SWDA and EUNL are the SAME fund (iShares Core MSCI World USD Acc, ISIN IE00B4L5Y983) — SWDA = Milan/London listing, EUNL = Xetra/Stuttgart listing.
+- Discovered Trade Republic executes on Lang & Schwarz (Hamburg, `.HM`) but displays the reference (Xetra) price; Yahoo `.HM` quotes are frequently stale. TR app 126.04 € == `EUNL.DE` 126.045 € vs stale `EUNL.HM` 125.32 €.
+- Created [[raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md]] — full analysis
+- Created [[wiki/bugs/etf-pricing-total-return]] — bug page (status: fixed)
+- Updated index.md (70 pages), wiki/bugs/index.md
+- Cross-links: dynamic-portfolio-chart, ticker-validation, multi-broker-architecture, broker-transaction-filter
+
+## [2026-08-03] fix | Bug | ETF pricing provider + ticker consolidation
+- `useMarketData.ts`: switched to Yahoo Finance chart API (`query1.finance.yahoo.com/v8/finance/chart`); candidate order now Xetra-first `[.DE, .HM, .F, .MI]` (`.DE` preferred because TR shows reference price and `.HM` is stale); prices keyed by raw transaction ticker
+- `src/store/defaults.ts`: default broker ticker `SWDA.MI` → `EUNL` (both brokerAccounts + brokerConfig)
+- `useInvestmentSync.ts`: added idempotent `migrateTickerSymbols()` renaming SWDA-family transaction tickers to `EUNL`, chained with `migrateEtfTransactions`, persisted once on load; fallback ticker → `EUNL`
+- `src/lib/converters.ts`: legacy brokerConfig ticker fallback → `EUNL`
+- Placeholders/examples updated to `EUNL.DE` (locales it/en, validation msg, BrokerSettingsModal, EtfTransactionForm, DividendDialog)
+- Verified live: `EUNL`→`EUNL.DE` 126.045 € (== TR app), `SWDA`→`SWDA.MI` 126.03 €, `VWCE`→`VWCE.DE` 165 €; `npm run build` clean, no new lint issues

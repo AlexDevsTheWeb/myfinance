@@ -19,3 +19,5 @@ Bug analysis pages: symptoms, root cause, reproduction steps, and fixes.
 | [[bugs/ticker-persistence|ticker-persistence]] | BrokerAccount ticker field not persisted; PAC creates transactions with wrong ticker — fixed. |
 | [[bugs/charts-ui|charts-ui]] | All charts had layout/padding issues: excess left space, cutoff labels, pie spacing — fixed. |
 | [[bugs/card-counter-zero|card-counter-zero]] | Card Utilization counter always €0 — reset-day expenses excluded by strict window bounds — fixed. |
+| [[bugs/broker-transaction-filter|broker-transaction-filter]] | Broker filter shows 0 invested / no holdings because manual ETF transactions never persisted a brokerId — fixed. |
+| [[bugs/etf-pricing-total-return|etf-pricing-total-return]] | Total Return stuck at €0 — price provider dead (api.yfin.dev); switched to Yahoo Finance with Xetra-first venue resolution and SWDA→EUNL consolidation — fixed. |
