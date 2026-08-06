@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-08-06* (Account deletion feature)
-*Total pages: 72*
+*Last updated: 2026-08-06* (Firestore write rate limiting)
+*Total pages: 73*
 
 ---
 
@@ -72,6 +72,7 @@ timestamp: 2026-08-03
 | [[wiki/decisions/typescript-7-upgrade]] | ✅ TS 7.0 Go-rewrite adoption with linting workaround via `@typescript/typescript6` | [`raw/typescript-7-upgrade/`](raw/typescript-7-upgrade/) |
 | [[wiki/decisions/chart-migration-mui]] | ✅ Migrated 16 chart components from Recharts to MUI X Charts — theme-aware, phased migration | [`raw/chart-migration/`](raw/chart-migration/) |
 | [[wiki/decisions/saas-readiness]] | 🔴 **MAX PRIORITY** — Hard blockers vs ship-as-is: fix 6 critical items, launch, iterate with real users | [`raw/saas-readiness/saas-readiness.md`](raw/saas-readiness/saas-readiness.md) |
+| [[wiki/decisions/firestore-rate-limiting]] | 📋 No server-side write rate limiting; client-only app → defer App Check + server-side limiting to paid-tier launch | [`#159`](https://github.com/AlexDevsTheWeb/myfinance/issues/159) |
 | [[wiki/decisions/pwa-strategy]] | 🟢 PWA prima, Flutter dopo — mobile senza riscrittura, 2-step plan | [`raw/go-to-market/go-to-market.md`](raw/go-to-market/go-to-market.md) |
 | [[wiki/decisions/balancr-identity-system]] | ✅ Balancr identity: Linked Hexagons logo, dark palette, gradient system | [`raw/balancr-identity-system/balancr-identity-system.md`](raw/balancr-identity-system/balancr-identity-system.md) |
 
