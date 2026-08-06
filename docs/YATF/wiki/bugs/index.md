@@ -21,3 +21,4 @@ Bug analysis pages: symptoms, root cause, reproduction steps, and fixes.
 | [[bugs/card-counter-zero|card-counter-zero]] | Card Utilization counter always €0 — reset-day expenses excluded by strict window bounds — fixed. |
 | [[bugs/broker-transaction-filter|broker-transaction-filter]] | Broker filter shows 0 invested / no holdings because manual ETF transactions never persisted a brokerId — fixed. |
 | [[bugs/etf-pricing-total-return|etf-pricing-total-return]] | Total Return stuck at €0 — price provider dead (api.yfin.dev); switched to Yahoo Finance with Xetra-first venue resolution and SWDA→EUNL consolidation — fixed. |
+| [[bugs/silent-login-errors|silent-login-errors]] | Login auth failures (popup blocked, wrong password, network) silently console.logged — no user feedback. Fixed with localized AlertSnackbar messages (#157) — fixed. |

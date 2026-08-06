@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-08-03* (ETF pricing / Total Return bug)
-*Total pages: 70*
+*Last updated: 2026-08-06* (Silent login errors)
+*Total pages: 71*
 
 ---
 
@@ -93,6 +93,7 @@ timestamp: 2026-08-03
 | [[wiki/bugs/card-counter-zero]] | ✅ Card Utilization counter always €0 — reset-day expenses excluded by strict window bounds — **fixed** | [`raw/bugs/card-counter-zero/card-counter-zero.md`](raw/bugs/card-counter-zero/card-counter-zero.md) |
 | [[wiki/bugs/broker-transaction-filter]] | ✅ Broker filter shows 0 invested / no holdings — manual ETF transactions never persisted `brokerId` — **fixed** | [`raw/bugs/broker-transaction-filter/broker-transaction-filter.md`](raw/bugs/broker-transaction-filter/broker-transaction-filter.md) |
 | [[wiki/bugs/etf-pricing-total-return]] | ✅ Total Return stuck at €0 — price provider dead (yfin.dev); switched to Yahoo with Xetra-first resolution + SWDA→EUNL consolidation — **fixed** | [`raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md`](raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md) |
+| [[wiki/bugs/silent-login-errors]] | ✅ Auth failures (popup blocked, wrong password, network) silently swallowed — now localized AlertSnackbar feedback — **fixed** | [`#157`](https://github.com/AlexDevsTheWeb/myfinance/issues/157) |
 
 ## Architecture
 
