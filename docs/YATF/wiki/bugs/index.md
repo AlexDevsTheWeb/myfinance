@@ -22,3 +22,4 @@ Bug analysis pages: symptoms, root cause, reproduction steps, and fixes.
 | [[bugs/broker-transaction-filter|broker-transaction-filter]] | Broker filter shows 0 invested / no holdings because manual ETF transactions never persisted a brokerId — fixed. |
 | [[bugs/etf-pricing-total-return|etf-pricing-total-return]] | Total Return stuck at €0 — price provider dead (api.yfin.dev); switched to Yahoo Finance with Xetra-first venue resolution and SWDA→EUNL consolidation — fixed. |
 | [[bugs/silent-login-errors|silent-login-errors]] | Login auth failures (popup blocked, wrong password, network) silently console.logged — no user feedback. Fixed with localized AlertSnackbar messages (#157) — fixed. |
+| [[bugs/transactions-array-write-back|transactions-array-write-back]] | 5 store actions re-wrote the full transactions array to the dead main-doc field — 1 MiB bloat + renames lost on reload. Fixed by persisting changed transactions to the subcollection — fixed. |
