@@ -194,7 +194,21 @@
     "projectionsDescription": "Configure default rates used in financial projections.",
     "inflationRate": "Inflation Rate",
     "taxRate": "Tax Rate",
-    "resetDefaults": "Reset to Defaults"
+    "resetDefaults": "Reset to Defaults",
+    "deleteAccount": "Delete Account",
+    "deleteAccountDescription": "Permanently delete your account and all your data. This action cannot be undone.",
+    "deleteAccountConfirmTitle": "Delete your account?",
+    "deleteAccountConfirmMessage": "This will permanently delete your account, all transactions, investments and settings. This action cannot be undone.",
+    "deleteAccountTypeEmail": "Type your email to confirm:",
+    "deleteAccountEmailMismatch": "The email you typed does not match your account.",
+    "deleteAccountConfirm": "Delete my account",
+    "deleteAccountPasswordTitle": "Confirm your password",
+    "deleteAccountPasswordMessage": "Enter your current password to confirm account deletion.",
+    "deleteAccountPassword": "Password",
+    "deleteAccountCancel": "Cancel",
+    "deleteAccountSuccess": "Account deleted successfully.",
+    "deleteAccountError": "Could not delete account.",
+    "deleteAccountWrongPassword": "Incorrect password. Try again."
   },
   "language": {
     "italian": "Italiano",

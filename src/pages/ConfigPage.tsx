@@ -5,10 +5,13 @@ import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogCon
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TransactionForm from '../components/forms/TransactionForm';
 import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { AlertSnackbar } from '../components/shared/AlertSnackbar';
+import { DeleteAccountRequiresPasswordError, deleteUserAccount } from '../lib/deleteAccount';
+import { useAuthStore } from '../store/useAuthStore';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { useInvestmentStore } from '../store/useInvestmentStore';
 import { useProjectionSettingsStore, DEFAULT_PROJECTION_SETTINGS } from '../store/useProjectionSettingsStore';
@@ -314,6 +317,57 @@ const ConfigPage: React.FC = () => {
 
   const handleCloseAlert = () => {
     setAlertState(prev => ({ ...prev, open: false }));
+  };
+
+  // Delete Account state
+  const navigate = useNavigate();
+  const user = useAuthStore(s => s.user);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteEmailInput, setDeleteEmailInput] = useState('');
+  const [deletePasswordOpen, setDeletePasswordOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const handleDeleteAccountClick = () => {
+    setDeleteEmailInput('');
+    setDeleteConfirmOpen(true);
+  };
+
+  const performDeleteAccount = async (password?: string) => {
+    setIsDeletingAccount(true);
+    try {
+      await deleteUserAccount(password);
+      showAlert(t('config.deleteAccountSuccess'), 'success');
+      setTimeout(() => navigate('/'), 800);
+    } catch (err) {
+      setIsDeletingAccount(false);
+      if (err instanceof DeleteAccountRequiresPasswordError) {
+        setDeletePassword('');
+        setDeletePasswordOpen(true);
+      } else {
+        const code = (err as { code?: string })?.code;
+        if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+          showAlert(t('config.deleteAccountWrongPassword'));
+        } else {
+          showAlert(t('config.deleteAccountError'));
+          console.error('deleteUserAccount error:', err);
+        }
+      }
+    }
+  };
+
+  const handleDeleteAccountConfirm = () => {
+    if (deleteEmailInput.trim().toLowerCase() !== (user?.email ?? '').toLowerCase()) {
+      showAlert(t('config.deleteAccountEmailMismatch'));
+      return;
+    }
+    setDeleteConfirmOpen(false);
+    performDeleteAccount();
+  };
+
+  const handleDeletePasswordConfirm = () => {
+    setDeletePasswordOpen(false);
+    performDeleteAccount(deletePassword);
   };
 
   const handleOpenDialog = (config: any) => {
@@ -680,6 +734,25 @@ const ConfigPage: React.FC = () => {
                       />
                     </ListItem>
                   </List>
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: 'error.main' }}>
+                  {t('config.deleteAccount')}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
+                  {t('config.deleteAccountDescription')}
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleDeleteAccountClick}
+                  disabled={isDeletingAccount}
+                >
+                  {t('config.deleteAccount')}
+                </Button>
               </Paper>
             </Grid>
           </Grid>
@@ -1159,6 +1232,50 @@ const ConfigPage: React.FC = () => {
           </DialogActions>
         </Dialog>
         <BrokerSettingsModal open={brokerDialogOpen} onClose={() => setBrokerDialogOpen(false)} />
+
+        <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
+          <DialogTitle sx={{ fontWeight: 800, color: 'error.main' }}>{t('config.deleteAccountConfirmTitle')}</DialogTitle>
+          <DialogContent>
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {t('config.deleteAccountConfirmMessage')}
+            </Alert>
+            <Typography variant="body2" sx={{ mb: 1, opacity: 0.8 }}>{t('config.deleteAccountTypeEmail')}</Typography>
+            <TextField
+              fullWidth
+              label={user?.email ?? ''}
+              variant="filled"
+              value={deleteEmailInput}
+              onChange={(e) => setDeleteEmailInput(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={() => setDeleteConfirmOpen(false)} color="inherit">{t('config.deleteAccountCancel')}</Button>
+            <Button onClick={handleDeleteAccountConfirm} variant="contained" color="error" disabled={deleteEmailInput.trim().toLowerCase() !== (user?.email ?? '').toLowerCase()}>
+              {t('config.deleteAccountConfirm')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={deletePasswordOpen} onClose={() => setDeletePasswordOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
+          <DialogTitle sx={{ fontWeight: 800 }}>{t('config.deleteAccountPasswordTitle')}</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" sx={{ mb: 2, opacity: 0.8 }}>{t('config.deleteAccountPasswordMessage')}</Typography>
+            <TextField
+              fullWidth
+              label={t('config.deleteAccountPassword')}
+              type="password"
+              variant="filled"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={() => setDeletePasswordOpen(false)} color="inherit">{t('config.deleteAccountCancel')}</Button>
+            <Button onClick={handleDeletePasswordConfirm} variant="contained" color="error" disabled={!deletePassword}>
+              {t('config.deleteAccountConfirm')}
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <ConfirmDialog
           open={confirmState.open}
