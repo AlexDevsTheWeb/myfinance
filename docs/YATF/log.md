@@ -659,3 +659,16 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `src/lib/converters.ts`: legacy brokerConfig ticker fallback → `EUNL`
 - Placeholders/examples updated to `EUNL.DE` (locales it/en, validation msg, BrokerSettingsModal, EtfTransactionForm, DividendDialog)
 - Verified live: `EUNL`→`EUNL.DE` 126.045 € (== TR app), `SWDA`→`SWDA.MI` 126.03 €, `VWCE`→`VWCE.DE` 165 €; `npm run build` clean, no new lint issues
+
+## [2026-08-06] ingest | Bug | Silent login errors — no user-facing feedback on auth failure
+- User report (#157): auth failures (Google popup blocked, wrong email/password, network errors) were caught and console.logged only — user sees nothing.
+- Root cause: `LoginPage.tsx` catch blocks in both `handleSubmit` (:28-31) and `handleLogin` (:41-43) swallow errors; commented-out `alert()` marks it as known-temporary. No Snackbar/Alert/error state existed on the page while the app already ships `AlertSnackbar` (used by ConfigPage). No i18n for auth messages.
+- Created [[raw/bugs/silent-login-errors/silent-login-errors.md]] — full analysis
+- Created [[wiki/bugs/silent-login-errors]] — bug page (status: fixed)
+- Updated index.md (71 pages), wiki/bugs/index.md
+- Cross-links: new-user-auth-flow, error-boundary
+
+## [2026-08-06] fix | Bug | Localized auth error feedback on login (#157)
+- Added `auth` i18n section to `src/locales/en.json` + `it.json` mapping Firebase error codes → user-friendly messages (popup-blocked, wrong-password, user-not-found, invalid-credential, invalid-email, email-already-in-use, weak-password, network-request-failed, too-many-requests, user-disabled, operation-not-allowed, popup-closed-by-user, cancelled-popup-request, generic fallback)
+- `LoginPage.tsx`: added `getAuthErrorMessage(error)` mapper + `alertState`/`showAlert()` + `<AlertSnackbar/>` wired into both catch blocks; all messages localized via `useTranslation()`
+- Verified: `npm run build` clean; `npm run lint` no new issues
