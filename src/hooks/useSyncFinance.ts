@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { runTransaction, onSnapshot, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { getDefaultUserConfig, getUserDocRef } from '../store/sync';
-import { getTransactionsCollectionRef } from '../lib/converters';
+import { getDefaultUserConfig, getUserDocRef, backfillRecurringToSubCollection } from '../store/sync';
+import { getTransactionsCollectionRef, getRecurringTransactionsCollectionRef } from '../lib/converters';
 import { useAuthStore } from '../store/useAuthStore';
 import { useFinanceStore } from '../store/useFinanceStore';
 
@@ -15,12 +15,14 @@ export const useSyncFinance = () => {
   const hasCheckedRecurring = useRef(false);
   const subColLoaded = useRef(false);
   const hasCleanedOrphans = useRef(false);
+  const recurringSubColLoaded = useRef(false);
 
   useEffect(() => {
     if (!user) {
       isInitializing.current = false;
       hasCheckedRecurring.current = false;
       subColLoaded.current = false;
+      recurringSubColLoaded.current = false;
       return;
     }
 
@@ -28,6 +30,7 @@ export const useSyncFinance = () => {
 
     const docRef = getUserDocRef(user.uid);
     const txnsRef = getTransactionsCollectionRef(user.uid);
+    const recsRef = getRecurringTransactionsCollectionRef(user.uid);
 
     const initializeUser = async () => {
       isInitializing.current = true;
@@ -44,12 +47,13 @@ export const useSyncFinance = () => {
           }
           hasLoaded.current = true;
         });
+        await backfillRecurringToSubCollection(user.uid);
       } catch (error) {
         console.error('Error in initializeUser transaction:', error);
         useFinanceStore.getState().setAll({ isLoading: false });
       } finally {
         isInitializing.current = false;
-        if (!hasCheckedRecurring.current && hasLoaded.current && subColLoaded.current) {
+        if (!hasCheckedRecurring.current && hasLoaded.current && subColLoaded.current && recurringSubColLoaded.current) {
           hasCheckedRecurring.current = true;
           useFinanceStore.getState().checkRecurring();
         }
@@ -69,7 +73,7 @@ export const useSyncFinance = () => {
         if (!hasLoaded.current) {
           hasLoaded.current = true;
         }
-        if (!hasCheckedRecurring.current && subColLoaded.current) {
+        if (!hasCheckedRecurring.current && subColLoaded.current && recurringSubColLoaded.current) {
           hasCheckedRecurring.current = true;
           checkRecurring();
         }
@@ -108,15 +112,30 @@ export const useSyncFinance = () => {
 
       const { setAll, checkRecurring } = useFinanceStore.getState();
       setAll({ transactions: deduped as never[], isLoading: false });
-      if (!hasCheckedRecurring.current && hasLoaded.current) {
+      if (!hasCheckedRecurring.current && hasLoaded.current && recurringSubColLoaded.current) {
         hasCheckedRecurring.current = true;
         checkRecurring();
       }
     });
 
+    const unsubRecs = onSnapshot(recsRef, (snapshot) => {
+      if (!recurringSubColLoaded.current) {
+        recurringSubColLoaded.current = true;
+      }
+
+      if (snapshot.metadata.hasPendingWrites) return;
+
+      const allDocs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
+      const sorted = allDocs.sort((a, b) => a.description.localeCompare(b.description));
+
+      const { setAll } = useFinanceStore.getState();
+      setAll({ recurringTransactions: sorted as never[], isLoading: false });
+    });
+
     return () => {
       unsubDoc();
       unsubTxns();
+      unsubRecs();
     };
   }, [user, setAll]);
 };

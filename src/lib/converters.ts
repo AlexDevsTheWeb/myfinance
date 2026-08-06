@@ -66,6 +66,69 @@ export function getTransactionsCollectionRef(userId: string) {
   return collection(db, 'users', userId, 'transactions').withConverter(transactionConverter);
 }
 
+export interface RecurringTransactionDoc {
+  id: string;
+  description: string;
+  category: string;
+  subcategory: string;
+  amount: number;
+  type: 'income' | 'expense' | 'transfer';
+  dayOfMonth: number;
+  accountId: string;
+  startDate: string;
+  endDate?: string | null;
+  frequency?: 'monthly' | 'yearly';
+  monthOfYear?: number;
+  lastGeneratedUpTo?: string;
+  cardId?: string;
+}
+
+export const recurringTransactionConverter: FirestoreDataConverter<RecurringTransactionDoc> = {
+  toFirestore: (r: RecurringTransactionDoc): DocumentData => ({
+    id: r.id,
+    description: r.description,
+    category: r.category,
+    subcategory: r.subcategory,
+    amount: r.amount,
+    type: r.type,
+    dayOfMonth: r.dayOfMonth,
+    accountId: r.accountId,
+    startDate: r.startDate,
+    endDate: r.endDate ?? null,
+    frequency: r.frequency ?? 'monthly',
+    ...(r.frequency === 'yearly' && r.monthOfYear != null ? { monthOfYear: r.monthOfYear } : {}),
+    ...(r.lastGeneratedUpTo ? { lastGeneratedUpTo: r.lastGeneratedUpTo } : {}),
+    ...(r.cardId ? { cardId: r.cardId } : {}),
+  }),
+  fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): RecurringTransactionDoc => {
+    const data = snapshot.data(options);
+    return {
+      id: data.id ?? '',
+      description: data.description ?? '',
+      category: data.category ?? '',
+      subcategory: data.subcategory ?? '',
+      amount: typeof data.amount === 'number' ? data.amount : 0,
+      type: data.type === 'income' || data.type === 'expense' || data.type === 'transfer' ? data.type : 'expense',
+      dayOfMonth: typeof data.dayOfMonth === 'number' ? data.dayOfMonth : 1,
+      accountId: data.accountId ?? 'default-main',
+      startDate: data.startDate ?? '',
+      endDate: data.endDate,
+      frequency: data.frequency === 'yearly' || data.frequency === 'monthly' ? data.frequency : 'monthly',
+      ...(data.monthOfYear != null ? { monthOfYear: data.monthOfYear } : {}),
+      ...(data.lastGeneratedUpTo ? { lastGeneratedUpTo: data.lastGeneratedUpTo } : {}),
+      ...(data.cardId ? { cardId: data.cardId } : {}),
+    };
+  },
+};
+
+export function getRecurringDocRef(userId: string, recurringId: string) {
+  return doc(db, 'users', userId, 'recurringTransactions', recurringId).withConverter(recurringTransactionConverter);
+}
+
+export function getRecurringTransactionsCollectionRef(userId: string) {
+  return collection(db, 'users', userId, 'recurringTransactions').withConverter(recurringTransactionConverter);
+}
+
 export interface PacState {
   lastGenerationDate: string | null;
   pendingTransaction: {

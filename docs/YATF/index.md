@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-08-06* (Legacy transactions[] write-back)
-*Total pages: 74*
+*Last updated: 2026-08-06* (B-lite scaling implemented)
+*Total pages: 76*
 
 ---
 
@@ -43,6 +43,7 @@ timestamp: 2026-08-03
 | [[wiki/features/card-plafond-tracking/card-plafond-tracking]] | ✅ Per-card monthly plafond tracking with configurable cards per account, dashboard utilization, card filter + sort toggle | [`#165`](https://github.com/AlexDevsTheWeb/myfinance/issues/165) |
 | [[wiki/features/balancr-branding/balancr-branding]] | ✅ Complete rebrand: YAFT → Balancr, Linked Hexagons logo, new color palette | [`#82`](https://github.com/AlexDevsTheWeb/myfinance/issues/82) |
 | [[wiki/features/recurring-card-selection/recurring-card-selection]] | 📋 Card selection (None/credit/debit) on recurring expense templates, propagated to generated transactions — **planned** | [`raw/recurring-card-selection/recurring-card-selection.md`](raw/recurring-card-selection/recurring-card-selection.md) |
+| [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] | ✅ recurringTransactions migrated to subcollection + Firestore offline persistence enabled | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
 | [[wiki/features/account-deletion/account-deletion]] | ✅ Delete own account + all data (Firestore doc, subcollections, auth) with re-auth guard and confirmation UI | [`#158`](https://github.com/AlexDevsTheWeb/myfinance/issues/158) |
 
 ## Plans
@@ -64,6 +65,7 @@ timestamp: 2026-08-03
 | [[wiki/plans/italian-tax-enhancements]] | 📋 Stamp duty (0.20%) + capital losses tracking — 5-wave task breakdown | [`#110`](https://github.com/AlexDevsTheWeb/myfinance/issues/110) |
 | [[wiki/plans/go-to-market]] | 🔴 **MAX PRIORITY** — 6-phase SaaS launch plan (quick wins → data security → beta → validate → monetize → cleanup) | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/plans/beta-launch-playbook]] | 📋 Phase 2 execution details: disclaimer banner ✅, backup/restore verification ✅, tester invitation template ⬜ | [`raw/beta-launch-playbook/beta-launch-playbook.md`](raw/beta-launch-playbook/beta-launch-playbook.md) |
+| [[wiki/plans/56-blite-recurring-migration]] | ✅ B-lite completed: recurring subcollection migration + Firestore offline persistence; virtualization/PWA deferred to launch | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
 
 ## Decisions
 

@@ -681,6 +681,13 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Updated index.md (72 pages), wiki/features/index.md
 - Cross-links: new-user-auth-flow, backup-restore-data-coverage
 
+## [2026-08-06] plan | Scaling B-lite — recurring subcollection + offline (#56)
+- Selected "B-lite" scope for issue #56 from the open-concern discussion: do recurringTransactions subcollection migration + Firestore offline persistence now; defer virtualization/pagination, PWA service worker, remaining arrays to launch phase.
+- Created [[raw/56-blite-recurring-migration/56-blite-recurring-migration.md]] — implementation plan
+- Created [[wiki/plans/56-blite-recurring-migration]] — plan page (status: in-progress)
+- Updated index.md (75 pages), wiki/plans/index.md
+- Cross-links: transactions-array-write-back, pwa-strategy, go-to-market
+
 ## [2026-08-06] ingest | Bug | Legacy transactions[] write-back to main user doc (#56)
 - Re-validated issue #56 (Scaling limits). Concern 1 (1 MiB doc): transactions already subcollected, but found a regression — 5 actions (`_migrateToMultiAccount`, `renameCategory`, `renameSubcategory`, `deleteSubcategoryAndRemap`, `moveSubcategory`) still wrote the full transactions array to the dead `transactions` field on `users/{uid}`. Bloat risk + renames never reached the subcollection (silently reverted on reload).
 - Created [[raw/scaling-limits-review/scaling-limits-review.md]] — full 3-concern validity check
@@ -709,3 +716,23 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - ConfigPage General tab: danger-zone "Delete Account" section with typed-email confirmation dialog, loading state, AlertSnackbar success/error feedback
 - i18n: `config.deleteAccount.*` keys in en.json + it.json
 - Verified: `npm run build` clean; `npm run lint` no new issues
+
+## [2026-08-06] implement | Feature | Recurring subcollection migration + offline persistence (#56)
+- Implemented B-lite plan ([[wiki/plans/56-blite-recurring-migration]] → completed)
+- `src/lib/converters.ts`: `RecurringTransactionDoc` interface, `recurringTransactionConverter`, `getRecurringDocRef()`, `getRecurringTransactionsCollectionRef()`
+- `firestore.rules`: `match /users/{userId}/recurringTransactions/{recId}` with `isOwner` guard
+- `src/store/sync/index.ts`: `backfillRecurringToSubCollection()` — idempotent, only writes missing docs; called on init in `useSyncFinance.ts`
+- `src/hooks/useSyncFinance.ts`: recurring `onSnapshot` listener replaces main-doc array reads; `checkRecurring` gate now waits for `hasLoaded && subColLoaded && recurringSubColLoaded`; cleanup returns all 3 unsubs
+- `src/store/useFinanceStore.ts`: added `persistRecurringToSubcollection()` helper (writeBatch, 400-op chunks); routed all 11 write sites to subcollection (setRecurringTransactions, _migrateToMultiAccount, renameCategory, renameSubcategory, deleteSubcategoryAndRemap, moveSubcategory, addRecurring, updateRecurring, checkRecurring, deleteRecurring, importAllData)
+- `src/lib/firebase.ts`: `getFirestore(app)` → `initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })`
+- Grep confirmed no main-doc `recurringTransactions:` writes remain in store; legacy field left in place for rollback
+- Verified: `npm run build` clean; `npm run lint` no new issues (baseline 19/9); OKF check passes
+- Created [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] — feature page (status: implemented)
+- Updated index.md (76 pages), wiki/features/index.md, wiki/plans/index.md
+- Cross-links: transactions-array-write-back, pwa-strategy, go-to-market
+
+## [2026-08-06] fix | Feature | Offline persistence fallback (#56)
+- Added pre-flight IndexedDB availability probe in `src/lib/firebase.ts`: when IndexedDB is unavailable (Safari private browsing, embedded WebViews), `db` falls back to `getFirestore(app)` (plain in-memory client) instead of `initializeFirestore` + `persistentLocalCache` — which would otherwise throw on first Firestore use.
+- Important: a literal try/catch around `initializeFirestore` would NOT catch the failure — the SDK defers the IndexedDB check until first use (not init). Verified in SDK source (`IndexedDbPersistence.C()` → `SimpleDb.C()`).
+- Updated [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] implementation notes.
+- Verified: `npm run build` clean; `npm run lint` baseline unchanged (19/9).

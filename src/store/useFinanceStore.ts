@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import { arrayUnion, doc, updateDoc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
+import { arrayUnion, doc, updateDoc, setDoc, deleteDoc, writeBatch, getDocs } from 'firebase/firestore';
 import { create } from 'zustand';
 import { db } from '../lib/firebase';
-import { getTransactionDocRef, getTransactionsCollectionRef } from '../lib/converters';
+import { getTransactionDocRef, getTransactionsCollectionRef, getRecurringDocRef, getRecurringTransactionsCollectionRef } from '../lib/converters';
 import i18n from '../lib/i18n';
 import { useAuthStore } from './useAuthStore';
 import { useBudgetStore } from './useBudgetStore';
@@ -44,6 +44,25 @@ async function persistTransactionsToSubcollection(userId: string, transactions: 
   let count = 0;
   for (const txn of transactions) {
     batch.set(doc(collRef, txn.id), Sanitization.sanitizeTransaction(txn));
+    count++;
+    if (count === 400) {
+      await batch.commit();
+      batch = writeBatch(db);
+      count = 0;
+    }
+  }
+  if (count > 0) {
+    await batch.commit();
+  }
+}
+
+async function persistRecurringToSubcollection(userId: string, recurringList: RecurringTransaction[]) {
+  if (recurringList.length === 0) return;
+  const collRef = getRecurringTransactionsCollectionRef(userId);
+  let batch = writeBatch(db);
+  let count = 0;
+  for (const rec of recurringList) {
+    batch.set(doc(collRef, rec.id), Sanitization.sanitizeRecurring(rec));
     count++;
     if (count === 400) {
       await batch.commit();
@@ -363,8 +382,17 @@ export const useFinanceStore = create<FinanceState>()(
 
         set({ saveError: null, isSaving: true });
         try {
-          const docRef = doc(db, 'users', userId);
-          await updateDoc(docRef, { recurringTransactions: recurring });
+          const collRef = getRecurringTransactionsCollectionRef(userId);
+          const existing = await getDocs(collRef);
+          const batch = writeBatch(db);
+          for (const docSnapshot of existing.docs) {
+            batch.delete(docSnapshot.ref);
+          }
+          for (const rec of recurring) {
+            const recRef = doc(collRef, rec.id);
+            batch.set(recRef, Sanitization.sanitizeRecurring(rec));
+          }
+          await batch.commit();
           set({ recurringTransactions: recurring, isSaving: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to set recurring transactions';
@@ -486,11 +514,10 @@ setBalanceStartDate: async (date) => {
 
         set({ saveError: null, isSaving: true });
         try {
-          const docRef = doc(db, 'users', userId);
-          const currentRecurring = useFinanceStore.getState().recurringTransactions;
-          await updateDoc(docRef, {
-            recurringTransactions: currentRecurring
-          });
+          const changedRecurring = state.recurringTransactions
+            .filter((r) => !r.accountId)
+            .map((r) => ({ ...r, accountId: defaultAccount.id }));
+          await persistRecurringToSubcollection(userId, changedRecurring as RecurringTransaction[]);
           await persistTransactionsToSubcollection(userId, changedTransactions);
           set({ isSaving: false });
         } catch (err) {
@@ -528,6 +555,9 @@ setBalanceStartDate: async (date) => {
           const changedTransactions = useFinanceStore.getState().transactions
             .filter(t => t.type === type && t.category === oldName)
             .map(t => ({ ...t, category: newName }));
+          const changedRecurring = useFinanceStore.getState().recurringTransactions
+            .filter(r => r.type === type && r.category === oldName)
+            .map(r => ({ ...r, category: newName }));
 
           set((state) => {
             const updatedTransactions = state.transactions.map(t =>
@@ -547,12 +577,11 @@ setBalanceStartDate: async (date) => {
           });
           const docRef = doc(db, 'users', userId);
           const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
-          const recurringTransactions = useFinanceStore.getState().recurringTransactions;
           await updateDoc(docRef, {
-            [key]: categories,
-            recurringTransactions: recurringTransactions
+            [key]: categories
           });
           await persistTransactionsToSubcollection(userId, changedTransactions);
+          await persistRecurringToSubcollection(userId, changedRecurring);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to rename category';
           set({ saveError: errorMessage, isSaving: false });
@@ -617,6 +646,9 @@ setBalanceStartDate: async (date) => {
           const changedTransactions = useFinanceStore.getState().transactions
             .filter(t => t.type === type && t.category === categoryName && t.subcategory === oldName)
             .map(t => ({ ...t, subcategory: newName }));
+          const changedRecurring = useFinanceStore.getState().recurringTransactions
+            .filter(r => r.type === type && r.category === categoryName && r.subcategory === oldName)
+            .map(r => ({ ...r, subcategory: newName }));
 
           set((state) => {
             const key = type === 'income' ? 'incomeCategories' : 'categories';
@@ -640,12 +672,11 @@ setBalanceStartDate: async (date) => {
           });
           const docRef = doc(db, 'users', userId);
           const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
-          const recurringTransactions = useFinanceStore.getState().recurringTransactions;
           await updateDoc(docRef, {
-            [key]: categories,
-            recurringTransactions: recurringTransactions
+            [key]: categories
           });
           await persistTransactionsToSubcollection(userId, changedTransactions);
+          await persistRecurringToSubcollection(userId, changedRecurring);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to rename subcategory';
           set({ saveError: errorMessage, isSaving: false });
@@ -688,6 +719,9 @@ setBalanceStartDate: async (date) => {
           const changedTransactions = useFinanceStore.getState().transactions
             .filter(t => t.type === type && t.category === categoryName && t.subcategory === subToDelete)
             .map(t => ({ ...t, subcategory: remapToSub }));
+          const changedRecurring = useFinanceStore.getState().recurringTransactions
+            .filter(r => r.type === type && r.category === categoryName && r.subcategory === subToDelete)
+            .map(r => ({ ...r, subcategory: remapToSub }));
 
           set((state) => {
             const key = type === 'income' ? 'incomeCategories' : 'categories';
@@ -714,12 +748,11 @@ setBalanceStartDate: async (date) => {
           });
           const docRef = doc(db, 'users', userId);
           const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
-          const recurringTransactions = useFinanceStore.getState().recurringTransactions;
           await updateDoc(docRef, {
-            [key]: categories,
-            recurringTransactions: recurringTransactions
+            [key]: categories
           });
           await persistTransactionsToSubcollection(userId, changedTransactions);
+          await persistRecurringToSubcollection(userId, changedRecurring);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete and remap subcategory';
           set({ saveError: errorMessage, isSaving: false });
@@ -737,6 +770,9 @@ setBalanceStartDate: async (date) => {
           const changedTransactions = useFinanceStore.getState().transactions
             .filter(t => t.type === type && t.category === fromCategory && t.subcategory === subName)
             .map(t => ({ ...t, category: toCategory }));
+          const changedRecurring = useFinanceStore.getState().recurringTransactions
+            .filter(r => r.type === type && r.category === fromCategory && r.subcategory === subName)
+            .map(r => ({ ...r, category: toCategory }));
 
           set((state) => {
             if (fromCategory === toCategory) return state;
@@ -770,12 +806,11 @@ setBalanceStartDate: async (date) => {
           });
           const docRef = doc(db, 'users', userId);
           const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
-          const recurringTransactions = useFinanceStore.getState().recurringTransactions;
           await updateDoc(docRef, {
-            [key]: categories,
-            recurringTransactions: recurringTransactions
+            [key]: categories
           });
           await persistTransactionsToSubcollection(userId, changedTransactions);
+          await persistRecurringToSubcollection(userId, changedRecurring);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to move subcategory';
           set({ saveError: errorMessage, isSaving: false });
@@ -801,9 +836,8 @@ setBalanceStartDate: async (date) => {
             const newRecurring = [...state.recurringTransactions, payload].sort((a, b) => a.description.localeCompare(b.description));
             return { recurringTransactions: newRecurring, isSaving: false };
           });
-          const docRef = doc(db, 'users', userId);
-          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
-          await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
+          const recRef = getRecurringDocRef(userId, payload.id);
+          await setDoc(recRef, payload);
           useFinanceStore.getState().checkRecurring();
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to add recurring transaction';
@@ -830,9 +864,8 @@ setBalanceStartDate: async (date) => {
             const updatedRecurring = state.recurringTransactions.map(r => r.id === payload.id ? payload : r);
             return { recurringTransactions: updatedRecurring, isSaving: false };
           });
-          const docRef = doc(db, 'users', userId);
-          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
-          await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
+          const recRef = getRecurringDocRef(userId, payload.id);
+          await setDoc(recRef, payload);
           useFinanceStore.getState().checkRecurring();
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to update recurring transaction';
@@ -1008,13 +1041,9 @@ setBalanceStartDate: async (date) => {
             }
             await batch.commit();
 
-            const docRef = doc(db, 'users', userId);
-            const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
-            await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
+            await persistRecurringToSubcollection(userId, useFinanceStore.getState().recurringTransactions);
           } else {
-            const docRef = doc(db, 'users', userId);
-            const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
-            await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
+            await persistRecurringToSubcollection(userId, useFinanceStore.getState().recurringTransactions);
           }
           set({ isCheckingRecurring: false, lastRecurringCheck: new Date().toISOString() });
         } catch (err) {
@@ -1034,9 +1063,7 @@ setBalanceStartDate: async (date) => {
             const updatedRecurring = state.recurringTransactions.filter(r => r.id !== id);
             return { recurringTransactions: updatedRecurring, isSaving: false };
           });
-          const docRef = doc(db, 'users', userId);
-          const sanitizedRecurring = useFinanceStore.getState().recurringTransactions.map(Sanitization.sanitizeRecurring);
-          await updateDoc(docRef, { recurringTransactions: sanitizedRecurring });
+          await deleteDoc(getRecurringDocRef(userId, id));
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete recurring transaction';
           set({ saveError: errorMessage, isSaving: false });
@@ -1391,11 +1418,11 @@ setBalanceStartDate: async (date) => {
 
           const docRef = doc(db, 'users', userId);
           const txnPayload = payload.transactions ?? [];
+          const recurringPayload = payload.recurringTransactions ?? [];
           await updateDoc(docRef, {
             initialBalance: payload.initialBalance ?? 0,
             accounts: payload.accounts ?? Defaults.DEFAULT_ACCOUNTS,
             cards: payload.cards ?? [],
-            recurringTransactions: payload.recurringTransactions ?? [],
             categories: payload.categories ?? Defaults.DEFAULT_CATEGORIES,
             incomeCategories: payload.incomeCategories ?? Defaults.DEFAULT_INCOME_CATEGORIES,
             enabledModules: payload.enabledModules ?? Defaults.DEFAULT_ENABLED_MODULES,
@@ -1422,6 +1449,8 @@ setBalanceStartDate: async (date) => {
             batch.set(txnRef, Sanitization.sanitizeTransaction(txn));
           }
           await batch.commit().catch((err) => console.error('sub-collection batch write error:', err));
+
+          await persistRecurringToSubcollection(userId, recurringPayload);
 
           set({
             initialBalance: payload.initialBalance ?? 0,

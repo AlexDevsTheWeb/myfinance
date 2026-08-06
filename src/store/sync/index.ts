@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import { doc, onSnapshot, runTransaction, writeBatch, type DocumentReference } from 'firebase/firestore';
+import { doc, onSnapshot, runTransaction, writeBatch, getDocs, type DocumentReference } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import { userDocConverter, getTransactionsCollectionRef, type UserDoc } from '../../lib/converters';
-import type { ITransaction } from '../types';
+import { userDocConverter, getTransactionsCollectionRef, getRecurringTransactionsCollectionRef, type UserDoc } from '../../lib/converters';
+import type { ITransaction, IRecurringTransaction } from '../types';
 import * as Defaults from '../defaults';
 
 export function getDefaultUserConfig(): UserDoc {
@@ -88,6 +88,66 @@ export async function backfillTransactionsToSubCollection(userId: string): Promi
       consumption: txn.consumption ?? null,
       readingDateStart: txn.readingDateStart ?? null,
       readingDateEnd: txn.readingDateEnd ?? null,
+    });
+    written++;
+  }
+
+  if (written > 0) {
+    await batch.commit();
+  }
+
+  return { written, skipped };
+}
+
+/**
+ * Idempotent backfill: copies recurring transactions from the legacy array field
+ * to the recurringTransactions sub-collection. Only writes docs that are missing
+ * from the sub-collection, so it is safe to run on every app launch.
+ */
+export async function backfillRecurringToSubCollection(userId: string): Promise<{ written: number; skipped: number }> {
+  // Use raw doc ref (no converter) to read the legacy recurringTransactions field
+  // which still exists in Firestore even after the sub-collection migration
+  const rawDocRef = doc(db, 'users', userId);
+  const remoteDoc = await runTransaction(db, async (transaction) => {
+    return transaction.get(rawDocRef);
+  });
+
+  if (!remoteDoc.exists()) return { written: 0, skipped: 0 };
+
+  const data = remoteDoc.data();
+  const legacyRecurring = data?.recurringTransactions;
+  const recurring: IRecurringTransaction[] = Array.isArray(legacyRecurring) ? legacyRecurring : [];
+  if (recurring.length === 0) return { written: 0, skipped: 0 };
+
+  const collRef = getRecurringTransactionsCollectionRef(userId);
+  const existing = await getDocs(collRef);
+  const existingIds = new Set(existing.docs.map((d) => d.id));
+
+  let written = 0;
+  let skipped = 0;
+
+  const batch = writeBatch(db);
+  for (const r of recurring) {
+    if (existingIds.has(r.id)) {
+      skipped++;
+      continue;
+    }
+    const recRef = doc(collRef, r.id);
+    batch.set(recRef, {
+      id: r.id,
+      description: r.description,
+      category: r.category,
+      subcategory: r.subcategory,
+      amount: r.amount,
+      type: r.type,
+      dayOfMonth: r.dayOfMonth,
+      accountId: r.accountId,
+      startDate: r.startDate,
+      endDate: r.endDate ?? null,
+      frequency: r.frequency ?? 'monthly',
+      ...(r.frequency === 'yearly' && r.monthOfYear != null ? { monthOfYear: r.monthOfYear } : {}),
+      ...(r.lastGeneratedUpTo ? { lastGeneratedUpTo: r.lastGeneratedUpTo } : {}),
+      ...(r.cardId ? { cardId: r.cardId } : {}),
     });
     written++;
   }

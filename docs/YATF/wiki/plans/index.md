@@ -15,6 +15,7 @@ Implementation plans, step-by-step breakdowns, and roadmap items.
 |---------|-------------|
 | [[plans/backup-restore-data-coverage|backup-restore-data-coverage]] | Plan to add missing budget and investment data to the backup/restore feature. |
 | [[plans/beta-launch-playbook|beta-launch-playbook]] | Phase 2 execution details: disclaimer banner, backup/restore verification, tester invitation. |
+| [[plans/56-blite-recurring-migration|56-blite-recurring-migration]] | ✅ Completed: recurringTransactions migrated to subcollection + Firestore offline persistence enabled; virtualization/PWA deferred to launch. |
 | [[plans/daily-historical-chart/daily-historical-chart|daily-historical-chart]] | Research and spec for daily time series chart using historical ticker prices. |
 | [[plans/budget-savings-engine-implementation|budget-savings-engine-implementation]] | V4 Budget & Savings Rate implementation: six waves, eleven new files, ten modified. |
 | [[plans/car-redesign-implementation|car-redesign-implementation]] | Step-by-step implementation plan for the car management page redesign. |
