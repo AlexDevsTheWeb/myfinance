@@ -892,13 +892,13 @@ describe('computeCAGR', () => {
     expect(cagr).toBe(0.2)
   })
 
-  it('computes a positive CAGR and clamps to min 0', () => {
+  it('clamps a >20% annual return to the 20% cap', () => {
     const cagr = computeCAGR([
       snapshot({ date: '2025-01-01', totalInvested: 1000, currentValue: 1000 }),
       snapshot({ date: '2026-01-01', totalInvested: 1000, currentValue: 2000 }),
     ])
-    expect(cagr).toBeGreaterThanOrEqual(0)
-    expect(cagr).toBeCloseTo(1, 0)
+    // raw CAGR is 1.0 (2x over 1 year); computeCAGR clamps to max 0.20
+    expect(cagr).toBe(0.2)
   })
 })
 
