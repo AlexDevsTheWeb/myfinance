@@ -38,7 +38,7 @@ Scaling work for [#56](https://github.com/AlexDevsTheWeb/myfinance/issues/56): m
 - `src/store/sync/index.ts`: `backfillRecurringToSubCollection()` — writes only missing docs
 - `src/hooks/useSyncFinance.ts`: recurring `onSnapshot` listener replaces main-doc array reads; `checkRecurring` gate waits for both subcollections to load
 - `src/store/useFinanceStore.ts`: `persistRecurringToSubcollection()` helper (writeBatch, 400-op chunks); all 11 write sites routed to subcollection (setRecurringTransactions, _migrateToMultiAccount, renameCategory, renameSubcategory, deleteSubcategoryAndRemap, moveSubcategory, addRecurring, updateRecurring, checkRecurring, deleteRecurring, importAllData)
-- `src/lib/firebase.ts`: `getFirestore(app)` replaced with `initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })`
+- `src/lib/firebase.ts`: `getFirestore(app)` replaced with `initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })`, guarded by a pre-flight IndexedDB availability probe — when IndexedDB is unavailable (Safari private browsing, embedded WebViews) it falls back to `getFirestore(app)` (plain in-memory client, identical to pre-persistence behavior). The SDK does not throw synchronously from `initializeFirestore`, so a simple try/catch would not catch the failure.
 
 ## Deferred
 

@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 import { getEnvVar } from "../utils/variables.utils";
 
 const apiKey = getEnvVar('VITE_FIREBASE_API_KEY');
@@ -23,7 +23,19 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-});
+
+// IndexedDB-backed persistence (offline reads + queued writes). If IndexedDB is
+// unavailable (Safari private browsing, embedded WebViews), the SDK throws when
+// Firestore is first used — so probe availability up front and fall back to the
+// plain in-memory client (identical to pre-persistence behavior) when needed.
+const indexedDbAvailable =
+  typeof window !== 'undefined' &&
+  typeof window.indexedDB !== 'undefined' &&
+  typeof window.indexedDB.open === 'function';
+
+export const db = indexedDbAvailable
+  ? initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    })
+  : getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();

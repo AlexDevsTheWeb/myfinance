@@ -730,3 +730,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Created [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] — feature page (status: implemented)
 - Updated index.md (76 pages), wiki/features/index.md, wiki/plans/index.md
 - Cross-links: transactions-array-write-back, pwa-strategy, go-to-market
+
+## [2026-08-06] fix | Feature | Offline persistence fallback (#56)
+- Added pre-flight IndexedDB availability probe in `src/lib/firebase.ts`: when IndexedDB is unavailable (Safari private browsing, embedded WebViews), `db` falls back to `getFirestore(app)` (plain in-memory client) instead of `initializeFirestore` + `persistentLocalCache` — which would otherwise throw on first Firestore use.
+- Important: a literal try/catch around `initializeFirestore` would NOT catch the failure — the SDK defers the IndexedDB check until first use (not init). Verified in SDK source (`IndexedDbPersistence.C()` → `SimpleDb.C()`).
+- Updated [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] implementation notes.
+- Verified: `npm run build` clean; `npm run lint` baseline unchanged (19/9).
