@@ -383,5 +383,21 @@
     "idealBurnRate": "Ideal Burn Rate",
     "actualSpend": "Actual Spend",
     "noBurnUpData": "No spending data for this period"
+  },
+  "auth": {
+    "popupBlocked": "Google sign-in was blocked. Please allow popups for this site and try again.",
+    "popupClosedByUser": "Sign-in popup closed before completing. Please try again.",
+    "cancelledPopupRequest": "Sign-in was cancelled. Please try again.",
+    "wrongPassword": "Invalid email or password.",
+    "userNotFound": "No account found with this email.",
+    "invalidCredential": "Invalid email or password.",
+    "invalidEmail": "Please enter a valid email address.",
+    "emailAlreadyInUse": "An account with this email already exists. Try signing in instead.",
+    "weakPassword": "Password is too weak. Use at least 6 characters.",
+    "networkRequestFailed": "Network error. Check your connection and try again.",
+    "tooManyRequests": "Too many attempts. Please wait a moment and try again.",
+    "userDisabled": "This account has been disabled.",
+    "operationNotAllowed": "This sign-in method is not allowed.",
+    "genericError": "Something went wrong. Please try again."
   }
 }

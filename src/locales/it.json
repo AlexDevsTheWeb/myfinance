@@ -383,5 +383,21 @@
     "idealBurnRate": "Spesa Ideale",
     "actualSpend": "Spesa Reale",
     "noBurnUpData": "Nessun dato di spesa per questo periodo"
+  },
+  "auth": {
+    "popupBlocked": "Accesso con Google bloccato. Consenti i popup per questo sito e riprova.",
+    "popupClosedByUser": "La finestra di accesso è stata chiusa prima del completamento. Riprova.",
+    "cancelledPopupRequest": "Accesso annullato. Riprova.",
+    "wrongPassword": "Email o password non validi.",
+    "userNotFound": "Nessun account trovato con questa email.",
+    "invalidCredential": "Email o password non validi.",
+    "invalidEmail": "Inserisci un indirizzo email valido.",
+    "emailAlreadyInUse": "Esiste già un account con questa email. Prova ad accedere.",
+    "weakPassword": "Password troppo debole. Usa almeno 6 caratteri.",
+    "networkRequestFailed": "Errore di rete. Controlla la connessione e riprova.",
+    "tooManyRequests": "Troppi tentativi. Attendi un momento e riprova.",
+    "userDisabled": "Questo account è stato disabilitato.",
+    "operationNotAllowed": "Questo metodo di accesso non è consentito.",
+    "genericError": "Qualcosa è andato storto. Riprova."
   }
 }
