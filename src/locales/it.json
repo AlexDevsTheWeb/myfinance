@@ -194,7 +194,21 @@
     "projectionsDescription": "Configura i tassi predefiniti usati nelle proiezioni finanziarie.",
     "inflationRate": "Tasso d'inflazione",
     "taxRate": "Aliquota fiscale",
-    "resetDefaults": "Reimposta predefiniti"
+    "resetDefaults": "Reimposta predefiniti",
+    "deleteAccount": "Elimina account",
+    "deleteAccountDescription": "Elimina definitivamente il tuo account e tutti i tuoi dati. Questa azione non può essere annullata.",
+    "deleteAccountConfirmTitle": "Eliminare il tuo account?",
+    "deleteAccountConfirmMessage": "Questo eliminerà definitivamente il tuo account, tutte le transazioni, gli investimenti e le impostazioni. Questa azione non può essere annullata.",
+    "deleteAccountTypeEmail": "Digita la tua email per confermare:",
+    "deleteAccountEmailMismatch": "L'email inserita non corrisponde al tuo account.",
+    "deleteAccountConfirm": "Elimina il mio account",
+    "deleteAccountPasswordTitle": "Conferma la tua password",
+    "deleteAccountPasswordMessage": "Inserisci la password attuale per confermare l'eliminazione dell'account.",
+    "deleteAccountPassword": "Password",
+    "deleteAccountCancel": "Annulla",
+    "deleteAccountSuccess": "Account eliminato con successo.",
+    "deleteAccountError": "Impossibile eliminare l'account.",
+    "deleteAccountWrongPassword": "Password errata. Riprova."
   },
   "language": {
     "italian": "Italiano",
