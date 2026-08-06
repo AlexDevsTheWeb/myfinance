@@ -681,6 +681,17 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Updated index.md (72 pages), wiki/features/index.md
 - Cross-links: new-user-auth-flow, backup-restore-data-coverage
 
+## [2026-08-06] ingest | Decision | Firestore write rate limiting (#159)
+- User report (#159): no rate limiting or throttling on Firestore writes — `firestore.rules` checks auth only (`isSignedIn()`/`isOwner(userId)`), no read/write-count guard, no field validation. Client-only app (no backend/Cloud Functions), so all writes go directly through the SDK.
+- Impact at current scale is low; exposure grows at paid-tier launch (free-tier budget 50k reads / 20k writes per day; runaway loop or scripted REST abuse).
+- Existing defense: `isSaving`/`isCheckingRecurring` guards in all stores + 5s `checkRecurring` throttle (prevents overlap, not runaway sequential writes).
+- Key finding: Firestore rules have no time-based primitives; the often-suggested `request.write_requests_per_minute` is not a real rules API → rules-based counters not viable.
+- Created [[raw/159-rate-limiting/159-rate-limiting.md]] — full threat model + mitigation matrix
+- Created [[wiki/decisions/firestore-rate-limiting]] — decision page (status: accepted)
+- Decision: document now, defer App Check + server-side limiting to paid-tier launch (track with [[wiki/plans/go-to-market]]); cheap client-side write-guard applied to bulk-write paths can be done pre-launch
+- Updated index.md (73 pages), wiki/decisions/index.md
+- Cross-links: saas-readiness, go-to-market, concerns-and-tech-debt, external-integrations
+
 ## [2026-08-06] implement | Feature | Account deletion (#158)
 - Added `src/lib/deleteAccount.ts` — `deleteUserAccount()`: reauthenticates via provider (Google popup / email-password credential), bulk-deletes transactions + portfolio_history subcollections, deletes `users/{uid}`, calls `deleteUser()`
 - ConfigPage General tab: danger-zone "Delete Account" section with typed-email confirmation dialog, loading state, AlertSnackbar success/error feedback
