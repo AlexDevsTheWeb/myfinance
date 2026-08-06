@@ -6,7 +6,7 @@ resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/56"
 tags: [plan, scaling, firestore, offline]
 created: 2026-08-06
 updated: 2026-08-06
-status: in-progress
+status: completed
 sources: ["raw/56-blite-recurring-migration/56-blite-recurring-migration.md"]
 related:
   - "wiki/bugs/transactions-array-write-back.md"
@@ -16,7 +16,7 @@ related:
 
 # Plan: B-lite Scaling
 
-Status: in-progress
+Status: completed
 
 ## Goal
 
@@ -29,14 +29,14 @@ Defer virtualization/pagination, PWA service worker, and remaining array migrati
 
 ## Steps
 
-1. [ ] Add `recurringTransactionConverter` + refs in `src/lib/converters.ts`
-2. [ ] Add `recurringTransactions` subcollection rule in `firestore.rules`
-3. [ ] Add `backfillRecurringToSubCollection()` in `src/store/sync/index.ts`; call on init
-4. [ ] Load recurring from subcollection via `onSnapshot` in `useSyncFinance.ts`
-5. [ ] Route all 11 store write sites to the subcollection (helper `persistRecurringToSubcollection`)
-6. [ ] Enable offline persistence in `src/lib/firebase.ts` (`initializeFirestore` + `persistentLocalCache`)
-7. [ ] Grep to confirm no main-doc `recurringTransactions:` writes remain
-8. [ ] Verify: build + lint + OKF
+1. [x] Add `recurringTransactionConverter` + refs in `src/lib/converters.ts`
+2. [x] Add `recurringTransactions` subcollection rule in `firestore.rules`
+3. [x] Add `backfillRecurringToSubCollection()` in `src/store/sync/index.ts`; call on init
+4. [x] Load recurring from subcollection via `onSnapshot` in `useSyncFinance.ts`
+5. [x] Route all 11 store write sites to the subcollection (helper `persistRecurringToSubcollection`)
+6. [x] Enable offline persistence in `src/lib/firebase.ts` (`initializeFirestore` + `persistentLocalCache`)
+7. [x] Grep to confirm no main-doc `recurringTransactions:` writes remain
+8. [x] Verify: build + lint + OKF
 
 ## Dependencies
 
