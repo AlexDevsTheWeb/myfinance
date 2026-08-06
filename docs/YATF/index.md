@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-08-06* (Legacy transactions[] write-back)
-*Total pages: 74*
+*Last updated: 2026-08-06* (B-lite scaling plan)
+*Total pages: 75*
 
 ---
 
@@ -64,6 +64,7 @@ timestamp: 2026-08-03
 | [[wiki/plans/italian-tax-enhancements]] | 📋 Stamp duty (0.20%) + capital losses tracking — 5-wave task breakdown | [`#110`](https://github.com/AlexDevsTheWeb/myfinance/issues/110) |
 | [[wiki/plans/go-to-market]] | 🔴 **MAX PRIORITY** — 6-phase SaaS launch plan (quick wins → data security → beta → validate → monetize → cleanup) | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/plans/beta-launch-playbook]] | 📋 Phase 2 execution details: disclaimer banner ✅, backup/restore verification ✅, tester invitation template ⬜ | [`raw/beta-launch-playbook/beta-launch-playbook.md`](raw/beta-launch-playbook/beta-launch-playbook.md) |
+| [[wiki/plans/56-blite-recurring-migration]] | 📋 B-lite: recurring subcollection migration + Firestore offline persistence now; virtualization/PWA deferred to launch | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
 
 ## Decisions
 

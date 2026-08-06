@@ -681,6 +681,13 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Updated index.md (72 pages), wiki/features/index.md
 - Cross-links: new-user-auth-flow, backup-restore-data-coverage
 
+## [2026-08-06] plan | Scaling B-lite — recurring subcollection + offline (#56)
+- Selected "B-lite" scope for issue #56 from the open-concern discussion: do recurringTransactions subcollection migration + Firestore offline persistence now; defer virtualization/pagination, PWA service worker, remaining arrays to launch phase.
+- Created [[raw/56-blite-recurring-migration/56-blite-recurring-migration.md]] — implementation plan
+- Created [[wiki/plans/56-blite-recurring-migration]] — plan page (status: in-progress)
+- Updated index.md (75 pages), wiki/plans/index.md
+- Cross-links: transactions-array-write-back, pwa-strategy, go-to-market
+
 ## [2026-08-06] ingest | Bug | Legacy transactions[] write-back to main user doc (#56)
 - Re-validated issue #56 (Scaling limits). Concern 1 (1 MiB doc): transactions already subcollected, but found a regression — 5 actions (`_migrateToMultiAccount`, `renameCategory`, `renameSubcategory`, `deleteSubcategoryAndRemap`, `moveSubcategory`) still wrote the full transactions array to the dead `transactions` field on `users/{uid}`. Bloat risk + renames never reached the subcollection (silently reverted on reload).
 - Created [[raw/scaling-limits-review/scaling-limits-review.md]] — full 3-concern validity check
