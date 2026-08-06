@@ -672,3 +672,17 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Added `auth` i18n section to `src/locales/en.json` + `it.json` mapping Firebase error codes → user-friendly messages (popup-blocked, wrong-password, user-not-found, invalid-credential, invalid-email, email-already-in-use, weak-password, network-request-failed, too-many-requests, user-disabled, operation-not-allowed, popup-closed-by-user, cancelled-popup-request, generic fallback)
 - `LoginPage.tsx`: added `getAuthErrorMessage(error)` mapper + `alertState`/`showAlert()` + `<AlertSnackbar/>` wired into both catch blocks; all messages localized via `useTranslation()`
 - Verified: `npm run build` clean; `npm run lint` no new issues
+
+## [2026-08-06] ingest | Feature | Account deletion — users can't delete their own account/data
+- User report (#158): no way to delete own account — Firestore doc, subcollections (transactions, portfolio_history), or Firebase Auth. GDPR erasure gap + orphaned data accumulation.
+- Root cause (gap): no deletion path anywhere. Firestore does NOT cascade-delete subcollections; `deleteUser()` requires recent login (`auth/requires-recent-login`); ordering matters (reauth → subcollections → user doc → auth → client cleanup).
+- Created [[raw/158-account-deletion/158-account-deletion.md]] — full analysis
+- Created [[wiki/features/account-deletion/account-deletion]] — feature page (status: implemented)
+- Updated index.md (72 pages), wiki/features/index.md
+- Cross-links: new-user-auth-flow, backup-restore-data-coverage
+
+## [2026-08-06] implement | Feature | Account deletion (#158)
+- Added `src/lib/deleteAccount.ts` — `deleteUserAccount()`: reauthenticates via provider (Google popup / email-password credential), bulk-deletes transactions + portfolio_history subcollections, deletes `users/{uid}`, calls `deleteUser()`
+- ConfigPage General tab: danger-zone "Delete Account" section with typed-email confirmation dialog, loading state, AlertSnackbar success/error feedback
+- i18n: `config.deleteAccount.*` keys in en.json + it.json
+- Verified: `npm run build` clean; `npm run lint` no new issues
