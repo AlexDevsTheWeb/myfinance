@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-08-06* (Firestore write rate limiting)
-*Total pages: 73*
+*Last updated: 2026-08-06* (Legacy transactions[] write-back)
+*Total pages: 74*
 
 ---
 
@@ -96,6 +96,7 @@ timestamp: 2026-08-03
 | [[wiki/bugs/broker-transaction-filter]] | ✅ Broker filter shows 0 invested / no holdings — manual ETF transactions never persisted `brokerId` — **fixed** | [`raw/bugs/broker-transaction-filter/broker-transaction-filter.md`](raw/bugs/broker-transaction-filter/broker-transaction-filter.md) |
 | [[wiki/bugs/etf-pricing-total-return]] | ✅ Total Return stuck at €0 — price provider dead (yfin.dev); switched to Yahoo with Xetra-first resolution + SWDA→EUNL consolidation — **fixed** | [`raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md`](raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md) |
 | [[wiki/bugs/silent-login-errors]] | ✅ Auth failures (popup blocked, wrong password, network) silently swallowed — now localized AlertSnackbar feedback — **fixed** | [`#157`](https://github.com/AlexDevsTheWeb/myfinance/issues/157) |
+| [[wiki/bugs/transactions-array-write-back]] | ✅ 5 actions re-wrote full transactions array to dead main-doc field (1 MiB risk + lost renames) — now persisted to subcollection — **fixed** | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
 
 ## Architecture
 

@@ -681,6 +681,18 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Updated index.md (72 pages), wiki/features/index.md
 - Cross-links: new-user-auth-flow, backup-restore-data-coverage
 
+## [2026-08-06] ingest | Bug | Legacy transactions[] write-back to main user doc (#56)
+- Re-validated issue #56 (Scaling limits). Concern 1 (1 MiB doc): transactions already subcollected, but found a regression — 5 actions (`_migrateToMultiAccount`, `renameCategory`, `renameSubcategory`, `deleteSubcategoryAndRemap`, `moveSubcategory`) still wrote the full transactions array to the dead `transactions` field on `users/{uid}`. Bloat risk + renames never reached the subcollection (silently reverted on reload).
+- Created [[raw/scaling-limits-review/scaling-limits-review.md]] — full 3-concern validity check
+- Created [[wiki/bugs/transactions-array-write-back]] — bug page (status: fixed)
+- Updated index.md (74 pages), wiki/bugs/index.md
+- Cross-links: firestore-rate-limiting, concerns-and-tech-debt
+
+## [2026-08-06] fix | Bug | Legacy transactions[] write-back (#56)
+- Added `persistTransactionsToSubcollection()` helper (writeBatch, 400-op chunks) in `src/store/useFinanceStore.ts`
+- Fixed 5 sites to persist only `changedTransactions` to the subcollection; main-doc `updateDoc` keeps only categories/recurringTransactions
+- Verified: `npm run build` clean; `npm run lint` no new issues; grep confirms no remaining `transactions:` write to main doc
+
 ## [2026-08-06] ingest | Decision | Firestore write rate limiting (#159)
 - User report (#159): no rate limiting or throttling on Firestore writes — `firestore.rules` checks auth only (`isSignedIn()`/`isOwner(userId)`), no read/write-count guard, no field validation. Client-only app (no backend/Cloud Functions), so all writes go directly through the SDK.
 - Impact at current scale is low; exposure grows at paid-tier launch (free-tier budget 50k reads / 20k writes per day; runaway loop or scripted REST abuse).

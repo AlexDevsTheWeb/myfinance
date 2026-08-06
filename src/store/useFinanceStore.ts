@@ -37,6 +37,25 @@ export const validateRecurringTransaction = Validation.validateRecurringTransact
 // Re-export sanitization functions from sanitization folder
 export { Sanitization };
 
+async function persistTransactionsToSubcollection(userId: string, transactions: Transaction[]) {
+  if (transactions.length === 0) return;
+  const collRef = getTransactionsCollectionRef(userId);
+  let batch = writeBatch(db);
+  let count = 0;
+  for (const txn of transactions) {
+    batch.set(doc(collRef, txn.id), Sanitization.sanitizeTransaction(txn));
+    count++;
+    if (count === 400) {
+      await batch.commit();
+      batch = writeBatch(db);
+      count = 0;
+    }
+  }
+  if (count > 0) {
+    await batch.commit();
+  }
+}
+
 interface FinanceState {
   initialBalance: number;
   categories: Category[];
@@ -444,6 +463,10 @@ setBalanceStartDate: async (date) => {
         const defaultAccount = state.accounts.find(a => a.isDefault) || state.accounts[0];
         if (!defaultAccount) return;
 
+        const changedTransactions = state.transactions
+          .filter(t => !t.accountId)
+          .map(t => ({ ...t, accountId: defaultAccount.id }));
+
         set((state) => {
           const updatedTransactions = state.transactions.map(t =>
             t.accountId ? t : { ...t, accountId: defaultAccount.id }
@@ -464,13 +487,11 @@ setBalanceStartDate: async (date) => {
         set({ saveError: null, isSaving: true });
         try {
           const docRef = doc(db, 'users', userId);
-          const currentTransactions = useFinanceStore.getState().transactions;
           const currentRecurring = useFinanceStore.getState().recurringTransactions;
-          
           await updateDoc(docRef, {
-            transactions: currentTransactions,
             recurringTransactions: currentRecurring
           });
+          await persistTransactionsToSubcollection(userId, changedTransactions);
           set({ isSaving: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to migrate to multi-account';
@@ -503,8 +524,12 @@ setBalanceStartDate: async (date) => {
 
         set({ saveError: null, isSaving: true });
         try {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const changedTransactions = useFinanceStore.getState().transactions
+            .filter(t => t.type === type && t.category === oldName)
+            .map(t => ({ ...t, category: newName }));
+
           set((state) => {
-            const key = type === 'income' ? 'incomeCategories' : 'categories';
             const updatedTransactions = state.transactions.map(t =>
               t.type === type && t.category === oldName ? { ...t, category: newName } : t
             );
@@ -521,15 +546,13 @@ setBalanceStartDate: async (date) => {
             };
           });
           const docRef = doc(db, 'users', userId);
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
           const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
-          const transactions = useFinanceStore.getState().transactions;
           const recurringTransactions = useFinanceStore.getState().recurringTransactions;
           await updateDoc(docRef, {
             [key]: categories,
-            transactions: transactions,
             recurringTransactions: recurringTransactions
           });
+          await persistTransactionsToSubcollection(userId, changedTransactions);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to rename category';
           set({ saveError: errorMessage, isSaving: false });
@@ -590,6 +613,11 @@ setBalanceStartDate: async (date) => {
 
         set({ saveError: null, isSaving: true });
         try {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const changedTransactions = useFinanceStore.getState().transactions
+            .filter(t => t.type === type && t.category === categoryName && t.subcategory === oldName)
+            .map(t => ({ ...t, subcategory: newName }));
+
           set((state) => {
             const key = type === 'income' ? 'incomeCategories' : 'categories';
             const updatedTransactions = state.transactions.map(t =>
@@ -611,15 +639,13 @@ setBalanceStartDate: async (date) => {
             };
           });
           const docRef = doc(db, 'users', userId);
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
           const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
-          const transactions = useFinanceStore.getState().transactions;
           const recurringTransactions = useFinanceStore.getState().recurringTransactions;
           await updateDoc(docRef, {
             [key]: categories,
-            transactions: transactions,
             recurringTransactions: recurringTransactions
           });
+          await persistTransactionsToSubcollection(userId, changedTransactions);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to rename subcategory';
           set({ saveError: errorMessage, isSaving: false });
@@ -658,6 +684,11 @@ setBalanceStartDate: async (date) => {
 
         set({ saveError: null, isSaving: true });
         try {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const changedTransactions = useFinanceStore.getState().transactions
+            .filter(t => t.type === type && t.category === categoryName && t.subcategory === subToDelete)
+            .map(t => ({ ...t, subcategory: remapToSub }));
+
           set((state) => {
             const key = type === 'income' ? 'incomeCategories' : 'categories';
             const updatedTransactions = state.transactions.map(t =>
@@ -682,15 +713,13 @@ setBalanceStartDate: async (date) => {
             };
           });
           const docRef = doc(db, 'users', userId);
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
           const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
-          const transactions = useFinanceStore.getState().transactions;
           const recurringTransactions = useFinanceStore.getState().recurringTransactions;
           await updateDoc(docRef, {
             [key]: categories,
-            transactions: transactions,
             recurringTransactions: recurringTransactions
           });
+          await persistTransactionsToSubcollection(userId, changedTransactions);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete and remap subcategory';
           set({ saveError: errorMessage, isSaving: false });
@@ -704,6 +733,11 @@ setBalanceStartDate: async (date) => {
 
         set({ saveError: null, isSaving: true });
         try {
+          const key = type === 'income' ? 'incomeCategories' : 'categories';
+          const changedTransactions = useFinanceStore.getState().transactions
+            .filter(t => t.type === type && t.category === fromCategory && t.subcategory === subName)
+            .map(t => ({ ...t, category: toCategory }));
+
           set((state) => {
             if (fromCategory === toCategory) return state;
             const key = type === 'income' ? 'incomeCategories' : 'categories';
@@ -735,15 +769,13 @@ setBalanceStartDate: async (date) => {
             };
           });
           const docRef = doc(db, 'users', userId);
-          const key = type === 'income' ? 'incomeCategories' : 'categories';
           const categories = useFinanceStore.getState()[key as 'incomeCategories' | 'categories'];
-          const transactions = useFinanceStore.getState().transactions;
           const recurringTransactions = useFinanceStore.getState().recurringTransactions;
           await updateDoc(docRef, {
             [key]: categories,
-            transactions: transactions,
             recurringTransactions: recurringTransactions
           });
+          await persistTransactionsToSubcollection(userId, changedTransactions);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to move subcategory';
           set({ saveError: errorMessage, isSaving: false });
