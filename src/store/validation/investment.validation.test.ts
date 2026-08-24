@@ -46,6 +46,18 @@ describe('validateEtfTransaction', () => {
       error: 'Price must be greater than 0',
     })
   })
+  it('rejects NaN units', () => {
+    expect(validateEtfTransaction({ ...baseEtf, units: NaN })).toEqual({
+      valid: false,
+      error: 'Units must be greater than 0',
+    })
+  })
+  it('rejects NaN price', () => {
+    expect(validateEtfTransaction({ ...baseEtf, price: NaN })).toEqual({
+      valid: false,
+      error: 'Price must be greater than 0',
+    })
+  })
 })
 
 describe('validateTicker', () => {
@@ -100,6 +112,30 @@ describe('validateBrokerAccount', () => {
       })
     ).toEqual({ valid: false, error: 'Interest rate must be between 0 and 100' })
   })
+  it('rejects NaN base lump sum', () => {
+    expect(
+      validateBrokerAccount({
+        id: 'b1',
+        name: 'TR',
+        ticker: 'VWCE.DE',
+        baseLumpSum: NaN,
+        monthlyPacAmount: 0,
+        interestRate: 0,
+      })
+    ).toEqual({ valid: false, error: 'Base lump sum must be 0 or greater' })
+  })
+  it('rejects NaN interest rate', () => {
+    expect(
+      validateBrokerAccount({
+        id: 'b1',
+        name: 'TR',
+        ticker: 'VWCE.DE',
+        baseLumpSum: 0,
+        monthlyPacAmount: 0,
+        interestRate: NaN,
+      })
+    ).toEqual({ valid: false, error: 'Interest rate must be between 0 and 100' })
+  })
 })
 
 describe('validateBrokerConfig', () => {
@@ -143,6 +179,11 @@ describe('validateCashAdjustment', () => {
       validateCashAdjustment({ id: 'c1', brokerId: '', amount: 500, date: '2026-08-01' })
     ).toEqual({ valid: false, error: 'Broker account is required' })
   })
+  it('rejects NaN amount', () => {
+    expect(
+      validateCashAdjustment({ id: 'c1', brokerId: 'b1', amount: NaN, date: '2026-08-01' })
+    ).toEqual({ valid: false, error: 'Amount must be non-zero' })
+  })
 })
 
 describe('validateDividendEntry', () => {
@@ -165,6 +206,18 @@ describe('validateDividendEntry', () => {
         brokerId: 'b1',
         ticker: 'VWCE.DE',
         amount: 0,
+        date: '2026-08-01',
+        type: 'dividend',
+      })
+    ).toEqual({ valid: false, error: 'Amount must be greater than 0' })
+  })
+  it('rejects NaN amount', () => {
+    expect(
+      validateDividendEntry({
+        id: 'd1',
+        brokerId: 'b1',
+        ticker: 'VWCE.DE',
+        amount: NaN,
         date: '2026-08-01',
         type: 'dividend',
       })

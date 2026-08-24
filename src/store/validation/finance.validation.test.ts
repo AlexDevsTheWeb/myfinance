@@ -42,6 +42,20 @@ describe('validateTransaction', () => {
     })
   })
 
+  it('rejects NaN amount', () => {
+    expect(validateTransaction({ ...baseTxn, amount: NaN })).toEqual({
+      valid: false,
+      error: 'Amount must be greater than 0',
+    })
+  })
+
+  it('rejects Infinity amount', () => {
+    expect(validateTransaction({ ...baseTxn, amount: Infinity })).toEqual({
+      valid: false,
+      error: 'Amount must be greater than 0',
+    })
+  })
+
   it('rejects missing required fields', () => {
     expect(validateTransaction({ ...baseTxn, accountId: '' })).toEqual({
       valid: false,
@@ -64,6 +78,20 @@ describe('validateRecurringTransaction', () => {
 
   it('rejects negative amount', () => {
     expect(validateRecurringTransaction({ ...baseRecurring, amount: -5 })).toEqual({
+      valid: false,
+      error: 'Amount must be greater than 0',
+    })
+  })
+
+  it('rejects NaN amount', () => {
+    expect(validateRecurringTransaction({ ...baseRecurring, amount: NaN })).toEqual({
+      valid: false,
+      error: 'Amount must be greater than 0',
+    })
+  })
+
+  it('rejects Infinity amount', () => {
+    expect(validateRecurringTransaction({ ...baseRecurring, amount: Infinity })).toEqual({
       valid: false,
       error: 'Amount must be greater than 0',
     })
