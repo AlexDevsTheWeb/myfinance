@@ -75,7 +75,7 @@ When extending, highest-value gaps first:
 | Investment store logic (capital gains, dividends, cash adjustments) | Phase 3 |
 | Components + sync hooks (RTL, i18n/MUI wrappers) | Phase 4 |
 
-Known suspected quirks — do not pin deeper without an issue: `monthOfYear: 0` dropped for yearly recurring (truthiness check), NaN passing through sanitizers unchecked.
+Known suspected quirks — do not pin deeper without an issue: ~~`monthOfYear: 0` dropped for yearly recurring~~ (investigated 2026-08-24: intended — domain is 1–12, see [[wiki/features/test-infrastructure/test-infrastructure]]); NaN now rejected at validation via `Number.isFinite` guards — keep that pattern for new numeric checks (bare `x <= 0` never catches NaN).
 
 ## Related
 

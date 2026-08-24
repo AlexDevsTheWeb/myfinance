@@ -746,3 +746,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 ## [2026-08-24] ingest | Convention | Testing Guide (Vitest)
 - Created [[wiki/conventions/testing-guide]] — practical usage guide: running, colocation, characterization approach, mocking rules, repo-specific gotchas, coverage gaps
 - Updated [[wiki/features/test-infrastructure/test-infrastructure]] (cross-link), index.md (page count 77 → 78), wiki/conventions/index.md
+
+## [2026-08-24] update | Feature | Test Infrastructure — follow-up round
+- Fixed NaN/Infinity validation hole with Number.isFinite guards (both validator modules, +10 tests) — root cause was comparison guards vacuously false for NaN
+- Pinned budget band edges (100%/70% inclusive) + monthOfYear boundaries (+7 characterization tests)
+- Investigated monthOfYear:0 truthiness drop: not a bug, domain 1-12, documented rationale
+- Updated [[wiki/features/test-infrastructure/test-infrastructure]], [[wiki/conventions/testing-guide]]

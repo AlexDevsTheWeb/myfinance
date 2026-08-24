@@ -44,6 +44,7 @@ Test infrastructure so the app can keep evolving without manually re-checking th
 - **Tautology fix (user-sanctioned):** the planned inflation test asserted `0 === 0`; rewritten to exact deflated values (1200 → 1176 = `round(1200/1.02)`) so it can fail on regression.
 - **Lint gotcha:** bare `npx eslint <file>` crashes on TS (TS7/TS6 override issue) — use the project lint script or `NODE_OPTIONS='--require ./scripts/ts-eslint-resolve.cjs'`.
 - Deferred minors recorded in the raw source: band-edge boundaries (100%/70%), NaN pass-through, lower CAGR clamp, `monthOfYear: 0` truthiness drop.
+- **Follow-up round (2026-08-24):** band edges pinned with 4 boundary tests; `monthOfYear: 0` investigated and confirmed **not a bug** (domain is 1–12; dropping falsy input is correct — preserving it would wrap `monthOfYear - 1` to the previous December); NaN pass-through root-caused to the **validators**, not sanitizers — every numeric guard used comparisons (`<= 0`, `< 0`, `=== 0`) that are vacuously false for NaN/Infinity, letting non-finite amounts pass validation and crash at Firestore write. Fixed with `Number.isFinite` guards across both validator modules (+10 tests).
 
 ## Related
 
