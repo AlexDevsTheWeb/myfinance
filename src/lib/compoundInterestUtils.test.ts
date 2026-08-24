@@ -86,9 +86,18 @@ describe('generateFinancialProjection', () => {
   })
 
   it('applies inflation adjustment to netWorth', () => {
+    const withoutInflation = generateFinancialProjection({
+      years: 1,
+      initialLumpSum: 1200,
+      annualInflow: 0,
+      monthlyPac: 0,
+      etfAnnualReturn: 0,
+      cashAnnualRate: 0,
+      adjustForInflation: false,
+    })
     const withInflation = generateFinancialProjection({
       years: 1,
-      initialLumpSum: 0,
+      initialLumpSum: 1200,
       annualInflow: 0,
       monthlyPac: 0,
       etfAnnualReturn: 0,
@@ -96,16 +105,9 @@ describe('generateFinancialProjection', () => {
       adjustForInflation: true,
       inflationRate: 0.02,
     })
-    const withoutInflation = generateFinancialProjection({
-      years: 1,
-      initialLumpSum: 0,
-      annualInflow: 0,
-      monthlyPac: 0,
-      etfAnnualReturn: 0,
-      cashAnnualRate: 0,
-      adjustForInflation: false,
-    })
-    expect(withoutInflation[11].netWorth).toBe(0)
-    expect(withInflation[11].netWorth).toBe(0)
+    expect(withoutInflation[11].netWorth).toBe(1200)
+    // 1200 deflated by (1 + 2%)^1 over 12 months: round(1200 / 1.02) = 1176
+    expect(withInflation[11].netWorth).toBe(1176)
+    expect(withInflation[11].netWorth).toBeLessThan(withoutInflation[11].netWorth)
   })
 })
