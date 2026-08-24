@@ -43,6 +43,25 @@ describe('sanitizeRecurring', () => {
     expect(out.monthOfYear).toBe(3)
   })
 
+  it('preserves valid domain boundaries of monthOfYear for yearly recurring', () => {
+    const january = sanitizeRecurring({ ...baseRecurring, frequency: 'yearly' as const, monthOfYear: 1 })
+    expect(january.monthOfYear).toBe(1)
+    const december = sanitizeRecurring({ ...baseRecurring, frequency: 'yearly' as const, monthOfYear: 12 })
+    expect(december.monthOfYear).toBe(12)
+  })
+
+  it('drops out-of-domain falsy monthOfYear (0) for yearly recurring', () => {
+    // Domain is 1-12; consumers do `monthOfYear - 1`, so preserving 0 would
+    // wrap to December of the previous year. Dropping invalid input is intended.
+    const out = sanitizeRecurring({ ...baseRecurring, frequency: 'yearly' as const, monthOfYear: 0 })
+    expect(out).not.toHaveProperty('monthOfYear')
+  })
+
+  it('drops missing monthOfYear for yearly recurring', () => {
+    const out = sanitizeRecurring({ ...baseRecurring, frequency: 'yearly' as const })
+    expect(out).not.toHaveProperty('monthOfYear')
+  })
+
   it('includes cardId when present', () => {
     const out = sanitizeRecurring({ ...baseRecurring, cardId: 'card-1' })
     expect(out.cardId).toBe('card-1')
