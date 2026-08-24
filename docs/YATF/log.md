@@ -742,3 +742,7 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Updated [[wiki/architecture/testing-status]] — superseded "no test suite exists" finding; current state + done setup markers
 - Updated index.md (page count 76 → 77), wiki/features/index.md, wiki/architecture/index.md
 - Source: [raw/test-infrastructure/test-infrastructure.md](raw/test-infrastructure/test-infrastructure.md)
+
+## [2026-08-24] ingest | Convention | Testing Guide (Vitest)
+- Created [[wiki/conventions/testing-guide]] — practical usage guide: running, colocation, characterization approach, mocking rules, repo-specific gotchas, coverage gaps
+- Updated [[wiki/features/test-infrastructure/test-infrastructure]] (cross-link), index.md (page count 77 → 78), wiki/conventions/index.md

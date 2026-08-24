@@ -8,7 +8,7 @@ timestamp: 2026-08-03
 # Wiki Index
 
 *Last updated: 2026-08-24* (test infrastructure Phase 1 landed)
-*Total pages: 77*
+*Total pages: 78*
 
 ---
 
@@ -124,6 +124,7 @@ timestamp: 2026-08-03
 |------|---------|---------|
 | [[wiki/conventions/branch-strategy]] | Git branch rules, naming, PR workflow | — |
 | [[wiki/conventions/coding-conventions]] | Naming, imports, error handling, code style | [`raw/codebase/CONVENTIONS.md`](raw/codebase/CONVENTIONS.md) |
+| [[wiki/conventions/testing-guide]] | 🧪 How to use the Vitest infrastructure — running, writing, mocking, repo-specific gotchas | [`raw/test-infrastructure/test-infrastructure.md`](raw/test-infrastructure/test-infrastructure.md) |
 
 ## References
 

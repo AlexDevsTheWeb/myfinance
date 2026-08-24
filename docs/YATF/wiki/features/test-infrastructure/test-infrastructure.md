@@ -8,7 +8,7 @@ created: 2026-08-24
 updated: 2026-08-24
 status: in-progress
 sources: ["raw/test-infrastructure/test-infrastructure.md"]
-related: ["wiki/architecture/testing-status", "wiki/features/budget-savings-engine/budget-savings-engine", "wiki/features/financial-projections/financial-projections", "wiki/features/tax-inflation-modeling/tax-inflation-modeling", "wiki/decisions/typescript-7-upgrade"]
+related: ["wiki/architecture/testing-status", "wiki/conventions/testing-guide", "wiki/features/budget-savings-engine/budget-savings-engine", "wiki/features/financial-projections/financial-projections", "wiki/features/tax-inflation-modeling/tax-inflation-modeling", "wiki/decisions/typescript-7-upgrade"]
 ---
 
 # Feature: Test Infrastructure (Vitest)
@@ -47,6 +47,7 @@ Test infrastructure so the app can keep evolving without manually re-checking th
 
 ## Related
 
+- [[wiki/conventions/testing-guide]] — how to use this infrastructure day-to-day
 - [[wiki/architecture/testing-status]] — superseded "no test suite exists" analysis
 - [[wiki/features/budget-savings-engine/budget-savings-engine]] — budgetEngine under test
 - [[wiki/features/financial-projections/financial-projections]] — projection engine under test
