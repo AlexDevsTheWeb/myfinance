@@ -58,6 +58,46 @@ describe('computeBudgetProgress', () => {
     expect(snapshots[0].status).toBe('safe')
   })
 
+  it('marks exactly 100% spent as breach (inclusive boundary)', () => {
+    const { snapshots } = computeBudgetProgress(
+      [tx({ category: 'Food', amount: 100 })],
+      [{ id: 't1', category: 'Food', targetAmount: 100, period: 'monthly', color: '#f00', createdAt: '2026-08-01', updatedAt: '2026-08-01' }],
+      RANGE
+    )
+    expect(snapshots[0].percentage).toBe(100)
+    expect(snapshots[0].status).toBe('breach')
+  })
+
+  it('keeps just-under-100% in the warning band', () => {
+    const { snapshots } = computeBudgetProgress(
+      [tx({ category: 'Food', amount: 99 })],
+      [{ id: 't1', category: 'Food', targetAmount: 100, period: 'monthly', color: '#f00', createdAt: '2026-08-01', updatedAt: '2026-08-01' }],
+      RANGE
+    )
+    expect(snapshots[0].percentage).toBe(99)
+    expect(snapshots[0].status).toBe('warning')
+  })
+
+  it('marks exactly 70% spent as warning (inclusive boundary)', () => {
+    const { snapshots } = computeBudgetProgress(
+      [tx({ category: 'Food', amount: 70 })],
+      [{ id: 't1', category: 'Food', targetAmount: 100, period: 'monthly', color: '#f00', createdAt: '2026-08-01', updatedAt: '2026-08-01' }],
+      RANGE
+    )
+    expect(snapshots[0].percentage).toBe(70)
+    expect(snapshots[0].status).toBe('warning')
+  })
+
+  it('marks just-under-70% as safe', () => {
+    const { snapshots } = computeBudgetProgress(
+      [tx({ category: 'Food', amount: 69 })],
+      [{ id: 't1', category: 'Food', targetAmount: 100, period: 'monthly', color: '#f00', createdAt: '2026-08-01', updatedAt: '2026-08-01' }],
+      RANGE
+    )
+    expect(snapshots[0].percentage).toBe(69)
+    expect(snapshots[0].status).toBe('safe')
+  })
+
   it('computes savings rate from income and expenses', () => {
     const transactions = [
       tx({ type: 'income', category: 'Salary', amount: 2000, date: '2026-08-05' }),
