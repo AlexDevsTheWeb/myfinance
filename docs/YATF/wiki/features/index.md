@@ -43,3 +43,4 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[features/recurring-card-selection/recurring-card-selection|recurring-card-selection]] | Card selection (None/credit/debit) on recurring expense templates, propagated to generated transactions. |
 | [[features/recurring-subcollection-scaling/recurring-subcollection-scaling|recurring-subcollection-scaling]] | recurringTransactions moved to a Firestore subcollection + offline persistence enabled (persistentLocalCache). |
 | [[features/account-deletion/account-deletion|account-deletion]] | Users can delete their own account + all data (Firestore doc, subcollections, auth) with re-auth guard and confirmation UI. |
+| [[features/test-infrastructure/test-infrastructure|test-infrastructure]] | Layered Vitest infrastructure (jsdom, colocated tests, mocked Firebase) — Phase 1 pure-logic layer complete. |

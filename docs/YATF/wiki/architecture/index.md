@@ -21,6 +21,6 @@ System architecture, component diagrams, data flow, and tech stack.
 | [[architecture/project-state|project-state]] | Current project state, active focus areas, and next prioritized steps. |
 | [[architecture/system-architecture|system-architecture]] | System overview, component responsibilities, and end-to-end data flow. |
 | [[architecture/tech-stack|tech-stack]] | Full technology stack with library versions and dependency overview. |
-| [[architecture/testing-status|testing-status]] | Current testing infrastructure status — no test suite exists. |
+| [[architecture/testing-status|testing-status]] | Current testing infrastructure status — Vitest Phase 1 landed (61 pure-logic tests), store/component layers pending. |
 | [[architecture/user-settings-data-flow|user-settings-data-flow]] | User settings architecture: Firestore field, Zustand store, and component tree. |
 | [[architecture/versioning|versioning]] | Versioning scheme using conventional commits and the standard-version release pipeline. |

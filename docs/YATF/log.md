@@ -736,3 +736,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Important: a literal try/catch around `initializeFirestore` would NOT catch the failure — the SDK defers the IndexedDB check until first use (not init). Verified in SDK source (`IndexedDbPersistence.C()` → `SimpleDb.C()`).
 - Updated [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] implementation notes.
 - Verified: `npm run build` clean; `npm run lint` baseline unchanged (19/9).
+
+## [2026-08-24] ingest | Feature | Test Infrastructure (Vitest)
+- Created [[wiki/features/test-infrastructure/test-infrastructure]] — Phase 1 (pure logic) complete: 61 tests / 7 files, Vitest ^4 + jsdom, mocked Firebase
+- Updated [[wiki/architecture/testing-status]] — superseded "no test suite exists" finding; current state + done setup markers
+- Updated index.md (page count 76 → 77), wiki/features/index.md, wiki/architecture/index.md
+- Source: [raw/test-infrastructure/test-infrastructure.md](raw/test-infrastructure/test-infrastructure.md)
