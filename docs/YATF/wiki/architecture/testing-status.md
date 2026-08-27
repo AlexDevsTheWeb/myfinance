@@ -1,27 +1,26 @@
 ---
 type: Architecture
-description: "Current testing infrastructure status — no test suite exists."
+description: "Current testing infrastructure status — Vitest Phase 1 landed (61 pure-logic tests); store/component layers pending."
 title: "Testing Status"
 tags: [architecture, testing, quality]
 created: 2026-06-22
-updated: 2026-07-11
+updated: 2026-08-24
 status: active
 sources: ["raw/codebase/TESTING.md"]
-related: ["architecture/concerns-and-tech-debt", "architecture/project-state"]
+related: ["architecture/concerns-and-tech-debt", "architecture/project-state", "features/test-infrastructure/test-infrastructure"]
 ---
 
 # Testing Status
 
-*Analysis: 2026-07-11*
+*Analysis: 2026-07-11 — **updated 2026-08-24**: Vitest infrastructure landed; see [[wiki/features/test-infrastructure/test-infrastructure]].*
 
-## Critical Finding: No Testing Infrastructure
+## Current State (2026-08-24)
 
-This codebase has **zero testing infrastructure**:
-- No test runner (Vitest, Jest, Playwright)
-- No test files (`*.test.*`, `*.spec.*` — zero results)
-- No test commands in `package.json`
-- No test dependencies in `devDependencies`
-- No test configuration files
+Vitest ^4 + jsdom is live (`npm test` / `npm run test:watch`):
+- **7 test files / 61 tests, all green** — finance validation (9), investment validation (17), sanitization ×3 (16), budget engine (11), compound interest utils (8)
+- Firebase SDK mocked via `vi.mock`; tests colocated beside source; characterization-first approach
+- `npm run build` typechecks test files too — ambient `vitest/globals` types configured in tsconfig
+- Remaining gaps: store actions with mocked Firestore (Phase 2), investment store logic (Phase 3), components & sync hooks (Phase 4)
 
 ## Priority Test Areas
 
@@ -68,19 +67,7 @@ Login → Dashboard → Full transaction CRUD → Multi-account → Car manageme
 
 ## Recommended Test Setup
 
-```bash
-npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom
-```
-
-```json
-{
-  "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
-  }
-}
-```
+✅ **Done 2026-08-24** — vitest, jsdom, @testing-library/* and coverage-v8 are installed; `test`/`test:watch` scripts exist; mock strategy below adopted (Firebase mocked at module level).
 
 ### Mock Strategy
 - **Firebase:** Mock `firebase/firestore` at module level with `vi.mock()`
@@ -98,5 +85,6 @@ TypeScript strict mode provides compile-time safety but cannot catch:
 
 ## Related
 
+- [[wiki/features/test-infrastructure/test-infrastructure]]
 - [[wiki/architecture/concerns-and-tech-debt]]
 - [[wiki/architecture/project-state]]

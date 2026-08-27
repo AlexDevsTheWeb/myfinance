@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-08-06* (B-lite scaling implemented)
-*Total pages: 76*
+*Last updated: 2026-08-24* (test infrastructure Phase 1 landed)
+*Total pages: 78*
 
 ---
 
@@ -45,6 +45,7 @@ timestamp: 2026-08-03
 | [[wiki/features/recurring-card-selection/recurring-card-selection]] | 📋 Card selection (None/credit/debit) on recurring expense templates, propagated to generated transactions — **planned** | [`raw/recurring-card-selection/recurring-card-selection.md`](raw/recurring-card-selection/recurring-card-selection.md) |
 | [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] | ✅ recurringTransactions migrated to subcollection + Firestore offline persistence enabled | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
 | [[wiki/features/account-deletion/account-deletion]] | ✅ Delete own account + all data (Firestore doc, subcollections, auth) with re-auth guard and confirmation UI | [`#158`](https://github.com/AlexDevsTheWeb/myfinance/issues/158) |
+| [[wiki/features/test-infrastructure/test-infrastructure]] | ✅ Vitest test infrastructure — Phase 1 (pure logic) landed: 61 characterization tests, mocked Firebase | [`raw/test-infrastructure/test-infrastructure.md`](raw/test-infrastructure/test-infrastructure.md), [`#127`](https://github.com/AlexDevsTheWeb/myfinance/issues/127) |
 
 ## Plans
 
@@ -110,7 +111,7 @@ timestamp: 2026-08-03
 | [[wiki/architecture/system-architecture]] | System overview, component responsibilities, data flow | [`raw/codebase/ARCHITECTURE.md`](raw/codebase/ARCHITECTURE.md) |
 | [[wiki/architecture/external-integrations]] | Firebase, environment config, CI/CD status | [`raw/codebase/INTEGRATIONS.md`](raw/codebase/INTEGRATIONS.md) |
 | [[wiki/architecture/versioning]] | Versioning scheme, conventional commits, release pipeline | [`.versionrc`](../../.versionrc) |
-| [[wiki/architecture/testing-status]] | Testing infrastructure (none exists) | [`raw/codebase/TESTING.md`](raw/codebase/TESTING.md) |
+| [[wiki/architecture/testing-status]] | Testing infrastructure — ✅ Vitest Phase 1 landed (61 pure-logic tests), store/component layers pending | [`raw/codebase/TESTING.md`](raw/codebase/TESTING.md) |
 | [[wiki/architecture/concerns-and-tech-debt]] | Tech debt, known bugs, security, performance issues | [`raw/codebase/CONCERNS.md`](raw/codebase/CONCERNS.md) |
 | [[wiki/architecture/investment-tracking-architecture]] | ✅ Investment data flow, V1+V2 Firestore schema, store architecture, component tree, migration layer | [`.planning/phases/10-investment-tracking/10-RESEARCH.md`](.planning/phases/10-investment-tracking/10-RESEARCH.md) |
 | [[wiki/architecture/financial-projections-architecture]] | ✅ Simulation data flow, component tree, design decisions, integration points | [`raw/83-financial-projections/83-financial-projections.md`](raw/83-financial-projections/83-financial-projections.md) |
@@ -123,6 +124,7 @@ timestamp: 2026-08-03
 |------|---------|---------|
 | [[wiki/conventions/branch-strategy]] | Git branch rules, naming, PR workflow | — |
 | [[wiki/conventions/coding-conventions]] | Naming, imports, error handling, code style | [`raw/codebase/CONVENTIONS.md`](raw/codebase/CONVENTIONS.md) |
+| [[wiki/conventions/testing-guide]] | 🧪 How to use the Vitest infrastructure — running, writing, mocking, repo-specific gotchas | [`raw/test-infrastructure/test-infrastructure.md`](raw/test-infrastructure/test-infrastructure.md) |
 
 ## References
 

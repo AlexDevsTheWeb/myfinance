@@ -736,3 +736,19 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Important: a literal try/catch around `initializeFirestore` would NOT catch the failure — the SDK defers the IndexedDB check until first use (not init). Verified in SDK source (`IndexedDbPersistence.C()` → `SimpleDb.C()`).
 - Updated [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] implementation notes.
 - Verified: `npm run build` clean; `npm run lint` baseline unchanged (19/9).
+
+## [2026-08-24] ingest | Feature | Test Infrastructure (Vitest)
+- Created [[wiki/features/test-infrastructure/test-infrastructure]] — Phase 1 (pure logic) complete: 61 tests / 7 files, Vitest ^4 + jsdom, mocked Firebase
+- Updated [[wiki/architecture/testing-status]] — superseded "no test suite exists" finding; current state + done setup markers
+- Updated index.md (page count 76 → 77), wiki/features/index.md, wiki/architecture/index.md
+- Source: [raw/test-infrastructure/test-infrastructure.md](raw/test-infrastructure/test-infrastructure.md)
+
+## [2026-08-24] ingest | Convention | Testing Guide (Vitest)
+- Created [[wiki/conventions/testing-guide]] — practical usage guide: running, colocation, characterization approach, mocking rules, repo-specific gotchas, coverage gaps
+- Updated [[wiki/features/test-infrastructure/test-infrastructure]] (cross-link), index.md (page count 77 → 78), wiki/conventions/index.md
+
+## [2026-08-24] update | Feature | Test Infrastructure — follow-up round
+- Fixed NaN/Infinity validation hole with Number.isFinite guards (both validator modules, +10 tests) — root cause was comparison guards vacuously false for NaN
+- Pinned budget band edges (100%/70% inclusive) + monthOfYear boundaries (+7 characterization tests)
+- Investigated monthOfYear:0 truthiness drop: not a bug, domain 1-12, documented rationale
+- Updated [[wiki/features/test-infrastructure/test-infrastructure]], [[wiki/conventions/testing-guide]]
