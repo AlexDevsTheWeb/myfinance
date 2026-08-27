@@ -5,7 +5,7 @@ description: "How to run, write, and mock tests effectively with the project's V
 resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/127"
 tags: [convention, testing, quality]
 created: 2026-08-24
-updated: 2026-08-24
+updated: 2026-08-27
 status: active
 sources: ["raw/test-infrastructure/test-infrastructure.md"]
 related: ["features/test-infrastructure/test-infrastructure", "architecture/testing-status", "decisions/typescript-7-upgrade"]
@@ -64,16 +64,40 @@ import { validateEtfTransaction } from './investment.validation'  // safe: chain
 
 ## Coverage Map & Extension Points
 
-Current suites (Phase 1): finance validation, investment validation, sanitization ×3, budget engine, compound interest utils — 61 tests across 7 files.
+Current suites (Phase 1): finance validation, investment validation, sanitization ×3, budget engine, compound interest utils — 78 tests across 7 files.
 
-When extending, highest-value gaps first:
+### Phase 2 — Store Actions (next)
 
-| Gap | Where |
-|-----|-------|
-| Budget band edges at exactly 100% / 70% | `budgetEngine.test.ts` (implementation uses `>=`) |
-| Store actions with mocked Firestore (CRUD, renames/remaps, migration) | Phase 2 — needs `src/test/` Firestore fake first |
-| Investment store logic (capital gains, dividends, cash adjustments) | Phase 3 |
-| Components + sync hooks (RTL, i18n/MUI wrappers) | Phase 4 |
+Infrastructure first: `src/test/firestore-fake.ts` (in-memory Map keyed by path strings, supports `.withConverter()`, `writeBatch` queue, `onSnapshot` callbacks) + `src/test/mock-auth.ts` (fixed `uid`).
+
+Then `src/store/useFinanceStore.test.ts` — test directly via `useFinanceStore.getState().action()`:
+- Transaction CRUD (`addTransaction`, `updateTransaction`, `deleteTransaction`)
+- Recurring CRUD + `checkRecurring` generation engine
+- Category/subcategory rename+remap cascade
+- `_migrateToMultiAccount`, account/card CRUD, error rollback paths
+
+Mock pattern for store tests:
+```ts
+vi.mock('../../lib/firebase', () => ({ db: fakeDb }))
+vi.mock('../../store/useAuthStore', () => ({
+  useAuthStore: { getState: () => ({ user: { uid: 'test-user-123' } }) }
+}))
+```
+
+### Phase 3 — Investment Logic
+
+Pure calc tests first (`computeSnapshot`, `calcAccruedInterest`, migration functions), then `useInvestmentStore.test.ts` with the same Firestore fake:
+- ETF transaction CRUD + snapshot recomputation
+- Broker account CRUD, cash adjustments, dividends
+- PAC confirm/dismiss, `takeSnapshot`, `loadHistoricalSnapshots`
+
+### Phase 4 — Components & Sync Hooks
+
+Add to `src/test/setup.ts`: i18n wrapper (`I18nextProvider`), MUI `ThemeProvider`.
+
+Sync hook tests (`useSyncFinance.test.ts`, `useInvestmentSync.test.ts`, `useBudgetSync.test.ts`) — mock `onSnapshot` callback invocation from the Firestore fake.
+
+Component tests (RTL): `TransactionForm`, `TransactionError`, `AccountCard`, `ProtectedRoute`.
 
 Known suspected quirks — do not pin deeper without an issue: ~~`monthOfYear: 0` dropped for yearly recurring~~ (investigated 2026-08-24: intended — domain is 1–12, see [[wiki/features/test-infrastructure/test-infrastructure]]); NaN now rejected at validation via `Number.isFinite` guards — keep that pattern for new numeric checks (bare `x <= 0` never catches NaN).
 

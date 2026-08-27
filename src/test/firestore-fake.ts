@@ -51,10 +51,24 @@ class FakeQueryDocumentSnapshot {
 }
 
 class FakeQuerySnapshot {
+  readonly metadata = { hasPendingWrites: false, fromCache: false };
+
   constructor(
     public readonly docs: FakeQueryDocumentSnapshot[],
     public readonly empty: boolean,
   ) {}
+
+  exists(): boolean {
+    return this.docs.length > 0;
+  }
+
+  data(): Record<string, unknown> | undefined {
+    return this.docs[0]?.data();
+  }
+
+  forEach(callback: (doc: FakeQueryDocumentSnapshot) => void): void {
+    this.docs.forEach(callback);
+  }
 }
 
 // ── Reference classes ────────────────────────────────────────────────────────
@@ -79,9 +93,9 @@ class FakeDocumentReference {
     return ref;
   }
 
-  async onSnapshot(
+  onSnapshot(
     callback: (snap: FakeQuerySnapshot) => void,
-  ): Promise<() => void> {
+  ): () => void {
     if (!listeners.has(this.path)) listeners.set(this.path, new Set());
     listeners.get(this.path)!.add(callback);
 
@@ -118,9 +132,9 @@ class FakeCollectionReference {
     return this.path.split('/').pop()!;
   }
 
-  async onSnapshot(
+  onSnapshot(
     callback: (snap: FakeQuerySnapshot) => void,
-  ): Promise<() => void> {
+  ): () => void {
     if (!listeners.has(this.path)) listeners.set(this.path, new Set());
     listeners.get(this.path)!.add(callback);
 
@@ -236,15 +250,26 @@ class FakeWriteBatch {
 
 // ── Transaction ──────────────────────────────────────────────────────────────
 
+class FakeTransactionDocumentSnapshot {
+  constructor(
+    private _data: Record<string, unknown> | null,
+    public readonly ref: FakeDocumentReference,
+    public readonly id: string,
+  ) {}
+
+  exists(): boolean {
+    return this._data !== null;
+  }
+
+  data(): Record<string, unknown> | undefined {
+    return this._data ? { ...this._data } : undefined;
+  }
+}
+
 class FakeTransaction {
-  async get(ref: FakeDocumentReference): Promise<FakeQuerySnapshot> {
+  async get(ref: FakeDocumentReference): Promise<FakeTransactionDocumentSnapshot> {
     const docData = store.get(ref.path);
-    return docData
-      ? new FakeQuerySnapshot(
-          [new FakeQueryDocumentSnapshot(docData, ref, ref.id)],
-          false,
-        )
-      : new FakeQuerySnapshot([], true);
+    return new FakeTransactionDocumentSnapshot(docData ?? null, ref, ref.id);
   }
 
   set(ref: FakeDocumentReference, docData: Record<string, unknown>): void {
@@ -353,6 +378,15 @@ export async function runTransaction(
 }
 
 export { FakeWriteBatch };
+
+// ── Standalone onSnapshot (matches firebase/firestore API) ───────────────────
+
+export function onSnapshotOrQuery(
+  refOrQuery: FakeDocumentReference | FakeCollectionReference,
+  callback: (snap: FakeQuerySnapshot) => void,
+): () => void {
+  return refOrQuery.onSnapshot(callback);
+}
 
 // ── Singleton db ─────────────────────────────────────────────────────────────
 
