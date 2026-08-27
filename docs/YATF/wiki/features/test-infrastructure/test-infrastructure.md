@@ -1,24 +1,24 @@
 ---
 type: Feature
 title: "Test Infrastructure (Vitest)"
-description: "Layered Vitest test infrastructure with jsdom, colocated characterization tests, and mocked-Firebase strategy — Phase 1 (pure logic) complete."
+description: "Layered Vitest test infrastructure with jsdom, colocated characterization tests, and mocked-Firebase strategy — all 4 phases complete (153 tests)."
 resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/127"
 tags: [feature, testing, quality]
 created: 2026-08-24
-updated: 2026-08-24
-status: in-progress
+updated: 2026-08-27
+status: implemented
 sources: ["raw/test-infrastructure/test-infrastructure.md"]
 related: ["wiki/architecture/testing-status", "wiki/conventions/testing-guide", "wiki/features/budget-savings-engine/budget-savings-engine", "wiki/features/financial-projections/financial-projections", "wiki/features/tax-inflation-modeling/tax-inflation-modeling", "wiki/decisions/typescript-7-upgrade"]
 ---
 
 # Feature: Test Infrastructure (Vitest)
 
-Status: in-progress (Phase 1 of 4 complete)
+Status: implemented
 Priority: high
 
 ## Description
 
-Test infrastructure so the app can keep evolving without manually re-checking the same flows. Layered and incremental: each phase lands independently on issue [#127](https://github.com/AlexDevsTheWeb/myfinance/issues/127).
+Test infrastructure so the app can keep evolving without manually re-checking the same flows. Layered and incremental: each phase landed independently on issue [#127](https://github.com/AlexDevsTheWeb/myfinance/issues/127).
 
 ## Requirements
 
@@ -32,10 +32,81 @@ Test infrastructure so the app can keep evolving without manually re-checking th
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| 1 — Pure logic | Validation, sanitization, budget engine, compound interest | ✅ landed (61 tests / 7 files) |
-| 2 — Store actions | Mocked Firestore SDK + fake doc/collection layer; transaction/recurring CRUD, category rename/remap, multi-account migration | ⬜ |
-| 3 — Investment logic | Pure calc tests, then `useInvestmentStore` actions | ⬜ |
-| 4 — Components & sync hooks | React Testing Library, i18n+MUI wrappers, snapshot listeners | ⬜ deferred |
+| 1 — Pure logic | Validation, sanitization, budget engine, compound interest | ✅ landed (78 tests / 7 files) |
+| 2 — Store actions | Firestore in-memory fake + `useFinanceStore` action tests | ✅ landed (33 tests) |
+| 3 — Investment logic | Pure calc tests + `useInvestmentStore` action tests | ✅ landed (31 tests) |
+| 4 — Components & sync hooks | RTL wrappers, sync hook tests, component tests | ✅ landed (11 tests) |
+
+### Phase 2 — Store Actions (Mocked Firestore SDK)
+
+**Infrastructure:**
+- `src/test/firestore-fake.ts` — in-memory Map-based fake for `doc`, `collection`, `getDocs`, `writeBatch`, `setDoc`, `updateDoc`, `deleteDoc`, `onSnapshot`, `runTransaction`, `arrayUnion`
+- Must support `.withConverter()` pattern from `src/lib/converters.ts`
+- `writeBatch` fake: tracks `.set()`, `.update()`, `.delete()` calls, flushes on `.commit()`
+- `src/test/mock-auth.ts` — mock `useAuthStore` returning fixed `uid` (`'test-user-123'`)
+- `vi.mock('../lib/firebase')` in each test file to re-export fake `db`
+
+**Test targets (`useFinanceStore.test.ts`):**
+
+| Category | Actions | What to Verify |
+|----------|---------|----------------|
+| Transaction CRUD | `addTransaction`, `updateTransaction`, `deleteTransaction` | Optimistic state update, Firestore persist, validation gate, error rollback |
+| Recurring CRUD | `addRecurring`, `updateRecurring`, `deleteRecurring` | Validate → sanitize → persist → trigger `checkRecurring()` |
+| Category ops | `addCategory`, `renameCategory`, `deleteCategory` | Cascade rename into transactions + recurringTransactions sub-collections |
+| Subcategory ops | `addSubcategory`, `renameSubcategory`, `deleteSubcategory`, `deleteSubcategoryAndRemap`, `moveSubcategory` | Cascade to sub-collections; `deleteSubcategory` does NOT remap; `moveSubcategory` updates parent category |
+| Multi-account migration | `_migrateToMultiAccount` | Assigns default `accountId` to all transactions/recurring lacking one |
+| `checkRecurring` | `checkRecurring` | Generates missing transactions for each month/year, handles yearly frequency + `monthOfYear`, dedup, orphan cleanup, 5s debounce guard |
+| Account CRUD | `addAccount`, `updateAccount`, `deleteAccount`, `setDefaultAccount` | `arrayUnion` for add; full array overwrite for update/delete/setDefault |
+| Card CRUD | `addCard`, `updateCard`, `deleteCard` | Same pattern as accounts |
+| Budget actions | `setCategories`, `setIncomeCategories`, `setTransactions`, `setRecurringTransactions` | Batch write to Firestore, state sorted correctly |
+| Error paths | All CRUD actions | `saveError` set on Firestore failure, optimistic state reverts |
+
+**Approach:** Zustand stores tested directly via `useFinanceStore.getState().action()` — no store mocking needed. Each test file calls `vi.mock('../../lib/firebase')` to intercept the Firestore dependency.
+
+### Phase 3 — Investment Logic
+
+**Pure calculation tests (no store/Firestore):**
+- `computeSnapshot` — internal function computing `totalInvested`, `currentValue`, `holdings` from ETF transactions + prices. Test buy/sell ratio, average cost, return percentage.
+- `calcAccruedInterest` — `cashBalance * (annualRate / 100) / 12`
+- `migrateBrokerConfig` — legacy `IBrokerConfig` → `BrokerAccount[]` conversion
+- `migrateEtfTransactions` — broker assignment from legacy transactions
+- `migrateTickerSymbols` — `SWDA*` → `EUNL` ticker consolidation
+
+**Store action tests (`useInvestmentStore.test.ts`):**
+
+| Category | Actions | What to Verify |
+|----------|---------|----------------|
+| ETF CRUD | `addEtfTransaction`, `updateEtfTransaction`, `deleteEtfTransaction` | Validation, optimistic sort, Firestore persist, snapshot recomputation |
+| Broker CRUD | `addBrokerAccount`, `updateBrokerAccount`, `deleteBrokerAccount` | Validate, persist full array, rollback on error |
+| Legacy config | `setBrokerConfig` | Maps to `BrokerAccount[]`, stores both legacy and new format |
+| Cash adjustments | `addCashAdjustment`, `deleteCashAdjustment` | Validate, persist array, rollback on error |
+| Dividends | `addDividendEntry`, `deleteDividendEntry` | Validate, persist array, rollback on error |
+| PAC | `confirmPacTransaction`, `dismissPacTransaction` | Creates ETF transaction from pending, clears state |
+| Snapshots | `takeSnapshot`, `loadHistoricalSnapshots`, `recomputeSnapshots` | Today dedup, price propagation, sub-collection read |
+
+### Phase 4 — Components & Sync Hooks
+
+**Infrastructure additions to `src/test/setup.ts`:**
+- i18n wrapper (`I18nextProvider` with `i18next` instance)
+- MUI `ThemeProvider` wrapper (using project theme from `src/theme/`)
+- Firestore fake auto-registration for sync hook tests
+
+**Sync hook tests:**
+
+| Hook | What to Verify |
+|------|----------------|
+| `useSyncFinance` | Initial user doc creation (new user), `onSnapshot` doc sync, transaction subcollection listener, recurring subcollection listener, orphan cleanup, `checkRecurring` triggering, `hasPendingWrites` skip, `isSaving`/`hasLocalChanges` guard |
+| `useInvestmentSync` | `migrateBrokerConfig`, `migrateEtfTransactions`, `migrateTickerSymbols`, `onSnapshot` for investment data, historical snapshot loading |
+| `useBudgetSync` | Budget target sync from Firestore document |
+
+**Component tests (React Testing Library):**
+
+| Component | What to Test |
+|-----------|-------------|
+| `TransactionForm.tsx` | Validation, field interactions, edit vs create mode |
+| `TransactionError.tsx` | Renders on `saveError`, dismisses on click |
+| `AccountCard.component.tsx` | Positive/negative balance display |
+| `ProtectedRoute` | Redirect on unauthenticated |
 
 ## Implementation Notes
 
@@ -45,6 +116,8 @@ Test infrastructure so the app can keep evolving without manually re-checking th
 - **Lint gotcha:** bare `npx eslint <file>` crashes on TS (TS7/TS6 override issue) — use the project lint script or `NODE_OPTIONS='--require ./scripts/ts-eslint-resolve.cjs'`.
 - Deferred minors recorded in the raw source: band-edge boundaries (100%/70%), NaN pass-through, lower CAGR clamp, `monthOfYear: 0` truthiness drop.
 - **Follow-up round (2026-08-24):** band edges pinned with 4 boundary tests; `monthOfYear: 0` investigated and confirmed **not a bug** (domain is 1–12; dropping falsy input is correct — preserving it would wrap `monthOfYear - 1` to the previous December); NaN pass-through root-caused to the **validators**, not sanitizers — every numeric guard used comparisons (`<= 0`, `< 0`, `=== 0`) that are vacuously false for NaN/Infinity, letting non-finite amounts pass validation and crash at Firestore write. Fixed with `Number.isFinite` guards across both validator modules (+10 tests).
+- **Firestore fake fix (2026-08-27):** `onSnapshot` was initially async returning `Promise<() => void>` — hooks expected synchronous `() => void`. Fixed to synchronous emit; `FakeQuerySnapshot` gained `exists()`/`data()` for document snapshot compatibility.
+- **Final count (2026-08-27):** 153 tests across 11 files. PRs #179 (Phase 1) and #180 (Phases 2–4) merged to development.
 
 ## Related
 

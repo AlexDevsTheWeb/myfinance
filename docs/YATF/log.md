@@ -752,3 +752,13 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Pinned budget band edges (100%/70% inclusive) + monthOfYear boundaries (+7 characterization tests)
 - Investigated monthOfYear:0 truthiness drop: not a bug, domain 1-12, documented rationale
 - Updated [[wiki/features/test-infrastructure/test-infrastructure]], [[wiki/conventions/testing-guide]]
+
+## [2026-08-27] update | Feature | Test Infrastructure — Phases 2–4 complete
+- Phase 2 (33 tests): firestore-fake.ts, mock-auth.ts, useFinanceStore.test.ts
+- Phase 3 (31 tests): useInvestmentStore.test.ts, calcAccruedInterest tests
+- Phase 4 (11 tests): sync-hooks.test.ts, component-tests.test.tsx, test-utils.tsx
+- Fixed: synchronous onSnapshot, FakeQuerySnapshot.exists()/data(), standalone onSnapshotOrQuery
+- Final: 153 tests across 11 files, PR #179 (Phase 1) + PR #180 (Phases 2–4) merged
+- Updated [[wiki/features/test-infrastructure/test-infrastructure]] → implemented
+- Updated [[wiki/architecture/testing-status]] → 153 tests / 11 files
+- Updated [[wiki/conventions/testing-guide]] → full coverage map + extension guide
