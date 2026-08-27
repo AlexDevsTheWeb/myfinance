@@ -1,24 +1,24 @@
 ---
 type: Feature
 title: "Test Infrastructure (Vitest)"
-description: "Layered Vitest test infrastructure with jsdom, colocated characterization tests, and mocked-Firebase strategy — Phase 1 (pure logic) complete."
+description: "Layered Vitest test infrastructure with jsdom, colocated characterization tests, and mocked-Firebase strategy — all 4 phases complete (153 tests)."
 resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/127"
 tags: [feature, testing, quality]
 created: 2026-08-24
 updated: 2026-08-27
-status: in-progress
+status: implemented
 sources: ["raw/test-infrastructure/test-infrastructure.md"]
 related: ["wiki/architecture/testing-status", "wiki/conventions/testing-guide", "wiki/features/budget-savings-engine/budget-savings-engine", "wiki/features/financial-projections/financial-projections", "wiki/features/tax-inflation-modeling/tax-inflation-modeling", "wiki/decisions/typescript-7-upgrade"]
 ---
 
 # Feature: Test Infrastructure (Vitest)
 
-Status: in-progress (Phase 1 of 4 complete)
+Status: implemented
 Priority: high
 
 ## Description
 
-Test infrastructure so the app can keep evolving without manually re-checking the same flows. Layered and incremental: each phase lands independently on issue [#127](https://github.com/AlexDevsTheWeb/myfinance/issues/127).
+Test infrastructure so the app can keep evolving without manually re-checking the same flows. Layered and incremental: each phase landed independently on issue [#127](https://github.com/AlexDevsTheWeb/myfinance/issues/127).
 
 ## Requirements
 
@@ -33,9 +33,9 @@ Test infrastructure so the app can keep evolving without manually re-checking th
 | Phase | Scope | Status |
 |-------|-------|--------|
 | 1 — Pure logic | Validation, sanitization, budget engine, compound interest | ✅ landed (78 tests / 7 files) |
-| 2 — Store actions | Firestore in-memory fake + `useFinanceStore` action tests | ⬜ next |
-| 3 — Investment logic | Pure calc tests + `useInvestmentStore` action tests | ⬜ |
-| 4 — Components & sync hooks | RTL wrappers, sync hook tests, component tests | ⬜ |
+| 2 — Store actions | Firestore in-memory fake + `useFinanceStore` action tests | ✅ landed (33 tests) |
+| 3 — Investment logic | Pure calc tests + `useInvestmentStore` action tests | ✅ landed (31 tests) |
+| 4 — Components & sync hooks | RTL wrappers, sync hook tests, component tests | ✅ landed (11 tests) |
 
 ### Phase 2 — Store Actions (Mocked Firestore SDK)
 
@@ -116,6 +116,8 @@ Test infrastructure so the app can keep evolving without manually re-checking th
 - **Lint gotcha:** bare `npx eslint <file>` crashes on TS (TS7/TS6 override issue) — use the project lint script or `NODE_OPTIONS='--require ./scripts/ts-eslint-resolve.cjs'`.
 - Deferred minors recorded in the raw source: band-edge boundaries (100%/70%), NaN pass-through, lower CAGR clamp, `monthOfYear: 0` truthiness drop.
 - **Follow-up round (2026-08-24):** band edges pinned with 4 boundary tests; `monthOfYear: 0` investigated and confirmed **not a bug** (domain is 1–12; dropping falsy input is correct — preserving it would wrap `monthOfYear - 1` to the previous December); NaN pass-through root-caused to the **validators**, not sanitizers — every numeric guard used comparisons (`<= 0`, `< 0`, `=== 0`) that are vacuously false for NaN/Infinity, letting non-finite amounts pass validation and crash at Firestore write. Fixed with `Number.isFinite` guards across both validator modules (+10 tests).
+- **Firestore fake fix (2026-08-27):** `onSnapshot` was initially async returning `Promise<() => void>` — hooks expected synchronous `() => void`. Fixed to synchronous emit; `FakeQuerySnapshot` gained `exists()`/`data()` for document snapshot compatibility.
+- **Final count (2026-08-27):** 153 tests across 11 files. PRs #179 (Phase 1) and #180 (Phases 2–4) merged to development.
 
 ## Related
 

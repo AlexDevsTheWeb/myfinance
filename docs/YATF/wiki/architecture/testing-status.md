@@ -1,6 +1,6 @@
 ---
 type: Architecture
-description: "Current testing infrastructure status — Vitest Phase 1 landed (78 pure-logic tests); Phases 2-4 planned for store actions, investment logic, components & sync hooks."
+description: "Current testing infrastructure status — Vitest fully operational: 153 tests across 11 files covering pure logic, store actions, investment logic, sync hooks, and components."
 title: "Testing Status"
 tags: [architecture, testing, quality]
 created: 2026-06-22
@@ -12,16 +12,16 @@ related: ["architecture/concerns-and-tech-debt", "architecture/project-state", "
 
 # Testing Status
 
-*Analysis: 2026-07-11 — **updated 2026-08-24**: Vitest infrastructure landed; see [[wiki/features/test-infrastructure/test-infrastructure]].*
+*Analysis: 2026-07-11 — **updated 2026-08-27**: All 4 phases of test infrastructure complete. See [[wiki/features/test-infrastructure/test-infrastructure]].*
 
 ## Current State (2026-08-27)
 
 Vitest ^4 + jsdom is live (`npm test` / `npm run test:watch`):
-- **7 test files / 78 tests, all green** — finance validation, investment validation, sanitization ×3, budget engine, compound interest utils
+- **11 test files / 153 tests, all green** — finance validation, investment validation, sanitization ×3, budget engine, compound interest utils, useFinanceStore actions, useInvestmentStore actions, sync hooks, components
 - Firebase SDK mocked via `vi.mock`; tests colocated beside source; characterization-first approach
 - `npm run build` typechecks test files too — ambient `vitest/globals` types configured in tsconfig
 - Phase 1 landed 2026-08-27 (PR #179 merged to development)
-- Remaining: store actions (Phase 2), investment logic (Phase 3), components & sync hooks (Phase 4)
+- Phases 2–4 landed 2026-08-27 (PR #180 merged to development)
 
 ## Priority Test Areas
 

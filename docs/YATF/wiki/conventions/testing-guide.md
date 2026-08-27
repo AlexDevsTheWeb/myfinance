@@ -64,40 +64,35 @@ import { validateEtfTransaction } from './investment.validation'  // safe: chain
 
 ## Coverage Map & Extension Points
 
-Current suites (Phase 1): finance validation, investment validation, sanitization ×3, budget engine, compound interest utils — 78 tests across 7 files.
+Current suites (153 tests / 11 files, all 4 phases complete):
 
-### Phase 2 — Store Actions (next)
+**Phase 1 — Pure logic (78 tests / 7 files):** finance validation, investment validation, sanitization ×3, budget engine, compound interest utils.
 
-Infrastructure first: `src/test/firestore-fake.ts` (in-memory Map keyed by path strings, supports `.withConverter()`, `writeBatch` queue, `onSnapshot` callbacks) + `src/test/mock-auth.ts` (fixed `uid`).
+**Phase 2 — useFinanceStore (33 tests):** Transaction CRUD, recurring CRUD + checkRecurring, category/subcategory cascade, multi-account migration, account/card CRUD, error rollback — all with Firestore in-memory fake.
 
-Then `src/store/useFinanceStore.test.ts` — test directly via `useFinanceStore.getState().action()`:
-- Transaction CRUD (`addTransaction`, `updateTransaction`, `deleteTransaction`)
-- Recurring CRUD + `checkRecurring` generation engine
-- Category/subcategory rename+remap cascade
-- `_migrateToMultiAccount`, account/card CRUD, error rollback paths
+**Phase 3 — useInvestmentStore (31 tests):** ETF transaction CRUD + snapshot recomputation, broker account CRUD, cash adjustments, dividends, PAC confirm/dismiss, takeSnapshot, loadHistoricalSnapshots.
 
-Mock pattern for store tests:
-```ts
-vi.mock('../../lib/firebase', () => ({ db: fakeDb }))
-vi.mock('../../store/useAuthStore', () => ({
-  useAuthStore: { getState: () => ({ user: { uid: 'test-user-123' } }) }
-}))
-```
+**Phase 4 — Sync hooks + components (11 tests):** useSyncFinance, useBudgetSync, useInvestmentSync sync hook tests; TransactionError, AccountCard component tests.
 
-### Phase 3 — Investment Logic
+### Extending the suite
 
-Pure calc tests first (`computeSnapshot`, `calcAccruedInterest`, migration functions), then `useInvestmentStore.test.ts` with the same Firestore fake:
-- ETF transaction CRUD + snapshot recomputation
-- Broker account CRUD, cash adjustments, dividends
-- PAC confirm/dismiss, `takeSnapshot`, `loadHistoricalSnapshots`
+To add tests for a new module:
 
-### Phase 4 — Components & Sync Hooks
-
-Add to `src/test/setup.ts`: i18n wrapper (`I18nextProvider`), MUI `ThemeProvider`.
-
-Sync hook tests (`useSyncFinance.test.ts`, `useInvestmentSync.test.ts`, `useBudgetSync.test.ts`) — mock `onSnapshot` callback invocation from the Firestore fake.
-
-Component tests (RTL): `TransactionForm`, `TransactionError`, `AccountCard`, `ProtectedRoute`.
+1. Create `src/<path>/<module>.test.ts` colocated next to the source.
+2. If the module imports from `firebase/firestore`, mock it:
+   ```ts
+   vi.mock('firebase/firestore', async () => {
+     const fake = await import('../../test/firestore-fake');
+     return { doc: fake.doc, collection: fake.collection, /* ... */ };
+   });
+   vi.mock('../../lib/firebase', () => ({ db: fakeDb }));
+   ```
+3. For store tests, mock `useAuthStore`:
+   ```ts
+   vi.mock('../../store/useAuthStore', () => mockAuthStore());
+   ```
+4. For component tests, use `renderWithProviders` from `src/test/test-utils.tsx` (wraps with i18n + MUI theme).
+5. Run `npm test` to verify, `npm run build` to typecheck.
 
 Known suspected quirks — do not pin deeper without an issue: ~~`monthOfYear: 0` dropped for yearly recurring~~ (investigated 2026-08-24: intended — domain is 1–12, see [[wiki/features/test-infrastructure/test-infrastructure]]); NaN now rejected at validation via `Number.isFinite` guards — keep that pattern for new numeric checks (bare `x <= 0` never catches NaN).
 
