@@ -17,6 +17,7 @@ export const useSyncFinance = () => {
   const subColLoaded = useRef(false);
   const hasCleanedOrphans = useRef(false);
   const recurringSubColLoaded = useRef(false);
+  const syncErrors = useRef<Record<string, string>>({});
 
   useEffect(() => {
     if (!user) {
@@ -50,6 +51,7 @@ export const useSyncFinance = () => {
         });
         await backfillRecurringToSubCollection(user.uid);
       } catch (error) {
+        syncErrors.current[`users/${user.uid} (initializeUser)`] = (error as Error).message;
         console.error('Error in initializeUser transaction:', error);
         useFinanceStore.getState().setAll({ isLoading: false });
       } finally {
@@ -62,6 +64,11 @@ export const useSyncFinance = () => {
     };
 
     initializeUser();
+
+    const onListenerError = (path: string) => (err: Error) => {
+      syncErrors.current[path] = err.message;
+      console.error(`[sync] snapshot listener failed (${path}):`, err);
+    };
 
     const unsubDoc = onSnapshot(docRef, (doc) => {
       if (doc.metadata.hasPendingWrites) return;
@@ -79,7 +86,7 @@ export const useSyncFinance = () => {
           checkRecurring();
         }
       }
-    });
+    }, onListenerError(`users/${user.uid}`));
 
     const unsubTxns = onSnapshot(txnsRef, (snapshot) => {
       if (!subColLoaded.current) {
@@ -117,7 +124,7 @@ export const useSyncFinance = () => {
         hasCheckedRecurring.current = true;
         checkRecurring();
       }
-    });
+    }, onListenerError(`users/${user.uid}/transactions`));
 
     const unsubRecs = onSnapshot(recsRef, (snapshot) => {
       if (snapshot.metadata.hasPendingWrites) return;
@@ -133,9 +140,29 @@ export const useSyncFinance = () => {
 
       const { setAll } = useFinanceStore.getState();
       setAll({ recurringTransactions: sorted as never[], isLoading: false });
-    });
+    }, onListenerError(`users/${user.uid}/recurringTransactions`));
+
+    // One-shot health check: if the gates never opened (e.g. permission-denied on
+    // a listener or in initializeUser), checkRecurring can never run — surface it.
+    const diagnosticTimer = setTimeout(() => {
+      if (hasCheckedRecurring.current) return;
+      const state = useFinanceStore.getState();
+      console.warn('[sync] recurring check still not run 10s after init', {
+        gates: {
+          hasLoaded: hasLoaded.current,
+          txnsLoaded: subColLoaded.current,
+          recurringLoaded: recurringSubColLoaded.current,
+          isInitializing: isInitializing.current,
+        },
+        syncErrors: syncErrors.current,
+        templatesLoaded: state.recurringTransactions.length,
+        transactionsLoaded: state.transactions.length,
+        lastRecurringCheck: state.lastRecurringCheck,
+      });
+    }, 10_000);
 
     return () => {
+      clearTimeout(diagnosticTimer);
       unsubDoc();
       unsubTxns();
       unsubRecs();
