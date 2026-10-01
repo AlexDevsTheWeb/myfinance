@@ -798,3 +798,8 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - test-utils: renderWithProviders now wraps LocalizationProvider
 - Verified: tsc clean, build ✓, 153/153 tests, lint unchanged vs development
 - Updated index.md, wiki/features/index.md
+
+## [2026-10-01] fix | Bug | Dashboard chart heights equalized + invisible axis labels restored
+- Cash Flow Trend (280px) vs Portfolio Value (300px) → both 320px; `height` prop dropped from ChartsDataProvider so the legend renders inside the fixed box (v9 container measurement: extendVertically wrapper + ChartsLayerContainer 100%)
+- Invisible strings: x-charts v9 ellipsizes tick labels (`shortenLabels`) and auto-hides overlapping ones (`tickLabelInterval: 'auto'`); margin.left had been shrunk to 15 (WIP `b7e4f39`) → margins now `{left: 60, bottom: 60}` + rotated x labels (`angle: -45, textAnchor: 'end'`) so all 12 months fit
+- Updated [[wiki/bugs/charts-ui]] (2026-10-01 follow-up) + raw source + log.md
