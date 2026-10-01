@@ -762,3 +762,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Updated [[wiki/features/test-infrastructure/test-infrastructure]] → implemented
 - Updated [[wiki/architecture/testing-status]] → 153 tests / 11 files
 - Updated [[wiki/conventions/testing-guide]] → full coverage map + extension guide
+
+## [2026-10-01] implement | Feature | First-day-of-month recurrent transaction loading
+- Created [[wiki/features/first-of-month-recurring/first-of-month-recurring]] + raw source
+- `src/hooks/useSyncFinance.ts`: top-level daily `useEffect` — triggers `checkRecurring()` on the 1st of each month (5s throttle reused); init back-fill already covers opening on any later day
+- Verified: tsc clean, build OK, 153/153 tests pass
+- Updated index.md, wiki/features/index.md

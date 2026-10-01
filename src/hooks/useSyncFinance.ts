@@ -5,6 +5,7 @@ import { getDefaultUserConfig, getUserDocRef, backfillRecurringToSubCollection }
 import { getTransactionsCollectionRef, getRecurringTransactionsCollectionRef } from '../lib/converters';
 import { useAuthStore } from '../store/useAuthStore';
 import { useFinanceStore } from '../store/useFinanceStore';
+import dayjs from 'dayjs';
 
 export const useSyncFinance = () => {
   const { user } = useAuthStore();
@@ -137,5 +138,28 @@ export const useSyncFinance = () => {
       unsubTxns();
       unsubRecs();
     };
-  }, [user, setAll]);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const checkFirstOfMonth = () => {
+      const now = dayjs();
+      if (now.date() !== 1) return;
+
+      const state = useFinanceStore.getState();
+      const timeSinceLastCheck = state.lastRecurringCheck
+        ? Date.now() - new Date(state.lastRecurringCheck).getTime()
+        : Infinity;
+
+      if (timeSinceLastCheck >= 5000) {
+        useFinanceStore.getState().checkRecurring();
+      }
+    };
+
+    checkFirstOfMonth();
+
+    const intervalId = setInterval(checkFirstOfMonth, 24 * 60 * 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, [user]);
 };
