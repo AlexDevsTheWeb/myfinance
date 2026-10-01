@@ -782,3 +782,10 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Fix: `checkRecurring` returns on empty template list *before* stamping `lastRecurringCheck`; `checkFirstOfMonth` gated on `recurringSubColLoaded`; `unsubRecs` sets the flag only after the `hasPendingWrites` return
 - Tests: +1 mount-race regression in useFinanceStore.test.ts, 162 total; 6/7 red on fully pre-fix code
 - Updated [[wiki/bugs/recurring-preload-month-bound]] + raw, [[wiki/features/first-of-month-recurring/first-of-month-recurring]], log.md
+
+## [2026-10-01] ingest | Bug | Firestore rules drift — recurringTransactions path denied
+- Created [[wiki/bugs/firestore-rules-drift]] + raw source (`raw/bugs/firestore-rules-drift/`)
+- Incident: deployed rules predated #56's `recurringTransactions` rule (repo file correct since `f20161f`, never deployed after `cb442d4`) → default-deny killed the listener, the backfill `getDocs` (mislabeled "initializeUser transaction"), and all three `checkRecurring` gates → silent no-generation while legacy main-doc templates masked the empty subcollection
+- Fix: `npx firebase deploy --only firestore:rules` (user, confirmed working) + in-PR hardening `e5b0a96` (labeled listener errors, 10s gate diagnostic) and `5cda137` (non-empty template gate before burning `hasCheckedRecurring`)
+- Prevention documented: rules need explicit `--only firestore:rules` deploy on any rules PR
+- Updated bugs index, root index.md (Total pages: 81), log.md

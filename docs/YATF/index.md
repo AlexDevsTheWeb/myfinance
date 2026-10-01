@@ -8,7 +8,7 @@ timestamp: 2026-08-03
 # Wiki Index
 
 *Last updated: 2026-10-01* (recurring full-month preload fix)
-*Total pages: 80*
+*Total pages: 81*
 
 ---
 
@@ -133,3 +133,4 @@ timestamp: 2026-08-03
 | Page | Summary | Sources |
 |------|---------|---------|
 | [[wiki/references/llm-wiki-pattern]] | Karpathy's LLM Wiki pattern — original article | [`raw/original-llm-wiki/original-llm-wiki.md`](raw/original-llm-wiki/original-llm-wiki.md) |
+| [[wiki/bugs/firestore-rules-drift]] | ✅ Deployed Firestore rules predated the `recurringTransactions` path — silent permission-denied kept `checkRecurring` from ever running; rules redeployed + client gate/error diagnostics hardened — **fixed** | [`raw/bugs/firestore-rules-drift/firestore-rules-drift.md`](raw/bugs/firestore-rules-drift/firestore-rules-drift.md) |
