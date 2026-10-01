@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { db as fakeDb, _resetFakeFirestore, _seedDoc, _getDocData } from '../test/firestore-fake';
 import { mockAuthStore } from '../test/mock-auth';
 
@@ -564,5 +564,191 @@ describe('setBalanceStartDate', () => {
     expect(useFinanceStore.getState().balanceStartDate).toBe('2025-06-01');
     const userData = _getDocData(userPath);
     expect(userData!.balanceStartDate).toBe('2025-06-01');
+  });
+});
+
+// ─── checkRecurring: full-month preload ──────────────────────────────────────
+
+const preloadTemplate = {
+  id: 'rec-1',
+  description: 'Netflix',
+  category: 'Abbonamenti',
+  subcategory: 'Streaming',
+  amount: 15.99,
+  type: 'expense' as const,
+  accountId: 'acc-1',
+  dayOfMonth: 20,
+  startDate: '2026-01-01',
+};
+
+function seedFutureInstance(date = '2026-10-20') {
+  useFinanceStore.setState((state) => ({
+    transactions: [
+      ...state.transactions,
+      {
+        id: 'txn-past',
+        date: '2026-10-01',
+        description: 'Netflix',
+        category: 'Abbonamenti',
+        subcategory: 'Streaming',
+        amount: 15.99,
+        type: 'expense' as const,
+        accountId: 'acc-1',
+        recurringLinkId: 'rec-1',
+      },
+      {
+        id: 'txn-future',
+        date,
+        description: 'Netflix',
+        category: 'Abbonamenti',
+        subcategory: 'Streaming',
+        amount: 15.99,
+        type: 'expense' as const,
+        accountId: 'acc-1',
+        recurringLinkId: 'rec-1',
+      },
+    ],
+  }));
+  const pastTxn = useFinanceStore.getState().transactions.find(t => t.id === 'txn-past')!;
+  const futureTxn = useFinanceStore.getState().transactions.find(t => t.id === 'txn-future')!;
+  _seedDoc(`${userPath}/transactions/txn-past`, { ...pastTxn });
+  _seedDoc(`${userPath}/transactions/txn-future`, { ...futureTxn });
+}
+
+describe('checkRecurring (full-month preload)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ now: new Date(2026, 9, 5, 12, 0, 0) }); // Oct 5, 2026
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('generates instances through the end of the current month, not just today', async () => {
+    useFinanceStore.setState({ recurringTransactions: [preloadTemplate] });
+
+    await useFinanceStore.getState().checkRecurring();
+
+    const txns = useFinanceStore.getState().transactions;
+    // Oct 20 instance must exist even though today is Oct 5
+    const octInstance = txns.find(t => t.date === '2026-10-20');
+    expect(octInstance).toBeDefined();
+    expect(octInstance!.recurringLinkId).toBe('rec-1');
+    // exactly Jan..Oct, nothing beyond the current month
+    expect(txns).toHaveLength(10);
+    expect(txns.every(t => t.date <= '2026-10-31')).toBe(true);
+    // persisted to Firestore
+    expect(_getDocData(`${userPath}/transactions/${octInstance!.id}`)).toBeDefined();
+    // checkpoint updated for next month's run
+    const rec = useFinanceStore.getState().recurringTransactions[0];
+    expect(rec.lastGeneratedUpTo).toBe('2026-10-01');
+  });
+
+  it('does not generate next month instances and is idempotent', async () => {
+    useFinanceStore.setState({ recurringTransactions: [preloadTemplate] });
+
+    await useFinanceStore.getState().checkRecurring();
+    const firstCount = useFinanceStore.getState().transactions.length;
+    expect(firstCount).toBe(10);
+    expect(useFinanceStore.getState().transactions.find(t => t.date === '2026-11-20')).toBeUndefined();
+
+    // second run within the same month creates nothing new
+    useFinanceStore.setState({ lastRecurringCheck: null });
+    await useFinanceStore.getState().checkRecurring();
+    expect(useFinanceStore.getState().transactions).toHaveLength(firstCount);
+  });
+
+  it('never creates duplicates when an instance already exists', async () => {
+    seedFutureInstance(); // includes Oct 1 and Oct 20 instances
+    useFinanceStore.setState({ recurringTransactions: [preloadTemplate] });
+
+    await useFinanceStore.getState().checkRecurring();
+
+    const txns = useFinanceStore.getState().transactions;
+    const oct20 = txns.filter(t => t.date === '2026-10-20');
+    const oct1 = txns.filter(t => t.date === '2026-10-01');
+    expect(oct20).toHaveLength(1);
+    expect(oct1).toHaveLength(1);
+  });
+
+  it('empty pre-load run does not stamp the throttle, so the data-loaded run still generates', async () => {
+    // Mount on the 1st: the daily first-of-month effect fires checkRecurring
+    // before Firestore snapshots have delivered the templates.
+    await useFinanceStore.getState().checkRecurring();
+    expect(useFinanceStore.getState().lastRecurringCheck).toBeNull();
+
+    // Templates arrive moments later (<5s), init path calls checkRecurring.
+    useFinanceStore.setState({ recurringTransactions: [preloadTemplate] });
+    await useFinanceStore.getState().checkRecurring();
+
+    const txns = useFinanceStore.getState().transactions;
+    expect(txns.find(t => t.date === '2026-10-20')).toBeDefined();
+    expect(txns).toHaveLength(10);
+  });
+});
+
+// ─── Recurring template edit/delete: future-instance cascades ────────────────
+
+describe('recurring future-instance cascades', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ now: new Date(2026, 9, 5, 12, 0, 0) }); // Oct 5, 2026
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('updateRecurring syncs preloaded future instances but leaves past ones untouched', async () => {
+    seedFutureInstance();
+    useFinanceStore.setState({ recurringTransactions: [preloadTemplate] });
+
+    await useFinanceStore.getState().updateRecurring({
+      ...preloadTemplate,
+      amount: 19.99,
+      description: 'Netflix Premium',
+    });
+
+    const txns = useFinanceStore.getState().transactions;
+    const past = txns.find(t => t.id === 'txn-past')!;
+    const future = txns.find(t => t.id === 'txn-future')!;
+
+    expect(past.amount).toBe(15.99); // Oct 1 already occurred
+    expect(future.amount).toBe(19.99); // Oct 20 synced to new template
+    expect(future.description).toBe('Netflix Premium');
+    expect(future.recurringLinkId).toBe('rec-1');
+
+    // Firestore reflects the same split
+    expect(_getDocData(`${userPath}/transactions/txn-past`)!.amount).toBe(15.99);
+    expect(_getDocData(`${userPath}/transactions/txn-future`)!.amount).toBe(19.99);
+  });
+
+  it('updateRecurring removes future instances beyond a new endDate', async () => {
+    seedFutureInstance(); // Oct 20
+    useFinanceStore.setState({ recurringTransactions: [preloadTemplate] });
+
+    await useFinanceStore.getState().updateRecurring({
+      ...preloadTemplate,
+      endDate: '2026-10-10',
+    });
+
+    const txns = useFinanceStore.getState().transactions;
+    expect(txns.find(t => t.id === 'txn-future')).toBeUndefined();
+    expect(txns.find(t => t.id === 'txn-past')).toBeDefined();
+    expect(_getDocData(`${userPath}/transactions/txn-future`)).toBeUndefined();
+
+    // not regenerated by the checkRecurring that follows the update
+    expect(txns.find(t => t.date === '2026-10-20')).toBeUndefined();
+  });
+
+  it('deleteRecurring removes future instances from store and Firestore, keeps past', async () => {
+    seedFutureInstance();
+    useFinanceStore.setState({ recurringTransactions: [preloadTemplate] });
+
+    await useFinanceStore.getState().deleteRecurring('rec-1');
+
+    const txns = useFinanceStore.getState().transactions;
+    expect(txns.find(t => t.id === 'txn-future')).toBeUndefined();
+    expect(txns.find(t => t.id === 'txn-past')).toBeDefined();
+    expect(useFinanceStore.getState().recurringTransactions).toHaveLength(0);
+    expect(_getDocData(`${userPath}/transactions/txn-future`)).toBeUndefined();
+    expect(_getDocData(`${userPath}/transactions/txn-past`)).toBeDefined();
   });
 });

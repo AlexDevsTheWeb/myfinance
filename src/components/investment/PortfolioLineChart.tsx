@@ -41,7 +41,7 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
           ))}
         </Box>
       </Box>
-      <Box sx={{ height: 300, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
+      <Box sx={{ height: 320, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
         <ChartsDataProvider
           series={[
             {
@@ -62,10 +62,15 @@ const PortfolioLineChart: React.FC<PortfolioLineChartProps> = ({ data, timeRange
               showMark: false,
             },
           ]}
-          xAxis={[{ scaleType: 'point', data: filtered.map(d => d.date), disableLine: true, disableTicks: true }]}
+          xAxis={[{
+            scaleType: 'point',
+            data: filtered.map(d => d.date),
+            disableLine: true,
+            disableTicks: true,
+            tickLabelStyle: { angle: -45, textAnchor: 'end' },
+          }]}
           yAxis={[{ disableLine: true, disableTicks: true }]}
-          height={300}
-          margin={{ top: 10, right: 20, bottom: 50, left: 20 }}
+          margin={{ top: 10, right: 20, bottom: 60, left: 60 }}
         >
           <ChartsWrapper>
             <ChartsLegend />

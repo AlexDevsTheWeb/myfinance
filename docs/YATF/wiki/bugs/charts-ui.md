@@ -4,7 +4,7 @@ title: "Charts UI — layout, padding, and label cutoff issues"
 description: "All charts across the app have formatting issues: too much left padding, labels cut off, pie labels too far from the pie, and one broken navigation link."
 tags: [bug, ui, charts]
 created: 2026-07-26
-updated: 2026-07-26
+updated: 2026-10-01
 status: fixed
 severity: major
 sources: ["raw/bugs/charts-ui/charts-ui.md"]
@@ -76,6 +76,47 @@ Files: `CategoryPieChart.tsx`, `AccountBreakdownChart.tsx`, `AllocationDonutChar
 ### Navigation fix
 
 `DashboardPage.tsx:137` — `navigate('/invest')` → `navigate('/investments')`
+
+## 2026-10-01 follow-up — dashboard chart heights + hidden axis labels
+
+Reported on the dashboard: **Cash Flow Trend rendered shorter than Portfolio Value** (280px vs
+300px) and **some axis strings were not visible at all**.
+
+### Root cause (three layers)
+
+1. **Height mismatch** — `Charts.tsx` used `280`, `PortfolioLineChart.tsx` used `300`.
+2. **Labels ellipsized or auto-hidden by MUI X Charts v9** (the "invisible strings"):
+   - `shortenLabels()` ellipsizes each tick label to the space available around its tick, and
+     `tickLabelInterval: 'auto'` **drops labels that would overlap** the previous one
+     (`ChartsXAxis.js`: "If two tick labels are closer than this minimum gap, one of them will
+     be hidden"). `disableTicks` only hides tick *marks* — labels still render.
+   - `margin.left` was `15` (July WIP commit `b7e4f39` "started fix charts positions" shrank it
+     from 35) → y-axis value labels had ~15px → ellipsized to fragments.
+   - 12 × "MMM YYYY" x-labels (~52px each) don't fit a half-width card (~500px drawing width)
+     → every other month label was auto-hidden.
+3. **Legend overflowed the fixed box** — passing `height` to `ChartsDataProvider` fixes the SVG
+   height, but `ChartsWrapper` still stacks the HTML legend (`auto` grid row) *outside* the SVG,
+   so total content exceeded the fixed-height `<Box>` and spilled past the Paper edge.
+
+### Fix (both `Charts.tsx` and `PortfolioLineChart.tsx`)
+
+- **Equal heights:** both containers fixed at **320px** (same structure → same visual height).
+- **Removed the `height` prop** from `ChartsDataProvider` — v9 then measures the container
+  instead: `ChartsWrapper` gets `extendVertically` (→ `height: 100%`) automatically when no
+  height prop is set, and `ChartsLayerContainer` (wrapping the SVG) is `height: 100%` of the
+  chart grid cell, observed via ResizeObserver. The legend now sits **inside** the box (grid
+  row `auto`) and the chart cell = box − legend — nothing overflows.
+- **Margins:** `{ left: 60, bottom: 60 }` (was 15/20 and 50) — room for y-axis values and
+  rotated date labels.
+- **Rotated x labels:** `tickLabelStyle: { angle: -45, textAnchor: 'end' }` — horizontal
+  footprint of each rotated label is `textLength × cos45°` (~37px for "Oct 2025"), so all 12
+  months fit the half-width card without overlap; dense portfolio ranges still sub-sample
+  sensibly.
+
+### Verification
+
+- `tsc -b` clean, production build OK, lint at exact 9-error baseline
+- 162/162 tests
 
 ## Verification
 

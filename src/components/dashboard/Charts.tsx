@@ -48,16 +48,22 @@ const Charts: React.FC = () => {
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
         Cash Flow Trend
       </Typography>
-      <Box sx={{ height: 280, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
+      <Box sx={{ height: 320, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
         <ChartsDataProvider
           series={[
             { type: 'line', id: 'income', data: data.map(d => d.income), label: 'Income', color: theme.palette.success.main, area: true, showMark: false },
             { type: 'line', id: 'expense', data: data.map(d => d.expense), label: 'Expense', color: theme.palette.error.main, area: true, showMark: false },
           ]}
-          xAxis={[{ scaleType: 'band', data: data.map(d => d.displayDate), id: 'x', disableLine: true, disableTicks: true }]}
+          xAxis={[{
+            scaleType: 'band',
+            data: data.map(d => d.displayDate),
+            id: 'x',
+            disableLine: true,
+            disableTicks: true,
+            tickLabelStyle: { angle: -45, textAnchor: 'end' },
+          }]}
           yAxis={[{ id: 'y', disableLine: true, disableTicks: true }]}
-          height={280}
-          margin={{ top: 10, right: 15, bottom: 50, left: 15 }}
+          margin={{ top: 10, right: 15, bottom: 60, left: 60 }}
         >
           <ChartsWrapper legendDirection="horizontal" legendPosition={{ vertical: 'bottom', horizontal: 'center' }}>
             <ChartsLegend direction="horizontal" />

@@ -762,3 +762,50 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Updated [[wiki/features/test-infrastructure/test-infrastructure]] → implemented
 - Updated [[wiki/architecture/testing-status]] → 153 tests / 11 files
 - Updated [[wiki/conventions/testing-guide]] → full coverage map + extension guide
+
+## [2026-10-01] implement | Feature | First-day-of-month recurrent transaction loading
+- Created [[wiki/features/first-of-month-recurring/first-of-month-recurring]] + raw source
+- `src/hooks/useSyncFinance.ts`: top-level daily `useEffect` — triggers `checkRecurring()` on the 1st of each month (5s throttle reused); init back-fill already covers opening on any later day
+- Verified: tsc clean, build OK, 153/153 tests pass
+- Updated index.md, wiki/features/index.md
+
+## [2026-10-01] fix | Bug | checkRecurring month preload bound
+- Created [[wiki/bugs/recurring-preload-month-bound]] + raw source
+- Root cause: `checkRecurring` bounded generation at `today` — on the 1st only day-1 instances existed (calendar + card symptom)
+- Fix: `generationEnd = dayjs().endOf('month')` replaces `now` in loop/break conditions
+- Cascades for preloaded future instances: `updateRecurring` syncs edited fields + prunes outside start/end date; `deleteRecurring` removes future instances from store + Firestore
+- Tests: +6 in useFinanceStore.test.ts (clock pinned 2026-10-05), 159 total; 5 red on pre-fix code
+- Updated [[wiki/features/first-of-month-recurring/first-of-month-recurring]], index.md (79 → 80), wiki/bugs/index.md, wiki/features/index.md
+
+## [2026-10-01] fix | Bug | First-of-month mount race burned the recurring throttle
+- Root cause (2nd layer of [[wiki/bugs/recurring-preload-month-bound]]): on the 1st the daily `checkFirstOfMonth` effect ran before Firestore snapshots delivered templates → empty `checkRecurring()` no-op stamped the 5s throttle → data-loaded init call throttled + `hasCheckedRecurring` burned → no generation that session (reload never helps; other days unaffected)
+- Fix: `checkRecurring` returns on empty template list *before* stamping `lastRecurringCheck`; `checkFirstOfMonth` gated on `recurringSubColLoaded`; `unsubRecs` sets the flag only after the `hasPendingWrites` return
+- Tests: +1 mount-race regression in useFinanceStore.test.ts, 162 total; 6/7 red on fully pre-fix code
+- Updated [[wiki/bugs/recurring-preload-month-bound]] + raw, [[wiki/features/first-of-month-recurring/first-of-month-recurring]], log.md
+
+## [2026-10-01] ingest | Bug | Firestore rules drift — recurringTransactions path denied
+- Created [[wiki/bugs/firestore-rules-drift]] + raw source (`raw/bugs/firestore-rules-drift/`)
+- Incident: deployed rules predated #56's `recurringTransactions` rule (repo file correct since `f20161f`, never deployed after `cb442d4`) → default-deny killed the listener, the backfill `getDocs` (mislabeled "initializeUser transaction"), and all three `checkRecurring` gates → silent no-generation while legacy main-doc templates masked the empty subcollection
+- Fix: `npx firebase deploy --only firestore:rules` (user, confirmed working) + in-PR hardening `e5b0a96` (labeled listener errors, 10s gate diagnostic) and `5cda137` (non-empty template gate before burning `hasCheckedRecurring`)
+- Prevention documented: rules need explicit `--only firestore:rules` deploy on any rules PR
+- Updated bugs index, root index.md (Total pages: 82), log.md
+
+## [2026-10-01] implement | Feature | Dashboard calendar view
+- Created [[wiki/features/dashboard-calendar/dashboard-calendar]] + raw source
+- New `src/components/dashboard/MonthCalendar.tsx`: MUI X DateCalendar + custom PickerDay slot (income/expense/transfer dots) + selected-day transaction list; live-updates via `useFinanceStore().transactions` subscription
+- DashboardPage: full-width calendar row after Charts; new `dashboard.calendar.*` i18n keys (it/en)
+- New `src/components/AppProviders.tsx`: LocalizationProvider with reactive adapterLocale ('it') for localized weekday headers
+- test-utils: renderWithProviders now wraps LocalizationProvider
+- Verified: tsc clean, build ✓, 153/153 tests, lint unchanged vs development
+- Updated index.md, wiki/features/index.md
+
+## [2026-10-01] fix | Bug | Dashboard chart heights equalized + invisible axis labels restored
+- Cash Flow Trend (280px) vs Portfolio Value (300px) → both 320px; `height` prop dropped from ChartsDataProvider so the legend renders inside the fixed box (v9 container measurement: extendVertically wrapper + ChartsLayerContainer 100%)
+- Invisible strings: x-charts v9 ellipsizes tick labels (`shortenLabels`) and auto-hides overlapping ones (`tickLabelInterval: 'auto'`); margin.left had been shrunk to 15 (WIP `b7e4f39`) → margins now `{left: 60, bottom: 60}` + rotated x labels (`angle: -45, textAnchor: 'end'`) so all 12 months fit
+- Updated [[wiki/bugs/charts-ui]] (2026-10-01 follow-up) + raw source + log.md
+
+## [2026-10-01] fix | Feature | Dashboard calendar spacing flush against charts row
+- Symptom: calendar Paper touched the charts row above while every other dashboard section had 24px gaps
+- Root cause: MUI Grid v9 `spacing` = CSS `gap` *inside* a container only (`gridGenerator.js:163`); sibling containers get zero gap — each dashboard section relies on its own `mb: 3`, and the charts container was the one missing it
+- Fix: `DashboardPage.tsx` charts container `sx={{ mt: 0, mb: 3 }}`
+- Updated [[wiki/features/dashboard-calendar/dashboard-calendar]] + raw source + log.md

@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-08-24* (test infrastructure Phase 1 landed)
-*Total pages: 78*
+*Last updated: 2026-10-01* (recurring full-month preload fix + dashboard calendar view)
+*Total pages: 82*
 
 ---
 
@@ -46,6 +46,8 @@ timestamp: 2026-08-03
 | [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] | ✅ recurringTransactions migrated to subcollection + Firestore offline persistence enabled | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
 | [[wiki/features/account-deletion/account-deletion]] | ✅ Delete own account + all data (Firestore doc, subcollections, auth) with re-auth guard and confirmation UI | [`#158`](https://github.com/AlexDevsTheWeb/myfinance/issues/158) |
 | [[wiki/features/test-infrastructure/test-infrastructure]] | ✅ Vitest test infrastructure — Phase 1 (pure logic) landed: 61 characterization tests, mocked Firebase | [`raw/test-infrastructure/test-infrastructure.md`](raw/test-infrastructure/test-infrastructure.md), [`#127`](https://github.com/AlexDevsTheWeb/myfinance/issues/127) |
+| [[wiki/features/first-of-month-recurring/first-of-month-recurring]] | ✅ Recurrent transactions auto-load on the 1st of each month (daily check + back-fill on open) | [`raw/first-of-month-recurring/first-of-month-recurring.md`](raw/first-of-month-recurring/first-of-month-recurring.md) |
+| [[wiki/features/dashboard-calendar/dashboard-calendar]] | ✅ Month calendar on the Dashboard with per-day transaction dots + day detail list, live-updating | [`raw/dashboard-calendar/dashboard-calendar.md`](raw/dashboard-calendar/dashboard-calendar.md) |
 
 ## Plans
 
@@ -100,6 +102,7 @@ timestamp: 2026-08-03
 | [[wiki/bugs/etf-pricing-total-return]] | ✅ Total Return stuck at €0 — price provider dead (yfin.dev); switched to Yahoo with Xetra-first resolution + SWDA→EUNL consolidation — **fixed** | [`raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md`](raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md) |
 | [[wiki/bugs/silent-login-errors]] | ✅ Auth failures (popup blocked, wrong password, network) silently swallowed — now localized AlertSnackbar feedback — **fixed** | [`#157`](https://github.com/AlexDevsTheWeb/myfinance/issues/157) |
 | [[wiki/bugs/transactions-array-write-back]] | ✅ 5 actions re-wrote full transactions array to dead main-doc field (1 MiB risk + lost renames) — now persisted to subcollection — **fixed** | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
+| [[wiki/bugs/recurring-preload-month-bound]] | ✅ Month not preloaded on the 1st — `checkRecurring` bounded generation at today, not end of month; added future-instance cascades — **fixed** | [`raw/bugs/recurring-preload-month-bound/recurring-preload-month-bound.md`](raw/bugs/recurring-preload-month-bound/recurring-preload-month-bound.md) |
 
 ## Architecture
 
@@ -131,3 +134,4 @@ timestamp: 2026-08-03
 | Page | Summary | Sources |
 |------|---------|---------|
 | [[wiki/references/llm-wiki-pattern]] | Karpathy's LLM Wiki pattern — original article | [`raw/original-llm-wiki/original-llm-wiki.md`](raw/original-llm-wiki/original-llm-wiki.md) |
+| [[wiki/bugs/firestore-rules-drift]] | ✅ Deployed Firestore rules predated the `recurringTransactions` path — silent permission-denied kept `checkRecurring` from ever running; rules redeployed + client gate/error diagnostics hardened — **fixed** | [`raw/bugs/firestore-rules-drift/firestore-rules-drift.md`](raw/bugs/firestore-rules-drift/firestore-rules-drift.md) |
