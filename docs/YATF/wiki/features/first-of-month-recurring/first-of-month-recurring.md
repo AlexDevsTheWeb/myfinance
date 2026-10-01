@@ -35,7 +35,26 @@ On the first day of each month, all of the user's recurrent transactions are aut
   - Yearly recurring month-of-year correction
   - End date handling
 
+## Full-month preload (2026-10-01 follow-up)
+
+The first implementation only *triggered* the check on the 1st — `checkRecurring` itself still
+bounded generation at `today`, so on the 1st only day-1 instances existed (reported as missing
+calendar/card data). See [[wiki/bugs/recurring-preload-month-bound]].
+
+- `checkRecurring` now bounds generation at `generationEnd = dayjs().endOf('month')` — the whole
+  current month is preloaded in one run; `lastGeneratedUpTo` + `existsInPeriod` keep it idempotent.
+- Calendar and cards needed **no changes** — their period filters already include future dates
+  within the period.
+- Lifecycle cascades added because instances are now future-dated:
+  - `updateRecurring` syncs future instances to edited template fields and prunes those outside a
+    changed `startDate`/`endDate` (past instances untouched).
+  - `deleteRecurring` removes future instances from store **and** Firestore; past kept as history.
+- Known trade-off: a manual edit to a *future* instance is overwritten when the template itself is
+  next edited (template = source of truth for future charges).
+
 ## Verification
 - TypeScript compilation passes (`npm run build`)
 - Production build succeeds
+- 159/159 tests — 6 new preload/cascade tests (clock pinned to 2026-10-05), 5 red on pre-fix code
+- Lint at exact 9-error baseline (0 new)
 - No breaking changes to existing recurring transaction logic

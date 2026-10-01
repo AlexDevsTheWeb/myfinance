@@ -768,3 +768,11 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `src/hooks/useSyncFinance.ts`: top-level daily `useEffect` — triggers `checkRecurring()` on the 1st of each month (5s throttle reused); init back-fill already covers opening on any later day
 - Verified: tsc clean, build OK, 153/153 tests pass
 - Updated index.md, wiki/features/index.md
+
+## [2026-10-01] fix | Bug | checkRecurring month preload bound
+- Created [[wiki/bugs/recurring-preload-month-bound]] + raw source
+- Root cause: `checkRecurring` bounded generation at `today` — on the 1st only day-1 instances existed (calendar + card symptom)
+- Fix: `generationEnd = dayjs().endOf('month')` replaces `now` in loop/break conditions
+- Cascades for preloaded future instances: `updateRecurring` syncs edited fields + prunes outside start/end date; `deleteRecurring` removes future instances from store + Firestore
+- Tests: +6 in useFinanceStore.test.ts (clock pinned 2026-10-05), 159 total; 5 red on pre-fix code
+- Updated [[wiki/features/first-of-month-recurring/first-of-month-recurring]], index.md (79 → 80), wiki/bugs/index.md, wiki/features/index.md

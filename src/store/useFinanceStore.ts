@@ -860,12 +860,53 @@ setBalanceStartDate: async (date) => {
         const payload = Sanitization.sanitizeRecurring(recurring);
         set({ saveError: null, isSaving: true });
         try {
+          const todayStr = dayjs().format('YYYY-MM-DD');
+          const syncedIds = new Set<string>();
+          const removedIds: string[] = [];
           set((state) => {
             const updatedRecurring = state.recurringTransactions.map(r => r.id === payload.id ? payload : r);
-            return { recurringTransactions: updatedRecurring, isSaving: false };
+            const updatedTransactions: Transaction[] = [];
+            for (const t of state.transactions) {
+              const isFutureInstance = t.recurringLinkId === payload.id && t.date > todayStr;
+              if (!isFutureInstance) {
+                updatedTransactions.push(t);
+                continue;
+              }
+              const endDateStr = payload.endDate ? dayjs(payload.endDate).format('YYYY-MM-DD') : null;
+              const startDateStr = dayjs(payload.startDate).format('YYYY-MM-DD');
+              if ((endDateStr && t.date > endDateStr) || t.date < startDateStr) {
+                removedIds.push(t.id);
+                continue;
+              }
+              syncedIds.add(t.id);
+              const next: Transaction = {
+                ...t,
+                description: payload.description,
+                category: payload.category,
+                subcategory: payload.subcategory,
+                amount: payload.amount,
+                type: payload.type,
+                accountId: payload.accountId,
+              };
+              if (payload.cardId) next.cardId = payload.cardId;
+              else delete next.cardId;
+              updatedTransactions.push(next);
+            }
+            return { recurringTransactions: updatedRecurring, transactions: updatedTransactions, isSaving: false };
           });
           const recRef = getRecurringDocRef(userId, payload.id);
           await setDoc(recRef, payload);
+          if (syncedIds.size > 0 || removedIds.length > 0) {
+            const collRef = getTransactionsCollectionRef(userId);
+            const batch = writeBatch(db);
+            for (const t of useFinanceStore.getState().transactions) {
+              if (syncedIds.has(t.id)) batch.set(doc(collRef, t.id), Sanitization.sanitizeTransaction(t));
+            }
+            for (const removedId of removedIds) {
+              batch.delete(doc(collRef, removedId));
+            }
+            await batch.commit();
+          }
           useFinanceStore.getState().checkRecurring();
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to update recurring transaction';
@@ -894,7 +935,7 @@ setBalanceStartDate: async (date) => {
 
           set((state) => {
             const newTransactions: Transaction[] = [];
-            const now = dayjs();
+            const generationEnd = dayjs().endOf('month');
             const balanceStart = dayjs(state.balanceStartDate);
 
             let transactions = state.transactions;
@@ -942,7 +983,7 @@ setBalanceStartDate: async (date) => {
               let current = start;
               let safetyCounter = 0;
 
-              while (current.isBefore(now, 'day') || current.isSame(now, 'day')) {
+              while (current.isBefore(generationEnd, 'day') || current.isSame(generationEnd, 'day')) {
                 if (safetyCounter++ > 1000) break;
 
                 let targetDate = current.date(payload.dayOfMonth);
@@ -958,7 +999,7 @@ setBalanceStartDate: async (date) => {
                   }
                 }
 
-                if (targetDate.isAfter(now, 'day')) break;
+                if (targetDate.isAfter(generationEnd, 'day')) break;
                 if (payload.endDate && targetDate.isAfter(dayjs(payload.endDate), 'day')) break;
 
                 if (targetDate.isBefore(start, 'day') || targetDate.isBefore(balanceStart, 'day')) {
@@ -1059,11 +1100,29 @@ setBalanceStartDate: async (date) => {
 
         set({ saveError: null, isSaving: true });
         try {
+          const todayStr = dayjs().format('YYYY-MM-DD');
+          const removedIds: string[] = [];
           set((state) => {
             const updatedRecurring = state.recurringTransactions.filter(r => r.id !== id);
-            return { recurringTransactions: updatedRecurring, isSaving: false };
+            const remainingTransactions = state.transactions.filter(t => {
+              const isFutureInstance = t.recurringLinkId === id && t.date > todayStr;
+              if (isFutureInstance) {
+                removedIds.push(t.id);
+                return false;
+              }
+              return true;
+            });
+            return { recurringTransactions: updatedRecurring, transactions: remainingTransactions, isSaving: false };
           });
           await deleteDoc(getRecurringDocRef(userId, id));
+          if (removedIds.length > 0) {
+            const collRef = getTransactionsCollectionRef(userId);
+            const batch = writeBatch(db);
+            for (const removedId of removedIds) {
+              batch.delete(doc(collRef, removedId));
+            }
+            await batch.commit();
+          }
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete recurring transaction';
           set({ saveError: errorMessage, isSaving: false });
