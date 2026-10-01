@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-10-01* (recurring full-month preload fix)
-*Total pages: 81*
+*Last updated: 2026-10-01* (recurring full-month preload fix + dashboard calendar view)
+*Total pages: 82*
 
 ---
 
@@ -47,6 +47,7 @@ timestamp: 2026-08-03
 | [[wiki/features/account-deletion/account-deletion]] | ✅ Delete own account + all data (Firestore doc, subcollections, auth) with re-auth guard and confirmation UI | [`#158`](https://github.com/AlexDevsTheWeb/myfinance/issues/158) |
 | [[wiki/features/test-infrastructure/test-infrastructure]] | ✅ Vitest test infrastructure — Phase 1 (pure logic) landed: 61 characterization tests, mocked Firebase | [`raw/test-infrastructure/test-infrastructure.md`](raw/test-infrastructure/test-infrastructure.md), [`#127`](https://github.com/AlexDevsTheWeb/myfinance/issues/127) |
 | [[wiki/features/first-of-month-recurring/first-of-month-recurring]] | ✅ Recurrent transactions auto-load on the 1st of each month (daily check + back-fill on open) | [`raw/first-of-month-recurring/first-of-month-recurring.md`](raw/first-of-month-recurring/first-of-month-recurring.md) |
+| [[wiki/features/dashboard-calendar/dashboard-calendar]] | ✅ Month calendar on the Dashboard with per-day transaction dots + day detail list, live-updating | [`raw/dashboard-calendar/dashboard-calendar.md`](raw/dashboard-calendar/dashboard-calendar.md) |
 
 ## Plans
 

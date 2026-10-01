@@ -788,4 +788,13 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Incident: deployed rules predated #56's `recurringTransactions` rule (repo file correct since `f20161f`, never deployed after `cb442d4`) → default-deny killed the listener, the backfill `getDocs` (mislabeled "initializeUser transaction"), and all three `checkRecurring` gates → silent no-generation while legacy main-doc templates masked the empty subcollection
 - Fix: `npx firebase deploy --only firestore:rules` (user, confirmed working) + in-PR hardening `e5b0a96` (labeled listener errors, 10s gate diagnostic) and `5cda137` (non-empty template gate before burning `hasCheckedRecurring`)
 - Prevention documented: rules need explicit `--only firestore:rules` deploy on any rules PR
-- Updated bugs index, root index.md (Total pages: 81), log.md
+- Updated bugs index, root index.md (Total pages: 82), log.md
+
+## [2026-10-01] implement | Feature | Dashboard calendar view
+- Created [[wiki/features/dashboard-calendar/dashboard-calendar]] + raw source
+- New `src/components/dashboard/MonthCalendar.tsx`: MUI X DateCalendar + custom PickerDay slot (income/expense/transfer dots) + selected-day transaction list; live-updates via `useFinanceStore().transactions` subscription
+- DashboardPage: full-width calendar row after Charts; new `dashboard.calendar.*` i18n keys (it/en)
+- New `src/components/AppProviders.tsx`: LocalizationProvider with reactive adapterLocale ('it') for localized weekday headers
+- test-utils: renderWithProviders now wraps LocalizationProvider
+- Verified: tsc clean, build ✓, 153/153 tests, lint unchanged vs development
+- Updated index.md, wiki/features/index.md

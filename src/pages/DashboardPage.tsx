@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AccountDetailDialog from '../components/dashboard/AccountDetailDialog';
 import Charts from '../components/dashboard/Charts';
+import MonthCalendar from '../components/dashboard/MonthCalendar';
 import RecapCards from '../components/dashboard/RecapCards';
 import SavingsRateGauge from '../components/budget/SavingsRateGauge';
 import BulletChart from '../components/budget/BulletChart';
@@ -192,6 +193,12 @@ const DashboardPage: React.FC = () => {
             />
           </Grid>
         )}
+      </Grid>
+
+      <Grid container spacing={3} sx={{ mt: 0 }}>
+        <Grid size={{ xs: 12 }}>
+          <MonthCalendar />
+        </Grid>
       </Grid>
 
       {enabledModules?.budgetTracking && budgetTargets.length > 0 && (

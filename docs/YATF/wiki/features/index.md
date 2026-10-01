@@ -45,3 +45,4 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[features/account-deletion/account-deletion|account-deletion]] | Users can delete their own account + all data (Firestore doc, subcollections, auth) with re-auth guard and confirmation UI. |
 | [[features/test-infrastructure/test-infrastructure|test-infrastructure]] | Layered Vitest infrastructure (jsdom, colocated tests, mocked Firebase) — Phase 1 pure-logic layer complete. |
 | [[features/first-of-month-recurring/first-of-month-recurring|first-of-month-recurring]] | Recurrent transactions auto-generated on the 1st of each month; whole month preloaded at month start; back-filled with correct date on any app open. |
+| [[features/dashboard-calendar/dashboard-calendar|dashboard-calendar]] | Month calendar on the Dashboard — per-day income/expense/transfer dots + selected-day transaction list, live-updating. |
