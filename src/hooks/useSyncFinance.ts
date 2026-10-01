@@ -56,10 +56,7 @@ export const useSyncFinance = () => {
         useFinanceStore.getState().setAll({ isLoading: false });
       } finally {
         isInitializing.current = false;
-        if (!hasCheckedRecurring.current && hasLoaded.current && subColLoaded.current && recurringSubColLoaded.current) {
-          hasCheckedRecurring.current = true;
-          useFinanceStore.getState().checkRecurring();
-        }
+        maybeCheckRecurring();
       }
     };
 
@@ -70,21 +67,30 @@ export const useSyncFinance = () => {
       console.error(`[sync] snapshot listener failed (${path}):`, err);
     };
 
+    // Fire checkRecurring exactly once per session, once all three listeners have
+    // delivered AND real templates are present. Burning the flag on an empty list
+    // (e.g. recurring subcollection still migrating) deadlocks the session.
+    const maybeCheckRecurring = () => {
+      if (hasCheckedRecurring.current) return;
+      if (!(hasLoaded.current && subColLoaded.current && recurringSubColLoaded.current)) return;
+      const state = useFinanceStore.getState();
+      if (state.recurringTransactions.length === 0) return;
+      hasCheckedRecurring.current = true;
+      state.checkRecurring();
+    };
+
     const unsubDoc = onSnapshot(docRef, (doc) => {
       if (doc.metadata.hasPendingWrites) return;
       if (doc.exists()) {
         const storeState = useFinanceStore.getState();
         if (storeState.isSaving || storeState.hasLocalChanges) return;
         const data = doc.data();
-        const { setAll, checkRecurring } = useFinanceStore.getState();
+        const { setAll } = useFinanceStore.getState();
         setAll({ ...data, isLoading: !(hasLoaded.current || subColLoaded.current) });
         if (!hasLoaded.current) {
           hasLoaded.current = true;
         }
-        if (!hasCheckedRecurring.current && subColLoaded.current && recurringSubColLoaded.current) {
-          hasCheckedRecurring.current = true;
-          checkRecurring();
-        }
+        maybeCheckRecurring();
       }
     }, onListenerError(`users/${user.uid}`));
 
@@ -118,12 +124,9 @@ export const useSyncFinance = () => {
         batch.commit().catch(err => console.error('orphan cleanup failed:', err));
       }
 
-      const { setAll, checkRecurring } = useFinanceStore.getState();
+      const { setAll } = useFinanceStore.getState();
       setAll({ transactions: deduped as never[], isLoading: false });
-      if (!hasCheckedRecurring.current && hasLoaded.current && recurringSubColLoaded.current) {
-        hasCheckedRecurring.current = true;
-        checkRecurring();
-      }
+      maybeCheckRecurring();
     }, onListenerError(`users/${user.uid}/transactions`));
 
     const unsubRecs = onSnapshot(recsRef, (snapshot) => {
@@ -147,6 +150,13 @@ export const useSyncFinance = () => {
     const diagnosticTimer = setTimeout(() => {
       if (hasCheckedRecurring.current) return;
       const state = useFinanceStore.getState();
+      const gatesOpen =
+        hasLoaded.current && subColLoaded.current && recurringSubColLoaded.current;
+      const freshUser =
+        gatesOpen &&
+        Object.keys(syncErrors.current).length === 0 &&
+        state.recurringTransactions.length === 0;
+      if (freshUser) return;
       console.warn('[sync] recurring check still not run 10s after init', {
         gates: {
           hasLoaded: hasLoaded.current,
