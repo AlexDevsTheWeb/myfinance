@@ -803,3 +803,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Cash Flow Trend (280px) vs Portfolio Value (300px) → both 320px; `height` prop dropped from ChartsDataProvider so the legend renders inside the fixed box (v9 container measurement: extendVertically wrapper + ChartsLayerContainer 100%)
 - Invisible strings: x-charts v9 ellipsizes tick labels (`shortenLabels`) and auto-hides overlapping ones (`tickLabelInterval: 'auto'`); margin.left had been shrunk to 15 (WIP `b7e4f39`) → margins now `{left: 60, bottom: 60}` + rotated x labels (`angle: -45, textAnchor: 'end'`) so all 12 months fit
 - Updated [[wiki/bugs/charts-ui]] (2026-10-01 follow-up) + raw source + log.md
+
+## [2026-10-01] fix | Feature | Dashboard calendar spacing flush against charts row
+- Symptom: calendar Paper touched the charts row above while every other dashboard section had 24px gaps
+- Root cause: MUI Grid v9 `spacing` = CSS `gap` *inside* a container only (`gridGenerator.js:163`); sibling containers get zero gap — each dashboard section relies on its own `mb: 3`, and the charts container was the one missing it
+- Fix: `DashboardPage.tsx` charts container `sx={{ mt: 0, mb: 3 }}`
+- Updated [[wiki/features/dashboard-calendar/dashboard-calendar]] + raw source + log.md

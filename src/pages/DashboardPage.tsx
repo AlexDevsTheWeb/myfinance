@@ -180,7 +180,7 @@ const DashboardPage: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Grid container spacing={3} sx={{ mt: 0 }}>
+      <Grid container spacing={3} sx={{ mt: 0, mb: 3 }}>
         <Grid size={{ xs: 12, md: enabledModules?.investmentTracking && portfolio.chartData.length > 0 ? 6 : 12 }}>
           <Charts />
         </Grid>

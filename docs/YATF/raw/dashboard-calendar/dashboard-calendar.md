@@ -25,5 +25,20 @@ Add a calendar view in the home page (Dashboard) with all the transactions of th
 - **Localization**: new `dashboard.calendar.*` keys in `src/locales/it.json` + `en.json`; weekday headers localized by passing `adapterLocale` ('it'/undefined) to `LocalizationProvider` via a new `src/components/AppProviders.tsx` (react-refresh lint requires the component outside `main.tsx`; also subscribes to `languageChanged` so switching language re-renders the picker locale).
 - **Test harness**: `renderWithProviders` in `src/test/test-utils.tsx` now wraps `LocalizationProvider` so date-picker components can be unit-tested.
 
+## Follow-up (2026-10-01) — calendar flush against the charts row
+
+Reported: the calendar was not respecting the spacing used by the rest of the page (Paper touching the charts above).
+
+Root cause: MUI Grid v9's `spacing` prop is implemented as CSS `gap` **inside a container only**
+(`@mui/system/Grid/gridGenerator.js:163` — `gap: var(--rowSpacing) var(--columnSpacing)`).
+It creates no space between sibling containers. On the dashboard, every section container
+carries its own `mb: 3` (title `mb: 3`, alerts `mb: 3`, stat cards `mb: 3`, recap cards
+`mb: 3`) except the charts container — which only had `mt: 0`, and the calendar container
+also `mt: 0` → 0px between them while every other section gap is 24px.
+
+Fix: `DashboardPage.tsx` charts container `sx={{ mt: 0 }}` → `sx={{ mt: 0, mb: 3 }}` — restores
+the page's one-mechanism spacing pattern (each container owns its bottom gap).
+
 ## Verification
 - `tsc -b` clean; `vite build` ✓; `npm test` 153/153; `npm run lint` unchanged vs development (9 pre-existing errors, 0 new).
+- Follow-up: `tsc -b` clean; `npm test` 162/162; lint baseline 9 errors / 11 warnings.

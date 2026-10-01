@@ -38,6 +38,14 @@ A month calendar on the Dashboard (home page) showing every transaction of the m
 ### Live-update mechanism
 `MonthCalendar` subscribes to `useFinanceStore().transactions`. The per-day totals map and the selected day's transaction list are `useMemo`-derived from it, so any store change (manual CRUD, Firestore snapshot sync, first-of-month recurring back-fill) re-renders the calendar immediately.
 
+### Spacing fix (2026-10-01 follow-up)
+
+The calendar initially rendered flush against the charts row. MUI Grid v9's `spacing` only
+produces CSS `gap` **inside** a container (`gridGenerator.js:163`), never between sibling
+containers — dashboard sections each carry their own `mb: 3`, but the charts container
+didn't. Fixed by adding `mb: 3` to the charts container in `DashboardPage.tsx`, restoring the
+page's 24px section rhythm.
+
 ## Verification
 - `tsc -b` clean, `vite build` ✓, `npm test` 153/153, lint unchanged vs development (0 new errors)
 
