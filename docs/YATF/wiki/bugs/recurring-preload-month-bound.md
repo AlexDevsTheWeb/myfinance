@@ -41,7 +41,19 @@ if (targetDate.isAfter(now, 'day')) break;
 
 On the 1st, only instances dated ≤ today exist — exactly the day-1 templates. The daily
 first-of-month trigger added in [[wiki/features/first-of-month-recurring/first-of-month-recurring]]
-could not help: the check runs on time, but its own bound stops it after one day.
+could not help: the check runs on the day, but its own bound stops it after one day.
+
+**Second root cause — the trigger defeated itself on mount.** On the 1st, the daily
+`checkFirstOfMonth` effect runs *synchronously before any Firestore snapshot delivers templates*,
+so `checkRecurring()` executed with an **empty template list** — a "successful" no-op that stamped
+the 5s throttle (`lastRecurringCheck`). The data-loaded init call fired tens–hundreds of ms later
+(warm cache) → throttled away, and `hasCheckedRecurring` was already burned → **no generation for
+the whole session**. Any other day the daily effect returned at `date() !== 1` without calling,
+so no stamp — the feature only broke on its own day. Reloading never helped: the race is
+guaranteed on every mount on the 1st. (Cold first load of the day took >5s, which is how day-1
+instances were created earlier under the old bound.) Compounding it, `unsubRecs` set
+`recurringSubColLoaded = true` *before* its `hasPendingWrites` return, so the flag could read
+true while the store still had no templates.
 
 Card/calendar code was innocent — their period filters already include future dates within the
 period; there were simply no future instances to include.
@@ -52,10 +64,15 @@ period; there were simply no future instances to include.
    `generationEnd = dayjs().endOf('month')` replaces `now` in both the loop condition and the
    `targetDate` break. Idempotency preserved via `lastGeneratedUpTo` + `existsInPeriod`.
    Yearly templates whose `monthOfYear` is later in the year still wait for their month.
-2. **`updateRecurring` cascade**: future preloaded instances are synced to edited template fields;
+2. **Kill the mount race** (throttle burn): `checkRecurring` returns when the template list is
+   empty — *before* stamping `lastRecurringCheck`; `checkFirstOfMonth` skips until
+   `recurringSubColLoaded` (init call sites already gate on it, and the interval still covers a
+   tab crossing midnight into the 1st); `unsubRecs` sets `recurringSubColLoaded` only after the
+   `hasPendingWrites` return, so the flag means "templates are in the store".
+3. **`updateRecurring` cascade**: future preloaded instances are synced to edited template fields;
    instances outside a changed `startDate`/`endDate` are pruned — persisted via Firestore batch.
    Past instances untouched.
-3. **`deleteRecurring` cascade**: future instances removed from store **and** Firestore
+4. **`deleteRecurring` cascade**: future instances removed from store **and** Firestore
    subcollection; past instances kept as history.
 
 Preloaded future instances are consistent with existing semantics: manual future-dated
@@ -63,9 +80,10 @@ transactions were already allowed (no `maxDate` in the form).
 
 ## Verification
 
-- 6 new tests in `src/store/useFinanceStore.test.ts` (clock pinned to 2026-10-05);
-  **5 fail on pre-fix code**.
-- Full suite 159/159, `tsc -b` clean, production build OK, lint at exact 9-error baseline.
+- 7 new tests in `src/store/useFinanceStore.test.ts` (clock pinned to 2026-10-05), including a
+  dedicated mount-race regression (empty run doesn't stamp the throttle); **6 fail on fully
+  pre-fix code**.
+- Full suite 162/162, `tsc -b` clean, production build OK, lint at exact 9-error baseline.
 
 ## Related
 

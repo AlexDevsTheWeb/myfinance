@@ -120,11 +120,13 @@ export const useSyncFinance = () => {
     });
 
     const unsubRecs = onSnapshot(recsRef, (snapshot) => {
+      if (snapshot.metadata.hasPendingWrites) return;
+
+      // Only mark recurring data as loaded once a non-pending snapshot has been
+      // processed — the flag gates checkRecurring, which needs the templates.
       if (!recurringSubColLoaded.current) {
         recurringSubColLoaded.current = true;
       }
-
-      if (snapshot.metadata.hasPendingWrites) return;
 
       const allDocs = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
       const sorted = allDocs.sort((a, b) => a.description.localeCompare(b.description));
@@ -146,6 +148,10 @@ export const useSyncFinance = () => {
     const checkFirstOfMonth = () => {
       const now = dayjs();
       if (now.date() !== 1) return;
+
+      // Never run before recurring data has loaded: an empty run would stamp the
+      // 5s throttle in checkRecurring and starve the data-loaded init call below.
+      if (!recurringSubColLoaded.current) return;
 
       const state = useFinanceStore.getState();
       const timeSinceLastCheck = state.lastRecurringCheck

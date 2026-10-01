@@ -922,6 +922,11 @@ setBalanceStartDate: async (date) => {
         const state = useFinanceStore.getState();
         if (state.isCheckingRecurring) return;
 
+        // No templates loaded (or user has none): nothing to generate. Return
+        // before stamping lastRecurringCheck so a mis-timed empty run cannot
+        // throttle the data-loaded call that follows (first-of-month mount race).
+        if (state.recurringTransactions.length === 0) return;
+
         if (state.lastRecurringCheck) {
           const timeSinceLastCheck = Date.now() - new Date(state.lastRecurringCheck).getTime();
           if (timeSinceLastCheck < 5000) return;

@@ -776,3 +776,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Cascades for preloaded future instances: `updateRecurring` syncs edited fields + prunes outside start/end date; `deleteRecurring` removes future instances from store + Firestore
 - Tests: +6 in useFinanceStore.test.ts (clock pinned 2026-10-05), 159 total; 5 red on pre-fix code
 - Updated [[wiki/features/first-of-month-recurring/first-of-month-recurring]], index.md (79 → 80), wiki/bugs/index.md, wiki/features/index.md
+
+## [2026-10-01] fix | Bug | First-of-month mount race burned the recurring throttle
+- Root cause (2nd layer of [[wiki/bugs/recurring-preload-month-bound]]): on the 1st the daily `checkFirstOfMonth` effect ran before Firestore snapshots delivered templates → empty `checkRecurring()` no-op stamped the 5s throttle → data-loaded init call throttled + `hasCheckedRecurring` burned → no generation that session (reload never helps; other days unaffected)
+- Fix: `checkRecurring` returns on empty template list *before* stamping `lastRecurringCheck`; `checkFirstOfMonth` gated on `recurringSubColLoaded`; `unsubRecs` sets the flag only after the `hasPendingWrites` return
+- Tests: +1 mount-race regression in useFinanceStore.test.ts, 162 total; 6/7 red on fully pre-fix code
+- Updated [[wiki/bugs/recurring-preload-month-bound]] + raw, [[wiki/features/first-of-month-recurring/first-of-month-recurring]], log.md

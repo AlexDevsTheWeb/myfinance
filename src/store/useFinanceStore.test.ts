@@ -669,6 +669,21 @@ describe('checkRecurring (full-month preload)', () => {
     expect(oct20).toHaveLength(1);
     expect(oct1).toHaveLength(1);
   });
+
+  it('empty pre-load run does not stamp the throttle, so the data-loaded run still generates', async () => {
+    // Mount on the 1st: the daily first-of-month effect fires checkRecurring
+    // before Firestore snapshots have delivered the templates.
+    await useFinanceStore.getState().checkRecurring();
+    expect(useFinanceStore.getState().lastRecurringCheck).toBeNull();
+
+    // Templates arrive moments later (<5s), init path calls checkRecurring.
+    useFinanceStore.setState({ recurringTransactions: [preloadTemplate] });
+    await useFinanceStore.getState().checkRecurring();
+
+    const txns = useFinanceStore.getState().transactions;
+    expect(txns.find(t => t.date === '2026-10-20')).toBeDefined();
+    expect(txns).toHaveLength(10);
+  });
 });
 
 // ─── Recurring template edit/delete: future-instance cascades ────────────────
