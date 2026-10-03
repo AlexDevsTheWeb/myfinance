@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+
+<html class="" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta content="web_dashboard" name="shell-type" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <style>
+    @layer base {
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        overscroll-behavior: none;
+      }
+
+      main>:first-child {
+        margin-top: 0 !important;
+      }
+
+      main>:last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script
+    id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-high": "#262a33", "on-secondary-container": "#e6ecff", "error": "#ffb4ab", "secondary-container": "#0566d9", "on-error-container": "#ffdad6", "secondary-fixed-dim": "#adc6ff", "on-secondary-fixed-variant": "#004395", "primary-container": "#06b6d4", "surface-bright": "#353942", "on-primary-container": "#00424f", "surface-container-low": "#181c24", "inverse-on-surface": "#2c3039", "tertiary": "#4edea3", "tertiary-fixed": "#6ffbbe", "inverse-surface": "#dfe2ee", "on-tertiary": "#003824", "surface-variant": "#31353e", "on-tertiary-fixed": "#002113", "surface-container": "#1c2028", "primary-fixed-dim": "#4cd7f6", "primary": "#4cd7f6", "surface-container-highest": "#31353e", "on-primary-fixed": "#001f26", "surface-container-lowest": "#0a0e16", "outline-variant": "#3d494c", "secondary-fixed": "#d8e2ff", "on-surface": "#dfe2ee", "on-error": "#690005", "secondary": "#adc6ff", "on-background": "#dfe2ee", "outline": "#869397", "on-secondary-fixed": "#001a42", "background": "#0f131c", "tertiary-container": "#1bbd85", "surface-tint": "#4cd7f6", "primary-fixed": "#acedff", "on-surface-variant": "#bcc9cd", "inverse-primary": "#00687a", "surface": "#0f131c", "on-tertiary-fixed-variant": "#005236", "on-primary-fixed-variant": "#004e5c", "on-secondary": "#002e6a", "on-primary": "#003640", "on-tertiary-container": "#00452e", "error-container": "#93000a", "tertiary-fixed-dim": "#4edea3", "surface-dim": "#0f131c" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "gutter-desktop": "1.5rem", "space-lg": "1.5rem", "gutter": "1.25rem", "margin-desktop": "2rem", "space-md": "1rem", "margin": "1rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "margin-tablet": "1.5rem", "space-xl": "2rem" }, fontFamily: { "headline-md": ["Plus Jakarta Sans"], "body-lg": ["Manrope"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "stat-display-sm": ["Plus Jakarta Sans"], "body-sm": ["Manrope"], "label-md": ["Manrope"], "headline-xl": ["Plus Jakarta Sans"], "stat-display": ["Plus Jakarta Sans"], "body-md": ["Manrope"], "label-caps": ["Plus Jakarta Sans"] }, fontSize: { "headline-md": ["18px", { lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: "600" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }], "headline-xl-mobile": ["26px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "700" }], "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.015em", fontWeight: "600" }], "stat-display-sm": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "700" }], "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }], "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.04em", fontWeight: "600" }], "headline-xl": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }], "stat-display": ["28px", { lineHeight: "36px", letterSpacing: "-0.02em", fontWeight: "700" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }], "label-caps": ["11px", { lineHeight: "14px", letterSpacing: "0.08em", fontWeight: "700" }] } } } }</script>
+</head>
+
+<body class="bg-[#F8FAFC] font-body-md text-slate-900 antialiased">
+  <aside
+    class="fixed left-0 top-0 h-full w-64 bg-white border-r border-slate-200/80 z-50 flex flex-col justify-between select-none shadow-[1px_0_4px_rgba(0,0,0,0.02)]">
+    <div class="flex flex-col">
+      <div class="h-16 px-space-md flex items-center justify-between border-b border-slate-100">
+        <div class="flex items-center gap-space-sm">
+          <div class="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center shadow-sm">
+            <span class="material-symbols-outlined text-[#2563EB] text-[22px]">all_inclusive</span></div>
+          <div class="flex flex-col"><span
+              class="font-headline-md text-headline-md tracking-tight text-slate-900 font-bold leading-none">BALANCR</span><span
+              class="font-label-caps text-label-caps text-slate-400 uppercase tracking-widest mt-0.5 text-[10px] font-semibold">Private
+              Wealth</span></div>
+        </div>
+      </div>
+      <nav class="flex flex-col gap-1 px-3 py-4"><a aria-current="page"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-body-md text-body-md font-semibold bg-blue-50/80 text-[#2563EB] shadow-xs transition-colors"
+          href="#"><span
+            class="material-symbols-outlined text-[20px] text-[#2563EB]">grid_view</span><span>Dashboard</span></a><a
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-body-md text-body-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+          href="#"><span
+            class="material-symbols-outlined text-[20px] text-slate-400">sync_alt</span><span>Transactions</span></a><a
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-body-md text-body-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+          href="#"><span
+            class="material-symbols-outlined text-[20px] text-slate-400">account_balance</span><span>Finance</span></a><a
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-body-md text-body-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+          href="#"><span
+            class="material-symbols-outlined text-[20px] text-slate-400">trending_up</span><span>Investments</span></a><a
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-body-md text-body-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+          href="#"><span
+            class="material-symbols-outlined text-[20px] text-slate-400">pie_chart</span><span>Budget</span></a><a
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-body-md text-body-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+          href="#"><span
+            class="material-symbols-outlined text-[20px] text-slate-400">directions_car</span><span>Car</span></a><a
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg font-body-md text-body-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+          href="#"><span
+            class="material-symbols-outlined text-[20px] text-slate-400">bolt</span><span>Utilities</span></a></nav>
+    </div>
+    <div class="flex flex-col border-t border-slate-100 p-3 gap-2">
+      <nav class="flex flex-col gap-1"><a
+          class="flex items-center gap-3 px-3 py-2 rounded-lg font-body-md text-body-md text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+          href="#"><span
+            class="material-symbols-outlined text-[20px] text-slate-400">settings</span><span>Settings</span></a><a
+          class="flex items-center gap-3 px-3 py-2 rounded-lg font-body-md text-body-md text-rose-600 hover:bg-rose-50 transition-colors"
+          href="#"><span
+            class="material-symbols-outlined text-[20px] text-rose-500">logout</span><span>Logout</span></a></nav>
+      <div class="mt-1 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-[#2563EB] flex items-center justify-center shrink-0 shadow-sm"><span
+            class="font-label-caps text-label-caps text-white font-bold text-[12px]">AT</span></div>
+        <div class="flex flex-col min-w-0 flex-1"><span
+            class="font-body-md text-[13px] text-slate-900 font-semibold truncate leading-tight">Alessandro
+            Torri</span><span class="font-label-md text-[11px] text-slate-500 truncate">alessandro@torri.com</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="pl-64">
+    <header
+      class="fixed top-0 left-64 right-0 h-16 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 z-40 flex items-center justify-between px-margin-desktop shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+      <div class="flex items-center gap-space-sm font-body-sm text-body-sm text-slate-500"><span
+          class="material-symbols-outlined text-[16px] text-slate-400">home</span><span>/</span><span
+          class="font-medium text-slate-900">Executive Portal</span></div>
+      <div class="flex items-center gap-space-md">
+        <div class="relative hidden sm:flex items-center"><span
+            class="material-symbols-outlined absolute left-3 text-slate-400 text-[18px]">search</span><input
+            class="w-64 bg-slate-50 border border-slate-200/80 rounded-lg pl-9 pr-3 py-1.5 font-body-sm text-body-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all"
+            placeholder="Search transactions, vaults, assets..." type="text" /></div>
+        <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/60"><button
+            class="flex items-center gap-1 px-2.5 py-1 rounded bg-white text-amber-600 shadow-xs font-semibold text-[11px]"
+            title="Active Light Theme"><span
+              class="material-symbols-outlined text-[16px]">light_mode</span><span>Light</span></button><button
+            class="flex items-center gap-1 px-2.5 py-1 rounded text-slate-500 hover:text-slate-700 text-[11px]"
+            title="Switch to Dark Mode"><span class="material-symbols-outlined text-[16px]">dark_mode</span></button>
+        </div><button
+          class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200/60 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          type="button"><span class="material-symbols-outlined text-[20px]">notifications</span></button>
+        <div class="w-8 h-8 rounded-full bg-[#2563EB] flex items-center justify-center text-white shadow-sm"><span
+            class="material-symbols-outlined text-[18px]">person</span></div>
+      </div>
+    </header>
+    <main class="w-full pt-16 bg-[#F8FAFC] px-margin-desktop py-space-xl">
+      <div class="flex flex-col w-full gap-space-lg pb-12"><!-- Title & Context Area -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+          <div class="flex flex-col">
+            <div
+              class="flex items-center gap-space-xs text-slate-400 font-label-caps uppercase tracking-wider mb-1 text-[11px]">
+              <span class="material-symbols-outlined text-[14px] text-[#2563EB]">dashboard</span>
+              <span>Overview</span>
+              <span>/</span>
+              <span class="text-slate-700 font-semibold">Executive Cockpit</span>
+            </div>
+            <h1 class="font-headline-xl text-headline-xl text-slate-900 tracking-tight font-bold">Dashboard</h1>
+            <p class="font-body-md text-body-md text-slate-500">Welcome back! Here's your consolidated financial
+              overview.</p>
+          </div>
+          <!-- Quick action pill & Sync status -->
+          <div class="flex items-center gap-space-sm self-start md:self-auto">
+            <div
+              class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200/80 text-slate-600 font-label-md text-label-md shadow-xs">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Live Encrypted Mirror</span>
+            </div>
+            <button
+              class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white border border-slate-200/80 hover:bg-slate-50 transition-colors text-[#2563EB] font-body-sm text-body-sm font-semibold shadow-xs"
+              type="button">
+              <span class="material-symbols-outlined text-[18px]">file_download</span>
+              <span>Export</span>
+            </button>
+          </div>
+        </div>
+        <!-- Soft Beta Advisory Notice (MUI Alert style) -->
+        <div class="rounded-xl bg-amber-50/70 border border-amber-200 p-4 sm:p-5 shadow-xs flex items-start gap-3.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+            <span class="material-symbols-outlined text-[20px]">warning</span>
+          </div>
+          <div class="flex flex-col gap-1 min-w-0">
+            <div class="flex items-center gap-2 font-headline-md text-slate-900 font-semibold text-[15px]">
+              <span>Welcome to the Balancr Soft Beta!</span>
+              <span
+                class="font-label-caps text-[10px] px-2 py-0.5 rounded bg-amber-200/60 text-amber-800 font-bold uppercase tracking-wider">v0.9.4
+                Sandbox</span>
+            </div>
+            <p class="font-body-sm text-body-sm text-slate-600 leading-relaxed">
+              This application is currently in an experimental sandbox phase. While all data transmissions are encrypted
+              and isolated inside a dedicated Firestore vault, please do not input real banking credentials or highly
+              sensitive credentials.
+            </p>
+          </div>
+        </div>
+        <!-- Auxiliary Telemetry Strips (Clean White Paper) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-space-md">
+          <!-- Investments -->
+          <div
+            class="rounded-xl bg-white p-4 flex items-center justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center">
+                <span class="material-symbols-outlined text-[22px]">trending_up</span>
+              </div>
+              <div class="flex flex-col">
+                <span
+                  class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Investments</span>
+                <div class="flex items-baseline gap-2">
+                  <span class="font-stat-display-sm text-stat-display-sm text-slate-900 font-bold">€800</span>
+                  <span
+                    class="font-label-md text-label-md text-emerald-600 flex items-center font-semibold">+0.0%</span>
+                </div>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-slate-400 text-[20px]">chevron_right</span>
+          </div>
+          <!-- Car Tracker -->
+          <div
+            class="rounded-xl bg-white p-4 flex items-center justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[22px]">directions_car</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Car
+                  Fleet ODO</span>
+                <div class="flex items-baseline gap-1.5">
+                  <span class="font-stat-display-sm text-stat-display-sm text-slate-900 font-bold">10.568</span>
+                  <span class="font-label-md text-label-md text-slate-500 font-medium">km</span>
+                </div>
+              </div>
+            </div>
+            <span
+              class="font-label-caps text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200/50">Active</span>
+          </div>
+          <!-- Utilities -->
+          <div
+            class="rounded-xl bg-white p-4 flex items-center justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[22px]">bolt</span>
+              </div>
+              <div class="flex flex-col">
+                <span
+                  class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Utilities
+                  (MTD)</span>
+                <div class="flex items-baseline gap-1.5">
+                  <span class="font-stat-display-sm text-stat-display-sm text-slate-900 font-bold">€498,93</span>
+                </div>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-slate-400 text-[20px]">tune</span>
+          </div>
+        </div>
+        <!-- Primary Financial Core: 4-Column Layout (MUI White Paper cards) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+          <!-- Balance -->
+          <div
+            class="rounded-xl bg-white p-5 flex flex-col justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)] hover:border-blue-400 transition-all">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-[#2563EB]">
+                  <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+                </div>
+                <span class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Current
+                  Balance</span>
+              </div>
+              <span
+                class="font-label-caps text-[10px] text-[#2563EB] px-2 py-0.5 rounded-full bg-blue-50 font-bold tracking-wider border border-blue-200/60">PRIMARY</span>
+            </div>
+            <div class="flex flex-col">
+              <span
+                class="font-stat-display text-stat-display text-slate-900 tracking-tight font-bold whitespace-nowrap">€
+                27.075,42</span>
+              <div class="flex items-center gap-1.5 mt-2 text-slate-500 font-body-sm text-body-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span>Liquid assets across 3 accounts</span>
+              </div>
+            </div>
+          </div>
+          <!-- Total Income -->
+          <div
+            class="rounded-xl bg-white p-5 flex flex-col justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)] hover:border-emerald-400 transition-all">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                  <span class="material-symbols-outlined text-[20px]">trending_up</span>
+                </div>
+                <span class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Total
+                  Income</span>
+              </div>
+              <span
+                class="font-label-caps text-[10px] text-emerald-700 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/60 font-bold">+14.2%</span>
+            </div>
+            <div class="flex flex-col">
+              <span
+                class="font-stat-display text-stat-display text-slate-900 tracking-tight font-bold whitespace-nowrap">€
+                28.574,11</span>
+              <div class="flex items-center gap-1.5 mt-2 text-emerald-600 font-body-sm text-body-sm font-medium">
+                <span class="material-symbols-outlined text-[16px]">north_east</span>
+                <span>Consistent with annual forecast</span>
+              </div>
+            </div>
+          </div>
+          <!-- Total Expenses -->
+          <div
+            class="rounded-xl bg-white p-5 flex flex-col justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)] hover:border-rose-400 transition-all">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600">
+                  <span class="material-symbols-outlined text-[20px]">trending_down</span>
+                </div>
+                <span class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Total
+                  Expenses</span>
+              </div>
+              <span
+                class="font-label-caps text-[10px] text-rose-700 px-2 py-0.5 rounded-full bg-rose-50 border border-rose-200/60 font-bold">-2.1%</span>
+            </div>
+            <div class="flex flex-col">
+              <span
+                class="font-stat-display text-stat-display text-slate-900 tracking-tight font-bold whitespace-nowrap">€
+                28.679,26</span>
+              <div class="flex items-center gap-1.5 mt-2 text-slate-500 font-body-sm text-body-sm">
+                <span class="material-symbols-outlined text-[16px] text-rose-500">south_east</span>
+                <span>High outflow recorded July</span>
+              </div>
+            </div>
+          </div>
+          <!-- Card Utilization Widget -->
+          <div
+            class="rounded-xl bg-white p-5 flex flex-col justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)]">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px] text-[#2563EB]">credit_card</span>
+                <span class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Card
+                  Utilization</span>
+              </div>
+              <span
+                class="font-label-caps text-[11px] text-[#2563EB] font-semibold cursor-pointer hover:underline">Manage</span>
+            </div>
+            <div class="flex flex-col gap-3 my-auto">
+              <!-- Credit Card -->
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center justify-between font-body-sm text-body-sm">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="font-medium text-slate-800 truncate">ING - Carta Credito</span>
+                    <span
+                      class="font-label-caps text-[9px] px-1.5 py-0.5 rounded bg-blue-50 text-[#2563EB] font-bold border border-blue-200/60">CREDIT</span>
+                  </div>
+                  <span class="font-medium text-slate-900 whitespace-nowrap">€62,59 <span
+                      class="text-slate-400 font-normal">/ €2k</span></span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div class="h-full bg-[#2563EB] rounded-full transition-all duration-500" style="width: 3.1%;"></div>
+                </div>
+              </div>
+              <!-- Debit Card -->
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center justify-between font-body-sm text-body-sm">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="font-medium text-slate-800 truncate">ING - Carta Debito</span>
+                    <span
+                      class="font-label-caps text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/60">DEBIT</span>
+                  </div>
+                  <span class="font-medium text-slate-900 whitespace-nowrap">€23,59 <span
+                      class="text-slate-400 font-normal">/ €1.5k</span></span>
+                </div>
+                <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 1.6%;">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex items-center justify-between pt-2 border-t border-slate-100 font-label-md text-label-md text-slate-500">
+              <span>Combined utilization</span>
+              <span class="text-emerald-600 font-semibold">2.4% Safe</span>
+            </div>
+          </div>
+        </div>
+        <!-- Monthly Breakdown Strip -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+          <!-- Income (Month) -->
+          <div
+            class="rounded-xl bg-white p-4 flex items-center justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)]">
+            <div class="flex flex-col">
+              <span class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Income
+                (Month)</span>
+              <span class="font-stat-display-sm text-stat-display-sm text-emerald-600 font-bold mt-0.5">€ 31,43</span>
+            </div>
+            <div
+              class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+              <span class="material-symbols-outlined text-[18px]">south_west</span>
+            </div>
+          </div>
+          <!-- Expenses (Month) -->
+          <div
+            class="rounded-xl bg-white p-4 flex items-center justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)]">
+            <div class="flex flex-col">
+              <span class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Expenses
+                (Month)</span>
+              <span class="font-stat-display-sm text-stat-display-sm text-rose-600 font-bold mt-0.5">€ 1407,86</span>
+            </div>
+            <div
+              class="w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">
+              <span class="material-symbols-outlined text-[18px]">north_east</span>
+            </div>
+          </div>
+          <!-- Net Delta (Month) -->
+          <div
+            class="rounded-xl bg-white p-4 flex items-center justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)]">
+            <div class="flex flex-col">
+              <span class="font-label-caps text-slate-400 uppercase tracking-wider text-[11px] font-semibold">Net Delta
+                (Month)</span>
+              <span class="font-stat-display-sm text-stat-display-sm text-rose-600 font-bold mt-0.5">€ -1376,43</span>
+            </div>
+            <span
+              class="font-label-caps text-[11px] px-2.5 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 font-bold uppercase tracking-wider">Deficit</span>
+          </div>
+        </div>
+        <!-- Deep Analytical Visualizations (2 Columns, MUI White Paper with Light Mode Curves) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+          <!-- Chart 1: Cash Flow Trend (7 Cols) -->
+          <div
+            class="lg:col-span-7 rounded-xl bg-white p-5 flex flex-col justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)] relative">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+              <div class="flex flex-col">
+                <h2 class="font-headline-md text-headline-md text-slate-900 font-bold">Cash Flow Trend</h2>
+                <span class="font-body-sm text-body-sm text-slate-500">Comparative dual trajectory of dynamic monthly
+                  liquidity</span>
+              </div>
+              <!-- Legend Pills -->
+              <div class="flex items-center gap-3 self-start sm:self-auto font-label-md text-label-md">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs"></span>
+                  <span class="text-slate-700 font-medium">Income</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs"></span>
+                  <span class="text-slate-700 font-medium">Expenses</span>
+                </div>
+              </div>
+            </div>
+            <!-- Light Mode SVG Cash Flow Graph -->
+            <div class="relative w-full h-64 select-none">
+              <svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 680 220">
+                <defs>
+                  <lineargradient id="muiIncomeGrad" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#10B981" stop-opacity="0.18"></stop>
+                    <stop offset="100%" stop-color="#10B981" stop-opacity="0.0"></stop>
+                  </lineargradient>
+                  <lineargradient id="muiExpenseGrad" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#F43F5E" stop-opacity="0.14"></stop>
+                    <stop offset="100%" stop-color="#F43F5E" stop-opacity="0.0"></stop>
+                  </lineargradient>
+                </defs>
+                <!-- Horizontal Light Gridlines -->
+                <line stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="1" x1="45" x2="670" y1="30" y2="30"></line>
+                <line stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="1" x1="45" x2="670" y1="90" y2="90"></line>
+                <line stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="1" x1="45" x2="670" y1="150" y2="150">
+                </line>
+                <line stroke="#CBD5E1" stroke-width="1" x1="45" x2="670" y1="200" y2="200"></line>
+                <!-- Y-Axis Labels -->
+                <text fill="#94A3B8" font-family="Plus Jakarta Sans" font-size="11" font-weight="500" text-anchor="end"
+                  x="35" y="34">4,000</text>
+                <text fill="#94A3B8" font-family="Plus Jakarta Sans" font-size="11" font-weight="500" text-anchor="end"
+                  x="35" y="94">2,000</text>
+                <text fill="#94A3B8" font-family="Plus Jakarta Sans" font-size="11" font-weight="500" text-anchor="end"
+                  x="35" y="154">1,000</text>
+                <text fill="#94A3B8" font-family="Plus Jakarta Sans" font-size="11" font-weight="500" text-anchor="end"
+                  x="35" y="204">0</text>
+                <!-- Expense Area Fill & Line (Rose #F43F5E) -->
+                <path
+                  d="M 60 200 L 100 200 C 130 195, 140 150, 170 120 C 200 90, 220 75, 250 80 C 280 85, 290 140, 330 130 C 370 120, 420 100, 460 90 C 510 80, 530 110, 580 140 C 620 160, 650 180, 665 190 L 665 200 Z"
+                  fill="url(#muiExpenseGrad)"></path>
+                <path
+                  d="M 60 200 C 100 200, 140 160, 170 120 C 200 90, 220 75, 250 80 C 280 85, 290 140, 330 130 C 370 120, 420 100, 460 90 C 510 80, 530 110, 580 140 C 620 160, 650 180, 665 190"
+                  fill="none" stroke="#F43F5E" stroke-linecap="round" stroke-width="2.5"></path>
+                <!-- Income Area Fill & Line (Emerald #10B981) -->
+                <path
+                  d="M 60 170 C 90 90, 110 50, 140 70 C 170 90, 190 140, 230 130 C 270 120, 290 40, 320 60 C 350 80, 370 110, 410 70 C 440 40, 470 70, 510 100 C 550 130, 610 160, 665 185 L 665 200 L 60 200 Z"
+                  fill="url(#muiIncomeGrad)"></path>
+                <path
+                  d="M 60 170 C 90 90, 110 50, 140 70 C 170 90, 190 140, 230 130 C 270 120, 290 40, 320 60 C 350 80, 370 110, 410 70 C 440 40, 470 70, 510 100 C 550 130, 610 160, 665 185"
+                  fill="none" stroke="#10B981" stroke-linecap="round" stroke-width="2.5"></path>
+                <!-- Dynamic Hover Point Marker -->
+                <circle cx="320" cy="60" fill="#FFFFFF" r="5" stroke="#10B981" stroke-width="3"></circle>
+                <circle cx="320" cy="60" fill="#10B981" fill-opacity="0.15" r="10"></circle>
+              </svg>
+              <!-- Tooltip Overlay (Light MUI Paper Style) -->
+              <div
+                class="absolute left-1/2 top-4 -translate-x-1/2 bg-white px-3 py-1.5 rounded-lg border border-slate-200/90 shadow-lg flex items-center gap-3 pointer-events-none">
+                <div class="flex items-center gap-1 font-body-sm text-[12px]">
+                  <span class="text-slate-500 font-medium">Mar '26:</span>
+                  <span class="text-emerald-600 font-bold">€3,420</span>
+                </div>
+                <span class="w-px h-3 bg-slate-200"></span>
+                <div class="flex items-center gap-1 font-body-sm text-[12px]">
+                  <span class="text-slate-500 font-medium">Exp:</span>
+                  <span class="text-rose-600 font-bold">€2,810</span>
+                </div>
+              </div>
+            </div>
+            <!-- X-Axis Months -->
+            <div class="grid grid-cols-6 pt-2 font-label-md text-label-md text-slate-400 text-center font-medium">
+              <span>Nov 2025</span>
+              <span>Jan 2026</span>
+              <span>Mar 2026</span>
+              <span>May 2026</span>
+              <span>Jul 2026</span>
+              <span>Sep 2026</span>
+            </div>
+          </div>
+          <!-- Chart 2: Portfolio Value (5 Cols) -->
+          <div
+            class="lg:col-span-5 rounded-xl bg-white p-5 flex flex-col justify-between border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)] relative">
+            <div class="flex items-center justify-between gap-2 mb-6">
+              <div class="flex flex-col">
+                <h2 class="font-headline-md text-headline-md text-slate-900 font-bold">Portfolio Value</h2>
+                <span class="font-body-sm text-body-sm text-slate-500">Aggregate return vs principle invested</span>
+              </div>
+              <!-- Period Toggle Pill (MUI Segmented Button) -->
+              <div
+                class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/60 font-label-caps text-[11px]">
+                <button class="px-2.5 py-1 rounded text-slate-600 hover:text-slate-900 font-medium">1M</button>
+                <button class="px-2.5 py-1 rounded text-slate-600 hover:text-slate-900 font-medium">6M</button>
+                <button class="px-2.5 py-1 rounded bg-[#2563EB] text-white font-bold shadow-xs">1Y</button>
+                <button class="px-2.5 py-1 rounded text-slate-600 hover:text-slate-900 font-medium">ALL</button>
+              </div>
+            </div>
+            <!-- Legend Indicator -->
+            <div class="flex items-center gap-4 text-[12px] font-label-md mb-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-0.5 bg-[#2563EB] rounded-full"></span>
+                <span class="text-slate-700 font-semibold">Portfolio Value</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-0.5 bg-emerald-500 rounded-full"></span>
+                <span class="text-slate-500 font-medium">Invested (€800)</span>
+              </div>
+            </div>
+            <!-- High Precision Portfolio SVG in Light Mode -->
+            <div class="relative w-full h-56 select-none">
+              <svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 450 180">
+                <defs>
+                  <lineargradient id="muiPortfolioGrad" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#2563EB" stop-opacity="0.18"></stop>
+                    <stop offset="100%" stop-color="#2563EB" stop-opacity="0.0"></stop>
+                  </lineargradient>
+                </defs>
+                <!-- Horizontal Gridlines -->
+                <line stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="1" x1="35" x2="440" y1="20" y2="20"></line>
+                <line stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="1" x1="35" x2="440" y1="65" y2="65"></line>
+                <line stroke="#E2E8F0" stroke-dasharray="3 3" stroke-width="1" x1="35" x2="440" y1="115" y2="115">
+                </line>
+                <line stroke="#CBD5E1" stroke-width="1" x1="35" x2="440" y1="165" y2="165"></line>
+                <!-- Y-Axis Labels -->
+                <text fill="#94A3B8" font-family="Plus Jakarta Sans" font-size="10" font-weight="500" text-anchor="end"
+                  x="25" y="24">800</text>
+                <text fill="#94A3B8" font-family="Plus Jakarta Sans" font-size="10" font-weight="500" text-anchor="end"
+                  x="25" y="69">600</text>
+                <text fill="#94A3B8" font-family="Plus Jakarta Sans" font-size="10" font-weight="500" text-anchor="end"
+                  x="25" y="119">400</text>
+                <text fill="#94A3B8" font-family="Plus Jakarta Sans" font-size="10" font-weight="500" text-anchor="end"
+                  x="25" y="169">200</text>
+                <!-- Flat Invested Line (Emerald baseline) -->
+                <line stroke="#10B981" stroke-dasharray="4 4" stroke-opacity="0.8" stroke-width="1.8" x1="45" x2="435"
+                  y1="140" y2="140"></line>
+                <!-- Portfolio Growth Area Fill -->
+                <path d="M 45 140 L 130 140 C 190 140, 220 110, 260 85 C 310 60, 360 40, 435 25 L 435 165 L 45 165 Z"
+                  fill="url(#muiPortfolioGrad)"></path>
+                <!-- Portfolio Trajectory Curve -->
+                <path d="M 45 140 L 130 140 C 190 140, 220 110, 260 85 C 310 60, 360 40, 435 25" fill="none"
+                  stroke="#2563EB" stroke-linecap="round" stroke-width="2.5"></path>
+                <!-- Data Node Markers -->
+                <circle cx="45" cy="140" fill="#FFFFFF" r="4" stroke="#2563EB" stroke-width="2"></circle>
+                <circle cx="130" cy="140" fill="#FFFFFF" r="4" stroke="#2563EB" stroke-width="2"></circle>
+                <circle cx="260" cy="85" fill="#FFFFFF" r="4" stroke="#2563EB" stroke-width="2"></circle>
+                <circle cx="350" cy="50" fill="#FFFFFF" r="4" stroke="#2563EB" stroke-width="2"></circle>
+                <circle cx="435" cy="25" fill="#2563EB" r="5.5" stroke="#FFFFFF" stroke-width="2.5"></circle>
+              </svg>
+            </div>
+            <!-- X-Axis Timeline Dates -->
+            <div class="grid grid-cols-5 pt-2 font-label-caps text-[10px] text-slate-400 text-center font-medium">
+              <span>2026-07-02</span>
+              <span>2026-07-19</span>
+              <span>2026-08-03</span>
+              <span>2026-09-02</span>
+              <span>2026-09-28</span>
+            </div>
+          </div>
+        </div>
+        <!-- Recent Wealth Activity & Ledger Preview (White Paper with clean table divider) -->
+        <div
+          class="rounded-xl bg-white p-5 border border-slate-200/80 shadow-[0_2px_4px_rgba(0,0,0,0.04)] flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-[#2563EB] text-[20px]">receipt_long</span>
+              <h3 class="font-headline-md text-headline-md text-slate-900 font-bold">Recent Sandbox Transactions</h3>
+            </div>
+            <a class="font-label-md text-label-md text-[#2563EB] hover:underline flex items-center gap-1 font-semibold"
+              href="#">
+              <span>View full registry</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </a>
+          </div>
+          <!-- Mini Ledger Row Structure -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left font-body-sm text-body-sm">
+              <thead>
+                <tr class="text-slate-400 uppercase font-label-caps text-[11px] border-b border-slate-100 pb-2">
+                  <th class="py-2.5 px-3 font-semibold">Entity / Merchant</th>
+                  <th class="py-2.5 px-3 font-semibold">Vault Category</th>
+                  <th class="py-2.5 px-3 font-semibold">Date</th>
+                  <th class="py-2.5 px-3 font-semibold">Channel</th>
+                  <th class="py-2.5 px-3 font-semibold text-right">Settled Amount</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-800">
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                  <td class="py-3.5 px-3 flex items-center gap-2.5 font-medium text-slate-900">
+                    <div
+                      class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 border border-slate-200/60">
+                      <span class="material-symbols-outlined text-[16px]">local_cafe</span>
+                    </div>
+                    <span>Starbucks Reserve</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-500">Lifestyle &amp; Dining</td>
+                  <td class="py-3.5 px-3 text-slate-500">Today, 09:42</td>
+                  <td class="py-3.5 px-3">
+                    <span
+                      class="font-label-caps text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium border border-slate-200/60">ING
+                      Carta Debito</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-right font-semibold text-rose-600">- €6,80</td>
+                </tr>
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                  <td class="py-3.5 px-3 flex items-center gap-2.5 font-medium text-slate-900">
+                    <div
+                      class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
+                      <span class="material-symbols-outlined text-[16px]">payments</span>
+                    </div>
+                    <span>Client Retainer - TechCorp</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-500">Professional Income</td>
+                  <td class="py-3.5 px-3 text-slate-500">Yesterday</td>
+                  <td class="py-3.5 px-3">
+                    <span
+                      class="font-label-caps text-[10px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/60">SEPA
+                      Transfer</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-right font-bold text-emerald-600">+ €4.250,00</td>
+                </tr>
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                  <td class="py-3.5 px-3 flex items-center gap-2.5 font-medium text-slate-900">
+                    <div
+                      class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 border border-slate-200/60">
+                      <span class="material-symbols-outlined text-[16px]">electric_car</span>
+                    </div>
+                    <span>Enel X Fast Charging</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-500">Car Fleet Maintenance</td>
+                  <td class="py-3.5 px-3 text-slate-500">24 Oct, 2025</td>
+                  <td class="py-3.5 px-3">
+                    <span
+                      class="font-label-caps text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium border border-slate-200/60">ING
+                      Carta Credito</span>
+                  </td>
+                  <td class="py-3.5 px-3 text-right font-semibold text-rose-600">- €34,20</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Bottom Floating Direct Action Trigger (Material UI Primary FAB style) -->
+        <div class="fixed bottom-6 right-6 z-40">
+          <button
+            class="group flex items-center gap-2.5 px-5 py-3 rounded-full bg-[#2563EB] hover:bg-blue-700 transition-all shadow-[0_4px_14px_rgba(37,99,235,0.4)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.5)] text-white font-medium"
+            type="button">
+            <span class="material-symbols-outlined text-[20px] transition-transform group-hover:rotate-90">add</span>
+            <span class="font-headline-md text-[14px] font-semibold tracking-wide pr-1">New Transaction</span>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+
+</html>
