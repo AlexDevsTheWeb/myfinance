@@ -19,6 +19,7 @@ Implementation plans, step-by-step breakdowns, and roadmap items.
 | [[plans/daily-historical-chart/daily-historical-chart|daily-historical-chart]] | Research and spec for daily time series chart using historical ticker prices. |
 | [[plans/budget-savings-engine-implementation|budget-savings-engine-implementation]] | V4 Budget & Savings Rate implementation: six waves, eleven new files, ten modified. |
 | [[plans/car-redesign-implementation|car-redesign-implementation]] | Step-by-step implementation plan for the car management page redesign. |
+| [[plans/explicit-any-removal|explicit-any-removal]] | Completed removal of all explicit `any` and `no-explicit-any` directives across ten files. |
 | [[plans/financial-projections-implementation|financial-projections-implementation]] | Three-plan implementation for the simulation engine, UI shell, and routing + i18n. |
 | [[plans/go-to-market|go-to-market]] | MAX PRIORITY: six-phase SaaS launch plan from quick wins through beta to monetization. |
 | [[plans/investment-tracking-implementation|investment-tracking-implementation]] | Six-plan GSD implementation for ETF tracking, broker integration, and PAC strategy. |

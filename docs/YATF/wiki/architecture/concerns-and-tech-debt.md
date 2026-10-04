@@ -5,10 +5,10 @@ resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/122"
 title: "Codebase Concerns and Tech Debt"
 tags: [architecture, tech-debt, bugs, security, performance]
 created: 2026-06-22
-updated: 2026-07-18
+updated: 2026-10-04
 status: active
 sources: ["raw/codebase/CONCERNS.md"]
-related: ["architecture/project-state", "architecture/testing-status", "architecture/system-architecture", "queries/new-user-auth-flow"]
+related: ["architecture/project-state", "architecture/testing-status", "architecture/system-architecture", "queries/new-user-auth-flow", "plans/explicit-any-removal"]
 ---
 
 # Codebase Concerns and Tech Debt
@@ -23,7 +23,7 @@ related: ["architecture/project-state", "architecture/testing-status", "architec
 | Oversized ConfigPage (~1054 lines) | `src/pages/ConfigPage.tsx` | High | [#123](https://github.com/AlexDevsTheWeb/myfinance/issues/123) |
 | Oversized CarPage (~695 lines) | `src/pages/CarPage.tsx` | Medium | [#124](https://github.com/AlexDevsTheWeb/myfinance/issues/124) |
 | Duplicate portfolio computation (3x) | `useInvestmentStore`, `useHistoricalSnapshots`, `usePortfolio` | Medium | [#125](https://github.com/AlexDevsTheWeb/myfinance/issues/125) |
-| `any` types in 19 files | `src/pages/`, `src/lib/`, `src/components/`, `src/store/sanitization/` | Medium | [#126](https://github.com/AlexDevsTheWeb/myfinance/issues/126) |
+| ~~`any` types in 19 files~~ — **resolved**, 64 across 10 files, 0 remaining | `src/pages/`, `src/lib/`, `src/components/`, `src/store/sanitization/` | Medium | [#126](https://github.com/AlexDevsTheWeb/myfinance/issues/126) → [[wiki/plans/explicit-any-removal]] |
 | Missing test suite | Entire project | High | [#127](https://github.com/AlexDevsTheWeb/myfinance/issues/127) |
 | Duplicate sync hooks with race conditions | `useSyncFinance`, `useInvestmentSync`, `useBudgetSync` | High | [#128](https://github.com/AlexDevsTheWeb/myfinance/issues/128) |
 
@@ -88,5 +88,6 @@ related: ["architecture/project-state", "architecture/testing-status", "architec
 - [[wiki/architecture/project-state]]
 - [[wiki/architecture/testing-status]]
 - [[wiki/architecture/system-architecture]]
+- [[wiki/plans/explicit-any-removal]] — completed removal of all explicit `any` and `no-explicit-any` directives (closes the #126 row above)
 - [[wiki/plans/go-to-market]] — includes phased plan to address the top blockers
 - [[wiki/decisions/saas-readiness]] — hard blockers vs ship-as-is breakdown

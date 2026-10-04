@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-10-01* (recurring full-month preload fix + dashboard calendar view)
-*Total pages: 82*
+*Last updated: 2026-10-04* (explicit `any` removal — Issue #126)
+*Total pages: 83*
 
 ---
 
@@ -57,6 +57,7 @@ timestamp: 2026-08-03
 | [[wiki/plans/car-redesign-implementation]] | Step-by-step implementation plan for car management redesign | [`raw/PLANS/PLANS.md`](raw/PLANS/PLANS.md) |
 | [[wiki/plans/transaction-layout-implementation]] | Implementation plan for transaction page layout restructure | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[wiki/plans/investment-tracking-implementation]] | 6-plan implementation for ETF tracking, broker integration, PAC strategy | [`.planning/phases/10-investment-tracking/`](.planning/phases/10-investment-tracking/) |
+| [[wiki/plans/explicit-any-removal]] | ✅ Removed all 64 explicit `any` + 18 suppressions across 10 files (7 slices, 0 behaviour change, lint 9E/11W → 7E/3W) | [`raw/fix-YATF-126/fix-YATF-126.md`](raw/fix-YATF-126/fix-YATF-126.md), [`#126`](https://github.com/AlexDevsTheWeb/myfinance/issues/126) |
 | [[wiki/plans/financial-projections-implementation]] | ✅ 3-plan implementation for simulation engine, UI shell, routing + i18n | [`raw/83-financial-projections/83-financial-projections.md`](raw/83-financial-projections/83-financial-projections.md) |
 | [[wiki/plans/investment-tracking-v2-enhancements]] | ✅ Phase 12 complete — 6 GSD plans implemented (multi-broker, CRUD, PAC, snapshots, inflation, ticker) | [`.planning/phases/12-investment-tracking-v2/`](.planning/phases/12-investment-tracking-v2/) |
 | [[wiki/plans/investment-tracking-v3-implementation]] | ✅ V3 implementation: dividend, tax, cash adjustments, performance prefill | [`#98`](https://github.com/AlexDevsTheWeb/myfinance/issues/98) |
