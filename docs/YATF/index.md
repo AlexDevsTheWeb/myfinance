@@ -7,7 +7,7 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-10-04* (release pipeline documentation + monorepo decision & plan)
+*Last updated: 2026-10-04* (release pipeline docs + monorepo decision & plan — Issue #189)
 *Total pages: 87*
 
 ---
@@ -58,7 +58,7 @@ timestamp: 2026-08-03
 | [[wiki/plans/transaction-layout-implementation]] | Implementation plan for transaction page layout restructure | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[wiki/plans/investment-tracking-implementation]] | 6-plan implementation for ETF tracking, broker integration, PAC strategy | [`.planning/phases/10-investment-tracking/`](.planning/phases/10-investment-tracking/) |
 | [[wiki/plans/explicit-any-removal]] | ✅ Removed all 64 explicit `any` + 18 suppressions across 10 files (7 slices, 0 behaviour change, lint 9E/11W → 7E/3W) | [`raw/fix-YATF-126/fix-YATF-126.md`](raw/fix-YATF-126/fix-YATF-126.md), [`#126`](https://github.com/AlexDevsTheWeb/myfinance/issues/126) |
-| [[wiki/plans/monorepo-migration]] | 📋 5-phase plan to move the frontend into npm workspaces, then add React Native / website / API without breaking CI or production | [`raw/monorepo-migration/monorepo-migration.md`](raw/monorepo-migration/monorepo-migration.md) |
+| [[wiki/plans/monorepo-migration]] | 🚧 5-phase plan to move the frontend into npm workspaces, then add React Native / website / API without breaking CI or production | [`raw/monorepo-migration/monorepo-migration.md`](raw/monorepo-migration/monorepo-migration.md), [`#189`](https://github.com/AlexDevsTheWeb/myfinance/issues/189) |
 | [[wiki/plans/financial-projections-implementation]] | ✅ 3-plan implementation for simulation engine, UI shell, routing + i18n | [`raw/83-financial-projections/83-financial-projections.md`](raw/83-financial-projections/83-financial-projections.md) |
 | [[wiki/plans/investment-tracking-v2-enhancements]] | ✅ Phase 12 complete — 6 GSD plans implemented (multi-broker, CRUD, PAC, snapshots, inflation, ticker) | [`.planning/phases/12-investment-tracking-v2/`](.planning/phases/12-investment-tracking-v2/) |
 | [[wiki/plans/investment-tracking-v3-implementation]] | ✅ V3 implementation: dividend, tax, cash adjustments, performance prefill | [`#98`](https://github.com/AlexDevsTheWeb/myfinance/issues/98) |
@@ -81,7 +81,7 @@ timestamp: 2026-08-03
 | [[wiki/decisions/saas-readiness]] | 🔴 **MAX PRIORITY** — Hard blockers vs ship-as-is: fix 6 critical items, launch, iterate with real users | [`raw/saas-readiness/saas-readiness.md`](raw/saas-readiness/saas-readiness.md) |
 | [[wiki/decisions/firestore-rate-limiting]] | 📋 No server-side write rate limiting; client-only app → defer App Check + server-side limiting to paid-tier launch | [`#159`](https://github.com/AlexDevsTheWeb/myfinance/issues/159) |
 | [[wiki/decisions/pwa-strategy]] | ⚠️ **SUPERSEDED** (2026-10-04) — PWA prima, Flutter dopo; replaced by [[wiki/decisions/react-native-monorepo]] | [`raw/go-to-market/go-to-market.md`](raw/go-to-market/go-to-market.md) |
-| [[wiki/decisions/react-native-monorepo]] | ✅ **React Native + npm workspaces monorepo** for web/mobile/website/backend — rejects nested sub-repos (gitlink trap) and pnpm (breaks `npm ci`) | [`raw/monorepo-migration/monorepo-migration.md`](raw/monorepo-migration/monorepo-migration.md) |
+| [[wiki/decisions/react-native-monorepo]] | ✅ **React Native + npm workspaces monorepo** for web/mobile/website/backend — rejects nested sub-repos (gitlink trap) and pnpm (breaks `npm ci`) | [`raw/monorepo-migration/monorepo-migration.md`](raw/monorepo-migration/monorepo-migration.md), [`#189`](https://github.com/AlexDevsTheWeb/myfinance/issues/189) |
 | [[wiki/decisions/balancr-identity-system]] | ✅ Balancr identity: Linked Hexagons logo, dark palette, gradient system | [`raw/balancr-identity-system/balancr-identity-system.md`](raw/balancr-identity-system/balancr-identity-system.md) |
 
 ## Queries
@@ -117,8 +117,8 @@ timestamp: 2026-08-03
 | [[wiki/architecture/system-architecture]] | System overview, component responsibilities, data flow | [`raw/codebase/ARCHITECTURE.md`](raw/codebase/ARCHITECTURE.md) |
 | [[wiki/architecture/external-integrations]] | Firebase, environment config, CI/CD status | [`raw/codebase/INTEGRATIONS.md`](raw/codebase/INTEGRATIONS.md) |
 | [[wiki/architecture/versioning]] | Versioning scheme, conventional commits, release pipeline | [`.versionrc`](../../.versionrc) |
-| [[wiki/architecture/release-pipeline]] | ✅ How code reaches production: blocking CI, `main` branch protection, PR-based releases, Firebase deploys, `main`→`development` sync-back | [`raw/monorepo-migration/monorepo-migration.md`](raw/monorepo-migration/monorepo-migration.md) |
-| [[wiki/architecture/monorepo-layout]] | 📋 Planned `apps/` + `packages/` npm workspaces structure and the couplings that constrain the move | [`raw/monorepo-migration/monorepo-migration.md`](raw/monorepo-migration/monorepo-migration.md) |
+| [[wiki/architecture/release-pipeline]] | ✅ How code reaches production: blocking CI, `main` branch protection, PR-based releases, Firebase deploys, `main`→`development` sync-back | [`.github/workflows/`](../../.github/workflows), [`#185`](https://github.com/AlexDevsTheWeb/myfinance/pull/185) |
+| [[wiki/architecture/monorepo-layout]] | 🚧 Planned `apps/` + `packages/` npm workspaces structure and the couplings that constrain the move | [`raw/monorepo-migration/monorepo-migration.md`](raw/monorepo-migration/monorepo-migration.md), [`#189`](https://github.com/AlexDevsTheWeb/myfinance/issues/189) |
 | [[wiki/architecture/testing-status]] | Testing infrastructure — ✅ Vitest Phase 1 landed (61 pure-logic tests), store/component layers pending | [`raw/codebase/TESTING.md`](raw/codebase/TESTING.md) |
 | [[wiki/architecture/concerns-and-tech-debt]] | Tech debt, known bugs, security, performance issues | [`raw/codebase/CONCERNS.md`](raw/codebase/CONCERNS.md) |
 | [[wiki/architecture/investment-tracking-architecture]] | ✅ Investment data flow, V1+V2 Firestore schema, store architecture, component tree, migration layer | [`.planning/phases/10-investment-tracking/10-RESEARCH.md`](.planning/phases/10-investment-tracking/10-RESEARCH.md) |

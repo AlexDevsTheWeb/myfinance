@@ -2,7 +2,7 @@
 type: Decision
 title: "Repository Organisation — React Native Monorepo with npm Workspaces"
 description: "Adopt a single repository with npm workspaces for web, mobile, website and backend, using React Native for the native app; explicitly reject nested sub-repositories and pnpm."
-resource: ""
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/189"
 tags: [decision, architecture, monorepo, react-native, mobile, strategy]
 created: 2026-10-04
 updated: 2026-10-04

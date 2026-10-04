@@ -2,11 +2,11 @@
 type: Plan
 title: "Plan — Monorepo Migration"
 description: "Phased plan to move the frontend into an npm workspaces monorepo and add React Native, website and backend apps without breaking CI or production."
-resource: ""
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/189"
 tags: [plan, monorepo, migration, react-native, infrastructure]
 created: 2026-10-04
 updated: 2026-10-04
-status: draft
+status: in-progress
 sources: ["raw/monorepo-migration/monorepo-migration.md"]
 related: ["wiki/decisions/react-native-monorepo", "wiki/architecture/monorepo-layout", "wiki/architecture/release-pipeline", "wiki/conventions/branch-strategy"]
 ---
@@ -20,7 +20,9 @@ the release pipeline, or the live site**.
 Implements [[wiki/decisions/react-native-monorepo]].
 Structure defined in [[wiki/architecture/monorepo-layout]].
 
-> **Status: draft — not started.** Phase 1 is not yet in a branch.
+> **Status: in-progress.** Tracked by
+> [#189](https://github.com/AlexDevsTheWeb/myfinance/issues/189), implemented on
+> `feat/YATF-189` (this branch).
 
 ---
 
@@ -191,4 +193,5 @@ restructuring — and that is what created the current risk.
 - [[wiki/architecture/monorepo-layout]] — target structure and couplings
 - [[wiki/architecture/release-pipeline]] — what must not break
 - [[wiki/conventions/branch-strategy]] — one branch and PR per phase
+- Issue: [#189 — Migrate to npm workspaces monorepo](https://github.com/AlexDevsTheWeb/myfinance/issues/189)
 - Source: [raw/monorepo-migration/monorepo-migration.md](raw/monorepo-migration/monorepo-migration.md)

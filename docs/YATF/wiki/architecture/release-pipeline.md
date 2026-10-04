@@ -2,12 +2,12 @@
 type: Architecture
 title: "Release Pipeline — CI, Branch Protection, PR-Based Releases and Sync-Back"
 description: "How code reaches production: blocking CI, main branch protection, conventional-commit releases via PR, Firebase deploys, and automatic main-to-development sync-back."
-resource: ""
+resource: "https://github.com/AlexDevsTheWeb/myfinance/pull/185"
 tags: [architecture, ci, cd, release, github-actions, firebase, versioning]
 created: 2026-10-04
 updated: 2026-10-04
 status: active
-sources: ["raw/monorepo-migration/monorepo-migration.md", ".github/workflows/ci.yml", ".github/workflows/version-bump.yml", ".github/workflows/firebase-hosting-pull-request.yml"]
+sources: [".github/workflows/ci.yml", ".github/workflows/version-bump.yml", ".github/workflows/firebase-hosting-pull-request.yml", "firebase.json"]
 related: ["wiki/architecture/versioning", "wiki/architecture/external-integrations", "wiki/conventions/branch-strategy", "wiki/plans/monorepo-migration", "wiki/architecture/concerns-and-tech-debt"]
 ---
 

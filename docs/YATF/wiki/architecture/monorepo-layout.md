@@ -2,7 +2,7 @@
 type: Architecture
 title: "Monorepo Layout — apps/ and packages/ Workspace Structure"
 description: "Target directory structure for the npm workspaces monorepo and the repo-level couplings that constrain it."
-resource: ""
+resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/189"
 tags: [architecture, monorepo, workspaces, structure, react-native]
 created: 2026-10-04
 updated: 2026-10-04
