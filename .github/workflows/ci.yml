@@ -42,5 +42,14 @@ jobs:
         continue-on-error: true
         run: npm run lint
 
+      # main does not have a `test` script yet -- it arrives with the next
+      # development -> main merge. Without this guard, any PR to main that did
+      # not also land the test setup would fail on "Missing script: test",
+      # which is a false failure rather than a real one.
       - name: Test
-        run: npm test
+        run: |
+          if node -p "require('./package.json').scripts?.test || ''" | grep -q .; then
+            npm test
+          else
+            echo "No test script on this branch; skipping tests."
+          fi
