@@ -41,3 +41,8 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[features/card-plafond-tracking/card-plafond-tracking|card-plafond-tracking]] | Track spending per card with monthly plafond, configurable per account in settings. |
 | [[features/user-configurable-rates/user-configurable-rates|user-configurable-rates]] | User-configurable inflation and tax rates in ConfigPage > Projections tab. |
 | [[features/recurring-card-selection/recurring-card-selection|recurring-card-selection]] | Card selection (None/credit/debit) on recurring expense templates, propagated to generated transactions. |
+| [[features/recurring-subcollection-scaling/recurring-subcollection-scaling|recurring-subcollection-scaling]] | recurringTransactions moved to a Firestore subcollection + offline persistence enabled (persistentLocalCache). |
+| [[features/account-deletion/account-deletion|account-deletion]] | Users can delete their own account + all data (Firestore doc, subcollections, auth) with re-auth guard and confirmation UI. |
+| [[features/test-infrastructure/test-infrastructure|test-infrastructure]] | Layered Vitest infrastructure (jsdom, colocated tests, mocked Firebase) — Phase 1 pure-logic layer complete. |
+| [[features/first-of-month-recurring/first-of-month-recurring|first-of-month-recurring]] | Recurrent transactions auto-generated on the 1st of each month; whole month preloaded at month start; back-filled with correct date on any app open. |
+| [[features/dashboard-calendar/dashboard-calendar|dashboard-calendar]] | Month calendar on the Dashboard — per-day income/expense/transfer dots + selected-day transaction list, live-updating. |

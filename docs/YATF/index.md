@@ -7,8 +7,8 @@ timestamp: 2026-08-03
 
 # Wiki Index
 
-*Last updated: 2026-08-03* (ETF pricing / Total Return bug)
-*Total pages: 70*
+*Last updated: 2026-10-04* (explicit `any` removal — Issue #126)
+*Total pages: 83*
 
 ---
 
@@ -43,6 +43,11 @@ timestamp: 2026-08-03
 | [[wiki/features/card-plafond-tracking/card-plafond-tracking]] | ✅ Per-card monthly plafond tracking with configurable cards per account, dashboard utilization, card filter + sort toggle | [`#165`](https://github.com/AlexDevsTheWeb/myfinance/issues/165) |
 | [[wiki/features/balancr-branding/balancr-branding]] | ✅ Complete rebrand: YAFT → Balancr, Linked Hexagons logo, new color palette | [`#82`](https://github.com/AlexDevsTheWeb/myfinance/issues/82) |
 | [[wiki/features/recurring-card-selection/recurring-card-selection]] | 📋 Card selection (None/credit/debit) on recurring expense templates, propagated to generated transactions — **planned** | [`raw/recurring-card-selection/recurring-card-selection.md`](raw/recurring-card-selection/recurring-card-selection.md) |
+| [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] | ✅ recurringTransactions migrated to subcollection + Firestore offline persistence enabled | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
+| [[wiki/features/account-deletion/account-deletion]] | ✅ Delete own account + all data (Firestore doc, subcollections, auth) with re-auth guard and confirmation UI | [`#158`](https://github.com/AlexDevsTheWeb/myfinance/issues/158) |
+| [[wiki/features/test-infrastructure/test-infrastructure]] | ✅ Vitest test infrastructure — Phase 1 (pure logic) landed: 61 characterization tests, mocked Firebase | [`raw/test-infrastructure/test-infrastructure.md`](raw/test-infrastructure/test-infrastructure.md), [`#127`](https://github.com/AlexDevsTheWeb/myfinance/issues/127) |
+| [[wiki/features/first-of-month-recurring/first-of-month-recurring]] | ✅ Recurrent transactions auto-load on the 1st of each month (daily check + back-fill on open) | [`raw/first-of-month-recurring/first-of-month-recurring.md`](raw/first-of-month-recurring/first-of-month-recurring.md) |
+| [[wiki/features/dashboard-calendar/dashboard-calendar]] | ✅ Month calendar on the Dashboard with per-day transaction dots + day detail list, live-updating | [`raw/dashboard-calendar/dashboard-calendar.md`](raw/dashboard-calendar/dashboard-calendar.md) |
 
 ## Plans
 
@@ -52,6 +57,7 @@ timestamp: 2026-08-03
 | [[wiki/plans/car-redesign-implementation]] | Step-by-step implementation plan for car management redesign | [`raw/PLANS/PLANS.md`](raw/PLANS/PLANS.md) |
 | [[wiki/plans/transaction-layout-implementation]] | Implementation plan for transaction page layout restructure | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[wiki/plans/investment-tracking-implementation]] | 6-plan implementation for ETF tracking, broker integration, PAC strategy | [`.planning/phases/10-investment-tracking/`](.planning/phases/10-investment-tracking/) |
+| [[wiki/plans/explicit-any-removal]] | ✅ Removed all 64 explicit `any` + 18 suppressions across 10 files (7 slices, 0 behaviour change, lint 9E/11W → 7E/3W) | [`raw/fix-YATF-126/fix-YATF-126.md`](raw/fix-YATF-126/fix-YATF-126.md), [`#126`](https://github.com/AlexDevsTheWeb/myfinance/issues/126) |
 | [[wiki/plans/financial-projections-implementation]] | ✅ 3-plan implementation for simulation engine, UI shell, routing + i18n | [`raw/83-financial-projections/83-financial-projections.md`](raw/83-financial-projections/83-financial-projections.md) |
 | [[wiki/plans/investment-tracking-v2-enhancements]] | ✅ Phase 12 complete — 6 GSD plans implemented (multi-broker, CRUD, PAC, snapshots, inflation, ticker) | [`.planning/phases/12-investment-tracking-v2/`](.planning/phases/12-investment-tracking-v2/) |
 | [[wiki/plans/investment-tracking-v3-implementation]] | ✅ V3 implementation: dividend, tax, cash adjustments, performance prefill | [`#98`](https://github.com/AlexDevsTheWeb/myfinance/issues/98) |
@@ -63,6 +69,7 @@ timestamp: 2026-08-03
 | [[wiki/plans/italian-tax-enhancements]] | 📋 Stamp duty (0.20%) + capital losses tracking — 5-wave task breakdown | [`#110`](https://github.com/AlexDevsTheWeb/myfinance/issues/110) |
 | [[wiki/plans/go-to-market]] | 🔴 **MAX PRIORITY** — 6-phase SaaS launch plan (quick wins → data security → beta → validate → monetize → cleanup) | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/plans/beta-launch-playbook]] | 📋 Phase 2 execution details: disclaimer banner ✅, backup/restore verification ✅, tester invitation template ⬜ | [`raw/beta-launch-playbook/beta-launch-playbook.md`](raw/beta-launch-playbook/beta-launch-playbook.md) |
+| [[wiki/plans/56-blite-recurring-migration]] | ✅ B-lite completed: recurring subcollection migration + Firestore offline persistence; virtualization/PWA deferred to launch | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
 
 ## Decisions
 
@@ -71,6 +78,7 @@ timestamp: 2026-08-03
 | [[wiki/decisions/typescript-7-upgrade]] | ✅ TS 7.0 Go-rewrite adoption with linting workaround via `@typescript/typescript6` | [`raw/typescript-7-upgrade/`](raw/typescript-7-upgrade/) |
 | [[wiki/decisions/chart-migration-mui]] | ✅ Migrated 16 chart components from Recharts to MUI X Charts — theme-aware, phased migration | [`raw/chart-migration/`](raw/chart-migration/) |
 | [[wiki/decisions/saas-readiness]] | 🔴 **MAX PRIORITY** — Hard blockers vs ship-as-is: fix 6 critical items, launch, iterate with real users | [`raw/saas-readiness/saas-readiness.md`](raw/saas-readiness/saas-readiness.md) |
+| [[wiki/decisions/firestore-rate-limiting]] | 📋 No server-side write rate limiting; client-only app → defer App Check + server-side limiting to paid-tier launch | [`#159`](https://github.com/AlexDevsTheWeb/myfinance/issues/159) |
 | [[wiki/decisions/pwa-strategy]] | 🟢 PWA prima, Flutter dopo — mobile senza riscrittura, 2-step plan | [`raw/go-to-market/go-to-market.md`](raw/go-to-market/go-to-market.md) |
 | [[wiki/decisions/balancr-identity-system]] | ✅ Balancr identity: Linked Hexagons logo, dark palette, gradient system | [`raw/balancr-identity-system/balancr-identity-system.md`](raw/balancr-identity-system/balancr-identity-system.md) |
 
@@ -93,6 +101,9 @@ timestamp: 2026-08-03
 | [[wiki/bugs/card-counter-zero]] | ✅ Card Utilization counter always €0 — reset-day expenses excluded by strict window bounds — **fixed** | [`raw/bugs/card-counter-zero/card-counter-zero.md`](raw/bugs/card-counter-zero/card-counter-zero.md) |
 | [[wiki/bugs/broker-transaction-filter]] | ✅ Broker filter shows 0 invested / no holdings — manual ETF transactions never persisted `brokerId` — **fixed** | [`raw/bugs/broker-transaction-filter/broker-transaction-filter.md`](raw/bugs/broker-transaction-filter/broker-transaction-filter.md) |
 | [[wiki/bugs/etf-pricing-total-return]] | ✅ Total Return stuck at €0 — price provider dead (yfin.dev); switched to Yahoo with Xetra-first resolution + SWDA→EUNL consolidation — **fixed** | [`raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md`](raw/bugs/etf-pricing-total-return/etf-pricing-total-return.md) |
+| [[wiki/bugs/silent-login-errors]] | ✅ Auth failures (popup blocked, wrong password, network) silently swallowed — now localized AlertSnackbar feedback — **fixed** | [`#157`](https://github.com/AlexDevsTheWeb/myfinance/issues/157) |
+| [[wiki/bugs/transactions-array-write-back]] | ✅ 5 actions re-wrote full transactions array to dead main-doc field (1 MiB risk + lost renames) — now persisted to subcollection — **fixed** | [`#56`](https://github.com/AlexDevsTheWeb/myfinance/issues/56) |
+| [[wiki/bugs/recurring-preload-month-bound]] | ✅ Month not preloaded on the 1st — `checkRecurring` bounded generation at today, not end of month; added future-instance cascades — **fixed** | [`raw/bugs/recurring-preload-month-bound/recurring-preload-month-bound.md`](raw/bugs/recurring-preload-month-bound/recurring-preload-month-bound.md) |
 
 ## Architecture
 
@@ -104,7 +115,7 @@ timestamp: 2026-08-03
 | [[wiki/architecture/system-architecture]] | System overview, component responsibilities, data flow | [`raw/codebase/ARCHITECTURE.md`](raw/codebase/ARCHITECTURE.md) |
 | [[wiki/architecture/external-integrations]] | Firebase, environment config, CI/CD status | [`raw/codebase/INTEGRATIONS.md`](raw/codebase/INTEGRATIONS.md) |
 | [[wiki/architecture/versioning]] | Versioning scheme, conventional commits, release pipeline | [`.versionrc`](../../.versionrc) |
-| [[wiki/architecture/testing-status]] | Testing infrastructure (none exists) | [`raw/codebase/TESTING.md`](raw/codebase/TESTING.md) |
+| [[wiki/architecture/testing-status]] | Testing infrastructure — ✅ Vitest Phase 1 landed (61 pure-logic tests), store/component layers pending | [`raw/codebase/TESTING.md`](raw/codebase/TESTING.md) |
 | [[wiki/architecture/concerns-and-tech-debt]] | Tech debt, known bugs, security, performance issues | [`raw/codebase/CONCERNS.md`](raw/codebase/CONCERNS.md) |
 | [[wiki/architecture/investment-tracking-architecture]] | ✅ Investment data flow, V1+V2 Firestore schema, store architecture, component tree, migration layer | [`.planning/phases/10-investment-tracking/10-RESEARCH.md`](.planning/phases/10-investment-tracking/10-RESEARCH.md) |
 | [[wiki/architecture/financial-projections-architecture]] | ✅ Simulation data flow, component tree, design decisions, integration points | [`raw/83-financial-projections/83-financial-projections.md`](raw/83-financial-projections/83-financial-projections.md) |
@@ -117,9 +128,11 @@ timestamp: 2026-08-03
 |------|---------|---------|
 | [[wiki/conventions/branch-strategy]] | Git branch rules, naming, PR workflow | — |
 | [[wiki/conventions/coding-conventions]] | Naming, imports, error handling, code style | [`raw/codebase/CONVENTIONS.md`](raw/codebase/CONVENTIONS.md) |
+| [[wiki/conventions/testing-guide]] | 🧪 How to use the Vitest infrastructure — running, writing, mocking, repo-specific gotchas | [`raw/test-infrastructure/test-infrastructure.md`](raw/test-infrastructure/test-infrastructure.md) |
 
 ## References
 
 | Page | Summary | Sources |
 |------|---------|---------|
 | [[wiki/references/llm-wiki-pattern]] | Karpathy's LLM Wiki pattern — original article | [`raw/original-llm-wiki/original-llm-wiki.md`](raw/original-llm-wiki/original-llm-wiki.md) |
+| [[wiki/bugs/firestore-rules-drift]] | ✅ Deployed Firestore rules predated the `recurringTransactions` path — silent permission-denied kept `checkRecurring` from ever running; rules redeployed + client gate/error diagnostics hardened — **fixed** | [`raw/bugs/firestore-rules-drift/firestore-rules-drift.md`](raw/bugs/firestore-rules-drift/firestore-rules-drift.md) |

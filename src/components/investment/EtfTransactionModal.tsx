@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';

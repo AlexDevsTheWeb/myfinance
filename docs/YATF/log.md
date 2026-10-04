@@ -659,3 +659,170 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `src/lib/converters.ts`: legacy brokerConfig ticker fallback → `EUNL`
 - Placeholders/examples updated to `EUNL.DE` (locales it/en, validation msg, BrokerSettingsModal, EtfTransactionForm, DividendDialog)
 - Verified live: `EUNL`→`EUNL.DE` 126.045 € (== TR app), `SWDA`→`SWDA.MI` 126.03 €, `VWCE`→`VWCE.DE` 165 €; `npm run build` clean, no new lint issues
+
+## [2026-08-06] ingest | Bug | Silent login errors — no user-facing feedback on auth failure
+- User report (#157): auth failures (Google popup blocked, wrong email/password, network errors) were caught and console.logged only — user sees nothing.
+- Root cause: `LoginPage.tsx` catch blocks in both `handleSubmit` (:28-31) and `handleLogin` (:41-43) swallow errors; commented-out `alert()` marks it as known-temporary. No Snackbar/Alert/error state existed on the page while the app already ships `AlertSnackbar` (used by ConfigPage). No i18n for auth messages.
+- Created [[raw/bugs/silent-login-errors/silent-login-errors.md]] — full analysis
+- Created [[wiki/bugs/silent-login-errors]] — bug page (status: fixed)
+- Updated index.md (71 pages), wiki/bugs/index.md
+- Cross-links: new-user-auth-flow, error-boundary
+
+## [2026-08-06] fix | Bug | Localized auth error feedback on login (#157)
+- Added `auth` i18n section to `src/locales/en.json` + `it.json` mapping Firebase error codes → user-friendly messages (popup-blocked, wrong-password, user-not-found, invalid-credential, invalid-email, email-already-in-use, weak-password, network-request-failed, too-many-requests, user-disabled, operation-not-allowed, popup-closed-by-user, cancelled-popup-request, generic fallback)
+- `LoginPage.tsx`: added `getAuthErrorMessage(error)` mapper + `alertState`/`showAlert()` + `<AlertSnackbar/>` wired into both catch blocks; all messages localized via `useTranslation()`
+- Verified: `npm run build` clean; `npm run lint` no new issues
+
+## [2026-08-06] ingest | Feature | Account deletion — users can't delete their own account/data
+- User report (#158): no way to delete own account — Firestore doc, subcollections (transactions, portfolio_history), or Firebase Auth. GDPR erasure gap + orphaned data accumulation.
+- Root cause (gap): no deletion path anywhere. Firestore does NOT cascade-delete subcollections; `deleteUser()` requires recent login (`auth/requires-recent-login`); ordering matters (reauth → subcollections → user doc → auth → client cleanup).
+- Created [[raw/158-account-deletion/158-account-deletion.md]] — full analysis
+- Created [[wiki/features/account-deletion/account-deletion]] — feature page (status: implemented)
+- Updated index.md (72 pages), wiki/features/index.md
+- Cross-links: new-user-auth-flow, backup-restore-data-coverage
+
+## [2026-08-06] plan | Scaling B-lite — recurring subcollection + offline (#56)
+- Selected "B-lite" scope for issue #56 from the open-concern discussion: do recurringTransactions subcollection migration + Firestore offline persistence now; defer virtualization/pagination, PWA service worker, remaining arrays to launch phase.
+- Created [[raw/56-blite-recurring-migration/56-blite-recurring-migration.md]] — implementation plan
+- Created [[wiki/plans/56-blite-recurring-migration]] — plan page (status: in-progress)
+- Updated index.md (75 pages), wiki/plans/index.md
+- Cross-links: transactions-array-write-back, pwa-strategy, go-to-market
+
+## [2026-08-06] ingest | Bug | Legacy transactions[] write-back to main user doc (#56)
+- Re-validated issue #56 (Scaling limits). Concern 1 (1 MiB doc): transactions already subcollected, but found a regression — 5 actions (`_migrateToMultiAccount`, `renameCategory`, `renameSubcategory`, `deleteSubcategoryAndRemap`, `moveSubcategory`) still wrote the full transactions array to the dead `transactions` field on `users/{uid}`. Bloat risk + renames never reached the subcollection (silently reverted on reload).
+- Created [[raw/scaling-limits-review/scaling-limits-review.md]] — full 3-concern validity check
+- Created [[wiki/bugs/transactions-array-write-back]] — bug page (status: fixed)
+- Updated index.md (74 pages), wiki/bugs/index.md
+- Cross-links: firestore-rate-limiting, concerns-and-tech-debt
+
+## [2026-08-06] fix | Bug | Legacy transactions[] write-back (#56)
+- Added `persistTransactionsToSubcollection()` helper (writeBatch, 400-op chunks) in `src/store/useFinanceStore.ts`
+- Fixed 5 sites to persist only `changedTransactions` to the subcollection; main-doc `updateDoc` keeps only categories/recurringTransactions
+- Verified: `npm run build` clean; `npm run lint` no new issues; grep confirms no remaining `transactions:` write to main doc
+
+## [2026-08-06] ingest | Decision | Firestore write rate limiting (#159)
+- User report (#159): no rate limiting or throttling on Firestore writes — `firestore.rules` checks auth only (`isSignedIn()`/`isOwner(userId)`), no read/write-count guard, no field validation. Client-only app (no backend/Cloud Functions), so all writes go directly through the SDK.
+- Impact at current scale is low; exposure grows at paid-tier launch (free-tier budget 50k reads / 20k writes per day; runaway loop or scripted REST abuse).
+- Existing defense: `isSaving`/`isCheckingRecurring` guards in all stores + 5s `checkRecurring` throttle (prevents overlap, not runaway sequential writes).
+- Key finding: Firestore rules have no time-based primitives; the often-suggested `request.write_requests_per_minute` is not a real rules API → rules-based counters not viable.
+- Created [[raw/159-rate-limiting/159-rate-limiting.md]] — full threat model + mitigation matrix
+- Created [[wiki/decisions/firestore-rate-limiting]] — decision page (status: accepted)
+- Decision: document now, defer App Check + server-side limiting to paid-tier launch (track with [[wiki/plans/go-to-market]]); cheap client-side write-guard applied to bulk-write paths can be done pre-launch
+- Updated index.md (73 pages), wiki/decisions/index.md
+- Cross-links: saas-readiness, go-to-market, concerns-and-tech-debt, external-integrations
+
+## [2026-08-06] implement | Feature | Account deletion (#158)
+- Added `src/lib/deleteAccount.ts` — `deleteUserAccount()`: reauthenticates via provider (Google popup / email-password credential), bulk-deletes transactions + portfolio_history subcollections, deletes `users/{uid}`, calls `deleteUser()`
+- ConfigPage General tab: danger-zone "Delete Account" section with typed-email confirmation dialog, loading state, AlertSnackbar success/error feedback
+- i18n: `config.deleteAccount.*` keys in en.json + it.json
+- Verified: `npm run build` clean; `npm run lint` no new issues
+
+## [2026-08-06] implement | Feature | Recurring subcollection migration + offline persistence (#56)
+- Implemented B-lite plan ([[wiki/plans/56-blite-recurring-migration]] → completed)
+- `src/lib/converters.ts`: `RecurringTransactionDoc` interface, `recurringTransactionConverter`, `getRecurringDocRef()`, `getRecurringTransactionsCollectionRef()`
+- `firestore.rules`: `match /users/{userId}/recurringTransactions/{recId}` with `isOwner` guard
+- `src/store/sync/index.ts`: `backfillRecurringToSubCollection()` — idempotent, only writes missing docs; called on init in `useSyncFinance.ts`
+- `src/hooks/useSyncFinance.ts`: recurring `onSnapshot` listener replaces main-doc array reads; `checkRecurring` gate now waits for `hasLoaded && subColLoaded && recurringSubColLoaded`; cleanup returns all 3 unsubs
+- `src/store/useFinanceStore.ts`: added `persistRecurringToSubcollection()` helper (writeBatch, 400-op chunks); routed all 11 write sites to subcollection (setRecurringTransactions, _migrateToMultiAccount, renameCategory, renameSubcategory, deleteSubcategoryAndRemap, moveSubcategory, addRecurring, updateRecurring, checkRecurring, deleteRecurring, importAllData)
+- `src/lib/firebase.ts`: `getFirestore(app)` → `initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })`
+- Grep confirmed no main-doc `recurringTransactions:` writes remain in store; legacy field left in place for rollback
+- Verified: `npm run build` clean; `npm run lint` no new issues (baseline 19/9); OKF check passes
+- Created [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] — feature page (status: implemented)
+- Updated index.md (76 pages), wiki/features/index.md, wiki/plans/index.md
+- Cross-links: transactions-array-write-back, pwa-strategy, go-to-market
+
+## [2026-08-06] fix | Feature | Offline persistence fallback (#56)
+- Added pre-flight IndexedDB availability probe in `src/lib/firebase.ts`: when IndexedDB is unavailable (Safari private browsing, embedded WebViews), `db` falls back to `getFirestore(app)` (plain in-memory client) instead of `initializeFirestore` + `persistentLocalCache` — which would otherwise throw on first Firestore use.
+- Important: a literal try/catch around `initializeFirestore` would NOT catch the failure — the SDK defers the IndexedDB check until first use (not init). Verified in SDK source (`IndexedDbPersistence.C()` → `SimpleDb.C()`).
+- Updated [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling]] implementation notes.
+- Verified: `npm run build` clean; `npm run lint` baseline unchanged (19/9).
+
+## [2026-08-24] ingest | Feature | Test Infrastructure (Vitest)
+- Created [[wiki/features/test-infrastructure/test-infrastructure]] — Phase 1 (pure logic) complete: 61 tests / 7 files, Vitest ^4 + jsdom, mocked Firebase
+- Updated [[wiki/architecture/testing-status]] — superseded "no test suite exists" finding; current state + done setup markers
+- Updated index.md (page count 76 → 77), wiki/features/index.md, wiki/architecture/index.md
+- Source: [raw/test-infrastructure/test-infrastructure.md](raw/test-infrastructure/test-infrastructure.md)
+
+## [2026-08-24] ingest | Convention | Testing Guide (Vitest)
+- Created [[wiki/conventions/testing-guide]] — practical usage guide: running, colocation, characterization approach, mocking rules, repo-specific gotchas, coverage gaps
+- Updated [[wiki/features/test-infrastructure/test-infrastructure]] (cross-link), index.md (page count 77 → 78), wiki/conventions/index.md
+
+## [2026-08-24] update | Feature | Test Infrastructure — follow-up round
+- Fixed NaN/Infinity validation hole with Number.isFinite guards (both validator modules, +10 tests) — root cause was comparison guards vacuously false for NaN
+- Pinned budget band edges (100%/70% inclusive) + monthOfYear boundaries (+7 characterization tests)
+- Investigated monthOfYear:0 truthiness drop: not a bug, domain 1-12, documented rationale
+- Updated [[wiki/features/test-infrastructure/test-infrastructure]], [[wiki/conventions/testing-guide]]
+
+## [2026-08-27] update | Feature | Test Infrastructure — Phases 2–4 complete
+- Phase 2 (33 tests): firestore-fake.ts, mock-auth.ts, useFinanceStore.test.ts
+- Phase 3 (31 tests): useInvestmentStore.test.ts, calcAccruedInterest tests
+- Phase 4 (11 tests): sync-hooks.test.ts, component-tests.test.tsx, test-utils.tsx
+- Fixed: synchronous onSnapshot, FakeQuerySnapshot.exists()/data(), standalone onSnapshotOrQuery
+- Final: 153 tests across 11 files, PR #179 (Phase 1) + PR #180 (Phases 2–4) merged
+- Updated [[wiki/features/test-infrastructure/test-infrastructure]] → implemented
+- Updated [[wiki/architecture/testing-status]] → 153 tests / 11 files
+- Updated [[wiki/conventions/testing-guide]] → full coverage map + extension guide
+
+## [2026-10-01] implement | Feature | First-day-of-month recurrent transaction loading
+- Created [[wiki/features/first-of-month-recurring/first-of-month-recurring]] + raw source
+- `src/hooks/useSyncFinance.ts`: top-level daily `useEffect` — triggers `checkRecurring()` on the 1st of each month (5s throttle reused); init back-fill already covers opening on any later day
+- Verified: tsc clean, build OK, 153/153 tests pass
+- Updated index.md, wiki/features/index.md
+
+## [2026-10-01] fix | Bug | checkRecurring month preload bound
+- Created [[wiki/bugs/recurring-preload-month-bound]] + raw source
+- Root cause: `checkRecurring` bounded generation at `today` — on the 1st only day-1 instances existed (calendar + card symptom)
+- Fix: `generationEnd = dayjs().endOf('month')` replaces `now` in loop/break conditions
+- Cascades for preloaded future instances: `updateRecurring` syncs edited fields + prunes outside start/end date; `deleteRecurring` removes future instances from store + Firestore
+- Tests: +6 in useFinanceStore.test.ts (clock pinned 2026-10-05), 159 total; 5 red on pre-fix code
+- Updated [[wiki/features/first-of-month-recurring/first-of-month-recurring]], index.md (79 → 80), wiki/bugs/index.md, wiki/features/index.md
+
+## [2026-10-01] fix | Bug | First-of-month mount race burned the recurring throttle
+- Root cause (2nd layer of [[wiki/bugs/recurring-preload-month-bound]]): on the 1st the daily `checkFirstOfMonth` effect ran before Firestore snapshots delivered templates → empty `checkRecurring()` no-op stamped the 5s throttle → data-loaded init call throttled + `hasCheckedRecurring` burned → no generation that session (reload never helps; other days unaffected)
+- Fix: `checkRecurring` returns on empty template list *before* stamping `lastRecurringCheck`; `checkFirstOfMonth` gated on `recurringSubColLoaded`; `unsubRecs` sets the flag only after the `hasPendingWrites` return
+- Tests: +1 mount-race regression in useFinanceStore.test.ts, 162 total; 6/7 red on fully pre-fix code
+- Updated [[wiki/bugs/recurring-preload-month-bound]] + raw, [[wiki/features/first-of-month-recurring/first-of-month-recurring]], log.md
+
+## [2026-10-01] ingest | Bug | Firestore rules drift — recurringTransactions path denied
+- Created [[wiki/bugs/firestore-rules-drift]] + raw source (`raw/bugs/firestore-rules-drift/`)
+- Incident: deployed rules predated #56's `recurringTransactions` rule (repo file correct since `f20161f`, never deployed after `cb442d4`) → default-deny killed the listener, the backfill `getDocs` (mislabeled "initializeUser transaction"), and all three `checkRecurring` gates → silent no-generation while legacy main-doc templates masked the empty subcollection
+- Fix: `npx firebase deploy --only firestore:rules` (user, confirmed working) + in-PR hardening `e5b0a96` (labeled listener errors, 10s gate diagnostic) and `5cda137` (non-empty template gate before burning `hasCheckedRecurring`)
+- Prevention documented: rules need explicit `--only firestore:rules` deploy on any rules PR
+- Updated bugs index, root index.md (Total pages: 82), log.md
+
+## [2026-10-01] implement | Feature | Dashboard calendar view
+- Created [[wiki/features/dashboard-calendar/dashboard-calendar]] + raw source
+- New `src/components/dashboard/MonthCalendar.tsx`: MUI X DateCalendar + custom PickerDay slot (income/expense/transfer dots) + selected-day transaction list; live-updates via `useFinanceStore().transactions` subscription
+- DashboardPage: full-width calendar row after Charts; new `dashboard.calendar.*` i18n keys (it/en)
+- New `src/components/AppProviders.tsx`: LocalizationProvider with reactive adapterLocale ('it') for localized weekday headers
+- test-utils: renderWithProviders now wraps LocalizationProvider
+- Verified: tsc clean, build ✓, 153/153 tests, lint unchanged vs development
+- Updated index.md, wiki/features/index.md
+
+## [2026-10-01] fix | Bug | Dashboard chart heights equalized + invisible axis labels restored
+- Cash Flow Trend (280px) vs Portfolio Value (300px) → both 320px; `height` prop dropped from ChartsDataProvider so the legend renders inside the fixed box (v9 container measurement: extendVertically wrapper + ChartsLayerContainer 100%)
+- Invisible strings: x-charts v9 ellipsizes tick labels (`shortenLabels`) and auto-hides overlapping ones (`tickLabelInterval: 'auto'`); margin.left had been shrunk to 15 (WIP `b7e4f39`) → margins now `{left: 60, bottom: 60}` + rotated x labels (`angle: -45, textAnchor: 'end'`) so all 12 months fit
+- Updated [[wiki/bugs/charts-ui]] (2026-10-01 follow-up) + raw source + log.md
+
+## [2026-10-01] fix | Feature | Dashboard calendar spacing flush against charts row
+- Symptom: calendar Paper touched the charts row above while every other dashboard section had 24px gaps
+- Root cause: MUI Grid v9 `spacing` = CSS `gap` *inside* a container only (`gridGenerator.js:163`); sibling containers get zero gap — each dashboard section relies on its own `mb: 3`, and the charts container was the one missing it
+- Fix: `DashboardPage.tsx` charts container `sx={{ mt: 0, mb: 3 }}`
+- Updated [[wiki/features/dashboard-calendar/dashboard-calendar]] + raw source + log.md
+
+## [2026-10-04] implement | Plan | Explicit `any` removal (Issue #126)
+- Created [[wiki/plans/explicit-any-removal]] + raw source; closed the `any`-in-19-files row in [[wiki/architecture/concerns-and-tech-debt]]
+- Measured inventory first: issue estimated 62 across 19 files; actual was 64 across 10 files + 18 `no-explicit-any` directives
+- 7 commits, tests written before the refactor: 36 characterization tests for `converters.ts` against the *untyped* code
+- `converters.ts`: `RawRecord` + narrowing read helpers (`asRecord`/`readString`/`readNumber`/`readStringArray`/`readBoolean`) preserving original coercion
+- `TransactionForm.tsx` + callers: exported `TransactionFormData`, typed 14 handlers
+- Investment: typed `EtfTransactionForm` (10) + `BrokerSettingsModal` (6), removed 2 dead directives
+- `CarPage.tsx` + `ConfigPage.tsx`: typed 7 handlers; flat `any` dialog config → `DialogConfig` discriminated union (removed 4 `!` assertions)
+- `store/sanitization/*`: sanitizers now return `TransactionDoc`/`RecurringTransactionDoc`; rejected `DocumentData` (= `Record<string, any>`) as it only relocated the unsafety
+- `AnalysisTables.tsx`: added `MonthlyMetrics`/`CategorySummary`/`SummaryRow`
+- Removed 8 dead `no-explicit-any` directives so lint reflects real problems again
+- 4 latent type errors surfaced that `any` had hidden (incl. `'transfer'` reaching a `income|expense` field; an `'separator'` sentinel used as a metrics key)
+- Preserved deliberately: converter `monthOfYear` asymmetry; sanitizers' `null` (not `undefined`) for absent optionals
+- Verified: tsc clean, build ✓, 198/198 tests, lint 9E/11W → 7E/3W, rule-level diff = 4 fixes / 0 new problems, 0 explicit `any` and 0 directives left in `src/`
+- Verified #137 and #127 already resolved — no work needed
+- Updated index.md, wiki/plans/index.md, concerns-and-tech-debt.md

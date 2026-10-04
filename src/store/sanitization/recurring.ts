@@ -1,11 +1,11 @@
+import type { RecurringTransactionDoc } from '../../lib/converters';
 import type { IRecurringTransaction } from '../types';
 
 /**
  * Sanitizes a recurring transaction for Firebase storage
  * Ensures all fields are properly typed for Firestore
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const sanitizeRecurring = (r: IRecurringTransaction): any => {
+export const sanitizeRecurring = (r: IRecurringTransaction): RecurringTransactionDoc => {
   return {
     id: r.id,
     description: r.description,

@@ -1,11 +1,11 @@
+import type { TransactionDoc } from '../../lib/converters';
 import type { ITransaction } from '../types';
 
 /**
  * Sanitizes a transaction for Firebase storage
  * Ensures all fields are properly typed for Firestore
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const sanitizeTransaction = (t: ITransaction): any => {
+export const sanitizeTransaction = (t: ITransaction): TransactionDoc => {
   return {
     id: t.id,
     date: t.date,

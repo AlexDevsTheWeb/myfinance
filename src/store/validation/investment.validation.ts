@@ -5,10 +5,10 @@ export function validateEtfTransaction(tx: IETFTransaction): { valid: boolean; e
   if (!tx.ticker?.trim()) {
     return { valid: false, error: 'Ticker symbol is required' };
   }
-  if (typeof tx.units !== 'number' || tx.units <= 0) {
+  if (!Number.isFinite(tx.units) || tx.units <= 0) {
     return { valid: false, error: 'Units must be greater than 0' };
   }
-  if (typeof tx.price !== 'number' || tx.price <= 0) {
+  if (!Number.isFinite(tx.price) || tx.price <= 0) {
     return { valid: false, error: 'Price must be greater than 0' };
   }
   if (!tx.date) {
@@ -24,13 +24,13 @@ export function validateBrokerAccount(account: BrokerAccount): { valid: boolean;
   if (!account.name?.trim()) {
     return { valid: false, error: 'Broker name is required' };
   }
-  if (typeof account.baseLumpSum !== 'number' || account.baseLumpSum < 0) {
+  if (!Number.isFinite(account.baseLumpSum) || account.baseLumpSum < 0) {
     return { valid: false, error: 'Base lump sum must be 0 or greater' };
   }
-  if (typeof account.monthlyPacAmount !== 'number' || account.monthlyPacAmount < 0) {
+  if (!Number.isFinite(account.monthlyPacAmount) || account.monthlyPacAmount < 0) {
     return { valid: false, error: 'PAC amount must be 0 or greater' };
   }
-  if (typeof account.interestRate !== 'number' || account.interestRate < 0 || account.interestRate > 100) {
+  if (!Number.isFinite(account.interestRate) || account.interestRate < 0 || account.interestRate > 100) {
     return { valid: false, error: 'Interest rate must be between 0 and 100' };
   }
   return { valid: true };
@@ -43,10 +43,10 @@ export function validateBrokerConfig(config: IBrokerConfig): { valid: boolean; e
   if (!config.ticker?.trim()) {
     return { valid: false, error: 'Ticker symbol is required' };
   }
-  if (typeof config.monthlyPacAmount !== 'number' || config.monthlyPacAmount < 0) {
+  if (!Number.isFinite(config.monthlyPacAmount) || config.monthlyPacAmount < 0) {
     return { valid: false, error: 'PAC amount must be 0 or greater' };
   }
-  if (typeof config.interestRate !== 'number' || config.interestRate < 0 || config.interestRate > 100) {
+  if (!Number.isFinite(config.interestRate) || config.interestRate < 0 || config.interestRate > 100) {
     return { valid: false, error: 'Interest rate must be between 0 and 100' };
   }
   return { valid: true };
@@ -71,7 +71,7 @@ export function validateCashAdjustment(adj: CashAdjustment): { valid: boolean; e
   if (!adj.brokerId) {
     return { valid: false, error: 'Broker account is required' };
   }
-  if (typeof adj.amount !== 'number' || adj.amount === 0) {
+  if (!Number.isFinite(adj.amount) || adj.amount === 0) {
     return { valid: false, error: 'Amount must be non-zero' };
   }
   if (!adj.date) {
@@ -87,7 +87,7 @@ export function validateDividendEntry(entry: DividendEntry): { valid: boolean; e
   if (!entry.ticker?.trim()) {
     return { valid: false, error: 'Ticker symbol is required' };
   }
-  if (typeof entry.amount !== 'number' || entry.amount <= 0) {
+  if (!Number.isFinite(entry.amount) || entry.amount <= 0) {
     return { valid: false, error: 'Amount must be greater than 0' };
   }
   if (!entry.date) {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, FormHelperText, Grid, MenuItem, TextField } from '@mui/material';
 import React from 'react';
 import { useFinanceStore } from '../../store/useFinanceStore';
@@ -39,7 +38,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             label="Ticker"
             variant="filled"
             value={formData.ticker}
-            onChange={(e: any) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
             placeholder="EUNL.DE"
             error={!!errors.ticker}
           />
@@ -52,7 +51,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             label="Type"
             variant="filled"
             value={formData.type}
-            onChange={(e: any) => setFormData({ ...formData, type: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, type: e.target.value === 'sell' ? 'sell' : 'buy' })}
           >
             <MenuItem value="buy">Buy</MenuItem>
             <MenuItem value="sell">Sell</MenuItem>
@@ -65,7 +64,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             type="number"
             variant="filled"
             value={formData.units}
-            onChange={(e: any) => setFormData({ ...formData, units: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, units: e.target.value })}
             slotProps={{ htmlInput: { step: 0.001 } }}
             error={!!errors.units}
           />
@@ -78,7 +77,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             type="number"
             variant="filled"
             value={formData.price}
-            onChange={(e: any) => setFormData({ ...formData, price: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, price: e.target.value })}
             slotProps={{ htmlInput: { step: 0.01 } }}
             error={!!errors.price}
           />
@@ -91,7 +90,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             type="number"
             variant="filled"
             value={formData.totalAmount || autoTotal.toFixed(2)}
-            onChange={(e: any) => setFormData({ ...formData, totalAmount: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, totalAmount: e.target.value })}
             helperText={!formData.totalAmount ? `Auto: €${autoTotal.toFixed(2)}` : 'Manual override'}
           />
         </Grid>
@@ -102,7 +101,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             type="date"
             variant="filled"
             value={formData.date}
-            onChange={(e: any) => setFormData({ ...formData, date: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, date: e.target.value })}
             slotProps={{ inputLabel: { shrink: true } }}
             error={!!errors.date}
           />
@@ -115,7 +114,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             label="Account"
             variant="filled"
             value={formData.accountId}
-            onChange={(e: any) => setFormData({ ...formData, accountId: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, accountId: e.target.value })}
             error={!!errors.accountId}
           >
             {accounts.map((acc) => (
@@ -131,7 +130,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             label="Broker Account"
             variant="filled"
             value={formData.brokerId ?? ''}
-            onChange={(e: any) => setFormData({ ...formData, brokerId: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, brokerId: e.target.value })}
           >
             <MenuItem value="">None</MenuItem>
             {brokerAccounts.map((ba) => (
@@ -145,7 +144,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             label="Description"
             variant="filled"
             value={formData.description}
-            onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, description: e.target.value })}
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
@@ -156,7 +155,7 @@ const EtfTransactionForm: React.FC<EtfTransactionFormProps> = ({ formData, setFo
             multiline
             rows={2}
             value={formData.notes}
-            onChange={(e: any) => setFormData({ ...formData, notes: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, notes: e.target.value })}
           />
         </Grid>
       </Grid>

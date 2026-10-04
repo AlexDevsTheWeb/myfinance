@@ -1,18 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DndContext, type DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
 import { AccountBalance, Add as AddIcon, Backup as BackupIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, Repeat, ShowChart, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
 import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Select, Switch, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TransactionForm from '../components/forms/TransactionForm';
+import type { TransactionFormData } from '../components/forms/TransactionForm';
 import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { AlertSnackbar } from '../components/shared/AlertSnackbar';
+import { DeleteAccountRequiresPasswordError, deleteUserAccount } from '../lib/deleteAccount';
+import { useAuthStore } from '../store/useAuthStore';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { useInvestmentStore } from '../store/useInvestmentStore';
 import { useProjectionSettingsStore, DEFAULT_PROJECTION_SETTINGS } from '../store/useProjectionSettingsStore';
-import type { ICard } from '../store/types/finance.types';
+import type { ICard, ICategory } from '../store/types/finance.types';
 import type { ITabPanelProps } from '../types/props.types';
 
 function TabPanel(props: ITabPanelProps) {
@@ -74,8 +77,28 @@ const DraggableSubcategory: React.FC<{ sub: string; catName: string; type: 'inco
   );
 };
 
+type FinanceType = 'income' | 'expense';
+/** Recurring templates may also model transfers, unlike categories. */
+type TransactionType = 'income' | 'expense' | 'transfer';
+
+/**
+ * Which entity the add/rename/edit dialog is acting on.
+ *
+ * Modelled as a discriminated union on `type` and `mode` so the compiler can
+ * guarantee that a rename always carries the value being renamed, and that
+ * subcategory operations always carry their parent category — previously every
+ * field was optional and the call sites needed `!` assertions.
+ */
+type DialogConfig =
+  | { type: 'category'; mode: 'add'; financeType: FinanceType }
+  | { type: 'category'; mode: 'rename'; financeType: FinanceType; oldValue: string }
+  | { type: 'subcategory'; mode: 'add'; financeType: FinanceType; categoryName: string }
+  | { type: 'subcategory'; mode: 'rename'; financeType: FinanceType; categoryName: string; oldValue: string }
+  | { type: 'recurring'; mode: 'add' | 'edit'; financeType: TransactionType; recurringId?: string }
+  | { type: 'account'; mode: 'add' | 'edit'; accountId?: string };
+
 // Droppable Category Card
-const DroppableCategory: React.FC<{ cat: any; type: 'income' | 'expense'; children: React.ReactNode; onAddSub: () => void; onRename: () => void; onDelete: () => void }> = ({ cat, type, children, onAddSub, onRename, onDelete }) => {
+const DroppableCategory: React.FC<{ cat: ICategory; type: 'income' | 'expense'; children: React.ReactNode; onAddSub: () => void; onRename: () => void; onDelete: () => void }> = ({ cat, type, children, onAddSub, onRename, onDelete }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: `${type}-${cat.name}`,
     data: { catName: cat.name, type }
@@ -186,15 +209,7 @@ const ConfigPage: React.FC = () => {
   }, [savedInflationRate, savedTaxRate]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogConfig, setDialogConfig] = useState<{
-    type: 'category' | 'subcategory' | 'recurring' | 'account';
-    mode: 'add' | 'rename' | 'edit';
-    financeType: 'income' | 'expense';
-    categoryName?: string;
-    oldValue?: string;
-    recurringId?: string;
-    accountId?: string;
-  } | null>(null);
+  const [dialogConfig, setDialogConfig] = useState<DialogConfig | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [accountInitialBalance, setAccountInitialBalance] = useState('0');
 
@@ -208,7 +223,7 @@ const ConfigPage: React.FC = () => {
   const [remapTarget, setRemapTarget] = useState('');
 
   // Form for recurring
-  const [recurringForm, setRecurringForm] = useState({
+  const [recurringForm, setRecurringForm] = useState<TransactionFormData & { type: 'income' | 'expense' | 'transfer' }>({
     description: '',
     amount: '',
     category: '',
@@ -216,9 +231,9 @@ const ConfigPage: React.FC = () => {
     dayOfMonth: 1,
     startDate: dayjs().format('YYYY-MM-DD'),
     endDate: '',
-    type: 'expense' as 'income' | 'expense' | 'transfer',
+    type: 'expense',
     accountId: '',
-    frequency: 'monthly' as 'monthly' | 'yearly',
+    frequency: 'monthly',
     monthOfYear: 1,
     cardId: ''
   });
@@ -316,7 +331,58 @@ const ConfigPage: React.FC = () => {
     setAlertState(prev => ({ ...prev, open: false }));
   };
 
-  const handleOpenDialog = (config: any) => {
+  // Delete Account state
+  const navigate = useNavigate();
+  const user = useAuthStore(s => s.user);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteEmailInput, setDeleteEmailInput] = useState('');
+  const [deletePasswordOpen, setDeletePasswordOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const handleDeleteAccountClick = () => {
+    setDeleteEmailInput('');
+    setDeleteConfirmOpen(true);
+  };
+
+  const performDeleteAccount = async (password?: string) => {
+    setIsDeletingAccount(true);
+    try {
+      await deleteUserAccount(password);
+      showAlert(t('config.deleteAccountSuccess'), 'success');
+      setTimeout(() => navigate('/'), 800);
+    } catch (err) {
+      setIsDeletingAccount(false);
+      if (err instanceof DeleteAccountRequiresPasswordError) {
+        setDeletePassword('');
+        setDeletePasswordOpen(true);
+      } else {
+        const code = (err as { code?: string })?.code;
+        if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+          showAlert(t('config.deleteAccountWrongPassword'));
+        } else {
+          showAlert(t('config.deleteAccountError'));
+          console.error('deleteUserAccount error:', err);
+        }
+      }
+    }
+  };
+
+  const handleDeleteAccountConfirm = () => {
+    if (deleteEmailInput.trim().toLowerCase() !== (user?.email ?? '').toLowerCase()) {
+      showAlert(t('config.deleteAccountEmailMismatch'));
+      return;
+    }
+    setDeleteConfirmOpen(false);
+    performDeleteAccount();
+  };
+
+  const handleDeletePasswordConfirm = () => {
+    setDeletePasswordOpen(false);
+    performDeleteAccount(deletePassword);
+  };
+
+  const handleOpenDialog = (config: DialogConfig) => {
     setDialogConfig(config);
     if (config?.type === 'recurring') {
       if (config.mode === 'edit') {
@@ -365,7 +431,7 @@ const ConfigPage: React.FC = () => {
         setAccountInitialBalance('0');
       }
     } else {
-      setInputValue(config?.oldValue || '');
+      setInputValue(config.mode === 'rename' ? config.oldValue : '');
     }
     setDialogOpen(true);
   };
@@ -433,7 +499,7 @@ const ConfigPage: React.FC = () => {
         category: recurringForm.category,
         subcategory: recurringForm.subcategory,
         dayOfMonth: Number(recurringForm.dayOfMonth),
-        startDate: recurringForm.startDate,
+        startDate: recurringForm.startDate || dayjs().format('YYYY-MM-DD'),
         endDate: recurringForm.endDate || '',
         type: recurringForm.type,
         accountId: recurringForm.accountId,
@@ -460,18 +526,17 @@ const ConfigPage: React.FC = () => {
         updateAccount(data);
       }
     } else if (inputValue.trim()) {
-      const { type, mode, financeType, categoryName, oldValue } = dialogConfig;
-      if (type === 'category') {
-        if (mode === 'add') {
-          addCategory(financeType, inputValue);
+      if (dialogConfig.type === 'category') {
+        if (dialogConfig.mode === 'add') {
+          addCategory(dialogConfig.financeType, inputValue);
         } else {
-          renameCategory(financeType, oldValue!, inputValue);
+          renameCategory(dialogConfig.financeType, dialogConfig.oldValue, inputValue);
         }
-      } else {
-        if (mode === 'add') {
-          addSubcategory(financeType, categoryName!, inputValue);
+      } else if (dialogConfig.type === 'subcategory') {
+        if (dialogConfig.mode === 'add') {
+          addSubcategory(dialogConfig.financeType, dialogConfig.categoryName, inputValue);
         } else {
-          renameSubcategory(financeType, categoryName!, oldValue!, inputValue);
+          renameSubcategory(dialogConfig.financeType, dialogConfig.categoryName, dialogConfig.oldValue, inputValue);
         }
       }
     }
@@ -503,7 +568,7 @@ const ConfigPage: React.FC = () => {
       .map(cat => ({ ...cat, subcategories: [...cat.subcategories].sort((a, b) => a.localeCompare(b)) }));
   }, [incomeCategories]);
 
-  const renderExplodedList = (cats: any[], type: 'income' | 'expense') => (
+  const renderExplodedList = (cats: ICategory[], type: 'income' | 'expense') => (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 800 }}>{type === 'income' ? 'Income' : 'Expense'} Structure</Typography>
@@ -680,6 +745,25 @@ const ConfigPage: React.FC = () => {
                       />
                     </ListItem>
                   </List>
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: 'error.main' }}>
+                  {t('config.deleteAccount')}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
+                  {t('config.deleteAccountDescription')}
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleDeleteAccountClick}
+                  disabled={isDeletingAccount}
+                >
+                  {t('config.deleteAccount')}
+                </Button>
               </Paper>
             </Grid>
           </Grid>
@@ -1055,7 +1139,7 @@ const ConfigPage: React.FC = () => {
                 <TransactionForm
                   type={recurringForm.type}
                   formData={recurringForm}
-                  setFormData={(data) => setRecurringForm(data)}
+                  setFormData={(data) => setRecurringForm(prev => ({ ...prev, ...data }))}
                   isRecurring={true}
                 />
               ) : dialogConfig?.type === 'account' ? (
@@ -1159,6 +1243,50 @@ const ConfigPage: React.FC = () => {
           </DialogActions>
         </Dialog>
         <BrokerSettingsModal open={brokerDialogOpen} onClose={() => setBrokerDialogOpen(false)} />
+
+        <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
+          <DialogTitle sx={{ fontWeight: 800, color: 'error.main' }}>{t('config.deleteAccountConfirmTitle')}</DialogTitle>
+          <DialogContent>
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {t('config.deleteAccountConfirmMessage')}
+            </Alert>
+            <Typography variant="body2" sx={{ mb: 1, opacity: 0.8 }}>{t('config.deleteAccountTypeEmail')}</Typography>
+            <TextField
+              fullWidth
+              label={user?.email ?? ''}
+              variant="filled"
+              value={deleteEmailInput}
+              onChange={(e) => setDeleteEmailInput(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={() => setDeleteConfirmOpen(false)} color="inherit">{t('config.deleteAccountCancel')}</Button>
+            <Button onClick={handleDeleteAccountConfirm} variant="contained" color="error" disabled={deleteEmailInput.trim().toLowerCase() !== (user?.email ?? '').toLowerCase()}>
+              {t('config.deleteAccountConfirm')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={deletePasswordOpen} onClose={() => setDeletePasswordOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
+          <DialogTitle sx={{ fontWeight: 800 }}>{t('config.deleteAccountPasswordTitle')}</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" sx={{ mb: 2, opacity: 0.8 }}>{t('config.deleteAccountPasswordMessage')}</Typography>
+            <TextField
+              fullWidth
+              label={t('config.deleteAccountPassword')}
+              type="password"
+              variant="filled"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={() => setDeletePasswordOpen(false)} color="inherit">{t('config.deleteAccountCancel')}</Button>
+            <Button onClick={handleDeletePasswordConfirm} variant="contained" color="error" disabled={!deletePassword}>
+              {t('config.deleteAccountConfirm')}
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <ConfirmDialog
           open={confirmState.open}

@@ -92,7 +92,11 @@
     "expensesMonth": "Expenses (Month)",
     "netDeltaMonth": "Net Delta (Month)",
     "betaDisclaimer": "Welcome to the Balancr Soft Beta!",
-    "betaDisclaimerText": "This application is currently in an experimental testing phase. While all data transmissions are encrypted and isolated inside a dedicated Firestore database, please do not input real banking credentials or highly sensitive financial passwords. This platform operates purely as a self-contained tracking sandbox and has no integrations with external banking institutions."
+    "betaDisclaimerText": "This application is currently in an experimental testing phase. While all data transmissions are encrypted and isolated inside a dedicated Firestore database, please do not input real banking credentials or highly sensitive financial passwords. This platform operates purely as a self-contained tracking sandbox and has no integrations with external banking institutions.",
+    "calendar": {
+      "title": "Calendar",
+      "noTransactions": "No transactions on this day"
+    }
   },
   "salary": {
     "title": "Salary",
@@ -194,7 +198,21 @@
     "projectionsDescription": "Configure default rates used in financial projections.",
     "inflationRate": "Inflation Rate",
     "taxRate": "Tax Rate",
-    "resetDefaults": "Reset to Defaults"
+    "resetDefaults": "Reset to Defaults",
+    "deleteAccount": "Delete Account",
+    "deleteAccountDescription": "Permanently delete your account and all your data. This action cannot be undone.",
+    "deleteAccountConfirmTitle": "Delete your account?",
+    "deleteAccountConfirmMessage": "This will permanently delete your account, all transactions, investments and settings. This action cannot be undone.",
+    "deleteAccountTypeEmail": "Type your email to confirm:",
+    "deleteAccountEmailMismatch": "The email you typed does not match your account.",
+    "deleteAccountConfirm": "Delete my account",
+    "deleteAccountPasswordTitle": "Confirm your password",
+    "deleteAccountPasswordMessage": "Enter your current password to confirm account deletion.",
+    "deleteAccountPassword": "Password",
+    "deleteAccountCancel": "Cancel",
+    "deleteAccountSuccess": "Account deleted successfully.",
+    "deleteAccountError": "Could not delete account.",
+    "deleteAccountWrongPassword": "Incorrect password. Try again."
   },
   "language": {
     "italian": "Italiano",
@@ -383,5 +401,21 @@
     "idealBurnRate": "Ideal Burn Rate",
     "actualSpend": "Actual Spend",
     "noBurnUpData": "No spending data for this period"
+  },
+  "auth": {
+    "popupBlocked": "Google sign-in was blocked. Please allow popups for this site and try again.",
+    "popupClosedByUser": "Sign-in popup closed before completing. Please try again.",
+    "cancelledPopupRequest": "Sign-in was cancelled. Please try again.",
+    "wrongPassword": "Invalid email or password.",
+    "userNotFound": "No account found with this email.",
+    "invalidCredential": "Invalid email or password.",
+    "invalidEmail": "Please enter a valid email address.",
+    "emailAlreadyInUse": "An account with this email already exists. Try signing in instead.",
+    "weakPassword": "Password is too weak. Use at least 6 characters.",
+    "networkRequestFailed": "Network error. Check your connection and try again.",
+    "tooManyRequests": "Too many attempts. Please wait a moment and try again.",
+    "userDisabled": "This account has been disabled.",
+    "operationNotAllowed": "This sign-in method is not allowed.",
+    "genericError": "Something went wrong. Please try again."
   }
 }

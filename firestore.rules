@@ -36,5 +36,12 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       allow delete: if isOwner(userId);
     }
+
+    // Recurring transaction subcollection: migrated from array field for scalability
+    match /users/{userId}/recurringTransactions/{recId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
   }
 }

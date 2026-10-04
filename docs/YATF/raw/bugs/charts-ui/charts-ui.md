@@ -55,3 +55,32 @@ All the charts in the webapp are not well formatted, some use too much space, so
 
 ### UTILITIES
 - same problems for all charts of all tabs: too much empty space to the left, labels not readable
+
+---
+
+## Follow-up (2026-10-01) — dashboard: equal heights + invisible axis labels
+
+New report after the dashboard calendar work: Cash Flow Trend shorter than Portfolio Value
+(280 vs 300) and "some strings are not visible".
+
+Analysis of `@mui/x-charts` 9.2.0 internals:
+
+1. `shortenLabels.js` — tick labels are **ellipsized** to the space around their tick; with
+   `margin.left: 15` (WIP commit `b7e4f39` reduced 35 → 15) y-axis money labels only had ~15px.
+2. `ChartsXAxis.js` — `tickLabelInterval: 'auto'` **removes labels that would overlap** the
+   previous one ("closer than `tickLabelMinGap` (4px) → hidden"). 12 × "Oct 2025" ≈ 624px in a
+   ~500px half-card → every other month dropped. `disableTicks` only affects tick marks.
+3. `ChartsWrapper` — grid = `[chart 1fr, legend auto]`; passing `height` to
+   `ChartsDataProvider` fixes the SVG height only, so legend row stacked *outside* it and
+   overflowed the fixed `<Box>`.
+
+Fix applied to `src/components/dashboard/Charts.tsx` + `src/components/investment/PortfolioLineChart.tsx`:
+
+- Both boxes `height: 320`; `height` prop removed from `ChartsDataProvider` → v9 measures the
+  container instead (`extendVertically` wrapper 100% + `ChartsLayerContainer` 100% of the chart
+  grid cell via ResizeObserver); legend renders inside the box.
+- `margin: { left: 60, bottom: 60 }` on both (was 15/20 + 50).
+- x labels rotated: `tickLabelStyle: { angle: -45, textAnchor: 'end' }` → footprint
+  `text × cos45°` ≈ 37px, all 12 months fit; dense portfolio ranges still sub-sample.
+
+Verified: tsc clean, 162/162 tests, lint baseline (9 errors), build OK.

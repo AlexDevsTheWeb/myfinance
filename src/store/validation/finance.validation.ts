@@ -8,7 +8,7 @@ export function validateTransaction(t: ITransaction): { valid: boolean; error?: 
   if (!t.description?.trim()) {
     return { valid: false, error: 'Description is required' };
   }
-  if (typeof t.amount !== 'number' || t.amount <= 0) {
+  if (!Number.isFinite(t.amount) || t.amount <= 0) {
     return { valid: false, error: 'Amount must be greater than 0' };
   }
   if (!t.date || !t.category || !t.subcategory || !t.accountId) {
@@ -21,7 +21,7 @@ export function validateRecurringTransaction(r: IRecurringTransaction): { valid:
   if (!r.description?.trim()) {
     return { valid: false, error: 'Description is required' };
   }
-  if (typeof r.amount !== 'number' || r.amount <= 0) {
+  if (!Number.isFinite(r.amount) || r.amount <= 0) {
     return { valid: false, error: 'Amount must be greater than 0' };
   }
   if (!r.startDate || !r.accountId || !r.category || !r.subcategory) {
