@@ -29,7 +29,7 @@ dist-ssr
 .agents/*
 .config/
 .config/*
-src/version.ts
+apps/web/src/version.ts
 docs/YATF/.obsidian/
 docs/YATF/.obsidian/*
 

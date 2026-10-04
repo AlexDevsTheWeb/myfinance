@@ -19,7 +19,7 @@ export const buildDate = '${date}';
 export const commit = '${commit}';
 `;
 
-const versionPath = join(__dirname, '..', 'src', 'version.ts');
+const versionPath = join(__dirname, '..', 'apps', 'web', 'src', 'version.ts');
 writeFileSync(versionPath, content);
 
 console.log(`Generated version: ${version} (${commit})`);
