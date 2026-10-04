@@ -26,11 +26,16 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      # These paths moved into apps/web during the monorepo migration (#189).
+      # They must stay in sync with the app's real location, otherwise the
+      # diff comes back empty and the preview is *silently* skipped for every
+      # real frontend change -- the worst possible failure mode, because CI
+      # still passes.
       - name: Check for source code changes
         id: check
         run: |
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          CHANGED=$(git diff --name-only "$BASE_SHA"...HEAD -- src/ package.json package-lock.json tsconfig.json tsconfig.app.json vite.config.ts index.html firebase.json .nvmrc 2>/dev/null || true)
+          CHANGED=$(git diff --name-only "$BASE_SHA"...HEAD -- apps/web/ package.json package-lock.json tsconfig.json apps/web/tsconfig.app.json apps/web/vite.config.ts apps/web/index.html firebase.json .nvmrc 2>/dev/null || true)
           if [ -z "$CHANGED" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
             echo "No source code changes — skipping preview deployment."
