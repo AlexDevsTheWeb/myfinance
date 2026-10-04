@@ -809,3 +809,20 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Root cause: MUI Grid v9 `spacing` = CSS `gap` *inside* a container only (`gridGenerator.js:163`); sibling containers get zero gap — each dashboard section relies on its own `mb: 3`, and the charts container was the one missing it
 - Fix: `DashboardPage.tsx` charts container `sx={{ mt: 0, mb: 3 }}`
 - Updated [[wiki/features/dashboard-calendar/dashboard-calendar]] + raw source + log.md
+
+## [2026-10-04] implement | Plan | Explicit `any` removal (Issue #126)
+- Created [[wiki/plans/explicit-any-removal]] + raw source; closed the `any`-in-19-files row in [[wiki/architecture/concerns-and-tech-debt]]
+- Measured inventory first: issue estimated 62 across 19 files; actual was 64 across 10 files + 18 `no-explicit-any` directives
+- 7 commits, tests written before the refactor: 36 characterization tests for `converters.ts` against the *untyped* code
+- `converters.ts`: `RawRecord` + narrowing read helpers (`asRecord`/`readString`/`readNumber`/`readStringArray`/`readBoolean`) preserving original coercion
+- `TransactionForm.tsx` + callers: exported `TransactionFormData`, typed 14 handlers
+- Investment: typed `EtfTransactionForm` (10) + `BrokerSettingsModal` (6), removed 2 dead directives
+- `CarPage.tsx` + `ConfigPage.tsx`: typed 7 handlers; flat `any` dialog config → `DialogConfig` discriminated union (removed 4 `!` assertions)
+- `store/sanitization/*`: sanitizers now return `TransactionDoc`/`RecurringTransactionDoc`; rejected `DocumentData` (= `Record<string, any>`) as it only relocated the unsafety
+- `AnalysisTables.tsx`: added `MonthlyMetrics`/`CategorySummary`/`SummaryRow`
+- Removed 8 dead `no-explicit-any` directives so lint reflects real problems again
+- 4 latent type errors surfaced that `any` had hidden (incl. `'transfer'` reaching a `income|expense` field; an `'separator'` sentinel used as a metrics key)
+- Preserved deliberately: converter `monthOfYear` asymmetry; sanitizers' `null` (not `undefined`) for absent optionals
+- Verified: tsc clean, build ✓, 198/198 tests, lint 9E/11W → 7E/3W, rule-level diff = 4 fixes / 0 new problems, 0 explicit `any` and 0 directives left in `src/`
+- Verified #137 and #127 already resolved — no work needed
+- Updated index.md, wiki/plans/index.md, concerns-and-tech-debt.md

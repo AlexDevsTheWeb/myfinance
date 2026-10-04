@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Box,
   Button,
@@ -174,7 +173,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
                   <ListItemText
                     primary={broker.name}
                     secondary={`Lump: €${broker.baseLumpSum.toLocaleString()} · PAC: €${broker.monthlyPacAmount.toLocaleString()} · Rate: ${broker.interestRate}%`}
-                    slotProps={{ primary: { fontWeight: 700 } as any }}
+                    slotProps={{ primary: { sx: { fontWeight: 700 } } }}
                   />
                 </ListItem>
               ))}
@@ -211,7 +210,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
                 label="Broker Name"
                 variant="filled"
                 value={formData.name}
-                onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
@@ -220,7 +219,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
                 label="ETF Ticker"
                 variant="filled"
                 value={formData.ticker}
-                onChange={(e: any) => {
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setFormData({ ...formData, ticker: e.target.value });
                   setTickerError(null);
                   setTickerWarning(null);
@@ -237,7 +236,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
                 type="number"
                 variant="filled"
                 value={formData.baseLumpSum}
-                onChange={(e: any) => setFormData({ ...formData, baseLumpSum: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, baseLumpSum: e.target.value })}
                 slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }}
               />
             </Grid>
@@ -248,7 +247,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
                 type="number"
                 variant="filled"
                 value={formData.monthlyPacAmount}
-                onChange={(e: any) => setFormData({ ...formData, monthlyPacAmount: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, monthlyPacAmount: e.target.value })}
                 slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }}
               />
             </Grid>
@@ -259,7 +258,7 @@ const BrokerSettingsModal: React.FC<BrokerSettingsModalProps> = ({ open, onClose
                 type="number"
                 variant="filled"
                 value={formData.interestRate}
-                onChange={(e: any) => setFormData({ ...formData, interestRate: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, interestRate: e.target.value })}
                 slotProps={{ input: { endAdornment: <Typography sx={{ ml: 1, opacity: 0.5 }}>%</Typography> } }}
                 helperText="Annual percentage yield on uninvested cash"
               />

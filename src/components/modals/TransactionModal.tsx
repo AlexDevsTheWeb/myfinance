@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import type { Transaction } from '../../store/useFinanceStore';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import TransactionForm from '../forms/TransactionForm';
+import type { TransactionFormData } from '../forms/TransactionForm';
 
 interface TransactionModalProps {
   open: boolean;
@@ -15,7 +16,7 @@ interface TransactionModalProps {
 const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type, transaction }) => {
   const { addTransaction, updateTransaction, accounts } = useFinanceStore();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TransactionFormData>({
     date: dayjs().format('YYYY-MM-DD'),
     description: '',
     category: '',
@@ -63,10 +64,12 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
 
   const handleSubmit = () => {
     const sanitizedCardId = formData.cardId || undefined;
+    const sanitizedDate = formData.date || dayjs().format('YYYY-MM-DD');
     if (transaction) {
       updateTransaction({
         ...transaction,
         ...formData,
+        date: sanitizedDate,
         amount: Number(formData.amount),
         type,
         accountId: formData.accountId,
@@ -79,6 +82,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ open, onClose, type
       const newTransaction: Transaction = {
         id: crypto.randomUUID(),
         ...formData,
+        date: sanitizedDate,
         amount: Number(formData.amount),
         type,
         accountId: formData.accountId,

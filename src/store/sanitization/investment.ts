@@ -1,7 +1,6 @@
 import type { IETFTransaction, IBrokerConfig, BrokerAccount, CashAdjustment, DividendEntry } from '../types/investment.types';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const sanitizeEtfTransaction = (tx: IETFTransaction): any => {
+export const sanitizeEtfTransaction = (tx: IETFTransaction): Record<string, unknown> => {
   return {
     id: tx.id,
     date: tx.date,
@@ -17,8 +16,7 @@ export const sanitizeEtfTransaction = (tx: IETFTransaction): any => {
   };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const sanitizeBrokerConfig = (config: IBrokerConfig): any => {
+export const sanitizeBrokerConfig = (config: IBrokerConfig): Record<string, unknown> => {
   return {
     brokerName: config.brokerName,
     lumpSumAmount: Number(config.lumpSumAmount) || 0,
@@ -28,7 +26,6 @@ export const sanitizeBrokerConfig = (config: IBrokerConfig): any => {
   };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sanitizeBrokerAccount = (account: BrokerAccount): Record<string, unknown> => {
   return {
     id: account.id.trim(),
@@ -40,12 +37,10 @@ export const sanitizeBrokerAccount = (account: BrokerAccount): Record<string, un
   };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sanitizeBrokerAccounts = (accounts: BrokerAccount[]): Record<string, unknown>[] => {
   return accounts.map(sanitizeBrokerAccount);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sanitizeCashAdjustment = (adj: CashAdjustment): Record<string, unknown> => {
   return {
     id: adj.id,
@@ -56,12 +51,10 @@ export const sanitizeCashAdjustment = (adj: CashAdjustment): Record<string, unkn
   };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sanitizeCashAdjustments = (adjustments: CashAdjustment[]): Record<string, unknown>[] => {
   return adjustments.map(sanitizeCashAdjustment);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sanitizeDividendEntry = (entry: DividendEntry): Record<string, unknown> => {
   return {
     id: entry.id,
@@ -74,7 +67,6 @@ export const sanitizeDividendEntry = (entry: DividendEntry): Record<string, unkn
   };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sanitizeDividendEntries = (entries: DividendEntry[]): Record<string, unknown>[] => {
   return entries.map(sanitizeDividendEntry);
 };

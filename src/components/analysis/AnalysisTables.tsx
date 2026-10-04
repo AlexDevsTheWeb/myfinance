@@ -7,6 +7,24 @@ interface AnalysisTablesProps {
   selectedYear: number;
 }
 
+/** One month row of the financial summary: { Jan: { income, ... }, ... }. */
+type MonthlyMetrics = {
+  income: number;
+  expense: number;
+  net: number;
+  balance: number;
+};
+
+/** One category row: name plus its per-month totals. */
+interface CategorySummary {
+  name: string;
+  monthlySums: number[];
+  total: number;
+  average: number;
+}
+
+type SummaryRow = { label: string; key: keyof MonthlyMetrics | 'separator'; color?: string };
+
 const AnalysisTables: React.FC<AnalysisTablesProps> = ({ selectedYear }) => {
   const { transactions, initialBalance, balanceStartDate, categories, incomeCategories } = useFinanceStore();
 
@@ -50,7 +68,7 @@ const AnalysisTables: React.FC<AnalysisTablesProps> = ({ selectedYear }) => {
   }, [transactions, selectedYear, initialBalance, balanceStartDate]);
 
   // Data for Table 2 & 3: Category Summaries
-  const getCategoryData = (type: 'income' | 'expense') => {
+  const getCategoryData = (type: 'income' | 'expense'): CategorySummary[] => {
     const cats = type === 'income' ? incomeCategories : categories;
     return cats.map(cat => {
       const monthlySums = Array.from({ length: 12 }, (_, m) => {
@@ -69,7 +87,7 @@ const AnalysisTables: React.FC<AnalysisTablesProps> = ({ selectedYear }) => {
   const incomeCategoryData = getCategoryData('income');
   const expenseCategoryData = getCategoryData('expense');
 
-  const renderTable = (title: string, data: any[], rows: { label: string; key: string, color?: string }[]) => (
+  const renderTable = (title: string, data: MonthlyMetrics[], rows: SummaryRow[]) => (
     <Paper>
       <Box sx={{ p: 1.5, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{title}</Typography>
@@ -85,12 +103,14 @@ const AnalysisTables: React.FC<AnalysisTablesProps> = ({ selectedYear }) => {
           <TableBody>
             {rows.map((row, idx) => {
               if (row.key === 'separator') return <TableRow key={idx} sx={{ height: 10, background: 'rgba(255,255,255,0.02)' }}><TableCell colSpan={13} /></TableRow>;
+              // Bind the narrowed key so the nested map can index MonthlyMetrics.
+              const { key } = row;
               return (
-                <TableRow key={row.key} sx={{ '&:hover': { background: 'rgba(255,255,255,0.02)' } }}>
+                <TableRow key={key} sx={{ '&:hover': { background: 'rgba(255,255,255,0.02)' } }}>
                   <TableCell sx={{ fontWeight: 600, color: row.color || 'inherit' }}>{row.label}</TableCell>
                   {data.map((m, i) => (
-                    <TableCell key={i} align="right" sx={{ color: row.color || 'inherit', fontWeight: row.key === 'balance' ? 700 : 400 }}>
-                      € {m[row.key].toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    <TableCell key={i} align="right" sx={{ color: row.color || 'inherit', fontWeight: key === 'balance' ? 700 : 400 }}>
+                      € {m[key].toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -103,7 +123,7 @@ const AnalysisTables: React.FC<AnalysisTablesProps> = ({ selectedYear }) => {
 
   );
 
-  const renderCategoryTable = (title: string, data: any[]) => (
+  const renderCategoryTable = (title: string, data: CategorySummary[]) => (
     <Paper>
       <Box sx={{ p: 1.5, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>{title}</Typography>
@@ -122,7 +142,7 @@ const AnalysisTables: React.FC<AnalysisTablesProps> = ({ selectedYear }) => {
             {data.map(cat => (
               <TableRow key={cat.name} sx={{ '&:hover': { background: 'rgba(255,255,255,0.02)' } }}>
                 <TableCell sx={{ fontWeight: 600 }}>{cat.name}</TableCell>
-                {cat.monthlySums.map((sum: number, i: number) => (
+                {cat.monthlySums.map((sum, i) => (
                   <TableCell key={i} align="right" sx={{ opacity: sum > 0 ? 1 : 0.3 }}>
                     € {sum.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </TableCell>

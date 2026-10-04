@@ -1,8 +1,53 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions, Timestamp, doc, collection } from 'firebase/firestore';
 import { db } from './firebase';
 import { type IAccount, type ICard, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
+
+/**
+ * Raw shapes read back from Firestore.
+ *
+ * Firestore stores are schemaless: documents written by older app versions
+ * (or by hand in the console) may be missing fields or carry wrong types.
+ * Every field is therefore typed as `unknown` and narrowed by the readers
+ * below, so a malformed document degrades to a documented default instead of
+ * silently poisoning downstream arithmetic.
+ */
+
+/** A Firestore object value with no compile-time knowledge of its fields. */
+type RawRecord = Record<string, unknown>;
+
+const asRecord = (value: unknown): RawRecord =>
+  typeof value === 'object' && value !== null ? (value as RawRecord) : {};
+
+const asArray = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+
+/** Narrows each element of an unknown array to an object, dropping primitives. */
+const asRecordArray = (value: unknown): RawRecord[] =>
+  asArray(value)
+    .filter((el): el is RawRecord => typeof el === 'object' && el !== null)
+    .map(asRecord);
+
+const readString = (value: unknown, fallback = ''): string =>
+  typeof value === 'string' ? value : fallback;
+
+const readNumber = (value: unknown, fallback = 0): number =>
+  typeof value === 'number' ? value : fallback;
+
+/** Keeps only string entries — mirrors the legacy `filter(sc => typeof sc === 'string')`. */
+const readStringArray = (value: unknown): string[] =>
+  asArray(value).filter((el): el is string => typeof el === 'string');
+
+/**
+ * Coerces truthiness, matching the legacy `!!value` semantics used for
+ * `isDefault` and the `enabledModules` flags. A string `'yes'` is therefore
+ * truthy, which the characterization tests pin down.
+ *
+ * `fallback` is applied only when the value is `null`/`undefined`, mirroring
+ * the original `value ?? fallback` rather than a plain falsy check.
+ */
+const readBoolean = (value: unknown, fallback = false): boolean =>
+  value === null || value === undefined ? fallback : Boolean(value);
+
 
 export interface TransactionDoc {
   id: string;
@@ -210,164 +255,173 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
   fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): UserDoc => {
     const data = snapshot.data(options);
 
-    const initialBalance: number = typeof data.initialBalance === 'number' ? data.initialBalance : 0;
+    const initialBalance: number = readNumber(data.initialBalance);
 
-    const categories: ICategory[] = Array.isArray(data.categories) ? data.categories.map((c: any) => ({
-      name: c.name ?? '',
-      subcategories: Array.isArray(c.subcategories) ? c.subcategories.filter((sc: any) => typeof sc === 'string') : [],
-    })) : [];
+    const categories: ICategory[] = asRecordArray(data.categories).map(c => ({
+      name: readString(c.name),
+      subcategories: readStringArray(c.subcategories),
+    }));
 
-    const incomeCategories: ICategory[] = Array.isArray(data.incomeCategories) ? data.incomeCategories.map((c: any) => ({
-      name: c.name ?? '',
-      subcategories: Array.isArray(c.subcategories) ? c.subcategories.filter((sc: any) => typeof sc === 'string') : [],
-    })) : [];
+    const incomeCategories: ICategory[] = asRecordArray(data.incomeCategories).map(c => ({
+      name: readString(c.name),
+      subcategories: readStringArray(c.subcategories),
+    }));
 
-    const accounts: IAccount[] = Array.isArray(data.accounts) ? data.accounts.map((a: any) => ({
-      id: a.id ?? '',
-      name: a.name ?? '',
-      initialBalance: typeof a.initialBalance === 'number' ? a.initialBalance : 0,
-      isDefault: !!a.isDefault,
-    })) : [];
+    const accounts: IAccount[] = asRecordArray(data.accounts).map(a => ({
+      id: readString(a.id),
+      name: readString(a.name),
+      initialBalance: readNumber(a.initialBalance),
+      isDefault: readBoolean(a.isDefault),
+    }));
 
-    const cards: ICard[] = Array.isArray(data.cards) ? data.cards.map((c: any) => ({
-      id: c.id ?? '',
-      name: c.name ?? '',
+    const cards: ICard[] = asRecordArray(data.cards).map(c => ({
+      id: readString(c.id),
+      name: readString(c.name),
       type: c.type === 'debit' ? 'debit' : 'credit',
-      plafond: typeof c.plafond === 'number' ? c.plafond : 0,
-      billingDay: typeof c.billingDay === 'number' ? c.billingDay : 1,
-      accountId: c.accountId ?? '',
-    })) : [];
+      plafond: readNumber(c.plafond),
+      billingDay: readNumber(c.billingDay, 1),
+      accountId: readString(c.accountId),
+    }));
 
-    const recurringTransactions: IRecurringTransaction[] = Array.isArray(data.recurringTransactions) ? data.recurringTransactions.map((r: any) => ({
-      id: r.id ?? '',
-      description: r.description ?? '',
-      category: r.category ?? '',
-      subcategory: r.subcategory ?? '',
-      amount: typeof r.amount === 'number' ? r.amount : 0,
+    const recurringTransactions: IRecurringTransaction[] = asRecordArray(data.recurringTransactions).map(r => ({
+      id: readString(r.id),
+      description: readString(r.description),
+      category: readString(r.category),
+      subcategory: readString(r.subcategory),
+      amount: readNumber(r.amount),
       type: r.type === 'income' || r.type === 'expense' || r.type === 'transfer' ? r.type : 'expense',
-      accountId: r.accountId ?? 'default-main',
-      dayOfMonth: typeof r.dayOfMonth === 'number' ? r.dayOfMonth : 1,
-      startDate: r.startDate ?? '',
-      endDate: r.endDate,
+      accountId: readString(r.accountId, 'default-main'),
+      dayOfMonth: readNumber(r.dayOfMonth, 1),
+      startDate: readString(r.startDate),
+      endDate: r.endDate as string | null | undefined,
       frequency: r.frequency === 'yearly' || r.frequency === 'monthly' ? r.frequency : 'monthly',
-      ...(r.monthOfYear ? { monthOfYear: r.monthOfYear } : {}),
-      ...(r.cardId ? { cardId: r.cardId } : {}),
-    })) : [];
+      ...(r.monthOfYear ? { monthOfYear: r.monthOfYear as number } : {}),
+      ...(r.cardId ? { cardId: readString(r.cardId) } : {}),
+    }));
 
-    const carMileage: ICarMileageRecord[] = Array.isArray(data.carMileage) ? data.carMileage.map((m: any) => ({
-      id: m.id ?? '',
-      year: typeof m.year === 'number' ? m.year : data.year,
-      month: typeof m.month === 'number' ? m.month : data.month,
-      reading: typeof m.reading === 'number' ? m.reading : 0,
-    })) : [];
+    const carMileage: ICarMileageRecord[] = asRecordArray(data.carMileage).map(m => ({
+      id: readString(m.id),
+      year: readNumber(m.year, readNumber(data.year)),
+      month: readNumber(m.month, readNumber(data.month)),
+      reading: readNumber(m.reading),
+    }));
 
-    const carInitialMileage: number = typeof data.carInitialMileage === 'number' ? data.carInitialMileage : 0;
+    const carInitialMileage: number = readNumber(data.carInitialMileage);
+
+    const rawTireSettings = asRecord(data.tireSettings);
 
     const tireSettings: ITireSettings = {
-      summerModel: data.tireSettings?.summerModel ?? '',
-      winterModel: data.tireSettings?.winterModel ?? '',
-      initialTireType: data.tireSettings?.initialTireType === 'winter' ? 'winter' : 'summer',
+      summerModel: readString(rawTireSettings.summerModel),
+      winterModel: readString(rawTireSettings.winterModel),
+      initialTireType: rawTireSettings.initialTireType === 'winter' ? 'winter' : 'summer',
     };
 
-    const tireChanges: ITireChangeRecord[] = Array.isArray(data.tireChanges) ? data.tireChanges.map((t: any) => ({
-      id: t.id ?? '',
-      date: t.date ?? dayjs().format('YYYY-MM-DD'),
+    const tireChanges: ITireChangeRecord[] = asRecordArray(data.tireChanges).map(t => ({
+      id: readString(t.id),
+      date: readString(t.date, dayjs().format('YYYY-MM-DD')),
       type: t.type === 'summer' || t.type === 'winter' ? t.type : 'summer',
-      odometer: typeof t.odometer === 'number' ? t.odometer : 0,
-    })) : [];
+      odometer: readNumber(t.odometer),
+    }));
+
+    const rawModules = asRecord(data.enabledModules);
 
     const enabledModules: IAppModules = {
-      financeTracker: data.enabledModules?.financeTracker ?? true,
-      carManagement: !!data.enabledModules?.carManagement,
-      utilityTracker: !!data.enabledModules?.utilityTracker,
-      investmentTracking: !!data.enabledModules?.investmentTracking,
-      budgetTracking: !!data.enabledModules?.budgetTracking,
+      financeTracker: readBoolean(rawModules.financeTracker, true),
+      carManagement: readBoolean(rawModules.carManagement),
+      utilityTracker: readBoolean(rawModules.utilityTracker),
+      investmentTracking: readBoolean(rawModules.investmentTracking),
+      budgetTracking: readBoolean(rawModules.budgetTracking),
     };
 
-    const balanceStartDate: string = data.balanceStartDate || '2026-01-01';
+    const balanceStartDate: string = readString(data.balanceStartDate, '2026-01-01');
 
-    const deletedRecurringInstances = Array.isArray(data.deletedRecurringInstances) ? data.deletedRecurringInstances.map((d: any) => ({
-      recurringLinkId: d.recurringLinkId ?? '',
-      date: d.date ?? ''
-    })) : [];
+    const deletedRecurringInstances = asRecordArray(data.deletedRecurringInstances).map(d => ({
+      recurringLinkId: readString(d.recurringLinkId),
+      date: readString(d.date),
+    }));
 
-    const etfTransactions: IETFTransaction[] = Array.isArray(data.etfTransactions) ? data.etfTransactions.map((t: any) => ({
-      id: t.id ?? '',
-      date: t.date ?? '',
-      ticker: t.ticker ?? '',
-      description: t.description ?? '',
+    const etfTransactions: IETFTransaction[] = asRecordArray(data.etfTransactions).map(t => ({
+      id: readString(t.id),
+      date: readString(t.date),
+      ticker: readString(t.ticker),
+      description: readString(t.description),
       type: t.type === 'sell' ? 'sell' : 'buy',
-      units: typeof t.units === 'number' ? t.units : 0,
-      price: typeof t.price === 'number' ? t.price : 0,
-      totalAmount: typeof t.totalAmount === 'number' ? t.totalAmount : 0,
-      accountId: t.accountId ?? '',
-      brokerId: t.brokerId ?? undefined,
-      notes: t.notes ?? undefined,
-    })) : [];
+      units: readNumber(t.units),
+      price: readNumber(t.price),
+      totalAmount: readNumber(t.totalAmount),
+      accountId: readString(t.accountId),
+      brokerId: readString(t.brokerId) || undefined,
+      notes: readString(t.notes) || undefined,
+    }));
 
-    const portfolioSnapshots: IPortfolioSnapshot[] = Array.isArray(data.portfolioSnapshots) ? data.portfolioSnapshots.map((s: any) => ({
-      id: s.id ?? '',
-      date: s.date ?? '',
-      totalInvested: typeof s.totalInvested === 'number' ? s.totalInvested : 0,
-      currentValue: typeof s.currentValue === 'number' ? s.currentValue : 0,
-      cashBalance: typeof s.cashBalance === 'number' ? s.cashBalance : 0,
-      accruedInterest: typeof s.accruedInterest === 'number' ? s.accruedInterest : 0,
-      holdings: Array.isArray(s.holdings) ? s.holdings.map((h: any) => ({
-        ticker: h.ticker ?? '',
-        units: typeof h.units === 'number' ? h.units : 0,
-        avgCost: typeof h.avgCost === 'number' ? h.avgCost : 0,
-        currentPrice: typeof h.currentPrice === 'number' ? h.currentPrice : 0,
-        value: typeof h.value === 'number' ? h.value : 0,
-        returnPercent: typeof h.returnPercent === 'number' ? h.returnPercent : 0,
-      })) : [],
-    })) : [];
+    const portfolioSnapshots: IPortfolioSnapshot[] = asRecordArray(data.portfolioSnapshots).map(s => ({
+      id: readString(s.id),
+      date: readString(s.date),
+      totalInvested: readNumber(s.totalInvested),
+      currentValue: readNumber(s.currentValue),
+      cashBalance: readNumber(s.cashBalance),
+      accruedInterest: readNumber(s.accruedInterest),
+      holdings: asRecordArray(s.holdings).map(h => ({
+        ticker: readString(h.ticker),
+        units: readNumber(h.units),
+        avgCost: readNumber(h.avgCost),
+        currentPrice: readNumber(h.currentPrice),
+        value: readNumber(h.value),
+        returnPercent: readNumber(h.returnPercent),
+      })),
+    }));
 
-    const brokerAccounts: BrokerAccount[] = Array.isArray(data.brokerAccounts) ? data.brokerAccounts.map((b: any) => ({
-      id: b.id ?? '',
-      name: b.name ?? '',
-      ticker: b.ticker ?? '',
-      baseLumpSum: typeof b.baseLumpSum === 'number' ? b.baseLumpSum : 0,
-      monthlyPacAmount: typeof b.monthlyPacAmount === 'number' ? b.monthlyPacAmount : 0,
-      interestRate: typeof b.interestRate === 'number' ? b.interestRate : 0,
-    })) : [];
+    const brokerAccounts: BrokerAccount[] = asRecordArray(data.brokerAccounts).map(b => ({
+      id: readString(b.id),
+      name: readString(b.name),
+      ticker: readString(b.ticker),
+      baseLumpSum: readNumber(b.baseLumpSum),
+      monthlyPacAmount: readNumber(b.monthlyPacAmount),
+      interestRate: readNumber(b.interestRate),
+    }));
 
-    const assetHoldings: AssetHolding[] = Array.isArray(data.assetHoldings) ? data.assetHoldings.map((h: any) => ({
-      ticker: h.ticker ?? '',
-      brokerId: h.brokerId ?? '',
-      units: typeof h.units === 'number' ? h.units : 0,
-    })) : [];
+    const assetHoldings: AssetHolding[] = asRecordArray(data.assetHoldings).map(h => ({
+      ticker: readString(h.ticker),
+      brokerId: readString(h.brokerId),
+      units: readNumber(h.units),
+    }));
 
-    const cashAdjustments: CashAdjustment[] = Array.isArray(data.cashAdjustments) ? data.cashAdjustments.map((a: any) => ({
-      id: a.id ?? '',
-      brokerId: a.brokerId ?? '',
-      amount: typeof a.amount === 'number' ? a.amount : 0,
-      date: a.date ?? '',
-      notes: a.notes ?? undefined,
-    })) : [];
+    const cashAdjustments: CashAdjustment[] = asRecordArray(data.cashAdjustments).map(a => ({
+      id: readString(a.id),
+      brokerId: readString(a.brokerId),
+      amount: readNumber(a.amount),
+      date: readString(a.date),
+      notes: readString(a.notes) || undefined,
+    }));
 
-    const dividendEntries: DividendEntry[] = Array.isArray(data.dividendEntries) ? data.dividendEntries.map((d: any) => ({
-      id: d.id ?? '',
-      brokerId: d.brokerId ?? '',
-      ticker: d.ticker ?? '',
-      amount: typeof d.amount === 'number' ? d.amount : 0,
-      date: d.date ?? '',
+    const dividendEntries: DividendEntry[] = asRecordArray(data.dividendEntries).map(d => ({
+      id: readString(d.id),
+      brokerId: readString(d.brokerId),
+      ticker: readString(d.ticker),
+      amount: readNumber(d.amount),
+      date: readString(d.date),
       type: d.type === 'interest' ? 'interest' : 'dividend',
-      notes: d.notes ?? undefined,
-    })) : [];
+      notes: readString(d.notes) || undefined,
+    }));
 
     // Legacy brokerConfig — kept for backward-compatible reads during migration
-    const brokerConfig: IBrokerConfig | undefined = data.brokerConfig ? {
-      brokerName: data.brokerConfig?.brokerName ?? 'Trade Republic',
-      lumpSumAmount: typeof data.brokerConfig?.lumpSumAmount === 'number' ? data.brokerConfig.lumpSumAmount : 0,
-      monthlyPacAmount: typeof data.brokerConfig?.monthlyPacAmount === 'number' ? data.brokerConfig.monthlyPacAmount : 0,
-      ticker: data.brokerConfig?.ticker ?? 'EUNL',
-      interestRate: typeof data.brokerConfig?.interestRate === 'number' ? data.brokerConfig.interestRate : 0,
-    } : undefined;
+    const brokerConfig: IBrokerConfig | undefined = data.brokerConfig ? (() => {
+      const raw = asRecord(data.brokerConfig);
+      return {
+        brokerName: readString(raw.brokerName, 'Trade Republic'),
+        lumpSumAmount: readNumber(raw.lumpSumAmount),
+        monthlyPacAmount: readNumber(raw.monthlyPacAmount),
+        ticker: readString(raw.ticker, 'EUNL'),
+        interestRate: readNumber(raw.interestRate),
+      };
+    })() : undefined;
+
+    const rawPacState = asRecord(data.pacState);
 
     const pacState: PacState = {
-      lastGenerationDate: data.pacState?.lastGenerationDate ?? null,
-      pendingTransaction: data.pacState?.pendingTransaction ?? null,
-      perBrokerLastGeneration: data.pacState?.perBrokerLastGeneration ?? {},
+      lastGenerationDate: (rawPacState.lastGenerationDate ?? null) as string | null,
+      pendingTransaction: (rawPacState.pendingTransaction ?? null) as PacState['pendingTransaction'],
+      perBrokerLastGeneration: asRecord(rawPacState.perBrokerLastGeneration) as PacState['perBrokerLastGeneration'],
     };
 
     return {
@@ -390,16 +444,16 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       assetHoldings,
       cashAdjustments,
       dividendEntries,
-      budgetTargets: Array.isArray(data.budgetTargets) ? data.budgetTargets.map((b: any) => ({
-        id: b.id ?? '',
-        category: b.category ?? '',
+      budgetTargets: asRecordArray(data.budgetTargets).map(b => ({
+        id: readString(b.id),
+        category: readString(b.category),
         period: b.period === 'semiannual' || b.period === 'annual' ? b.period : 'monthly',
-        targetAmount: typeof b.targetAmount === 'number' ? b.targetAmount : 0,
-        color: b.color ?? '#6366f1',
-        name: b.name ?? undefined,
-        createdAt: b.createdAt ?? '',
-        updatedAt: b.updatedAt ?? '',
-      })) : [],
+        targetAmount: readNumber(b.targetAmount),
+        color: readString(b.color, '#6366f1'),
+        name: readString(b.name) || undefined,
+        createdAt: readString(b.createdAt),
+        updatedAt: readString(b.updatedAt),
+      })),
       pacState,
       brokerConfig,
     };
