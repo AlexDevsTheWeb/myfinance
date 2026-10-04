@@ -64,14 +64,33 @@ its own.
 | 1.7 | Root `tsconfig.json` references the workspace projects | Root stays a solution file with no `files`/`include` |
 | 1.8 | Verify `scripts/generate-version.js` writes to `apps/web/src/version.ts` | Its output path must follow the move |
 | 1.9 | Regenerate lockfile via `npm install`, then verify `npm ci` | Do **not** hand-edit the lockfile |
-| 1.10 | Update CI/CD docs | No workflow *code* changes expected |
+| 1.10 | Fix the preview workflow's change-detection pathspec | **This one does need editing** — see below |
 
-### Expected workflow impact
+### Actual workflow impact
 
-**None.** `ci.yml`, `version-bump.yml` and `firebase-hosting-pull-request.yml`
-all invoke root `npm ci` + `npm run build`, both of which keep working via
-delegation. If any of them needs editing, that is a signal the delegation is
-wrong — stop and reconsider rather than patching all three.
+`ci.yml` and `version-bump.yml`: **no changes.** Both invoke root `npm ci` +
+`npm run build`, which keep working via delegation.
+
+`firebase-hosting-pull-request.yml`: **one change was required.** Its
+change-detection step diffs an explicit list of paths to decide whether to
+build a preview:
+
+```bash
+git diff --name-only "$BASE"...HEAD -- src/ tsconfig.app.json vite.config.ts index.html ...
+```
+
+After the move those paths no longer exist at the repo root, so the diff
+returns **empty** and the preview is **silently skipped** for every real
+frontend change — while CI stays green. Verified directly:
+
+| Commit | Old pathspec | New pathspec |
+|---|---|---|
+| touches only `apps/web/src/utils/variables.utils.tsx` | **0 matches → skipped** | 1 match → deploys |
+| docs-only | 0 matches | 0 matches |
+
+This is exactly the failure class the release-pipeline work was about: a
+step that fails *quietly*. It is the strongest argument for keeping the
+pathspec list next to the directory layout.
 
 ### Verification
 
@@ -168,7 +187,8 @@ restructuring — and that is what created the current risk.
 - [ ] `firebase.json` points at `apps/web/dist`
 - [ ] Deployed site confirmed fresh and functional
 - [ ] CI green, including `Typecheck, build, lint, test`
-- [ ] No changes needed in any workflow file
+- [ ] `ci.yml` and `version-bump.yml` unchanged
+- [ ] `firebase-hosting-pull-request.yml` pathspec updated, and verified to fire on a frontend-only change
 
 ### Overall
 - [ ] Monorepo serves the web app in production

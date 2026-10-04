@@ -6,7 +6,7 @@ resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/189"
 tags: [architecture, monorepo, workspaces, structure, react-native]
 created: 2026-10-04
 updated: 2026-10-04
-status: planned
+status: active
 sources: ["raw/monorepo-migration/monorepo-migration.md", "package.json", "firebase.json", "tsconfig.json"]
 related: ["wiki/decisions/react-native-monorepo", "wiki/plans/monorepo-migration", "wiki/architecture/release-pipeline", "wiki/architecture/codebase-structure", "wiki/architecture/tech-stack"]
 ---
@@ -17,9 +17,10 @@ Target directory structure for the npm workspaces monorepo, and the
 couplings that constrain it. The decision behind this structure is
 [[wiki/decisions/react-native-monorepo]].
 
-> **Status: planned.** Nothing below has been scaffolded yet. The repository is
-> still flat — see [[wiki/architecture/codebase-structure]] for the current
-> layout. Migration steps are in [[wiki/plans/monorepo-migration]].
+> **Status: Phase 1 landed.** The frontend now lives in `apps/web`. The
+> remaining workspaces (`mobile`, `website`, `api`, `packages/shared`) are
+> still to come — see [[wiki/plans/monorepo-migration]] for what is next and
+> [[wiki/architecture/codebase-structure]] for the live layout.
 
 ---
 
@@ -28,12 +29,14 @@ couplings that constrain it. The decision behind this structure is
 ```
 myfinance/
 ├── apps/
-│   ├── web/                    ← existing React frontend (moved from root)
-│   │   ├── src/
-│   │   ├── public/
+│   ├── web/                    ← ✅ Phase 1: the existing React frontend
+│   │   ├── package.json        ←   workspace manifest (no version field)
 │   │   ├── index.html
 │   │   ├── vite.config.ts
-│   │   └── package.json
+│   │   ├── vitest.config.ts
+│   │   ├── tsconfig.json       ←   solution -> tsconfig.app.json
+│   │   ├── src/
+│   │   └── public/
 │   ├── website/                ← landing page + subscription/payments
 │   ├── mobile/                 ← React Native (iOS + Android)
 │   └── api/                    ← backend service
@@ -90,8 +93,11 @@ The root `package.json` becomes a thin orchestrator:
 
 **The delegate pattern is the whole trick.** All three workflows call
 `npm run build` from the repository root. Because the root `build` delegates
-into the web workspace, `ci.yml`, `version-bump.yml` and
-`firebase-hosting-pull-request.yml` need **zero edits**.
+into the web workspace, `ci.yml` and `version-bump.yml` need **zero edits**.
+
+The exception is `firebase-hosting-pull-request.yml`, which hardcodes an
+explicit path list to decide whether a preview is needed. That list must be
+repointed at `apps/web/` — see [[wiki/plans/monorepo-migration]].
 
 > `prebuild` stays at the root rather than moving into `apps/web`, so that the
 > root `build` delegate still triggers version generation. If it moves, the
@@ -108,7 +114,8 @@ migration can silently break production.
 | Coupling | Current value | Required change |
 |---|---|---|
 | **Firebase output** | `firebase.json` → `"public": "dist"` | → `"apps/web/dist"` |
-| **Version source** | `scripts/generate-version.js` reads root `package.json` | Unchanged — root must keep `version` |
+| **Preview detection** | `firebase-hosting-pull-request.yml` diffs a hardcoded path list containing `src/`, `tsconfig.app.json`, `vite.config.ts`, `index.html` | Must point at `apps/web/` — otherwise the preview is **silently skipped** |
+| **Version source** | `scripts/generate-version.js` reads root `package.json` | Unchanged — root must keep `version`; output path becomes `apps/web/src/version.ts` |
 | **CI entrypoint** | `npm run build` from root ×3 workflows | Unchanged via delegation |
 | **tsc solution** | `tsconfig.json` references `tsconfig.app.json` / `tsconfig.node.json` | Must reference `apps/web` and `packages/shared` |
 | **Test guard** | `ci.yml` reads `./package.json` scripts | Keep `test` at root (delegate) |

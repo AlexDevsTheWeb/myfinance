@@ -846,3 +846,17 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Verified against the repo while writing: `.nvmrc` = 22.19.0, `firebase.json` public = `dist`, root scripts (`prebuild`/`build`/`lint`/`test`/`postinstall`), lint baseline re-measured at exactly 7 errors / 3 warnings
 - Found and corrected a stale local `main` ref (`6f9ff49` → `7e78d09`); `origin/main` == `origin/development` confirmed at 0 behind / 0 ahead
 - Noted that the `ci.yml` test-skip guard is now a no-op (`main` has the test script since v2026.16.0) but is kept as a safety net
+
+## [2026-10-04] implement | Plan | Phase 1 — workspace move to apps/web (Issue #189)
+- Merged [[wiki/plans/monorepo-migration]] docs as PR #190, then implemented Phase 1 on `feat/YATF-189-monorepo-scaffold`
+- `git mv` the whole frontend into `apps/web` — src, public, index.html, vite.config.ts, vitest.config.ts, tsconfig.app.json, tsconfig.node.json. `git diff --numstat -M` confirms **zero source or public file content changed**, so lint and all 198 tests are provably unaffected
+- Root package.json became an orchestrator: `"workspaces": ["apps/*", "packages/*"]`, with dev/build/test/preview/test:watch delegating to `apps/web`
+- `ci.yml` and `version-bump.yml` needed **no changes** — the delegation is what makes that true, and that was the design goal
+- Root keeps `version` because scripts/generate-version.js reads `join(__dirname, '..', 'package.json')`; `standard-version` and the ESLint toolchain stay at root because the release workflow runs standard-version from root and the root `lint` script needs the @typescript/typescript6 shim
+- Added per-project tsconfig solution files (root → apps/web → tsconfig.app.json) because `tsc -b` inside the workspace looks for a tsconfig.json in its own directory and fails with `error TS6053` without one
+- `tsBuildInfoFile` repointed at the hoisted root `node_modules/.tmp` — `apps/web/node_modules` may not exist under npm workspaces
+- **Caught a second silent failure the plan had missed.** The plan predicted "no workflow file changes", but `firebase-hosting-pull-request.yml` hardcodes a path list (`src/`, `tsconfig.app.json`, `vite.config.ts`, `index.html`) for its preview change-detection. After the move that diff returns empty and previews are **silently skipped** while CI stays green. Verified with an isolated probe commit: frontend-only change scores **0 matches with the old pathspec, 1 with the new one**. Repointed at `apps/web/`
+- Corrected the plan's claim from "no workflow changes expected" to the verified reality, and added the probe result as a table
+- Other couplings fixed: `firebase.json` public → `apps/web/dist`; `eslint.config.js` `globalIgnores(['dist'])` → `['**/dist', '**/dist-ssr']` (bare `dist` no longer matches nested output); `.gitignore` `src/version.ts` → `apps/web/src/version.ts`; `generate-version.js` output path → `apps/web/src/version.ts`
+- Updated [[wiki/architecture/codebase-structure]] — the documented tree and the "Where to Add New Code" table both pointed at root `src/`
+- Verification: `npm ci` validates the lockfile; root `npm run build` emits `apps/web/dist/index.html`; 198/198 tests across 12 files; lint unchanged at 7E/3W with identical rule/file breakdown (react-hooks/set-state-in-effect ×3, react-hooks/set-state-in-render, no-useless-assignment ×2, prefer-const; warnings exhaustive-deps ×2 + unused-disable)
