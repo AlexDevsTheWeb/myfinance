@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TransactionForm from '../components/forms/TransactionForm';
+import type { TransactionFormData } from '../components/forms/TransactionForm';
 import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { AlertSnackbar } from '../components/shared/AlertSnackbar';
@@ -211,7 +212,7 @@ const ConfigPage: React.FC = () => {
   const [remapTarget, setRemapTarget] = useState('');
 
   // Form for recurring
-  const [recurringForm, setRecurringForm] = useState({
+  const [recurringForm, setRecurringForm] = useState<TransactionFormData & { type: 'income' | 'expense' | 'transfer' }>({
     description: '',
     amount: '',
     category: '',
@@ -219,9 +220,9 @@ const ConfigPage: React.FC = () => {
     dayOfMonth: 1,
     startDate: dayjs().format('YYYY-MM-DD'),
     endDate: '',
-    type: 'expense' as 'income' | 'expense' | 'transfer',
+    type: 'expense',
     accountId: '',
-    frequency: 'monthly' as 'monthly' | 'yearly',
+    frequency: 'monthly',
     monthOfYear: 1,
     cardId: ''
   });
@@ -487,7 +488,7 @@ const ConfigPage: React.FC = () => {
         category: recurringForm.category,
         subcategory: recurringForm.subcategory,
         dayOfMonth: Number(recurringForm.dayOfMonth),
-        startDate: recurringForm.startDate,
+        startDate: recurringForm.startDate || dayjs().format('YYYY-MM-DD'),
         endDate: recurringForm.endDate || '',
         type: recurringForm.type,
         accountId: recurringForm.accountId,
@@ -1128,7 +1129,7 @@ const ConfigPage: React.FC = () => {
                 <TransactionForm
                   type={recurringForm.type}
                   formData={recurringForm}
-                  setFormData={(data) => setRecurringForm(data)}
+                  setFormData={(data) => setRecurringForm(prev => ({ ...prev, ...data }))}
                   isRecurring={true}
                 />
               ) : dialogConfig?.type === 'account' ? (
