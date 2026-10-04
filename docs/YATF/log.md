@@ -875,4 +875,14 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Verified the fix does **not** shadow release secrets: hid all `.env*` files and rebuilt with the 7 vars injected as process env (mirroring `version-bump.yml:97-104`) — the injected value was inlined correctly. This is the check that protects production
 - Pre-existing and unrelated: `ci.yml` supplies no `VITE_*` vars and `.env` is gitignored, so CI has always built a bundle with undefined keys. Harmless today because CI discards its build output, but it means **CI cannot verify env wiring** without secrets
 - Third instance of the same class as the preview-pathspec bug — a step that fails quietly. Two of three have now been in this migration
-- Analysis: [[raw/monorepo-migration/envdir-regression]]
+- Analysis: [[raw/monorepo-migration/envdir-regression.md]]
+
+## [2026-10-04] document | Plan | Session handoff for Issue #189
+- Created [[wiki/plans/monorepo-migration-handoff]] — an explicit stop point so the next session resumes from verified state instead of reconstructing it from git log
+- Records: HEAD `ad64bd2`, `main` still at the `v2026.16.0` release, 198/198 tests, 7E/3W lint, and the three PRs merged today (#190 docs, #191 Phase 1, #192 the `envDir` P0)
+- **Names the pattern explicitly:** three quiet failures in one migration, all "a step that succeeds while producing something broken" (`firebase.json` output, preview pathspec, `envDir`). The third was caught by a human reading a console error — none by any automated check, including ones written to catch them. Lesson recorded: verify behavior, not artifact existence
+- **Open items carried forward:** production still serves the pre-move build (correct — `main` has not released; two checks to run at that point), CI cannot verify env wiring (it has no `VITE_*` vars and `.env` is gitignored), and `stash@{0}` will conflict on pop because its paths moved to `apps/web/src/`
+- **Phase 2 groundwork verified rather than assumed:** `store/validation` (36 tests) and `store/sanitization` (19 tests) import neither React nor Firebase, so both are framework-agnostic extraction candidates carrying 55 tests
+- **Corrected a plan inaccuracy while verifying it:** the plan said Phase 2 extracts "Zod schemas". Nothing in `apps/web/src` imports Zod and neither manifest depends on it — it exists in `node_modules` only as a transitive dep of `eslint-plugin-react-hooks`. The schemas are hand-rolled `{ valid, error? }` returns. Left uncorrected, it would have sent the next session hunting for schemas that do not exist
+- Also corrected two tree comments claiming `apps/web/package.json` has "no version field" — it pins `0.0.0`, with root `2026.16.0` authoritative
+- Cross-linked the handoff from the plan (frontmatter + inline), `plans/index.md`, and `index.md`; OKF compliance passes

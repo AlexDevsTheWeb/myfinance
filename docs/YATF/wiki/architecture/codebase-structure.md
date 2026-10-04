@@ -35,7 +35,7 @@ myfinance/
 │
 ├── apps/
 │   └── web/                          # The frontend (npm workspace)
-│       ├── package.json              #   Workspace manifest (no version field)
+│       ├── package.json              #   Workspace manifest (version pinned 0.0.0)
 │       ├── index.html                #   Vite HTML entry point
 │       ├── vite.config.ts            #   Vite configuration
 │       ├── vitest.config.ts          #   Vitest configuration

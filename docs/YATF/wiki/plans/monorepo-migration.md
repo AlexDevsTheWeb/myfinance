@@ -7,8 +7,8 @@ tags: [plan, monorepo, migration, react-native, infrastructure]
 created: 2026-10-04
 updated: 2026-10-04
 status: in-progress
-sources: ["raw/monorepo-migration/monorepo-migration.md"]
-related: ["wiki/decisions/react-native-monorepo", "wiki/architecture/monorepo-layout", "wiki/architecture/release-pipeline", "wiki/conventions/branch-strategy"]
+sources: ["raw/monorepo-migration/monorepo-migration.md", "raw/monorepo-migration/envdir-regression.md"]
+related: ["wiki/decisions/react-native-monorepo", "wiki/architecture/monorepo-layout", "wiki/architecture/release-pipeline", "wiki/conventions/branch-strategy", "wiki/plans/monorepo-migration-handoff"]
 ---
 
 # Plan: Monorepo Migration
@@ -119,7 +119,9 @@ migration, no backend, no user-visible state is involved.
 Extract the pure domain layer so it can be consumed by web and mobile alike.
 
 - Shared types: transactions, budgets, ETF/investment records, cards, brokers
-- Shared validation (Zod schemas currently colocated in `apps/web/src`)
+- Shared validation (the hand-rolled schemas in `apps/web/src/store/validation`
+  and `.../sanitization` — note: **not** Zod, despite what this plan said
+  before Phase 2 started; nothing in app code imports Zod)
 - Shared API client / Firestore access helpers
 - Shared formatting (currency, dates, percentages)
 
@@ -173,6 +175,11 @@ is additive.
 
 The reverse order is what the old plan implied — scaffolding four apps and then
 restructuring — and that is what created the current risk.
+
+---
+
+> **Resuming?** See [[wiki/plans/monorepo-migration-handoff]] for the stop point
+> recorded at the end of 2026-10-04 and the verified Phase 2 starting state.
 
 ---
 

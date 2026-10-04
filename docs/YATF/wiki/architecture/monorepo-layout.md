@@ -30,7 +30,7 @@ couplings that constrain it. The decision behind this structure is
 myfinance/
 ├── apps/
 │   ├── web/                    ← ✅ Phase 1: the existing React frontend
-│   │   ├── package.json        ←   workspace manifest (no version field)
+│   │   ├── package.json        ←   workspace manifest (version pinned 0.0.0)
 │   │   ├── index.html
 │   │   ├── vite.config.ts
 │   │   ├── vitest.config.ts
