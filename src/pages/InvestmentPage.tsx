@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AccountBalance, Add, Refresh, TrendingUp } from '@mui/icons-material';
 import { Badge, Box, Button, CircularProgress, Grid, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
