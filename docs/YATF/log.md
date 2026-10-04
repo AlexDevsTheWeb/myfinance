@@ -863,3 +863,16 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - PR #191 merged to `development` as `82550d7` after `Typecheck, build, lint, test` passed on CI
 - Phase 1 status ticked in [[wiki/plans/monorepo-migration]]. One criterion stays open on purpose: **"deployed site confirmed fresh"** — `main` is still at the `v2026.16.0` release, so production legitimately serves the pre-move build. That is the correct outcome of the PR-to-`development` rule, not a regression
 - Follow-up worth its own analysis page: the release merge-strategy and sync-back failure modes in [[wiki/architecture/release-pipeline]] were only ever verified against throwaway repos. Real repo evidence is already contradicting them — the "no workflow changes" prediction here was wrong, and sync-back ancestry assumptions are now untested against this repo's real history
+
+## [2026-10-04] fix | Bug | envDir regression broke the app after the apps/web move (Issue #189)
+- **Shipped broken in PR #191 and every automated check stayed green.** `variables.utils.tsx:4 Uncaught Error: Environment variable VITE_FIREBASE_API_KEY is not defined`, thrown at import time from `firebase.ts:5`
+- Cause: `.env*` live at the repo root and are **gitignored**, so `git mv` could not carry them into `apps/web`. Vite's default `envDir` is the project root, which is now `apps/web` → `loadEnv` found **0 of 8** vars
+- `npm run build` **succeeded** because an undefined `import.meta.env.X` inlines as `undefined` instead of erroring — the throw only happens in the browser. 198/198 tests passed, lint unchanged, `dist/index.html` existed
+- **The verification gap that let this through:** Phase 1 asserted the build *emits* `apps/web/dist/index.html` but never that the bundle *works*. Existence of index.html says nothing about whether the JS boots
+- The obvious fix `envDir: '..'` is **wrong** — it resolves against Vite's `root`, landing on `<repo>/apps` and still finding 0 vars. Verified with `resolveConfig()`: `'..'` → apps, `'../..'` → repo root
+- `'../..'` is a latent trap anyway because `root` defaults to `process.cwd()`, so the same config resolves differently depending on invocation directory
+- Fixed with `fileURLToPath(new URL('../..', import.meta.url))`, which is cwd-independent. Confirmed `envDir` resolves to `<repo>` from both the repo root and `apps/web`
+- Verified the fix does **not** shadow release secrets: hid all `.env*` files and rebuilt with the 7 vars injected as process env (mirroring `version-bump.yml:97-104`) — the injected value was inlined correctly. This is the check that protects production
+- Pre-existing and unrelated: `ci.yml` supplies no `VITE_*` vars and `.env` is gitignored, so CI has always built a bundle with undefined keys. Harmless today because CI discards its build output, but it means **CI cannot verify env wiring** without secrets
+- Third instance of the same class as the preview-pathspec bug — a step that fails quietly. Two of three have now been in this migration
+- Analysis: [[raw/monorepo-migration/envdir-regression]]
