@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Edit as EditIcon, LocalGasStation as FuelIcon, Speed as SpeedIcon, DriveEta as TireIcon } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, Collapse, Grid, IconButton, MenuItem, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
@@ -322,7 +321,7 @@ const CarPage: React.FC = () => {
               label="Initial Km"
               type="number"
               value={initialMileageValue}
-              onChange={(e: any) => setInitialMileageValue(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInitialMileageValue(e.target.value)}
               variant="filled"
               size="small"
               sx={{ flexGrow: 1 }}
@@ -353,15 +352,15 @@ const CarPage: React.FC = () => {
               </Typography>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6 }}>
-                  <TextField select fullWidth label="Month" value={selectedMonth} onChange={(e: any) => setSelectedMonth(Number(e.target.value))} variant="filled" slotProps={{ select: { native: true } }} size="small">
+                  <TextField select fullWidth label="Month" value={selectedMonth} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedMonth(Number(e.target.value))} variant="filled" slotProps={{ select: { native: true } }} size="small">
                     {months.map((m, i) => <option key={m} value={i + 1}>{m.substring(0, 3)}</option>)}
                   </TextField>
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <TextField type="number" fullWidth label="Year" value={selectedYear} onChange={(e: any) => setSelectedYear(Number(e.target.value))} variant="filled" size="small" />
+                  <TextField type="number" fullWidth label="Year" value={selectedYear} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedYear(Number(e.target.value))} variant="filled" size="small" />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
-                  <TextField type="number" fullWidth label="Odometer" value={newReading} onChange={(e: any) => setNewReading(e.target.value)} variant="filled" placeholder="e.g. 45200" />
+                  <TextField type="number" fullWidth label="Odometer" value={newReading} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewReading(e.target.value)} variant="filled" placeholder="e.g. 45200" />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                   <Button fullWidth variant="contained" onClick={handleSaveMileage}>{editingId ? 'Update' : 'Save'}</Button>
@@ -521,16 +520,16 @@ const CarPage: React.FC = () => {
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.newTire')}</Typography>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 6 }}>
-                  <TextField type="date" fullWidth label={t('car.date')} value={newTireChange.date} onChange={(e: any) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" size="small" slotProps={{ inputLabel: { shrink: true } }} />
+                  <TextField type="date" fullWidth label={t('car.date')} value={newTireChange.date} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" size="small" slotProps={{ inputLabel: { shrink: true } }} />
                 </Grid>
                 <Grid size={{ xs: 6 }}>
-                  <TextField select fullWidth label={t('car.type')} value={newTireChange.type} onChange={(e: any) => setNewTireChange({ ...newTireChange, type: e.target.value as any })} variant="filled" size="small">
+                  <TextField select fullWidth label={t('car.type')} value={newTireChange.type} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTireChange({ ...newTireChange, type: e.target.value === 'winter' ? 'winter' : 'summer' })} variant="filled" size="small">
                     <MenuItem value="summer">{t('car.summer')}</MenuItem>
                     <MenuItem value="winter">{t('car.winter')}</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid size={{ xs: 12 }}>
-                  <TextField type="number" fullWidth label="Odometer" value={newTireChange.odometer} onChange={(e: any) => setNewTireChange({ ...newTireChange, odometer: e.target.value })} variant="filled" />
+                  <TextField type="number" fullWidth label="Odometer" value={newTireChange.odometer} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTireChange({ ...newTireChange, odometer: e.target.value })} variant="filled" />
                 </Grid>
                 <Grid size={{ xs: 12 }}>
                   <Button fullWidth variant="contained" onClick={handleSaveTireChange}>{editingTireChangeId ? 'Update' : 'Save'}</Button>
