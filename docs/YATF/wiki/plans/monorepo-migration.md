@@ -178,17 +178,17 @@ restructuring — and that is what created the current risk.
 
 ## Definition of done
 
-### Phase 1
-- [ ] `apps/web` contains all frontend source
-- [ ] Root `npm ci`, `npm run build`, `npm test` all pass
-- [ ] 198 tests still pass, none deleted or skipped to go green
-- [ ] Lint errors ≤ baseline (7)
-- [ ] `apps/web/dist/index.html` exists after build
-- [ ] `firebase.json` points at `apps/web/dist`
-- [ ] Deployed site confirmed fresh and functional
-- [ ] CI green, including `Typecheck, build, lint, test`
-- [ ] `ci.yml` and `version-bump.yml` unchanged
-- [ ] `firebase-hosting-pull-request.yml` pathspec updated, and verified to fire on a frontend-only change
+### Phase 1 — ✅ shipped in PR #191 (merged to `development` 2026-10-04)
+- [x] `apps/web` contains all frontend source
+- [x] Root `npm ci`, `npm run build`, `npm test` all pass
+- [x] 198 tests still pass, none deleted or skipped to go green
+- [x] Lint errors ≤ baseline (7)
+- [x] `apps/web/dist/index.html` exists after build
+- [x] `firebase.json` points at `apps/web/dist`
+- [ ] Deployed site confirmed fresh and functional — *blocked on `main`: this phase merged to `development` only, so production still serves the pre-move build*
+- [x] CI green, including `Typecheck, build, lint, test`
+- [x] `ci.yml` and `version-bump.yml` unchanged
+- [x] `firebase-hosting-pull-request.yml` pathspec updated, and verified to fire on a frontend-only change
 
 ### Overall
 - [ ] Monorepo serves the web app in production
