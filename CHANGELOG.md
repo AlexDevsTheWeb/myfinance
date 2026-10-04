@@ -1,4 +1,84 @@
 
+### [2026.15.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.15.0...v2026.15.1) (2026-08-03)
+
+
+* persist brokerId on ETF transactions and migrate legacy data ([7884853](https://github.com/AlexDevsTheWeb/myfinance/commit/78848539159adefa4dcafe754717ecad40f05322))
+* use Yahoo Finance for ETF prices and consolidate SWDA/EUNL ticker ([d4d2299](https://github.com/AlexDevsTheWeb/myfinance/commit/d4d229988900fed7d90c9a70f7a9a5a29f3d2dbc))
+* **wiki:** broker transaction filter bug — analysis, bug page, cross-links ([bbab075](https://github.com/AlexDevsTheWeb/myfinance/commit/bbab0755f7261a4ca83aae127ff7fb95080e7bd8))
+* **wiki:** ETF pricing / Total Return bug — provider switch + ticker consolidation ([61f2afe](https://github.com/AlexDevsTheWeb/myfinance/commit/61f2afe3f9230070b58501b0fc77301782a133f5))
+
+## [2026.15.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.14.0...v2026.15.0) (2026-08-03)
+
+
+* card selection (None/credit/debit) for recurring expense templates ([975f6e0](https://github.com/AlexDevsTheWeb/myfinance/commit/975f6e01aecee93a84862ba1a4f46491909c44ff))
+* card utilization counter now counts reset-day expenses ([#168](https://github.com/AlexDevsTheWeb/myfinance/issues/168)) ([3a34762](https://github.com/AlexDevsTheWeb/myfinance/commit/3a3476223661344e5389dcf25ea021d024c511bb))
+* **development:** started fix charts positions ([b7e4f39](https://github.com/AlexDevsTheWeb/myfinance/commit/b7e4f3931c24cde418ea12794876ddfd82d60dcf))
+* **wiki:** analyze and ingest card counter bug [#168](https://github.com/AlexDevsTheWeb/myfinance/issues/168) — status fixed ([3413bdb](https://github.com/AlexDevsTheWeb/myfinance/commit/3413bdbecece5641c237c021548c4e74c5478328))
+* **wiki:** card selection for recurring expenses — design ingest + feature page ([9ecb1d7](https://github.com/AlexDevsTheWeb/myfinance/commit/9ecb1d7a296334c1c31957a75393972be00a6e99))
+
+## [2026.14.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.13.0...v2026.14.0) (2026-07-26)
+
+
+* card plafond tracking per account with dashboard utilization and filter ([420cb8d](https://github.com/AlexDevsTheWeb/myfinance/commit/420cb8dabc097c397c5813146b3cdd8c07ad59af))
+* **development:** updated openspecs ([dff91e4](https://github.com/AlexDevsTheWeb/myfinance/commit/dff91e49803a48f862df16af88eae4a37e2aa553))
+
+## [2026.13.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.12.0...v2026.13.0) (2026-07-26)
+
+
+* responsive chart layout + charts UI fixes ([2101382](https://github.com/AlexDevsTheWeb/myfinance/commit/2101382b8811a1ece6b88687fdc38c0e4fa96d98))
+
+## [2026.12.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.11.2...v2026.12.0) (2026-07-19)
+
+
+* dynamic portfolio chart with per-ticker pricing, snapshot recompute, historical subcollection load, and tooltip fix ([33de84e](https://github.com/AlexDevsTheWeb/myfinance/commit/33de84e32d1b48506959edbf2ae1a38bd70d86d4)), closes [#160](https://github.com/AlexDevsTheWeb/myfinance/issues/160)
+* new user auth flow analysis — data isolation verified, 3 GitHub issues created ([#157](https://github.com/AlexDevsTheWeb/myfinance/issues/157), [#158](https://github.com/AlexDevsTheWeb/myfinance/issues/158), [#159](https://github.com/AlexDevsTheWeb/myfinance/issues/159)) ([3c6ea76](https://github.com/AlexDevsTheWeb/myfinance/commit/3c6ea76051c54d9fe85936e49f2cf325b837d36e))
+* **wiki:** OKF hardening — templates, pre-commit hook, resource fields, wiki index ([83a22c0](https://github.com/AlexDevsTheWeb/myfinance/commit/83a22c0cc0aa7e737130aee163504f68128a4b01))
+* **wiki:** OKF v0.1 compliance — type+description on all 63 pages, 8 subdir indexes, agent traversal protocol ([8e3eb3a](https://github.com/AlexDevsTheWeb/myfinance/commit/8e3eb3ace0da4ad867b7d3e72dc86cfd4fa1714b))
+
+### [2026.11.2](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.11.1...v2026.11.2) (2026-07-18)
+
+
+* replace old favicon with Balancr linked hexagons SVG ([4a10417](https://github.com/AlexDevsTheWeb/myfinance/commit/4a10417f490cd716b0348f86be58795f82ffc0e1))
+
+### [2026.11.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.11.0...v2026.11.1) (2026-07-18)
+
+
+* hardcode app title constant instead of env var ([#82](https://github.com/AlexDevsTheWeb/myfinance/issues/82)) ([e0b291c](https://github.com/AlexDevsTheWeb/myfinance/commit/e0b291c5b64a46f5e09e26ea80434c4171036470))
+* update wiki with theme migration and UI polish details ([6401f82](https://github.com/AlexDevsTheWeb/myfinance/commit/6401f825c61edcdc3dd2c382eb10424d776fdcb5))
+
+## [2026.11.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.4...v2026.11.0) (2026-07-18)
+
+
+* add beta disclaimer banner to Dashboard ([#149](https://github.com/AlexDevsTheWeb/myfinance/issues/149)) ([c4c83c8](https://github.com/AlexDevsTheWeb/myfinance/commit/c4c83c81885685c1fe29a75a55966d70153d75cd))
+* ingest beta-launch-playbook into wiki ([916e210](https://github.com/AlexDevsTheWeb/myfinance/commit/916e210af4103e41d0378e27e1378fcc3bad54e1))
+* rebrand YAFT → Balancr with new identity system ([#82](https://github.com/AlexDevsTheWeb/myfinance/issues/82)) ([66e45b3](https://github.com/AlexDevsTheWeb/myfinance/commit/66e45b303d19163c331c7230771e25cf69fb2849)), closes [#0b0f19](https://github.com/AlexDevsTheWeb/myfinance/issues/0b0f19) [#111827](https://github.com/AlexDevsTheWeb/myfinance/issues/111827) [#4364f7](https://github.com/AlexDevsTheWeb/myfinance/issues/4364f7) [#00c9](https://github.com/AlexDevsTheWeb/myfinance/issues/00c9)
+* update wiki with [#149](https://github.com/AlexDevsTheWeb/myfinance/issues/149) implementation and [#150](https://github.com/AlexDevsTheWeb/myfinance/issues/150) verification status ([ae54279](https://github.com/AlexDevsTheWeb/myfinance/commit/ae54279b8f985095f9996128e168e6c31b4658e8))
+
+### [2026.10.4](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.3...v2026.10.4) (2026-07-16)
+
+
+* add dedup filter in sub-collection onSnapshot + trace logging ([cb488f9](https://github.com/AlexDevsTheWeb/myfinance/commit/cb488f9480c0796f446272920708461190c4e2ff))
+* broaden existsInPeriod dedup to match manual transactions by description+amount ([6fde963](https://github.com/AlexDevsTheWeb/myfinance/commit/6fde963cd89f3b8cf14643292c8b16f9b615199e)), closes [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146)
+* checkRecurring never ran — isInitializing guard blocked UserDoc onSnapshot ([b295a63](https://github.com/AlexDevsTheWeb/myfinance/commit/b295a63c119878d2701104564c3487c5ac27c0a3))
+* correct root cause of [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146) — race condition between onSnapshot listeners ([ab0a789](https://github.com/AlexDevsTheWeb/myfinance/commit/ab0a78940737af7529419d5e77bc833a82068898))
+* delete orphaned duplicate documents from Firestore sub-collection ([fd3e96e](https://github.com/AlexDevsTheWeb/myfinance/commit/fd3e96ef7902ef1d3870ea54e97d2af55fc645d3))
+* delete orphaned duplicates directly in onSnapshot handler, with hasCleanedOrphans guard ([92b16c4](https://github.com/AlexDevsTheWeb/myfinance/commit/92b16c4d0746ee43832b4f22ed4e6032a9830d4b))
+* log isInitializing block fix for [#146](https://github.com/AlexDevsTheWeb/myfinance/issues/146) ([82a34c6](https://github.com/AlexDevsTheWeb/myfinance/commit/82a34c6c8db2bdb6bfe03c2da285d8505e951eb9))
+* race condition in checkRecurring causing duplicate generated transactions ([9d5224e](https://github.com/AlexDevsTheWeb/myfinance/commit/9d5224ef573d3366e5acacfc51cde2ff76225aa3))
+
+### [2026.10.3](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.2...v2026.10.3) (2026-07-16)
+
+
+* update wiki with sub-collection write fix for checkRecurring ([5d2f3d8](https://github.com/AlexDevsTheWeb/myfinance/commit/5d2f3d824f41631443f3286f93d5ca21d7ec556b))
+* write checkRecurring modified transactions to sub-collection instead of legacy UserDoc field ([5d24aa3](https://github.com/AlexDevsTheWeb/myfinance/commit/5d24aa3f4b5789cd51b2ac4c672c88b271bb7206))
+
+### [2026.10.2](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.1...v2026.10.2) (2026-07-16)
+
+
+* mark [#142](https://github.com/AlexDevsTheWeb/myfinance/issues/142) as fixed in wiki ([a1db3eb](https://github.com/AlexDevsTheWeb/myfinance/commit/a1db3ebe04ea9df8d3aa3162c7cc4ab4d3ab6b69))
+* yearly recurring transactions ignore monthOfYear — bug analysis + issue [#142](https://github.com/AlexDevsTheWeb/myfinance/issues/142) ([6ccae5e](https://github.com/AlexDevsTheWeb/myfinance/commit/6ccae5ed67b32baa03dd8aba38068e386bf34b6a))
+* yearly recurring transactions now use monthOfYear in checkRecurring() ([d8ddc4f](https://github.com/AlexDevsTheWeb/myfinance/commit/d8ddc4fbc83339f39b83d7251fbf42cfb783ace3)), closes [#142](https://github.com/AlexDevsTheWeb/myfinance/issues/142)
+
 ### [2026.10.1](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.10.0...v2026.10.1) (2026-07-12)
 
 ## [2026.10.0](https://github.com/AlexDevsTheWeb/myfinance/compare/v2026.9.0...v2026.10.0) (2026-07-12)
