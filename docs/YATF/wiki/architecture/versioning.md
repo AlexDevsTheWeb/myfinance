@@ -4,10 +4,10 @@ description: "Versioning scheme using conventional commits and the standard-vers
 title: "Versioning"
 tags: [architecture, versioning, ci, release]
 created: 2026-06-22
-updated: 2026-06-22
+updated: 2026-10-04
 status: active
 sources: [".versionrc", "package.json", "scripts/generate-version.js", ".github/workflows/version-bump.yml"]
-related: ["architecture/external-integrations", "conventions/branch-strategy"]
+related: ["architecture/release-pipeline", "architecture/external-integrations", "conventions/branch-strategy", "architecture/monorepo-layout"]
 ---
 
 # Versioning
@@ -66,15 +66,31 @@ This file is consumed by the app at runtime (e.g. displayed in a settings/about 
 
 ## Release pipeline
 
-See [[wiki/architecture/external-integrations]] for CI/CD workflow details. In short:
+**Full details: [[wiki/architecture/release-pipeline]]** — that page covers
+branch protection, CI, the PR-based release flow and the automatic
+`main` → `development` sync-back, all of which post-date this summary.
 
-1. Push to `main` triggers `version-bump.yml`
-2. Workflow parses commits since last tag
+In short:
+
+1. A merge to `main` triggers `version-bump.yml`
+2. The workflow parses commits since the newest tag reachable from `HEAD`
 3. If a `feat`/`fix`/breaking commit is found, `standard-version` bumps the version
-4. New tag + GitHub Release created
-5. Build + deploy to Firebase Hosting live channel
+4. The bump goes to a `release/<tag>` branch and lands on `main` through a PR
+   (required because `main` is branch-protected and GitHub Apps cannot bypass it)
+5. Build + deploy to Firebase Hosting `live`
+6. A GitHub Release is created, and `main` is synced back into `development`
+
+Non-releasing commit types (`docs`, `test`, `ci`, `refactor`, `chore`, `build`)
+build but do not deploy.
+
+> **Single version at the root.** During the
+> [[wiki/plans/monorepo-migration]] the root `package.json` keeps ownership of
+> the `version` field and `scripts/generate-version.js` keeps reading it. This
+> page's build-time injection assumptions are therefore preserved.
 
 ## Related
 
-- [[wiki/architecture/external-integrations]]
-- [[wiki/conventions/branch-strategy]]
+- [[wiki/architecture/release-pipeline]] — CI, protection, releases, sync-back
+- [[wiki/architecture/external-integrations]] — Firebase configuration
+- [[wiki/architecture/monorepo-layout]] — how this stays true in the monorepo
+- [[wiki/conventions/branch-strategy]] — merge strategy requirements

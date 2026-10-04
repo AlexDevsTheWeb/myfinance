@@ -18,7 +18,9 @@ System architecture, component diagrams, data flow, and tech stack.
 | [[architecture/external-integrations|external-integrations]] | Firebase configuration, environment variables, and CI/CD integration status. |
 | [[architecture/financial-projections-architecture|financial-projections-architecture]] | Simulation data flow, component tree, design decisions, and integration points. |
 | [[architecture/investment-tracking-architecture|investment-tracking-architecture]] | Investment data flow, V1+V2 Firestore schema, store architecture, and component tree. |
+| [[architecture/monorepo-layout|monorepo-layout]] | Planned `apps/` + `packages/` workspace structure and the repo-level couplings that constrain the migration. |
 | [[architecture/project-state|project-state]] | Current project state, active focus areas, and next prioritized steps. |
+| [[architecture/release-pipeline|release-pipeline]] | How code reaches production: blocking CI, `main` branch protection, PR-based releases, Firebase deploys, and `main`→`development` sync-back. |
 | [[architecture/system-architecture|system-architecture]] | System overview, component responsibilities, and end-to-end data flow. |
 | [[architecture/tech-stack|tech-stack]] | Full technology stack with library versions and dependency overview. |
 | [[architecture/testing-status|testing-status]] | Current testing infrastructure status — Vitest Phase 1 landed (61 pure-logic tests), store/component layers pending. |
