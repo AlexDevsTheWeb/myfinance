@@ -1,0 +1,46 @@
+name: CI
+
+# Runs on every PR regardless of target, plus pushes to the long-lived
+# branches. The Firebase preview workflow only covers PRs against main and
+# only runs a build, so nothing verified tests or lint before this existed.
+on:
+  pull_request:
+  push:
+    branches: [main, development]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, build, lint, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # tsc -b runs here, so a type error fails the job before we spend
+      # time on tests.
+      - name: Typecheck and build
+        run: npm run build
+
+      # Non-blocking on purpose: the repo carries 7 pre-existing errors
+      # (React hook correctness in BudgetTargetDialog, TransactionForm,
+      # EtfTransactionModal, TransactionModal, plus prefer-const and
+      # no-useless-assignment). Flipping this to blocking before those are
+      # fixed would block every PR. Track and remove this `continue-on-error`
+      # once the baseline is clean.
+      - name: Lint
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Test
+        run: npm test

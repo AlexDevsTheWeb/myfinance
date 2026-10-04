@@ -18,6 +18,14 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+      # This workflow had no setup-node step at all, so previews were built
+      # with whatever Node the runner image shipped. Pin it to .nvmrc to
+      # match CI, releases, and local dev.
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
       - name: Check for source code changes
         id: check
         run: |

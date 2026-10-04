@@ -19,7 +19,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          # Pin to .nvmrc so releases build with the same Node as CI and
+          # local dev. This workflow previously hardcoded 24, which meant a
+          # release could pass or fail on a Node nobody else uses.
+          node-version-file: .nvmrc
+          cache: npm
 
       - name: Configure Git
         run: |
@@ -47,8 +51,15 @@ jobs:
             echo "needs_release=false" >> $GITHUB_OUTPUT
           fi
 
+      # Was: rm -rf node_modules package-lock.json && npm install
+      # That regenerated the lockfile from main's package.json on every
+      # release, which silently dropped any dependency main did not know
+      # about and was the root cause of the package-lock.json conflicts
+      # between main and development. `npm ci` installs exactly the
+      # committed lockfile and fails loudly if it disagrees with
+      # package.json, instead of quietly rewriting it.
       - name: Install dependencies
-        run: rm -rf node_modules package-lock.json && npm install
+        run: npm ci
 
       - name: Bump version and tag
         if: steps.changes.outputs.needs_release == 'true'
