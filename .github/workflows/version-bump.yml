@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
@@ -34,7 +35,12 @@ jobs:
         id: changes
         run: |
           git fetch --tags
-          PREV_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          # Baseline is the newest tag reachable from HEAD, not from HEAD~1.
+          # HEAD~1 only follows a merge commit's first parent, so after the
+          # release PR merges it found the tag *before* the release commit and
+          # re-counted already-shipped commits -- which released twice per
+          # merge. HEAD reaches the new tag through the second parent.
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD 2>/dev/null || echo "")
           if [ -z "$PREV_TAG" ]; then
             COMMITS=$(git log --format=%s HEAD~1..HEAD)
           else
@@ -65,25 +71,60 @@ jobs:
         if: steps.changes.outputs.needs_release == 'true'
         run: npx standard-version
 
-      - name: Push version bump
-        if: steps.changes.outputs.needs_release == 'true'
-        run: git push origin refs/heads/main && git push origin --tags
-
-      - name: Get latest tag
+      # main is protected by branch protection, and GitHub Apps are not exempt
+      # from it -- personal repositories cannot add a bypass actor either. A
+      # `git push --dry-run` probe confirmed the bot is rejected, so pushing
+      # straight to main would have failed on every release.
+      #
+      # The version bump therefore goes to a per-release branch and lands on
+      # main through an ordinary PR, which runs the same CI as anything else.
+      - name: Get release version
         if: steps.changes.outputs.needs_release == 'true'
         id: tag
         run: echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
 
+      - name: Push release branch and tag
+        if: steps.changes.outputs.needs_release == 'true'
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          git push origin "HEAD:refs/heads/release/$TAG"
+          git push origin "refs/tags/$TAG"
+
+      - name: Open release PR
+        if: steps.changes.outputs.needs_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "release/$TAG" \
+            --title "chore(release): $TAG" \
+            --body "Automated version bump and changelog for \`$TAG\`." \
+            || gh pr view "release/$TAG" --json url -q .url
+
+      - name: Enable auto-merge on release PR
+        if: steps.changes.outputs.needs_release == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          gh pr merge "release/$TAG" --merge --auto \
+            || echo "Auto-merge unavailable; merge the release PR manually."
+
       - name: Create GitHub Release
         if: steps.changes.outputs.needs_release == 'true'
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          release_name: Release ${{ steps.tag.outputs.tag }}
-          draft: false
-          prerelease: false
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          # actions/create-release@v1 targets Node 12 and is unmaintained.
+          gh release create "$TAG" \
+            --title "Release $TAG" \
+            --generate-notes \
+            || echo "Release $TAG already exists"
 
       - name: Build and Deploy to Firebase
         run: npm run build
@@ -105,3 +146,38 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MYFINANCETRACKER_B257E }}
           channelId: live
           projectId: myfinancetracker-b257e
+
+      # Keeps `development` a descendant of `main` after every release, so the
+      # next development -> main merge is always a fast-forward instead of a
+      # package-lock.json conflict. Runs even if the deploy fails, because the
+      # version bump on main is what causes the drift, not the deploy.
+      - name: Sync main back into development
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          open_sync_pr() {
+            gh pr create \
+              --base development \
+              --head main \
+              --title "chore: sync main into development after release" \
+              --body "Automated sync-back. \`development\` moved after this release was cut, so \`main\` cannot be fast-forwarded into it. Resolve any conflicts and merge." \
+              || echo "A sync PR is already open"
+          }
+
+          git fetch origin main development
+          if [ "$(git rev-parse origin/main)" = "$(git rev-parse origin/development)" ]; then
+            echo "main and development are already in sync"
+          elif git merge-base --is-ancestor origin/development origin/main; then
+            # A push can still be rejected if development is updated between
+            # the fetch above and the push, so fall back to a PR on failure.
+            if git push origin origin/main:development; then
+              echo "Fast-forwarded development to main ($(git rev-parse --short origin/main))"
+            else
+              echo "development moved concurrently; opening a sync PR instead"
+              open_sync_pr
+            fi
+          else
+            echo "development has diverged from main; opening a sync PR instead"
+            open_sync_pr
+          fi
