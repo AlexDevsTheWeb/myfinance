@@ -4,15 +4,27 @@ description: "PWA-first mobile strategy before Flutter — mobile support withou
 title: "PWA Strategy — Mobile senza riscrittura"
 tags: [decision, strategy, pwa, mobile, go-to-market]
 created: 2026-07-11
-updated: 2026-07-11
-status: accepted
+updated: 2026-10-04
+status: superseded
+superseded_by: "wiki/decisions/react-native-monorepo"
 sources: ["raw/go-to-market/go-to-market.md"]
-related: ["wiki/plans/go-to-market", "wiki/decisions/saas-readiness", "wiki/architecture/tech-stack"]
+related: ["wiki/plans/go-to-market", "wiki/decisions/saas-readiness", "wiki/architecture/tech-stack", "wiki/decisions/react-native-monorepo"]
 ---
 
 # Decision: PWA Strategy — Mobile senza riscrittura
 
-Status: `accepted`
+Status: `superseded` (2026-10-04) by [[wiki/decisions/react-native-monorepo]]
+
+> **Superseded.** The mobile strategy has changed. The native app is now
+> planned as **React Native** inside an **npm workspaces monorepo**
+> (`apps/mobile` + `apps/web` + `packages/shared`), not as a Flutter rewrite
+> at a later scaling phase. See [[wiki/decisions/react-native-monorepo]] for
+> the current decision and the reasoning.
+>
+> The PWA work described below is not necessarily wasted — a PWA remains
+> complementary to a native app — but it is no longer the mobile roadmap
+> anchor. The reasoning below is retained as the record of the decision made
+> on 2026-07-11.
 
 ## Contesto
 
@@ -71,4 +83,5 @@ Solo dopo validazione del mercato e flussi di cassa ricorrenti:
 
 - Plan: [[wiki/plans/go-to-market]]
 - Decision: [[wiki/decisions/saas-readiness]]
+- Superseding decision: [[wiki/decisions/react-native-monorepo]]
 - Source: [raw/go-to-market/go-to-market.md](raw/go-to-market/go-to-market.md)

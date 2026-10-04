@@ -826,3 +826,23 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Verified: tsc clean, build ✓, 198/198 tests, lint 9E/11W → 7E/3W, rule-level diff = 4 fixes / 0 new problems, 0 explicit `any` and 0 directives left in `src/`
 - Verified #137 and #127 already resolved — no work needed
 - Updated index.md, wiki/plans/index.md, concerns-and-tech-debt.md
+
+## [2026-10-04] ingest | Architecture + Decision + Plan | Release pipeline & monorepo migration
+- New raw source: [`raw/monorepo-migration/monorepo-migration.md`](raw/monorepo-migration/monorepo-migration.md)
+- Created [[wiki/architecture/release-pipeline]] — documented the release work that had no wiki coverage: the 23/61-commit `main`/`development` divergence, `package.json` at 2026.15.1 vs 2026.10.1, and the `rm -rf package-lock.json && npm install` in the release workflow that caused it
+- Recorded that `main` protection requires the `Typecheck, build, lint, test` check with `enforce_admins: true` and **zero** required reviews — self-approval is impossible in a solo repo, so requiring review would deadlock every PR
+- Recorded the verified constraint behind the whole design: GitHub Apps are **not** exempt from branch protection and personal repos cannot add a bypass actor (`git push --dry-run` probe returned `BOT_BLOCKED`), so releases had to become PR-based rather than weakening protection
+- Documented the two repository settings that were blocking: `can_approve_pull_request_reviews` (was off → `gh pr create` failed) and `allow_auto_merge`
+- Documented the **double-release bug**: the release check resolved its baseline tag from `HEAD~1`, which follows only a merge commit's first parent and re-counted already-shipped commits → now resolves from `HEAD`
+- Documented the deploy-ordering lesson: a failed `Open release PR` step skipped the deploy, leaving `main` merged at 2026.15.1 with a `v2026.16.0` tag and **nothing deployed**; deploy is now ordered before PR bookkeeping
+- Documented sync-back and its 4 verified scenarios (fast-forward, in-sync, diverged, mid-run race)
+- Documented the toolchain unification: all 3 workflows on `.nvmrc` (22.19.0) + `npm ci`; `actions/create-release@v1` (Node 12) → `gh release create`
+- Created [[wiki/decisions/react-native-monorepo]] — npm workspaces + React Native; rejected nested sub-repos (a `.git` inside a repo records only a bare gitlink, mode `160000`, and clones as empty dirs), Flutter (zero code reuse), and pnpm (`npm ci` is load-bearing; Metro needs hoisting)
+- Created [[wiki/architecture/monorepo-layout]] + [[wiki/plans/monorepo-migration]] — target `apps/`+`packages/` layout, the root-delegation trick that keeps all 3 workflows unchanged, and the 5-phase plan
+- Flagged the highest-risk line in the migration: `firebase.json` hardcodes `"public": "dist"` → must become `apps/web/dist`, or the deploy succeeds while serving a stale site
+- Marked [[wiki/decisions/pwa-strategy]] **superseded** by the React Native monorepo decision (status + `superseded_by`, with a retained record of the original reasoning)
+- Updated [[wiki/architecture/versioning]] — pipeline section was stale (described direct-push releases) and now defers to release-pipeline; noted root `package.json` keeps ownership of `version`
+- Updated index.md, wiki/architecture/index.md, wiki/decisions/index.md
+- Verified against the repo while writing: `.nvmrc` = 22.19.0, `firebase.json` public = `dist`, root scripts (`prebuild`/`build`/`lint`/`test`/`postinstall`), lint baseline re-measured at exactly 7 errors / 3 warnings
+- Found and corrected a stale local `main` ref (`6f9ff49` → `7e78d09`); `origin/main` == `origin/development` confirmed at 0 behind / 0 ahead
+- Noted that the `ci.yml` test-skip guard is now a no-op (`main` has the test script since v2026.16.0) but is kept as a safety net
