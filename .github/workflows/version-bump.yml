@@ -111,6 +111,13 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MYFINANCETRACKER_B257E }}
           channelId: live
           projectId: myfinancetracker-b257e
+          # Pin the finance app. The project now hosts two sites (#193), and
+          # omitting `target` makes the action deploy *all* of them -- but the
+          # build step above only produces apps/web/dist, so an unpinned deploy
+          # would fail on the missing website directory and take the release
+          # down with it. Deploying the marketing site is a separate release
+          # decision, not something a version bump should do by accident.
+          target: app
 
       - name: Open release PR
         if: steps.changes.outputs.needs_release == 'true'

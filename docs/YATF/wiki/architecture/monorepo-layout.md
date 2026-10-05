@@ -5,10 +5,10 @@ description: "Target directory structure for the npm workspaces monorepo and the
 resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/189"
 tags: [architecture, monorepo, workspaces, structure, react-native]
 created: 2026-10-04
-updated: 2026-10-04
+updated: 2026-10-05
 status: active
-sources: ["raw/monorepo-migration/monorepo-migration.md", "package.json", "firebase.json", "tsconfig.json"]
-related: ["wiki/decisions/react-native-monorepo", "wiki/plans/monorepo-migration", "wiki/architecture/release-pipeline", "wiki/architecture/codebase-structure", "wiki/architecture/tech-stack"]
+sources: ["raw/monorepo-migration/monorepo-migration.md", "raw/website/website.md", "package.json", "firebase.json", "tsconfig.json", "apps/website/"]
+related: ["wiki/decisions/react-native-monorepo", "wiki/decisions/website-as-separate-hosting-target", "wiki/plans/monorepo-migration", "wiki/architecture/release-pipeline", "wiki/architecture/codebase-structure", "wiki/architecture/tech-stack", "wiki/features/marketing-website/marketing-website"]
 ---
 
 # Monorepo Layout
@@ -17,10 +17,13 @@ Target directory structure for the npm workspaces monorepo, and the
 couplings that constrain it. The decision behind this structure is
 [[wiki/decisions/react-native-monorepo]].
 
-> **Status: Phase 1 landed.** The frontend now lives in `apps/web`. The
-> remaining workspaces (`mobile`, `website`, `api`, `packages/shared`) are
-> still to come — see [[wiki/plans/monorepo-migration]] for what is next and
-> [[wiki/architecture/codebase-structure]] for the live layout.
+> **Status: Phases 1 and 5 have landed.** The frontend lives in `apps/web` and
+> the marketing site in `apps/website`, as two isolated workspaces with two
+> hosting targets. The remaining workspaces (`mobile`, `api`,
+> `packages/shared`) are still to come — see [[wiki/plans/monorepo-migration]]
+> for what is next and [[wiki/architecture/codebase-structure]] for the live
+> layout. The website isolation is justified in
+> [[wiki/decisions/website-as-separate-hosting-target]].
 
 ---
 
@@ -29,7 +32,7 @@ couplings that constrain it. The decision behind this structure is
 ```
 myfinance/
 ├── apps/
-│   ├── web/                    ← ✅ Phase 1: the existing React frontend
+│   ├── web/                    ← ✅ Phase 1: the React app
 │   │   ├── package.json        ←   workspace manifest (version pinned 0.0.0)
 │   │   ├── index.html
 │   │   ├── vite.config.ts
@@ -37,7 +40,16 @@ myfinance/
 │   │   ├── tsconfig.json       ←   solution -> tsconfig.app.json
 │   │   ├── src/
 │   │   └── public/
-│   ├── website/                ← landing page + subscription/payments
+│   ├── website/                ← ✅ Phase 5: Balancr marketing landing page
+│   │   ├── package.json        ←   workspace manifest
+│   │   ├── index.html          ←   static SEO metadata + font preconnect
+│   │   ├── vite.config.ts      ←   port 5174, repo-root envDir
+│   │   ├── vitest.config.ts
+│   │   ├── tsconfig.json       ←   solution -> tsconfig.app.json
+│   │   └── src/
+│   │       ├── content/site.ts ←   all copy + the pricing model
+│   │       ├── theme/          ←   dark + light palettes, persistence
+│   │       └── components/     ←   one file per page section
 │   ├── mobile/                 ← React Native (iOS + Android)
 │   └── api/                    ← backend service
 │
@@ -103,6 +115,33 @@ repointed at `apps/web/` — see [[wiki/plans/monorepo-migration]].
 > root `build` delegate still triggers version generation. If it moves, the
 > root `prebuild` must remain — npm runs `pre<script>` from the directory
 > holding the script.
+
+---
+
+## The `website` workspace
+
+Added in Issue #193, five phases ahead of the original plan. It is a **peer** of
+`apps/web`, not a child of it:
+
+- imports nothing from `apps/web` — no source, store, theme or config;
+- has its own `index.html`, Vite config, tsconfig triple and Vitest config;
+- needs no `VITE_*` variables, but uses the same cwd-independent repo-root
+  `envDir` as the app so that adding analytics later cannot regress silently;
+- is **not** wired into the root `dev` / `build` / `test` / `preview` scripts —
+  those still delegate to `apps/web` only, which keeps "root build" meaning
+  exactly one thing for the release workflow.
+
+`firebase.json` therefore declares two hosting blocks (`hosting.app` →
+`apps/web/dist`, `hosting.website` → `apps/website/dist`) against two sites.
+Two consequences had to be handled explicitly, not discovered at release time:
+
+1. `version-bump.yml` pins `target: app`. Adding a hosting block silently
+   changes what an unqualified `firebase deploy` does.
+2. `ci.yml` gained a separate `verify-website` job, and the PR preview workflow
+   gained a separate detector gated on `apps/website/**`.
+
+See [[wiki/decisions/website-as-separate-hosting-target]] and
+[[wiki/architecture/release-pipeline]] §10.
 
 ---
 
@@ -172,6 +211,8 @@ versions. See [[wiki/architecture/versioning]].
 ## Related
 
 - [[wiki/decisions/react-native-monorepo]] — the decision this implements
+- [[wiki/decisions/website-as-separate-hosting-target]] — the website's isolation
+- [[wiki/features/marketing-website/marketing-website]] — what now lives in `apps/website`
 - [[wiki/plans/monorepo-migration]] — phased execution
 - [[wiki/architecture/release-pipeline]] — must stay green through the move
 - [[wiki/architecture/codebase-structure]] — current (pre-migration) layout

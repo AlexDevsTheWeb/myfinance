@@ -1,5 +1,17 @@
 {
   "projects": {
     "default": "myfinancetracker-b257e"
+  },
+  "targets": {
+    "myfinancetracker-b257e": {
+      "hosting": {
+        "app": [
+          "myfinancetracker-b257e"
+        ],
+        "website": [
+          "balancr-website"
+        ]
+      }
+    }
   }
 }

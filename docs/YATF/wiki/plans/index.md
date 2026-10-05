@@ -2,7 +2,7 @@
 type: Index
 title: "Plans — Index"
 description: "Implementation plans, step-by-step breakdowns, and roadmap items."
-timestamp: 2026-07-18
+timestamp: 2026-10-05
 ---
 
 # Plans
@@ -22,8 +22,8 @@ Implementation plans, step-by-step breakdowns, and roadmap items.
 | [[plans/explicit-any-removal|explicit-any-removal]] | Completed removal of all explicit `any` and `no-explicit-any` directives across ten files. |
 | [[plans/financial-projections-implementation|financial-projections-implementation]] | Three-plan implementation for the simulation engine, UI shell, and routing + i18n. |
 | [[plans/go-to-market|go-to-market]] | MAX PRIORITY: six-phase SaaS launch plan from quick wins through beta to monetization. |
-| [[plans/monorepo-migration|monorepo-migration]] | 🚧 5-phase plan: npm workspaces move → packages/shared → React Native → API → website, without breaking CI or production. |
-| [[plans/monorepo-migration-handoff|monorepo-migration-handoff]] | 🚧 **Handoff (2026-10-04):** Phase 1 shipped, one P0 regression fixed, verified starting state for Phase 2. |
+| [[plans/monorepo-migration|monorepo-migration]] | 🚧 5-phase plan: npm workspaces move → packages/shared → React Native → API → website. Phases 1 and 5 (website) done; 2–4 remain. |
+| [[plans/monorepo-migration-handoff|monorepo-migration-handoff]] | 🚧 **Handoff (2026-10-04, addendum 2026-10-05):** Phase 1 shipped, one P0 regression fixed; Phase 5 moved in afterwards. |
 | [[plans/investment-tracking-implementation|investment-tracking-implementation]] | Six-plan GSD implementation for ETF tracking, broker integration, and PAC strategy. |
 | [[plans/investment-tracking-v2-enhancements|investment-tracking-v2-enhancements]] | Phase 12 complete — six GSD plans: multi-broker, CRUD, PAC, snapshots, inflation, ticker. |
 | [[plans/investment-tracking-v3-implementation|investment-tracking-v3-implementation]] | V3 implementation plan: dividend tracking, capital gains tax, cash adjustments, performance prefill. |

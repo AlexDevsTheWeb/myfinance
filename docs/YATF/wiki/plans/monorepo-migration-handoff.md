@@ -5,10 +5,10 @@ description: "Stop point for Issue #189: Phase 1 shipped to development, one app
 resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/189"
 tags: [plan, monorepo, handoff]
 created: 2026-10-04
-updated: 2026-10-04
+updated: 2026-10-05
 status: in-progress
-sources: ["raw/monorepo-migration/monorepo-migration.md", "raw/monorepo-migration/envdir-regression.md"]
-related: ["plans/monorepo-migration", "architecture/monorepo-layout", "architecture/codebase-structure", "decisions/react-native-monorepo", "architecture/release-pipeline"]
+sources: ["raw/monorepo-migration/monorepo-migration.md", "raw/monorepo-migration/envdir-regression.md", "raw/website/website.md"]
+related: ["plans/monorepo-migration", "architecture/monorepo-layout", "architecture/codebase-structure", "decisions/react-native-monorepo", "architecture/release-pipeline", "decisions/website-as-separate-hosting-target", "features/marketing-website/marketing-website"]
 ---
 
 # Plan: Monorepo Migration — Handoff
@@ -18,6 +18,33 @@ related: ["plans/monorepo-migration", "architecture/monorepo-layout", "architect
 
 Resumption target: [[wiki/plans/monorepo-migration]] is the authoritative plan.
 This page is only the "where we left off" marker.
+
+---
+
+## ⚠️ Addendum — 2026-10-05: Phase 5 moved while this page was written
+
+Everything below describes the end of 2026-10-04 and is accurate **for that
+date**. Since then, Phase 5 (`apps/website`) has been pulled forward and landed
+in the Issue #193 draft PR. Concretely, "Phases 2–5 are untouched" no longer
+holds:
+
+- `apps/website` now exists as a third workspace with its own hosting target
+  (`balancr-website`) — see [[wiki/decisions/website-as-separate-hosting-target]]
+  and [[wiki/features/marketing-website/marketing-website]].
+- Three workflows gained website awareness: `version-bump.yml` is pinned to
+  `target: app`, `ci.yml` has a `verify-website` job, and the PR preview
+  workflow has a website detector.
+- Root `dev` / `build` / `test` / `preview` **still delegate to `apps/web` only.**
+  That was the point — do not "fix" this by adding the website to the root
+  scripts.
+- Tests are now **198 in `apps/web` + 59 in `apps/website`**. Lint is unchanged
+  at 7E/3W.
+- `firebase.json` and `.firebaserc` now describe **two** sites. Any future edit
+  that adds a hosting block must also pin the deploy target.
+- Production still serves the pre-move build. `balancr-website` exists but has
+  never been deployed to.
+
+Phases 2–4 remain untouched and are still the next work.
 
 ---
 

@@ -53,3 +53,31 @@ jobs:
           else
             echo "No test script on this branch; skipping tests."
           fi
+
+  verify-website:
+    name: Marketing site typecheck, build, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `npm run build` at the root only builds apps/web on purpose (#193): the
+      # release workflow deploys that artifact to the live finance site, and
+      # widening it to every workspace would put a marketing build in the
+      # deploy path. The website therefore needs its own explicit job, or
+      # nothing would ever typecheck it.
+      - name: Typecheck and build marketing site
+        run: npm run build --workspace apps/website
+
+      - name: Test marketing site
+        run: npm run test --workspace apps/website
+
+  # Lint is covered by the root `npm run lint` above, which already runs eslint
+  # across every workspace; apps/website contributes no findings.
