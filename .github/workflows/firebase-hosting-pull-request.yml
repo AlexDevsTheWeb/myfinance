@@ -31,6 +31,9 @@ jobs:
       # diff comes back empty and the preview is *silently* skipped for every
       # real frontend change -- the worst possible failure mode, because CI
       # still passes.
+      #
+      # The website workspace (#193) is a separate job below with its own
+      # pathspec, because it is a separate build and a separate hosting site.
       - name: Check for source code changes
         id: check
         run: |
@@ -53,5 +56,53 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MYFINANCETRACKER_B257E }}
           projectId: myfinancetracker-b257e
+          # Two hosting sites now exist in this project. Without an explicit
+          # target the action deploys *all* of them, so a website-only PR would
+          # try to ship the finance site's directory too.
+          target: app
+          channelId: pr${{ github.event.number }}
+          expires: 30d
+
+  build_and_preview_website:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # Mirrors the app pathspec, scoped to apps/website. Without these paths a
+      # website-only PR produces an empty diff and no preview, which is exactly
+      # what happened to every apps/web change before #189.
+      - name: Check for marketing site changes
+        id: check
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          CHANGED=$(git diff --name-only "$BASE_SHA"...HEAD -- apps/website/ package.json package-lock.json .firebaserc firebase.json .nvmrc 2>/dev/null || true)
+          if [ -z "$CHANGED" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "No marketing site changes — skipping preview deployment."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Changed files:"
+            echo "$CHANGED"
+          fi
+      # The website is never built by the root `npm run build` (#193), so it
+      # needs its own explicit workspace invocation.
+      - run: npm ci && npm run build --workspace apps/website
+        if: steps.check.outputs.skip != 'true'
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        continue-on-error: true
+        if: steps.check.outputs.skip != 'true'
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MYFINANCETRACKER_B257E }}
+          projectId: myfinancetracker-b257e
+          target: website
           channelId: pr${{ github.event.number }}
           expires: 30d

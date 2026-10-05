@@ -2,7 +2,7 @@
 type: Index
 title: "Features — Index"
 description: "Feature pages describing all implemented, planned, and deprecated features."
-timestamp: 2026-07-18
+timestamp: 2026-10-05
 ---
 
 # Features
@@ -46,3 +46,4 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[features/test-infrastructure/test-infrastructure|test-infrastructure]] | Layered Vitest infrastructure (jsdom, colocated tests, mocked Firebase) — Phase 1 pure-logic layer complete. |
 | [[features/first-of-month-recurring/first-of-month-recurring|first-of-month-recurring]] | Recurrent transactions auto-generated on the 1st of each month; whole month preloaded at month start; back-filled with correct date on any app open. |
 | [[features/dashboard-calendar/dashboard-calendar|dashboard-calendar]] | Month calendar on the Dashboard — per-day income/expense/transfer dots + selected-day transaction list, live-updating. |
+| [[features/marketing-website/marketing-website|marketing-website]] | ✅ Balancr marketing landing page as an isolated `apps/website` workspace, with its own Firebase Hosting site. |

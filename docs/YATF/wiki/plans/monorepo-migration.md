@@ -5,10 +5,10 @@ description: "Phased plan to move the frontend into an npm workspaces monorepo a
 resource: "https://github.com/AlexDevsTheWeb/myfinance/issues/189"
 tags: [plan, monorepo, migration, react-native, infrastructure]
 created: 2026-10-04
-updated: 2026-10-04
+updated: 2026-10-05
 status: in-progress
-sources: ["raw/monorepo-migration/monorepo-migration.md", "raw/monorepo-migration/envdir-regression.md"]
-related: ["wiki/decisions/react-native-monorepo", "wiki/architecture/monorepo-layout", "wiki/architecture/release-pipeline", "wiki/conventions/branch-strategy", "wiki/plans/monorepo-migration-handoff"]
+sources: ["raw/monorepo-migration/monorepo-migration.md", "raw/monorepo-migration/envdir-regression.md", "raw/website/website.md"]
+related: ["wiki/decisions/react-native-monorepo", "wiki/decisions/website-as-separate-hosting-target", "wiki/architecture/monorepo-layout", "wiki/architecture/release-pipeline", "wiki/conventions/branch-strategy", "wiki/plans/monorepo-migration-handoff", "wiki/features/marketing-website/marketing-website"]
 ---
 
 # Plan: Monorepo Migration
@@ -156,13 +156,24 @@ consumer actually requires it.
 
 ---
 
-## Phase 5 — `apps/website`
+## Phase 5 — `apps/website` — ✅ pulled forward, landed 2026-10-05 (Issue #193)
+
+Executed out of order. Phases 2–4 are framework refactors of the app; Phase 5 was
+independently valuable and touched almost none of their blast radius, so doing it
+first cost nothing and proved the workspace pattern twice.
 
 - Marketing/landing site, separate lifecycle from the app
-- Subscription + payments
-- Separate Firebase project or Hosting site so an outage or billing deploy
-  cannot take down the finance app
-- Separate release cadence
+- Subscription + payments — **not started.** The site renders the pricing tiers
+  as content; there is no checkout and no payment provider.
+- Separate Firebase Hosting site (`balancr-website`) so an outage or billing
+  deploy cannot take down the finance app
+- Separate release cadence — not on the version train; deployed by target name
+  from the release workflow
+
+Deliberately **not** covered, per the issue: any backend, the waitlist endpoint,
+analytics, and the payment provider. See
+[[wiki/features/marketing-website/marketing-website]] and
+[[wiki/decisions/website-as-separate-hosting-target]].
 
 ---
 
@@ -197,11 +208,20 @@ restructuring — and that is what created the current risk.
 - [x] `ci.yml` and `version-bump.yml` unchanged
 - [x] `firebase-hosting-pull-request.yml` pathspec updated, and verified to fire on a frontend-only change
 
+### Phase 5 — ✅ shipped in the #193 draft PR (2026-10-05)
+- [x] `apps/website` builds and tests independently: `npm run build --workspace apps/website`, `npm run test --workspace apps/website` (59 tests / 6 files)
+- [x] Imports nothing from `apps/web`
+- [x] Root `build` / `test` / `lint` unchanged in meaning — still delegate to `apps/web`; app regression-free at 198 tests and the same 7E/3W lint baseline
+- [x] Second Firebase Hosting site created and declared (`balancr-website` → `apps/website/dist`)
+- [x] `version-bump.yml` pinned to `target: app`; `ci.yml` gained a `verify-website` job; PR preview workflow gained a website detector
+- [x] `firebase deploy --only hosting:website --dry-run` resolves the site
+- [ ] Website actually deployed and serving — not done; no deploy was run against `balancr-website` yet
+
 ### Overall
-- [ ] Monorepo serves the web app in production
+- [ ] Monorepo serves the web app in production — *still blocked on a `main` release (Phase 1)*
 - [ ] Mobile app builds and shares `packages/shared`
 - [ ] API contract defined once, consumed by all clients
-- [ ] Website deployable independently of the app
+- [x] Website deployable independently of the app — *built and wired; the first real deploy is still outstanding*
 
 ---
 
@@ -217,6 +237,8 @@ restructuring — and that is what created the current risk.
 ## Related
 
 - [[wiki/decisions/react-native-monorepo]] — decision and rejected alternatives
+- [[wiki/decisions/website-as-separate-hosting-target]] — Phase 5 isolation rules
+- [[wiki/features/marketing-website/marketing-website]] — Phase 5 implementation
 - [[wiki/architecture/monorepo-layout]] — target structure and couplings
 - [[wiki/architecture/release-pipeline]] — what must not break
 - [[wiki/conventions/branch-strategy]] — one branch and PR per phase

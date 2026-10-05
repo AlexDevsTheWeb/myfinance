@@ -3,12 +3,12 @@ type: Architecture
 title: "Release Pipeline — CI, Branch Protection, PR-Based Releases and Sync-Back"
 description: "How code reaches production: blocking CI, main branch protection, conventional-commit releases via PR, Firebase deploys, and automatic main-to-development sync-back."
 resource: "https://github.com/AlexDevsTheWeb/myfinance/pull/185"
-tags: [architecture, ci, cd, release, github-actions, firebase, versioning]
+tags: [architecture, ci, cd, release, github-actions, firebase, versioning, website]
 created: 2026-10-04
-updated: 2026-10-04
+updated: 2026-10-05
 status: active
-sources: [".github/workflows/ci.yml", ".github/workflows/version-bump.yml", ".github/workflows/firebase-hosting-pull-request.yml", "firebase.json"]
-related: ["wiki/architecture/versioning", "wiki/architecture/external-integrations", "wiki/conventions/branch-strategy", "wiki/plans/monorepo-migration", "wiki/architecture/concerns-and-tech-debt"]
+sources: [".github/workflows/ci.yml", ".github/workflows/version-bump.yml", ".github/workflows/firebase-hosting-pull-request.yml", "firebase.json", ".firebaserc"]
+related: ["wiki/architecture/versioning", "wiki/architecture/external-integrations", "wiki/conventions/branch-strategy", "wiki/plans/monorepo-migration", "wiki/architecture/concerns-and-tech-debt", "wiki/decisions/website-as-separate-hosting-target", "wiki/features/marketing-website/marketing-website"]
 ---
 
 # Release Pipeline
@@ -267,6 +267,47 @@ Every step of this was exercised end-to-end through the `v2026.16.0` release.
 - Any workflow that pushes to `main` will be **blocked** — route it through a PR.
 - Keep `npm run build` working from the repository root. Three workflows
   depend on it.
+- **Adding a second Firebase Hosting site means pinning the deploy target of
+  every existing deploy step.** An unqualified `firebase deploy` in a multi-site
+  config changes meaning the moment a block is added — it is not a no-op, and
+  nothing fails. See §10 and
+  [[wiki/decisions/website-as-separate-hosting-target]].
+
+---
+
+## 10. Two hosting sites (Issue #193)
+
+`firebase.json` now declares two hosting blocks, each its own Firebase site:
+
+| Target | Site | Built from | Deployed by |
+|---|---|---|---|
+| `hosting.app` | `myfinancetracker-b257e` | `apps/web/dist` | `version-bump.yml` (release only) |
+| `hosting.website` | `balancr-website` | `apps/website/dist` | `hosting:website` in the release deploy |
+
+Consequences that had to be handled rather than discovered later:
+
+- **`version-bump.yml` now pins `target: app`.** Adding a second hosting block
+  changes what an unqualified `firebase deploy` deploys. Without the pin, the
+  next release would ship the marketing site and nothing else — a silent,
+  one-flag, production-affecting change to the release workflow. This is the
+  same "unowned coupling" failure class as the old `"public": "dist"`, with the
+  deploy *target* unowned instead of the output path.
+- **`ci.yml` gained a `verify-website` job** (typecheck + build + test for
+  `apps/website`), gated on website path changes. It runs alongside the
+  existing app job rather than replacing it — a single job that builds both
+  would make an unrelated landing-page edit report the app as failed.
+- **`firebase-hosting-pull-request.yml` gained a second preview job**, gated on
+  `apps/website/**` and `firebase.json`. The existing detector's hardcoded path
+  list is the mechanism that silently skips previews (see
+  [[wiki/architecture/monorepo-layout]]); the website detector is a separate
+  `if` so each change type creates a preview for the site it actually changed.
+- Root `npm run build` / `test` still delegate to `apps/web` only, so the
+  release workflow's build step is unchanged. See
+  [[wiki/decisions/website-as-separate-hosting-target]].
+
+Not yet exercised: a real website deploy. Only `firebase deploy --only
+hosting:website --dry-run` has been run, which confirms target resolution, not
+that the live site serves the bundle.
 
 ---
 
@@ -276,4 +317,6 @@ Every step of this was exercised end-to-end through the `v2026.16.0` release.
 - [[wiki/architecture/external-integrations]] — Firebase configuration
 - [[wiki/conventions/branch-strategy]] — branch and PR rules
 - [[wiki/plans/monorepo-migration]] — must not break any of the above
+- [[wiki/decisions/website-as-separate-hosting-target]] — why there are two sites
+- [[wiki/features/marketing-website/marketing-website]] — the site itself
 - [[wiki/architecture/concerns-and-tech-debt]] — the 7 pre-existing lint errors

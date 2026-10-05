@@ -1,0 +1,61 @@
+<!doctype html>
+<!--
+  Title, description and canonical here must stay in sync with `SEO` in
+  src/content/site.ts. They are duplicated on purpose: these are what crawlers
+  and link previews read without executing JS, and `App` re-applies the same
+  values client-side.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f131c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fdfbff" media="(prefers-color-scheme: light)" />
+
+    <title>Balancr — Private wealth, tracked precisely</title>
+    <meta
+      name="description"
+      content="Track liquidity, recurring expenses, investments and your vehicle fleet in one encrypted financial cockpit. Free sandbox, native iOS and Android apps coming soon."
+    />
+    <link rel="canonical" href="https://balancr.finance/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Balancr" />
+    <meta property="og:title" content="Balancr — Private wealth, tracked precisely" />
+    <meta
+      property="og:description"
+      content="Track liquidity, recurring expenses, investments and your vehicle fleet in one encrypted financial cockpit."
+    />
+    <meta property="og:url" content="https://balancr.finance/" />
+    <!--
+      `og:image` and `apple-touch-icon` are deliberately absent: the source
+      export ships neither, and a reference to a missing asset produces a broken
+      card preview, which is worse than none. Adding them is a follow-up that
+      needs real artwork, not a placeholder.
+    -->
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!--
+      Display and headline faces are Plus Jakarta Sans, body is Manrope, per the
+      font map in the source export. `display=swap` and preconnect keep the
+      render-blocking request off the critical path as far as possible.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      Balancr tracks liquidity, recurring expenses, investments and your vehicle fleet in a
+      single encrypted financial cockpit. This page needs JavaScript; the cockpit itself is at
+      myfinancetracker-b257e.web.app.
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -2,7 +2,7 @@
 type: Index
 title: "Decisions — Index"
 description: "Architecture Decision Records (ADRs) and trade-off analyses."
-timestamp: 2026-07-18
+timestamp: 2026-10-05
 ---
 
 # Decisions
@@ -20,3 +20,4 @@ Architecture Decision Records (ADRs) and trade-off analyses.
 | [[decisions/react-native-monorepo|react-native-monorepo]] | ✅ React Native + npm workspaces monorepo for web/mobile/website/backend. Rejects nested sub-repos and pnpm. |
 | [[decisions/saas-readiness|saas-readiness]] | Hard blockers vs ship-as-is analysis: fix 6 critical items, launch, iterate with real users. |
 | [[decisions/typescript-7-upgrade|typescript-7-upgrade]] | TypeScript 7.0 Go-rewrite adoption with ESLint linting workaround via @typescript/typescript6. |
+| [[decisions/website-as-separate-hosting-target|website-as-separate-hosting-target]] | ✅ `apps/website` is a peer workspace with its own Firebase Hosting site; root scripts stay app-only and every deploy names its target. |

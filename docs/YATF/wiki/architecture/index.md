@@ -2,7 +2,7 @@
 type: Index
 title: "Architecture — Index"
 description: "System architecture, component diagrams, data flow, and tech stack."
-timestamp: 2026-07-18
+timestamp: 2026-10-05
 ---
 
 # Architecture
@@ -18,11 +18,11 @@ System architecture, component diagrams, data flow, and tech stack.
 | [[architecture/external-integrations|external-integrations]] | Firebase configuration, environment variables, and CI/CD integration status. |
 | [[architecture/financial-projections-architecture|financial-projections-architecture]] | Simulation data flow, component tree, design decisions, and integration points. |
 | [[architecture/investment-tracking-architecture|investment-tracking-architecture]] | Investment data flow, V1+V2 Firestore schema, store architecture, and component tree. |
-| [[architecture/monorepo-layout|monorepo-layout]] | Planned `apps/` + `packages/` workspace structure and the repo-level couplings that constrain the migration. |
+| [[architecture/monorepo-layout|monorepo-layout]] | `apps/` + `packages/` workspace structure — `apps/web` and `apps/website` live — and the repo-level couplings that constrain the migration. |
 | [[architecture/project-state|project-state]] | Current project state, active focus areas, and next prioritized steps. |
-| [[architecture/release-pipeline|release-pipeline]] | How code reaches production: blocking CI, `main` branch protection, PR-based releases, Firebase deploys, and `main`→`development` sync-back. |
+| [[architecture/release-pipeline|release-pipeline]] | How code reaches production: blocking CI, `main` branch protection, PR-based releases, Firebase deploys (two hosting sites), and `main`→`development` sync-back. |
 | [[architecture/system-architecture|system-architecture]] | System overview, component responsibilities, and end-to-end data flow. |
 | [[architecture/tech-stack|tech-stack]] | Full technology stack with library versions and dependency overview. |
-| [[architecture/testing-status|testing-status]] | Current testing infrastructure status — Vitest Phase 1 landed (61 pure-logic tests), store/component layers pending. |
+| [[architecture/testing-status|testing-status]] | Current testing infrastructure status — Vitest across two workspaces: 198 tests in `apps/web`, 59 in `apps/website`. |
 | [[architecture/user-settings-data-flow|user-settings-data-flow]] | User settings architecture: Firestore field, Zustand store, and component tree. |
 | [[architecture/versioning|versioning]] | Versioning scheme using conventional commits and the standard-version release pipeline. |
