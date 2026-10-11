@@ -93,9 +93,66 @@
     "netDeltaMonth": "Delta Netto (Mese)",
     "betaDisclaimer": "Benvenuto nella Soft Beta di Balancr!",
     "betaDisclaimerText": "L'applicazione è attualmente in fase di test sperimentale. Sebbene le trasmissioni dati siano crittografate e protette su un database Firestore isolato, si prega di non inserire credenziali bancarie reali o dati sensibili di conti privati. Questa piattaforma funge unicamente da registro di tracciamento simulato e autonomo, e non ha alcun collegamento diretto con istituti di credito.",
+    "liquidBalance": "Saldo Liquido Corrente",
+    "vsPreviousMonth": "vs mese precedente",
+    "movementsRegistered": "movimenti registrati",
+    "savingsRate": "Tasso di Risparmio",
+    "today": "Oggi",
+    "searchPlaceholder": "Cerca transazioni, categorie, IBAN...",
+    "newOperation": "Nuova Operazione",
+    "notifications": {
+      "title": "Notifiche",
+      "empty": "Nessuna notifica al momento",
+      "pacTitle": "Promemoria PAC ETF",
+      "pacMessage": "È il 2 del mese: verifica il versamento PAC automatico sugli ETF."
+    },
     "calendar": {
-      "title": "Calendario",
-      "noTransactions": "Nessuna transazione in questo giorno"
+      "title": "Calendario Mensile",
+      "noTransactions": "Nessuna transazione in questo giorno",
+      "movements": "Movimenti & Scadenze",
+      "netDayBalance": "Saldo netto giornata",
+      "items": "voci"
+    },
+    "plafond": {
+      "title": "Plafond Carte & Addebiti",
+      "empty": "Nessuna carta configurata",
+      "freeMargin": "Margine libero",
+      "usage": "Utilizzo",
+      "debitNote": "Addebito saldo CC al 1° del mese",
+      "totalCommitted": "Tot. impegnato"
+    },
+    "fleet": {
+      "title": "Flotta / Veicoli",
+      "avgConsumption": "Consumo medio",
+      "nextService": "Prossimo tagliando",
+      "tirePressure": "Pressione pneumatici"
+    },
+    "utilities": {
+      "title": "Utenze",
+      "fixedSpend": "Spesa fissa mese corrente",
+      "electricity": "Luce Elettrica",
+      "gas": "Gas Naturale",
+      "nextBill": "Prossima bolletta in arrivo:"
+    },
+    "investments": {
+      "title": "Investimenti / PAC",
+      "totalBadge": "Tot.",
+      "capitalInvested": "Capitale attuale investito",
+      "monthlyPac": "Quota PAC mensile",
+      "nextPurchase": "Prossimo acquisto",
+      "instrument": "Strumento",
+      "pnlGreen": "P&L Verde",
+      "pnlRed": "P&L Rosso"
+    },
+    "charts": {
+      "cashFlow": "Andamento Cash Flow",
+      "portfolio": "Valore Portafoglio vs Investito",
+      "noHistory": "Dati storici non disponibili",
+      "currentValue": "Valore Reale",
+      "investedCapital": "Capitale Versato",
+      "last6Months": "Ultimi 6 mesi",
+      "last12Months": "Ultimi 12 mesi",
+      "pacTimeline": "Timeline PAC"
     }
   },
   "salary": {

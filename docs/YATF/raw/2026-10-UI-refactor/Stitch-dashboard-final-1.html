@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-[#0B0F17]" lang="it">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Balancr - Finanza Personale | Dashboard</title>
+  <!-- Tailwind CSS CDN con plugins standard -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Google Fonts: Inter per UI e JetBrains Mono per dati e numeri -->
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap"
+    rel="stylesheet" />
+  <script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            background: '#0B0F17',
+            card: '#131B2E',
+            cardBorder: '#1E293B',
+            brandCyan: '#06B6D4',
+            brandGreen: '#10B981',
+            brandRed: '#EF4444',
+            brandAmber: '#F59E0B',
+          }
+        }
+      }
+    }
+  </script>
+  <style data-purpose="custom-utilities">
+    /* Forzatura font tabulare per allineamento preciso dei dati numerici */
+    .num-tabular {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Scrollbar sottile e discreta */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0B0F17;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+
+<body class="h-full bg-[#0B0F17] text-slate-200 font-sans antialiased flex overflow-hidden">
+  <!-- BEGIN: Sidebar -->
+  <aside
+    class="w-[240px] flex-shrink-0 bg-[#0E1524] border-r border-[#1E293B] flex flex-col justify-between h-full select-none z-20"
+    data-purpose="main-sidebar">
+    <div class="flex flex-col">
+      <!-- Logo Balancr -->
+      <div class="h-16 flex items-center px-5 border-b border-[#1E293B] gap-3">
+        <div
+          class="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-brandCyan font-bold text-lg">
+          $
+        </div>
+        <div>
+          <span class="font-bold text-white tracking-wider text-sm block leading-none">BALANCR</span>
+          <span class="text-[10px] text-slate-400 font-medium tracking-tight uppercase">Finanza Personale</span>
+        </div>
+      </div>
+      <!-- Menu di Navigazione Principale -->
+      <nav class="p-3 space-y-1">
+        <!-- Elemento Attivo: Dashboard -->
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-[#16233B] text-brandCyan border border-cyan-500/30"
+          href="#">
+          <svg class="w-4 h-4 text-brandCyan" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path
+              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span class="truncate">Dashboard</span>
+        </a>
+        <!-- Transazioni -->
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors"
+          href="#">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span class="truncate">Transazioni</span>
+        </a>
+        <!-- Utenze & Consumi -->
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors"
+          href="#">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span class="truncate">Utenze &amp; Consumi</span>
+        </a>
+        <!-- Investimenti & PAC -->
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors"
+          href="#">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            </path>
+          </svg>
+          <span class="truncate">Investimenti &amp; PAC</span>
+        </a>
+        <!-- Budget Spesa -->
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors"
+          href="#">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span class="truncate">Budget Spesa</span>
+        </a>
+        <!-- Flotta / Veicoli -->
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors"
+          href="#">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round"
+              stroke-linejoin="round" stroke-width="2"></path>
+            <path
+              d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 2h10l2-2zM13 8h4.5a1.5 1.5 0 011.414 1l1.5 4A1.5 1.5 0 0121 14.5V16h-2"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span class="truncate">Flotta / Veicoli</span>
+        </a>
+        <!-- Impostazioni -->
+        <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors"
+          href="#">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            </path>
+          </svg>
+          <span class="truncate">Impostazioni</span>
+        </a>
+      </nav>
+    </div>
+    <!-- Profilo Utente Footer -->
+    <div class="p-3 border-t border-[#1E293B]">
+      <div class="flex items-center justify-between p-2 rounded-lg bg-[#131B2E] border border-[#1E293B]">
+        <div class="flex items-center gap-2.5 overflow-hidden">
+          <div
+            class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-white flex-shrink-0">
+            AT
+          </div>
+          <div class="overflow-hidden">
+            <p class="text-xs font-semibold text-white truncate">Alessandro Torri</p>
+            <p class="text-[10px] text-slate-400 truncate">alessandro@torri.c...</p>
+          </div>
+        </div>
+        <button aria-label="Disconnetti" class="text-slate-400 hover:text-slate-200 p-1" type="button">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+  <!-- END: Sidebar -->
+  <!-- Area Principale di Contenuto -->
+  <div class="flex-1 flex flex-col h-full overflow-hidden">
+    <!-- BEGIN: TopBar -->
+    <header class="h-16 border-b border-[#1E293B] bg-[#0E1524] px-6 flex items-center justify-between flex-shrink-0"
+      data-purpose="top-navbar">
+      <!-- Cerca Input -->
+      <div class="w-96">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2"></path>
+            </svg>
+          </div>
+          <input
+            class="w-full bg-[#131B2E] border border-[#1E293B] rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+            placeholder="Cerca transazioni, categorie, IBAN..." type="text" />
+        </div>
+      </div>
+      <!-- Azioni Rapide a Destra -->
+      <div class="flex items-center gap-3.5">
+        <!-- Selettore Valuta -->
+        <button
+          class="flex items-center gap-1.5 text-xs font-medium text-slate-300 bg-[#131B2E] border border-[#1E293B] px-3 py-1.5 rounded-lg hover:border-slate-600 transition"
+          type="button">
+          <span class="w-2 h-2 rounded-full bg-brandCyan"></span>
+          <span>EUR (€)</span>
+          <svg class="w-3.5 h-3.5 text-slate-400 ml-1" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </button>
+        <!-- Campanella Notifiche -->
+        <button
+          class="relative p-2 bg-[#131B2E] border border-[#1E293B] rounded-lg text-slate-300 hover:text-white transition"
+          type="button">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-brandRed rounded-full"></span>
+        </button>
+        <!-- Bottone CTA Primario -->
+        <button
+          class="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-slate-950 font-semibold text-xs px-3.5 py-1.5 rounded-lg transition-colors"
+          type="button">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+            <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+          </svg>
+          <span>Nuova Operazione</span>
+        </button>
+      </div>
+    </header>
+    <!-- END: TopBar -->
+    <!-- Scrollable Main Container -->
+    <main class="flex-1 overflow-y-auto p-6 space-y-5">
+      <!-- BEGIN: KpiRow -->
+      <section class="grid grid-cols-4 gap-5" data-purpose="kpi-row">
+        <!-- Card 1: Saldo Liquido Corrente -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div class="flex items-center gap-2 text-xs font-semibold uppercase text-slate-400 tracking-wider">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+              <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            </svg>
+            <span class="truncate">SALDO LIQUIDO CORRE...</span>
+          </div>
+          <div class="my-2">
+            <div class="num-tabular text-2xl font-bold text-white tracking-tight">€ 28.959,76</div>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="num-tabular text-brandGreen font-medium">+1,8%</span>
+            <span class="text-slate-400">vs mese precedente</span>
+          </div>
+        </div>
+        <!-- Card 2: Entrate del Mese -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div class="flex items-center gap-2 text-xs font-semibold uppercase text-slate-400 tracking-wider">
+            <svg class="w-4 h-4 text-brandGreen" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+              <path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              </path>
+            </svg>
+            <span class="truncate">ENTRATE DEL MESE</span>
+          </div>
+          <div class="my-2">
+            <div class="num-tabular text-2xl font-bold text-brandGreen tracking-tight">+€ 2.269,43</div>
+          </div>
+          <div class="text-xs text-slate-400 truncate">
+            Stipendio &amp; Accreditamenti
+          </div>
+        </div>
+        <!-- Card 3: Uscite del Mese -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div class="flex items-center gap-2 text-xs font-semibold uppercase text-slate-400 tracking-wider">
+            <svg class="w-4 h-4 text-brandRed" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+              <path d="M5 10l7-7m0 0l7 7m-7-7v18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              </path>
+            </svg>
+            <span class="truncate">USCITE DEL MESE</span>
+          </div>
+          <div class="my-2">
+            <div class="num-tabular text-2xl font-bold text-brandRed tracking-tight">-€ 1.761,52</div>
+          </div>
+          <div class="flex items-center gap-1 text-xs text-slate-400">
+            <span class="num-tabular">84</span>
+            <span>movimenti registrati</span>
+          </div>
+        </div>
+        <!-- Card 4: Delta Netto Mensile -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div class="flex items-center gap-2 text-xs font-semibold uppercase text-slate-400 tracking-wider">
+            <svg class="w-4 h-4 text-brandCyan" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+              <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              </path>
+            </svg>
+            <span class="truncate">DELTA NETTO MENSILE</span>
+          </div>
+          <div class="my-2">
+            <div class="num-tabular text-2xl font-bold text-brandCyan tracking-tight">+€ 507,91</div>
+          </div>
+          <div class="text-xs text-slate-400 truncate">
+            Tasso di risparmio: <span class="num-tabular text-white font-medium">22,4%</span>
+          </div>
+        </div>
+      </section>
+      <!-- END: KpiRow -->
+      <!-- BEGIN: MidSection (Unified Master-Detail Calendar & Cards) -->
+      <section class="grid grid-cols-3 gap-5" data-purpose="calendar-cards-unified">
+        <!-- CARD UNIFICATA MASTER-DETAIL (2 Colonne) -->
+        <div
+          class="col-span-2 bg-[#131B2E] border border-[#1E293B] rounded-xl overflow-hidden flex flex-col md:flex-row">
+          <!-- Master: Calendario Mensile -->
+          <div class="md:w-5/12 p-4 border-b md:border-b-0 md:border-r border-[#1E293B] flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-white uppercase tracking-wider">CALENDARIO MENSILE</span>
+                <div class="flex items-center gap-1 bg-[#0E1524] px-2 py-1 rounded border border-[#1E293B]">
+                  <span class="text-[11px] font-mono text-slate-300">OTTOBRE 2026</span>
+                  <div class="flex items-center ml-1 text-slate-400">
+                    <button class="hover:text-white px-0.5" type="button">‹</button>
+                    <button class="hover:text-white px-0.5" type="button">›</button>
+                  </div>
+                </div>
+              </div>
+              <!-- Intestazione Settimana -->
+              <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-slate-500 mb-2">
+                <span>LUN</span><span>MAR</span><span>MER</span><span>GIO</span><span>VEN</span><span>SAB</span><span>DOM</span>
+              </div>
+              <!-- Griglia Giorni Ottobre 2026 -->
+              <div class="grid grid-cols-7 gap-y-1.5 text-center text-xs num-tabular">
+                <!-- Settimana 1 -->
+                <span class="text-slate-600 py-1">28</span>
+                <span class="text-slate-600 py-1">29</span>
+                <span class="text-slate-600 py-1">30</span>
+                <span class="relative py-1 text-slate-300">1<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandRed rounded-full"></span></span>
+                <span class="relative py-1 text-slate-300">2<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandRed rounded-full"></span></span>
+                <span class="relative py-1 text-slate-300">3<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandRed rounded-full"></span></span>
+                <span class="py-1 text-slate-400">4</span>
+                <!-- Settimana 2 -->
+                <span class="py-1 text-slate-400">5</span>
+                <span class="relative py-1 text-slate-300">6<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandGreen rounded-full"></span></span>
+                <span class="py-1 text-slate-400">7</span>
+                <span class="py-1 text-slate-400">8</span>
+                <span class="py-1 text-slate-400">9</span>
+                <span class="relative py-1 text-slate-300">10<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandRed rounded-full"></span></span>
+                <span class="py-1 text-slate-400">11</span>
+                <!-- Settimana 3 -->
+                <span class="py-1 text-slate-400">12</span>
+                <span class="py-1 text-slate-400">13</span>
+                <span class="py-1 text-slate-400">14</span>
+                <span class="relative py-1 text-slate-300">15<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandCyan rounded-full"></span></span>
+                <span class="py-1 text-slate-400">16</span>
+                <span class="py-1 text-slate-400">17</span>
+                <span class="py-1 text-slate-400">18</span>
+                <!-- Settimana 4 -->
+                <span class="relative py-1 text-slate-300">19<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandRed rounded-full"></span></span>
+                <span class="py-1 text-slate-400">20</span>
+                <span class="py-1 text-slate-400">21</span>
+                <span class="relative py-1 text-slate-300">22<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandRed rounded-full"></span></span>
+                <span class="py-1 text-slate-400">23</span>
+                <span class="py-1 text-slate-400">24</span>
+                <span class="py-1 text-slate-400">25</span>
+                <!-- Settimana 5 (con 28 OTT selezionato) -->
+                <span class="py-1 text-slate-400">26</span>
+                <span class="relative py-1 text-slate-300">27<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandGreen rounded-full"></span></span>
+                <div class="py-1 flex items-center justify-center">
+                  <span
+                    class="w-6 h-6 rounded border-2 border-brandCyan text-brandCyan bg-cyan-950/50 flex items-center justify-center font-bold">28</span>
+                </div>
+                <span class="py-1 text-slate-400">29</span>
+                <span class="py-1 text-slate-400">30</span>
+                <span class="relative py-1 text-slate-300">31<span
+                    class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-brandRed rounded-full"></span></span>
+                <span class="text-slate-600 py-1">1</span>
+              </div>
+            </div>
+            <!-- Legenda Calendario -->
+            <div
+              class="mt-4 pt-3 border-t border-[#1E293B] flex items-center justify-between text-[11px] text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-brandGreen"></span>
+                <span>Entrata</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-brandRed"></span>
+                <span>Uscita</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-brandCyan"></span>
+                <span>Oggi</span>
+              </div>
+            </div>
+          </div>
+          <!-- Detail: Transazioni del Giorno Selezionato -->
+          <div class="md:w-7/12 p-4 flex flex-col justify-between bg-[#111827]/40">
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-white uppercase tracking-wider">MOVIMENTI &amp; SCADENZE</span>
+                <span
+                  class="bg-[#16233B] text-brandCyan border border-cyan-500/30 text-[11px] px-2 py-0.5 rounded font-mono font-medium">
+                  28 OTT 2026 • 3 voci
+                </span>
+              </div>
+              <!-- Lista Movimenti Giorno -->
+              <div class="space-y-2.5">
+                <!-- Movimento 1 -->
+                <div class="p-2.5 rounded-lg bg-[#131B2E] border border-[#1E293B] flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-red-950/60 border border-red-500/30 flex items-center justify-center text-brandRed font-mono font-bold text-xs">
+                      $
+                    </div>
+                    <div>
+                      <p class="text-xs font-semibold text-white">Bonifico Quota Mutuo</p>
+                      <p class="text-[10px] text-slate-400">Banca Intesa • SDD Ricorrente</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="num-tabular text-xs font-bold text-brandRed block">-€ 31,43</span>
+                    <span class="text-[9px] font-semibold tracking-wider text-slate-500 uppercase">DEBITI</span>
+                  </div>
+                </div>
+                <!-- Movimento 2 -->
+                <div class="p-2.5 rounded-lg bg-[#131B2E] border border-[#1E293B] flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-brandGreen font-bold text-xs">
+                      ↙
+                    </div>
+                    <div>
+                      <p class="text-xs font-semibold text-white">Accredito Stipendio</p>
+                      <p class="text-[10px] text-slate-400">Bonifico SEPA • Mensile</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="num-tabular text-xs font-bold text-brandGreen block">+€ 2.100,00</span>
+                    <span class="text-[9px] font-semibold tracking-wider text-slate-500 uppercase">ENTRATE</span>
+                  </div>
+                </div>
+                <!-- Movimento 3 -->
+                <div class="p-2.5 rounded-lg bg-[#131B2E] border border-[#1E293B] flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-7 h-7 rounded bg-amber-950/60 border border-amber-500/30 flex items-center justify-center text-brandAmber text-xs">
+                      ⏱
+                    </div>
+                    <div>
+                      <p class="text-xs font-semibold text-white">Rata Finanziamento Auto</p>
+                      <p class="text-[10px] text-slate-400">Scadenza: 31 Ottobre (3 gg)</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="num-tabular text-xs font-bold text-slate-200 block">-€ 241,85</span>
+                    <span class="text-[9px] font-semibold tracking-wider text-amber-500 uppercase">IN EVOCAZIONE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Footer con Saldo Netto Giornata -->
+            <div class="mt-4 pt-3 border-t border-[#1E293B] flex items-center justify-between">
+              <span class="text-xs text-slate-400">Saldo netto giornata:</span>
+              <span class="num-tabular text-sm font-bold text-brandGreen">+€ 2.068,57</span>
+            </div>
+          </div>
+        </div>
+        <!-- CARD PLAFOND CARTE & ADDEBITI (1 Colonna) -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">PLAFOND CARTE &amp; ADDEBITI</span>
+            </div>
+            <!-- Carta 1: Gold -->
+            <div class="space-y-1.5 mb-5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-medium text-white">Carta di Credito Gold <span
+                    class="text-[10px] text-slate-400 font-mono">#4412</span></span>
+                <span class="num-tabular font-bold text-slate-200">€ 286,80 <span class="text-slate-500 font-normal">/ €
+                    2.000</span></span>
+              </div>
+              <!-- Progress Bar -->
+              <div class="w-full bg-[#0E1524] h-2 rounded-full overflow-hidden border border-[#1E293B]">
+                <div class="bg-brandCyan h-full rounded-full" style="width: 14.3%;"></div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-400">
+                <span>Margine libero: <span class="num-tabular text-brandGreen font-medium">€ 1.713,20</span></span>
+                <span>Utilizzo <span class="num-tabular">14,3%</span></span>
+              </div>
+            </div>
+            <!-- Carta 2: Debito Arancio -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-medium text-white">Carta di Debito Arancio <span
+                    class="text-[10px] text-slate-400 font-mono">#9921</span></span>
+                <span class="num-tabular font-bold text-slate-200">€ 61,19 <span class="text-slate-500 font-normal">/ €
+                    1.500</span></span>
+              </div>
+              <!-- Progress Bar -->
+              <div class="w-full bg-[#0E1524] h-2 rounded-full overflow-hidden border border-[#1E293B]">
+                <div class="bg-brandGreen h-full rounded-full" style="width: 4.1%;"></div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-400">
+                <span>Disponibile su conto: <span class="num-tabular text-slate-300 font-medium">€
+                    1.438,81</span></span>
+                <span>Utilizzo <span class="num-tabular">4,1%</span></span>
+              </div>
+            </div>
+          </div>
+          <!-- Footer Carta con Info Addebito -->
+          <div class="mt-4 pt-3 border-t border-[#1E293B] flex items-center justify-between text-[11px] text-slate-400">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-brandCyan" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2"></path>
+              </svg>
+              <span>Addebito saldo CC al 1° del mese</span>
+            </div>
+            <span class="num-tabular text-slate-200 font-medium">Tot. impegnato € 347,99</span>
+          </div>
+        </div>
+      </section>
+      <!-- END: MidSection -->
+      <!-- BEGIN: BentoRow (Flotta, Utenze, Investimenti) -->
+      <section class="grid grid-cols-3 gap-5" data-purpose="bento-widgets">
+        <!-- WIDGET 1: Flotta & Veicoli -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                  <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round"
+                    stroke-linejoin="round" stroke-width="2"></path>
+                  <path
+                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 2h10l2-2zM13 8h4.5a1.5 1.5 0 011.414 1l1.5 4A1.5 1.5 0 0121 14.5V16h-2"
+                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+                <span class="text-xs font-bold text-white uppercase tracking-wider">FLOTTA &amp; VEICOLI</span>
+              </div>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">Peugeot 3008 GT Line • E-HDi</p>
+            <div class="flex items-baseline gap-2 mb-4">
+              <span class="num-tabular text-2xl font-bold text-white">10.568</span>
+              <span class="text-xs text-slate-400 font-mono">km</span>
+            </div>
+            <!-- Box Metriche Veicolo -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-[#0E1524] p-2.5 rounded-lg border border-[#1E293B]">
+                <span class="text-[10px] text-slate-500 uppercase block leading-none mb-1">CONSUMO MEDIO</span>
+                <span class="num-tabular text-xs font-bold text-white">5,8 l/100km</span>
+              </div>
+              <div class="bg-[#0E1524] p-2.5 rounded-lg border border-[#1E293B]">
+                <span class="text-[10px] text-slate-500 uppercase block leading-none mb-1">PROSSIMO TAGLIANDO</span>
+                <span class="num-tabular text-xs font-bold text-slate-200">15 Dic 2026</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#1E293B] flex items-center justify-between text-[11px] text-slate-400">
+            <span>Pressione pneumatici: <span class="text-brandGreen font-medium">Regolare</span></span>
+            <span class="num-tabular text-[10px]">Sync: 10 min fa</span>
+          </div>
+        </div>
+        <!-- WIDGET 2: Utenze & Consumi -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brandAmber" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                  <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                  </path>
+                </svg>
+                <span class="text-xs font-bold text-white uppercase tracking-wider">UTENZE &amp; CONSUMI</span>
+              </div>
+              <span
+                class="bg-cyan-950/80 text-brandCyan border border-cyan-500/30 text-[10px] font-mono px-2 py-0.5 rounded">
+                -4,2% YoY
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mb-1">Spesa fissa mese corrente</p>
+            <div class="num-tabular text-2xl font-bold text-white mb-4">€ 590,78</div>
+            <!-- Box Metriche Luce e Gas -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-[#0E1524] p-2.5 rounded-lg border border-[#1E293B]">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] text-slate-500 uppercase">LUCE ELETTRICA</span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-brandCyan"></span>
+                </div>
+                <div class="num-tabular text-xs font-bold text-white mb-0.5">320 <span
+                    class="text-[10px] font-normal text-slate-400">kWh</span></div>
+                <div class="num-tabular text-[10px] text-slate-500">€ 0,28 / kWh</div>
+              </div>
+              <div class="bg-[#0E1524] p-2.5 rounded-lg border border-[#1E293B]">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[10px] text-slate-500 uppercase">GAS NATURALE</span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-brandAmber"></span>
+                </div>
+                <div class="num-tabular text-xs font-bold text-white mb-0.5">45 <span
+                    class="text-[10px] font-normal text-slate-400">smc</span></div>
+                <div class="num-tabular text-[10px] text-slate-500">€ 0,92 / smc</div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#1E293B] flex items-center justify-between text-[11px] text-slate-400">
+            <span>Prossima bolletta in arrivo:</span>
+            <span class="num-tabular text-slate-200 font-medium">03 Nov 2026</span>
+          </div>
+        </div>
+        <!-- WIDGET 3: Investimenti & PAC ETF -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-brandGreen" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                  <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"></path>
+                </svg>
+                <span class="text-xs font-bold text-white uppercase tracking-wider truncate">INVESTIMENTI &amp; PAC
+                  ETF</span>
+              </div>
+              <span
+                class="bg-emerald-950/80 text-brandGreen border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded">
+                +14,2% TOT
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mb-1">Capitale attuale investito</p>
+            <div class="flex items-baseline gap-2 mb-4">
+              <div class="num-tabular text-2xl font-bold text-white">€ 800,00</div>
+              <span class="num-tabular text-xs font-medium text-brandGreen">+€ 113,60</span>
+            </div>
+            <!-- Box PAC e Prossimo Acquisto -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-[#0E1524] p-2.5 rounded-lg border border-[#1E293B]">
+                <span class="text-[10px] text-slate-500 uppercase block leading-none mb-1">QUOTA PAC MENSILE</span>
+                <span class="num-tabular text-xs font-bold text-white">€ 150,00 <span
+                    class="text-[10px] font-normal text-slate-400">/mese</span></span>
+              </div>
+              <div class="bg-[#0E1524] p-2.5 rounded-lg border border-[#1E293B]">
+                <span class="text-[10px] text-slate-500 uppercase block leading-none mb-1">PROSSIMO ACQUISTO</span>
+                <span class="num-tabular text-xs font-bold text-brandCyan">05 Nov 2026</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#1E293B] flex items-center justify-between text-[11px] text-slate-400">
+            <span class="truncate">Strumento: <span class="text-slate-300 font-medium">iShares Core MSCI World
+                (SWDA)</span></span>
+            <span class="num-tabular text-brandGreen font-medium ml-1">P&amp;L Verde</span>
+          </div>
+        </div>
+      </section>
+      <!-- END: BentoRow -->
+      <!-- BEGIN: ChartsRow (Cashflow & Valore Portafoglio) -->
+      <section class="grid grid-cols-2 gap-5" data-purpose="charts-row">
+        <!-- GRAFICO 1: Andamento Cash Flow (Ultimi 6 Mesi) -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">ANDAMENTO CASH FLOW</span>
+              <span
+                class="text-[10px] text-slate-400 bg-[#0E1524] border border-[#1E293B] px-2 py-0.5 rounded font-mono">ULTIMI
+                6 MESI</span>
+            </div>
+            <!-- Legenda Linee -->
+            <div class="flex items-center gap-4 text-xs">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-0.5 bg-brandGreen"></span>
+                <span class="text-slate-300 text-[11px]">Entrate</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-0.5 bg-brandRed"></span>
+                <span class="text-slate-300 text-[11px]">Uscite</span>
+              </div>
+            </div>
+          </div>
+          <!-- SVG Chart: Cash Flow -->
+          <div class="relative w-full h-48">
+            <svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 500 160">
+              <!-- Definizioni Gradienti Verticali Sottilissimi -->
+              <defs>
+                <lineargradient id="greenArea" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#10B981" stop-opacity="0.12"></stop>
+                  <stop offset="100%" stop-color="#10B981" stop-opacity="0.0"></stop>
+                </lineargradient>
+                <lineargradient id="redArea" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#EF4444" stop-opacity="0.10"></stop>
+                  <stop offset="100%" stop-color="#EF4444" stop-opacity="0.0"></stop>
+                </lineargradient>
+              </defs>
+              <!-- Griglie Orizzontali Sottili -->
+              <line stroke="#1E293B" stroke-dasharray="3,3" stroke-width="1" x1="0" x2="500" y1="30" y2="30"></line>
+              <line stroke="#1E293B" stroke-dasharray="3,3" stroke-width="1" x1="0" x2="500" y1="80" y2="80"></line>
+              <line stroke="#1E293B" stroke-dasharray="3,3" stroke-width="1" x1="0" x2="500" y1="130" y2="130"></line>
+              <!-- Aree Colorate con Gradiente -->
+              <path d="M 15 130 Q 95 105 175 90 T 335 110 T 415 60 L 485 65 L 485 160 L 15 160 Z"
+                fill="url(#greenArea)"></path>
+              <path d="M 15 145 Q 95 130 175 120 T 335 135 T 415 100 L 485 105 L 485 160 L 15 160 Z"
+                fill="url(#redArea)"></path>
+              <!-- Linea Entrate (Verde Smeraldo) -->
+              <path d="M 15 130 Q 95 105 175 90 T 335 110 T 415 60 L 485 65" fill="none" stroke="#10B981"
+                stroke-linecap="round" stroke-width="2.5"></path>
+              <!-- Linea Uscite (Rosso Corallo) -->
+              <path d="M 15 145 Q 95 130 175 120 T 335 135 T 415 100 L 485 105" fill="none" stroke="#EF4444"
+                stroke-linecap="round" stroke-width="2.5"></path>
+              <!-- Punti Chiave - Ottobre 2026 -->
+              <circle cx="485" cy="65" fill="#10B981" r="4.5" stroke="#0B0F17" stroke-width="2"></circle>
+              <circle cx="485" cy="105" fill="#EF4444" r="4.5" stroke="#0B0F17" stroke-width="2"></circle>
+            </svg>
+          </div>
+          <!-- Asse X: Mesi con Font Monospace -->
+          <div
+            class="grid grid-cols-6 text-center text-[10px] font-mono text-slate-400 mt-2 pt-2 border-t border-[#1E293B]">
+            <span>MAG '26</span>
+            <span>GIU '26</span>
+            <span>LUG '26</span>
+            <span>AGO '26</span>
+            <span>SET '26</span>
+            <span class="text-brandCyan font-bold">OTT '26</span>
+          </div>
+        </div>
+        <!-- GRAFICO 2: Valore Portafoglio vs Investito -->
+        <div class="bg-[#131B2E] border border-[#1E293B] rounded-xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">VALORE PORTAFOGLIO VS INVESTITO</span>
+              <span
+                class="text-[10px] text-slate-400 bg-[#0E1524] border border-[#1E293B] px-2 py-0.5 rounded font-mono">TIMELINE
+                PAC</span>
+            </div>
+            <!-- Legenda Linee -->
+            <div class="flex items-center gap-4 text-xs">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-0.5 bg-brandCyan"></span>
+                <span class="text-slate-300 text-[11px]">Valore Reale</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-0.5 border-b border-dashed border-slate-400"></span>
+                <span class="text-slate-300 text-[11px]">Capitale Versato</span>
+              </div>
+            </div>
+          </div>
+          <!-- SVG Chart: Portafoglio -->
+          <div class="relative w-full h-48">
+            <svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 500 160">
+              <!-- Definizioni Gradienti -->
+              <defs>
+                <lineargradient id="cyanArea" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.14"></stop>
+                  <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.0"></stop>
+                </lineargradient>
+              </defs>
+              <!-- Griglie Orizzontali Sottili -->
+              <line stroke="#1E293B" stroke-dasharray="3,3" stroke-width="1" x1="0" x2="500" y1="30" y2="30"></line>
+              <line stroke="#1E293B" stroke-dasharray="3,3" stroke-width="1" x1="0" x2="500" y1="80" y2="80"></line>
+              <line stroke="#1E293B" stroke-dasharray="3,3" stroke-width="1" x1="0" x2="500" y1="130" y2="130"></line>
+              <!-- Area Sfumata Linea Valore Reale -->
+              <path d="M 20 145 L 110 135 L 200 115 L 290 95 L 380 70 L 480 35 L 480 160 L 20 160 Z"
+                fill="url(#cyanArea)"></path>
+              <!-- Linea Capitale Versato (Tratteggiata Grigia) -->
+              <path d="M 20 145 L 110 138 L 200 120 L 290 102 L 380 85 L 480 65" fill="none" stroke="#64748B"
+                stroke-dasharray="4,4" stroke-width="2"></path>
+              <!-- Linea Valore Reale (Ciano Pieno) -->
+              <path d="M 20 145 L 110 135 L 200 115 L 290 95 L 380 70 L 480 35" fill="none" stroke="#06B6D4"
+                stroke-linecap="round" stroke-width="2.5"></path>
+              <!-- Punti Valore Versato (Grigi) -->
+              <circle cx="20" cy="145" fill="#64748B" r="3"></circle>
+              <circle cx="110" cy="138" fill="#64748B" r="3"></circle>
+              <circle cx="200" cy="120" fill="#64748B" r="3"></circle>
+              <circle cx="290" cy="102" fill="#64748B" r="3"></circle>
+              <circle cx="380" cy="85" fill="#64748B" r="3"></circle>
+              <circle cx="480" cy="65" fill="#64748B" r="3"></circle>
+              <!-- Punti Valore Reale (Ciano) -->
+              <circle cx="20" cy="145" fill="#06B6D4" r="3.5"></circle>
+              <circle cx="110" cy="135" fill="#06B6D4" r="3.5"></circle>
+              <circle cx="200" cy="115" fill="#06B6D4" r="3.5"></circle>
+              <circle cx="290" cy="95" fill="#06B6D4" r="3.5"></circle>
+              <circle cx="380" cy="70" fill="#06B6D4" r="3.5"></circle>
+              <circle cx="480" cy="35" fill="#06B6D4" r="5" stroke="#0B0F17" stroke-width="2"></circle>
+            </svg>
+          </div>
+          <!-- Asse X: Valori e Mesi in Formato Tabulare Monospace -->
+          <div
+            class="grid grid-cols-6 text-center text-[10px] font-mono text-slate-400 mt-2 pt-2 border-t border-[#1E293B]">
+            <div>MAG <span class="block text-slate-500">(€200)</span></div>
+            <div>GIU <span class="block text-slate-500">(€350)</span></div>
+            <div>LUG <span class="block text-slate-500">(€500)</span></div>
+            <div>AGO <span class="block text-slate-500">(€650)</span></div>
+            <div>SET <span class="block text-slate-500">(€800)</span></div>
+            <div class="text-brandCyan font-bold">OTT <span class="block text-brandCyan">(€913,60)</span></div>
+          </div>
+        </div>
+      </section>
+      <!-- END: ChartsRow -->
+    </main>
+  </div>
+</body>
+
+</html>
