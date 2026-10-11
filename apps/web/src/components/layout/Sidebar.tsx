@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavClick }) => {
   const { user } = useAuthStore();
   const logout = useLogout();
   const isMobile = useMediaQuery('(max-width: 899.95px)');
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   const isActive = (path: string) => location.pathname === path;
 
