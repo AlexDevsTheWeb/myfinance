@@ -68,3 +68,4 @@ Complete app rebranding from "YAFT - Yet Another Finance Tracker" to **Balancr**
 ## Related
 - Issue: [#82](https://github.com/AlexDevsTheWeb/myfinance/issues/82)
 - Source: [raw/balancr-identity-system/balancr-identity-system.md](raw/balancr-identity-system/balancr-identity-system.md)
+- [[wiki/decisions/balancr-identity-system]]

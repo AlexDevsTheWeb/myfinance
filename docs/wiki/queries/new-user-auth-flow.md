@@ -52,3 +52,7 @@ New user registration via Google Auth is **safe**. Data isolation is enforced at
 ## Source
 
 Full analysis: [raw/new-user-auth-flow/new-user-auth-flow.md](raw/new-user-auth-flow/new-user-auth-flow.md)
+
+## Related
+
+- [[wiki/bugs/silent-login-errors]]

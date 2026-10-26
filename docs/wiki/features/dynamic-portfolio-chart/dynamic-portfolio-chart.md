@@ -53,3 +53,4 @@ See [raw analysis](raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md) for f
 - [[wiki/bugs/broker-transaction-filter]] — Broker filter bug; chart "always grows" because snapshots mirror invested until prices are refreshed
 - GitHub: [#160](https://github.com/AlexDevsTheWeb/myfinance/issues/160)
 - Source: [raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md](raw/dynamic-portfolio-chart/dynamic-portfolio-chart.md)
+- [[wiki/plans/daily-historical-chart/daily-historical-chart]]

@@ -916,3 +916,15 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Repaired breakage found by the new validator: 12 broken wikilinks/relative links (wrong depth after the move, `budget-savings-architecture` pointed at a directory that never existed, `new-user-auth-flow` double-slug, a link to an uncreated plan), 9 stale `sources:` paths, and normalized all 92 category-index wikilinks to `[[wiki/<category>/<slug>]]`
 - Created [[wiki/decisions/wiki-reorganization]]; refreshed [[wiki/architecture/codebase-structure]] and `raw/codebase/STRUCTURE.md`; root `AGENTS.md` and `README.md` rewritten for the monorepo and the new docs layout
 - Validation: `python3 docs/scripts/okf_validate.py` → 93 pages valid, indexes complete, 0 warnings
+
+## [2026-10-26] ingest | Archive consolidation | Every retired plan mapped to a wiki page
+- Audited `raw/archive/` against the wiki before closing the reorganization: found four shipped features with no page of their own (analytics module, i18n, FAB, store internals) and six `docs/YATF`/`.planning` references still live in page bodies
+- Created [[wiki/features/analytics-insights/analytics-insights]] — analytics data layer + 6 chart components, Insights tab; records that the design said Recharts (superseded by [[wiki/decisions/chart-migration-mui]]) and that `AnalyticsFilters` is exported but never rendered
+- Created [[wiki/features/localization/localization]] — i18next setup, detection order, dayjs sync, 36 consumers
+- Created [[wiki/features/quick-actions-fab/quick-actions-fab]] — layout FAB, hidden on `/config` and dashboard, modal state lifted out of DashboardPage
+- Created [[wiki/architecture/store-architecture]] — stores + extracted types/validation/sanitization/backup/sync, and the explicit finding that the designed domain-module split never shipped (`useFinanceStore` is still ~1.5k lines)
+- Created [[wiki/references/legacy-planning-archive]] — one table per source system mapping every archived document to the page that now carries it, plus the five items planned but never shipped: Google Drive cloud backup (phase 05), Budget-vs-Actual chart, store module split, analytics filter bar, FAB-on-dashboard
+- Rewrote [[wiki/plans/roadmap]] against reality: phases 07/10/11/12 moved to completed, 04 marked partial (backup misses 6 entity groups), 05 marked not started; removed a duplicate `## Related` section and the stray Phase 10 block
+- Updated [[wiki/architecture/project-state]] store section and cross-linked the archive map from [[wiki/decisions/wiki-reorganization]]
+- Wired the 11 pages that had no inbound links (car-statistics-year, charts-ui, etf-pricing-total-return, silent-login-errors, balancr-identity-system, account-deletion, dashboard-calendar, investment-professional-enhancements, sidebar-routing-refactor, italian-tax-enhancements, daily-historical-chart) into their topical neighbours — `--orphans` is now clean too
+- Validation: `python3 docs/scripts/okf_validate.py` → 98 pages valid, indexes complete, 0 warnings

@@ -47,3 +47,6 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[wiki/features/first-of-month-recurring/first-of-month-recurring|first-of-month-recurring]] | Recurrent transactions auto-generated on the 1st of each month; whole month preloaded at month start; back-filled with correct date on any app open. |
 | [[wiki/features/dashboard-calendar/dashboard-calendar|dashboard-calendar]] | Month calendar on the Dashboard — per-day income/expense/transfer dots + selected-day transaction list, live-updating. |
 | [[wiki/features/marketing-website/marketing-website|marketing-website]] | ✅ Balancr marketing landing page as an isolated `apps/website` workspace, with its own Firebase Hosting site. |
+| [[wiki/features/analytics-insights/analytics-insights|analytics-insights]] | Shared analytics data layer + six chart components on the Insights tab of `/finance`, migrated to MUI X Charts. |
+| [[wiki/features/localization/localization|localization]] | Italian and English UI via i18next, browser/localStorage detection, dayjs locale sync, selector in ConfigPage. |
+| [[wiki/features/quick-actions-fab/quick-actions-fab|quick-actions-fab]] | Expandable FAB in the layout opening New Income / New Expense from any page except dashboard and Config. |

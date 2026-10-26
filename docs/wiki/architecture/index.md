@@ -26,3 +26,4 @@ System architecture, component diagrams, data flow, and tech stack.
 | [[wiki/architecture/testing-status|testing-status]] | Current testing infrastructure status — Vitest across two workspaces: 198 tests in `apps/web`, 59 in `apps/website`. |
 | [[wiki/architecture/user-settings-data-flow|user-settings-data-flow]] | User settings architecture: Firestore field, Zustand store, and component tree. |
 | [[wiki/architecture/versioning|versioning]] | Versioning scheme using conventional commits and the standard-version release pipeline. |
+| [[wiki/architecture/store-architecture|store-architecture]] | Zustand stores and the extracted types/validation/sanitization/backup/sync modules — plus the domain-module split that never shipped. |

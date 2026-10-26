@@ -8,7 +8,7 @@ timestamp: 2026-10-26
 # Wiki Index
 
 *Last updated: 2026-10-26* (bundle moved to `docs/`, legacy planning material archived — see [[wiki/decisions/wiki-reorganization]])
-*Total pages: 93*
+*Total pages: 98*
 
 ---
 
@@ -49,6 +49,9 @@ timestamp: 2026-10-26
 | [[wiki/features/first-of-month-recurring/first-of-month-recurring]] | ✅ Recurrent transactions auto-load on the 1st of each month (daily check + back-fill on open) | [`raw/first-of-month-recurring/first-of-month-recurring.md`](raw/first-of-month-recurring/first-of-month-recurring.md) |
 | [[wiki/features/dashboard-calendar/dashboard-calendar]] | ✅ Month calendar on the Dashboard with per-day transaction dots + day detail list, live-updating | [`raw/dashboard-calendar/dashboard-calendar.md`](raw/dashboard-calendar/dashboard-calendar.md) |
 | [[wiki/features/marketing-website/marketing-website]] | ✅ Balancr landing page as an isolated `apps/website` workspace — 9 sections, light/dark, pricing model, 59 tests, own hosting site | [`raw/website/website.md`](raw/website/website.md), [`#193`](https://github.com/AlexDevsTheWeb/myfinance/issues/193) |
+| [[wiki/features/analytics-insights/analytics-insights]] | ✅ Shared analytics data layer + six chart components on the Insights tab of `/finance`, migrated to MUI X Charts | [`raw/archive/superpowers/2026-05-23-analytics-charts-design.md`](raw/archive/superpowers/2026-05-23-analytics-charts-design.md), [`#37`](https://github.com/AlexDevsTheWeb/myfinance/issues/37) |
+| [[wiki/features/localization/localization]] | ✅ Italian + English UI via i18next, browser/localStorage detection, dayjs locale sync, selector in ConfigPage | [`raw/archive/gsd/phases/09-language-i18n/`](raw/archive/gsd/phases/09-language-i18n/) |
+| [[wiki/features/quick-actions-fab/quick-actions-fab]] | ✅ Expandable FAB in the layout — New Income / New Expense from any page except dashboard and Config | [`raw/archive/gsd/phases/06-fab-navigation/`](raw/archive/gsd/phases/06-fab-navigation/) |
 
 ## Plans
 
@@ -129,6 +132,7 @@ timestamp: 2026-10-26
 | [[wiki/architecture/financial-projections-architecture]] | ✅ Simulation data flow, component tree, design decisions, integration points | [`raw/83-financial-projections/83-financial-projections.md`](raw/83-financial-projections/83-financial-projections.md) |
 | [[wiki/features/budget-savings-architecture/budget-savings-architecture]] | ✅ Budget data flow, Firestore schema, store architecture, component tree, charting | [`raw/100-budget-savings-engine/100-budget-savings-engine.md`](raw/100-budget-savings-engine/100-budget-savings-engine.md) |
 | [[wiki/architecture/user-settings-data-flow]] | ✅ User settings architecture — Firestore field, store, ComponentTree | [`raw/103/103.md`](raw/103/103.md) |
+| [[wiki/architecture/store-architecture]] | ✅ Zustand stores + extracted types/validation/sanitization/backup/sync modules — and the domain-module split that never shipped | [`raw/archive/superpowers/2026-05-03-store-refactor-design.md`](raw/archive/superpowers/2026-05-03-store-refactor-design.md), [`#46`](https://github.com/AlexDevsTheWeb/myfinance/issues/46) |
 
 ## Conventions
 
@@ -143,4 +147,5 @@ timestamp: 2026-10-26
 | Page | Summary | Sources |
 |------|---------|---------|
 | [[wiki/references/llm-wiki-pattern]] | Karpathy's LLM Wiki pattern — original article | [`raw/original-llm-wiki/original-llm-wiki.md`](raw/original-llm-wiki/original-llm-wiki.md) |
+| [[wiki/references/legacy-planning-archive]] | Map of every retired GSD/OpenSpec/Superpowers document to the wiki page that now carries its knowledge, plus what was planned and never shipped | [`raw/archive/README.md`](raw/archive/README.md) |
 | [[wiki/bugs/firestore-rules-drift]] | ✅ Deployed Firestore rules predated the `recurringTransactions` path — silent permission-denied kept `checkRecurring` from ever running; rules redeployed + client gate/error diagnostics hardened — **fixed** | [`raw/bugs/firestore-rules-drift/firestore-rules-drift.md`](raw/bugs/firestore-rules-drift/firestore-rules-drift.md) |

@@ -89,6 +89,9 @@ docs/
   touch the bundle once `npm run hooks:install` has been run.
 - There is exactly one place to add a skill, and exactly one place to read the
   schema.
+- Archived material is indexed: [[wiki/references/legacy-planning-archive]] maps
+  every retired document to the wiki page that now carries its knowledge, and
+  lists the five things that were planned but never shipped.
 
 ## Related
 

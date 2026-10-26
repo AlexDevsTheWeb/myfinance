@@ -29,15 +29,21 @@ See [[wiki/plans/go-to-market]] for the full phased plan.
 
 ## Store Refactoring Progress
 
-- 1403 → 1224 lines (13% reduction, Phase #46)
+See [[wiki/architecture/store-architecture]] for the current structure and what
+the 2026 refactor did not finish.
+
+- `useFinanceStore.ts` went 1,403 → ~1,224 lines at the time of the refactor,
+  but has since grown back past 1,500 as investment and budget features landed.
 - Extracted: types, validation, sanitization, defaults, backup, sync modules
+- The designed domain-module split (`modules/transactionModule.ts`, …) never
+  shipped — the store is still monolithic.
 - Build: ✓ Passing
 
 ### Completed Extractions
-- [x] Types to `src/store/types/finance.types.ts`
-- [x] Validation to `src/store/validation/finance.validation.ts`
-- [x] Sanitization to `src/store/sanitization/` (transaction.ts, recurring.ts)
-- [x] Defaults to `src/store/defaults.ts`
+- [x] Types to `apps/web/src/store/types/finance.types.ts`
+- [x] Validation to `apps/web/src/store/validation/finance.validation.ts`
+- [x] Sanitization to `apps/web/src/store/sanitization/` (transaction.ts, recurring.ts)
+- [x] Defaults to `apps/web/src/store/defaults.ts`
 - [x] Backup (export/preview) to `src/store/backup/index.ts`
 - [x] Sync config to `src/store/sync/index.ts`
 - [x] Updated converters.ts to use extracted types

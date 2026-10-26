@@ -94,3 +94,4 @@ Phase 10 implements this feature in 6 plans across 4 waves:
 - [[wiki/plans/investment-tracking-v2-enhancements]] — V2 improvements plan
 - [[wiki/architecture/tech-stack]]
 - [[wiki/conventions/coding-conventions]]
+- [[wiki/bugs/etf-pricing-total-return]]

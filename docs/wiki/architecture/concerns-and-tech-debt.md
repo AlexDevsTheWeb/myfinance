@@ -91,3 +91,4 @@ related: ["architecture/project-state", "architecture/testing-status", "architec
 - [[wiki/plans/explicit-any-removal]] — completed removal of all explicit `any` and `no-explicit-any` directives (closes the #126 row above)
 - [[wiki/plans/go-to-market]] — includes phased plan to address the top blockers
 - [[wiki/decisions/saas-readiness]] — hard blockers vs ship-as-is breakdown
+- [[wiki/features/account-deletion/account-deletion]]

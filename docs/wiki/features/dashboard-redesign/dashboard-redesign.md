@@ -77,3 +77,4 @@ Priority: **high**
 - [[wiki/features/sidebar-redesign/sidebar-redesign]]
 - [[wiki/plans/manual-review-99-implementation]]
 - Source: [raw/99-manual-review-2706/99-manual-review-2706.md](raw/99-manual-review-2706/99-manual-review-2706.md)
+- [[wiki/features/dashboard-calendar/dashboard-calendar]]

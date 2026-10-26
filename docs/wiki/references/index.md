@@ -14,3 +14,4 @@ External references, links, and foundational resources.
 | Concept | Description |
 |---------|-------------|
 | [[wiki/references/llm-wiki-pattern|llm-wiki-pattern]] | Karpathy's LLM Wiki pattern — original article and rationale behind this wiki's design. |
+| [[wiki/references/legacy-planning-archive|legacy-planning-archive]] | Map of every retired GSD/OpenSpec/Superpowers document to the wiki page that now carries its knowledge, plus what never shipped. |

@@ -81,3 +81,4 @@ Bridge real portfolio returns into the Financial Projections simulator. Computes
 - [[wiki/architecture/investment-tracking-architecture]] — Architecture & data flow
 - [[wiki/plans/investment-tracking-v3-implementation]] — Implementation plan
 - Source: [raw/98-investment-tracking-v3/98-investment-tracking-v3.md](raw/98-investment-tracking-v3/98-investment-tracking-v3.md)
+- [[wiki/features/investment-professional-enhancements/investment-professional-enhancements]]

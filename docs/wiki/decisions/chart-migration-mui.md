@@ -57,3 +57,4 @@ Decision was driven by an OpenSpec change ([`chart-migration`](raw/chart-migrati
 - [[wiki/architecture/tech-stack]]
 - [[wiki/architecture/system-architecture]]
 - Source: [raw/chart-migration/](raw/chart-migration/)
+- [[wiki/bugs/charts-ui]]

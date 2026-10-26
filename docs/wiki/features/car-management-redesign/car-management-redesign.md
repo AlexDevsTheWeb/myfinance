@@ -86,3 +86,4 @@ Redesign the Car page (`src/pages/CarPage.tsx`) with a bento grid layout, add mo
 - [[wiki/plans/car-redesign-implementation]]
 - [[wiki/architecture/project-state]]
 - [[wiki/conventions/coding-conventions]]
+- [[wiki/bugs/car-statistics-year]]

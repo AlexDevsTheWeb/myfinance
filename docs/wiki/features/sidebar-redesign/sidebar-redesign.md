@@ -74,3 +74,4 @@ Replace the horizontal top navigation bar with a vertical left sidebar. Group Fi
 - [[wiki/features/dashboard-redesign/dashboard-redesign]]
 - [[wiki/plans/manual-review-99-implementation]]
 - Source: [raw/99-manual-review-2706/99-manual-review-2706.md](raw/99-manual-review-2706/99-manual-review-2706.md)
+- [[wiki/features/sidebar-routing-refactor/sidebar-routing-refactor]]
