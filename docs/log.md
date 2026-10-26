@@ -961,3 +961,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Amount handling: `formatAmountInput` / `parseAmountInput` behind validation, payload and recurring template; a single dot with 1–2 trailing digits reads as a decimal, repeated dots as thousands. 11 new tests
 - Verification: tsc clean, build green, **252 tests / 15 files**, lint at the 6E/3W baseline
 - Not verified: no devtools pass at 375px/1280px and no E2E coverage for the typing mask; the PR is stacked on #199 and cannot merge first
+
+## [2026-10-26] fix | Feature | Drawer: amount leaking across type tabs
+- Reported in use: an amount typed under *Expense* appeared under *Income*. Cause was the shared `draft` — `handleTypeChange` reset only category/subcategory, so amount, description, consumption and billing period survived the switch and could be saved with the wrong type
+- `resetDraftForType()` now clears the type-specific fields and keeps date, account and card; covered by 2 tests
+- Also: category and subcategory share one row, and the Date field uses the same compact picker as the billing-period fields
+- Verification: tsc clean, build green, **254 tests / 15 files**, lint at baseline

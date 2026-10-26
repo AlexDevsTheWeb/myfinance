@@ -105,6 +105,27 @@ export const EMPTY_DRAFT: TransactionDraft = {
   readingDateEnd: '',
 };
 
+/**
+ * Clear the fields that belong to a transaction type when the user switches tab.
+ *
+ * Date and account are shared context and survive; amount, description,
+ * category, subcategory and consumption are type-specific, so carrying them
+ * across tabs makes an expense amount appear under income (and risks saving it
+ * with the wrong type).
+ */
+export function resetDraftForType(draft: TransactionDraft): TransactionDraft {
+  return {
+    ...draft,
+    description: '',
+    category: '',
+    subcategory: '',
+    amount: '',
+    consumption: '',
+    readingDateStart: '',
+    readingDateEnd: '',
+  };
+}
+
 export const DEFAULT_RECURRING_DRAFT: RecurringDraft = {
   enabled: false,
   frequency: 'monthly',

@@ -36,6 +36,7 @@ import {
   formatAmountInput,
   hasErrors,
   parseAmountInput,
+  resetDraftForType,
   pricePerLitre,
   resolveUtilityUnit,
   showsReadingPeriod,
@@ -91,8 +92,8 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
 
   const handleTypeChange = (_: React.SyntheticEvent, next: TransactionDrawerType) => {
     setType(next);
-    // Categories differ per type (income vs expense vs transfer) — reset them.
-    setDraft((current) => ({ ...current, category: '', subcategory: '' }));
+    // Each tab is a fresh movement: type-specific fields must not leak across.
+    setDraft((current) => resetDraftForType(current));
     setUtilityOverride(null);
     setErrors({});
   };
@@ -183,7 +184,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
           label={t('transactions.date')}
           value={dayjs(draft.date)}
           onChange={(value) => update('date', value ? value.format('YYYY-MM-DD') : draft.date)}
-          slotProps={{ textField: { fullWidth: true, variant: 'outlined', sx: drawerDateFieldSx } }}
+          slotProps={{ textField: { fullWidth: true, size: 'small', variant: 'outlined', sx: drawerDateFieldSx } }}
         />
 
         <Autocomplete
@@ -213,44 +214,46 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
           )}
         />
 
-        <Select
-          displayEmpty
-          fullWidth
-          value={draft.category}
-          onChange={(event) => {
-            setDraft((current) => ({ ...current, category: event.target.value, subcategory: '' }));
-            setUtilityOverride(null);
-          }}
-          sx={drawerSelectSx}
-          renderValue={(value) => (value ? String(value) : t('transactions.drawer.selectCategory'))}
-          error={Boolean(errors.category)}
-        >
-          {availableCategories.map((category) => (
-            <MenuItem key={category.name} value={category.name} sx={{ fontSize: '0.85rem' }}>
-              {category.name}
-            </MenuItem>
-          ))}
-        </Select>
+        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+          <Select
+            displayEmpty
+            fullWidth
+            value={draft.category}
+            onChange={(event) => {
+              setDraft((current) => ({ ...current, category: event.target.value, subcategory: '' }));
+              setUtilityOverride(null);
+            }}
+            sx={drawerSelectSx}
+            renderValue={(value) => (value ? String(value) : t('transactions.drawer.selectCategory'))}
+            error={Boolean(errors.category)}
+          >
+            {availableCategories.map((category) => (
+              <MenuItem key={category.name} value={category.name} sx={{ fontSize: '0.85rem' }}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </Select>
 
-        <Select
-          displayEmpty
-          fullWidth
-          disabled={!draft.category}
-          value={draft.subcategory}
-          onChange={(event) => {
-            update('subcategory', event.target.value);
-            setUtilityOverride(null);
-          }}
-          sx={drawerSelectSx}
-          renderValue={(value) => (value ? String(value) : t('transactions.drawer.selectSubcategory'))}
-          error={Boolean(errors.subcategory)}
-        >
-          {(selectedCategory?.subcategories ?? []).map((subcategory) => (
-            <MenuItem key={subcategory} value={subcategory} sx={{ fontSize: '0.85rem' }}>
-              {subcategory}
-            </MenuItem>
-          ))}
-        </Select>
+          <Select
+            displayEmpty
+            fullWidth
+            disabled={!draft.category}
+            value={draft.subcategory}
+            onChange={(event) => {
+              update('subcategory', event.target.value);
+              setUtilityOverride(null);
+            }}
+            sx={drawerSelectSx}
+            renderValue={(value) => (value ? String(value) : t('transactions.drawer.selectSubcategory'))}
+            error={Boolean(errors.subcategory)}
+          >
+            {(selectedCategory?.subcategories ?? []).map((subcategory) => (
+              <MenuItem key={subcategory} value={subcategory} sx={{ fontSize: '0.85rem' }}>
+                {subcategory}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
 
         <Select
           displayEmpty
@@ -413,7 +416,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                 label={t('transactions.drawer.recurring.endDate')}
                 value={recurring.endDate ? dayjs(recurring.endDate) : null}
                 onChange={(value) => setRecurring((current) => ({ ...current, endDate: value ? value.format('YYYY-MM-DD') : '' }))}
-                slotProps={{ textField: { fullWidth: true, variant: 'outlined', sx: drawerDateFieldSx } }}
+                slotProps={{ textField: { fullWidth: true, size: 'small', variant: 'outlined', sx: drawerDateFieldSx } }}
               />
             </AccordionDetails>
           </Accordion>

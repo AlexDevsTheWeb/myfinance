@@ -87,7 +87,7 @@ npm run build
 # ✓ built
 
 npx vitest run
-# 15 files / 252 tests passed — 11 new for the amount formatter/parser
+# 15 files / 254 tests passed — 13 new for the amount formatter/parser and the tab reset
 
 npm run lint
 # 6 errors / 3 warnings — unchanged baseline, no new problems
@@ -99,6 +99,20 @@ python3 docs/scripts/okf_validate.py
 The one test failure during the work was legitimate: `transactionToDraft` now
 returns the Italian-formatted amount (`88,4`), so the round-trip expectation was
 updated rather than the behaviour.
+
+## Follow-up fixes (same PR)
+
+Three issues found in use after the refinement:
+
+1. **An expense amount appeared under the Income tab.** The drawer keeps one
+   `draft` for all tabs and `handleTypeChange` only reset the category fields, so
+   the amount (and description, consumption and billing period) survived a tab
+   switch. Not intended: `resetDraftForType()` now clears the type-specific
+   fields and keeps only the shared context (date, account, card). Two tests lock
+   the behaviour, including that it does not mutate the original draft.
+2. **Category and subcategory stacked vertically.** They now share one row.
+3. **The Date field was heavier than the billing-period fields.** It now uses the
+   same `size="small"` picker, so the three date inputs match.
 
 ## Not verified / deferred
 

@@ -11,6 +11,7 @@ import {
   EMPTY_DRAFT,
   hasErrors,
   pricePerLitre,
+  resetDraftForType,
   resolveUtilityUnit,
   showsReadingPeriod,
   transactionToDraft,
@@ -29,6 +30,40 @@ const draft = (overrides: Partial<TransactionDraft> = {}): TransactionDraft => (
 });
 
 const today = dayjs('2026-10-26T10:00:00');
+
+describe('resetDraftForType', () => {
+  it('clears type-specific fields but keeps date and account', () => {
+    const filled = draft({
+      amount: '2.123,45',
+      description: 'Esselunga',
+      consumption: '12',
+      readingDateStart: '2026-09-01',
+      readingDateEnd: '2026-09-30',
+      cardId: 'card-1',
+    });
+
+    const reset = resetDraftForType(filled);
+
+    expect(reset.amount).toBe('');
+    expect(reset.description).toBe('');
+    expect(reset.category).toBe('');
+    expect(reset.subcategory).toBe('');
+    expect(reset.consumption).toBe('');
+    expect(reset.readingDateStart).toBe('');
+    expect(reset.readingDateEnd).toBe('');
+    // Shared context survives the tab switch
+    expect(reset.date).toBe(filled.date);
+    expect(reset.accountId).toBe('acc-1');
+    expect(reset.cardId).toBe('card-1');
+  });
+
+  it('does not mutate the original draft', () => {
+    const filled = draft();
+    const reset = resetDraftForType(filled);
+    expect(filled.amount).toBe('42.5');
+    expect(reset).not.toBe(filled);
+  });
+});
 
 describe('formatAmountInput', () => {
   it('groups thousands with dots while typing', () => {
