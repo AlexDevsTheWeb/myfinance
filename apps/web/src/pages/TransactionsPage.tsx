@@ -269,9 +269,6 @@ const TransactionsPage: React.FC = () => {
     <Box sx={{ pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-            {t('transactions.ledger.title')}
-          </Typography>
           <Typography variant="body2" sx={{ color: 'colors.subtle' }}>
             {t('transactions.ledger.totalMovements', { count: formatNumber(transactions.length) })}
           </Typography>

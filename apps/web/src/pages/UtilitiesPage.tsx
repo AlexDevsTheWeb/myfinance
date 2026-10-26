@@ -233,10 +233,6 @@ const UtilitiesPage: React.FC = () => {
     <Box sx={{ pb: 6 }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
-            <ElecIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-            Utilities
-          </Typography>
           <Typography variant="body1" sx={{ opacity: 0.6 }}>
             Monitor your utility expenses and consumption trends.
           </Typography>

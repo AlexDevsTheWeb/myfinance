@@ -17,9 +17,6 @@ const ProjectionsPage: React.FC = () => {
   return (
     <Box sx={{ pb: 10 }}>
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
-          {t('projections.title')}
-        </Typography>
         <Typography variant="body2" sx={{ opacity: 0.6 }}>
           {t('projections.subtitle')}
         </Typography>

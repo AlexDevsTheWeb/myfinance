@@ -64,7 +64,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
             </Toolbar>
           </AppBar>
         )}
-        {!isDashboard && !isMobile && <TopBar />}
+        {!isMobile && <TopBar />}
         <Container
           maxWidth={false}
           disableGutters

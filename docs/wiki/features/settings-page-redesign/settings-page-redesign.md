@@ -94,6 +94,22 @@ A second pass aligned the page with the Stitch export and fixed three gaps:
   (`4 Attivi`), regional preferences as a 2×2 card, modules as 2×2 rich cards,
   accounts and cards as 2×2 tiles with monospaced balances.
 
+## Shell & page titles
+
+The global `TopBar` now carries the **page title on the left** and the **search
+field centred**, with currency, notifications, the primary CTA and the avatar on
+the right. The title comes from a route map inside `TopBar`, so there is one
+place to change a label.
+
+Titles were removed from page content on every page — dashboard, transactions,
+finance/insights/salary, investments, budget, car, utilities and settings — which
+leaves each page's subtitle and actions in place. The dashboard no longer renders
+its own TopBar: the shell is identical everywhere. Below `md` the bar keeps the
+compact mobile header with the hamburger, and the search is hidden.
+
+The title is width-clipped at `md`/`lg` so it cannot run underneath the centred
+search field.
+
 ## Deviations from the request
 
 | Request | Shipped | Why |

@@ -26,7 +26,7 @@ import {
 import dayjs from 'dayjs';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useUiStore } from '../../store/useUiStore';
@@ -45,6 +45,21 @@ const TopBar: React.FC = () => {
   const { enabledModules, carMileage, transactions } = useFinanceStore();
   const openTransactionDrawer = useUiStore((s) => s.openTransactionDrawer);
   const user = useAuthStore((s) => s.user);
+
+  const { pathname } = useLocation();
+  const pageTitle = React.useMemo(() => {
+    const titles: Record<string, string> = {
+      '/dashboard': t('navigation.dashboard'),
+      '/transactions': t('transactions.ledger.title'),
+      '/finance': t('nav.finance'),
+      '/investments': t('nav.investments'),
+      '/budget': t('budget.title'),
+      '/car': t('car.title'),
+      '/utilities': t('utilities.title'),
+      '/config': t('settings.title'),
+    };
+    return titles[pathname.replace(/\/$/, '')] ?? '';
+  }, [pathname, t]);
 
   const [search, setSearch] = React.useState('');
   const [notifAnchor, setNotifAnchor] = React.useState<HTMLElement | null>(null);
@@ -104,16 +119,34 @@ const TopBar: React.FC = () => {
         px: { xs: 2, md: 3 },
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
         gap: 2,
         flexShrink: 0,
       }}
     >
+      <Typography
+        component="h1"
+        noWrap
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          fontSize: '1rem',
+          fontWeight: 700,
+          letterSpacing: '-0.01em',
+          // Keep the title clear of the absolutely centred search field.
+          maxWidth: { md: 'calc(50% - 190px)', lg: 'calc(50% - 230px)' },
+        }}
+      >
+        {pageTitle}
+      </Typography>
+
       <Box
         sx={{
-          position: 'relative',
-          width: { xs: '100%', sm: 320, lg: 384 },
-          display: { xs: 'none', sm: 'block' },
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: { md: 340, lg: 420 },
+          display: { xs: 'none', md: 'block' },
         }}
       >
         <SearchIcon
@@ -141,7 +174,7 @@ const TopBar: React.FC = () => {
         />
       </Box>
 
-      <Stack direction="row" sx={{ alignItems: 'center', gap: 1.5, ml: 'auto' }}>
+      <Stack direction="row" sx={{ alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
         <Box
           sx={{
             display: { xs: 'none', lg: 'flex' },

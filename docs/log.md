@@ -985,3 +985,10 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `IAccount` gains an optional `iban` (no migration), editable in the account drawer and masked by a tested helper (`IT28 •••• •••• 9012`); nav is 220px with text badges
 - Updated [[wiki/features/settings-page-redesign/settings-page-redesign]] and the report's refinement section; fixed the stale TopBar path in [[wiki/features/add-transaction-drawer/add-transaction-drawer]]
 - Verification: tsc clean, build green, **258 tests / 16 files** (4 new), lint at the 6E/3W baseline
+
+## [2026-10-26] report | Feature | Shell header: page title left, search centred (PR #201)
+- `TopBar` now shows the page title on the left, the search absolutely centred and the actions on the right; the title comes from a route map inside the component
+- The dashboard uses the global bar instead of its own `<TopBar />`, so the shell is identical on every page
+- Removed the duplicated page title (`h4`) from every page — dashboard, transactions, finance/insights/salary, investments, budget, car, utilities, settings — keeping subtitles and actions in content
+- Title width-clipped at `md`/`lg` so it cannot run under the centred search; search hidden below `md` with the compact mobile header
+- Verification: tsc clean, build green, **258 tests / 16 files**, lint at the 6E/3W baseline

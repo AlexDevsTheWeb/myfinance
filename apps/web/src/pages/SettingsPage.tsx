@@ -730,12 +730,6 @@ const SettingsPage: React.FC = () => {
       <Box sx={{ pb: 8 }}>
         <Box sx={{ mb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 2 }}>
           <Box>
-            <Typography variant="caption" sx={{ color: 'colors.cyan', fontWeight: 700, letterSpacing: '0.08em' }}>
-              {t('settings.eyebrow')}
-            </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em', mt: 0.25 }}>
-              {t('settings.title')}
-            </Typography>
             <Typography variant="body2" sx={{ color: 'colors.subtle', mt: 0.5 }}>
               {t('settings.subtitle')}
             </Typography>

@@ -5,7 +5,6 @@ import BentoWidgetsRow from '../components/dashboard/BentoWidgetsRow';
 import CalendarMasterDetailSection from '../components/dashboard/CalendarMasterDetailSection';
 import ChartsRow from '../components/dashboard/ChartsRow';
 import KpiMetricsRow from '../components/dashboard/KpiMetricsRow';
-import TopBar from '../components/layout/TopBar';
 import { useFinanceStore } from '../store/useFinanceStore';
 
 const DashboardPage: React.FC = () => {
@@ -22,7 +21,6 @@ const DashboardPage: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <TopBar />
       <Box sx={{ p: { xs: 2, md: 3 }, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
         <KpiMetricsRow onOpenAccountDetail={() => setAccountDialogOpen(true)} />
         <CalendarMasterDetailSection />

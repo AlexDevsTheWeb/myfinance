@@ -1,4 +1,4 @@
-import { BarChart as BarChartIcon, TrendingUp, OpenInFull } from '@mui/icons-material';
+import { BarChart as BarChartIcon, OpenInFull } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { axisClasses } from '@mui/x-charts';
@@ -161,10 +161,6 @@ const SalaryPage: React.FC = () => {
   return (
     <Box sx={{ pb: 6 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <TrendingUp sx={{ fontSize: 40, color: 'primary.main' }} />
-          Salary Analysis
-        </Typography>
         <Typography variant="body1" sx={{ opacity: 0.6 }}>
           Track your income trends and year-over-year performance.
         </Typography>
