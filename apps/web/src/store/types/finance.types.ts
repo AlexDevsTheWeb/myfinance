@@ -13,6 +13,8 @@ export interface IAccount {
   name: string;
   initialBalance: number;
   isDefault: boolean;
+  /** Optional IBAN, displayed masked in the UI. */
+  iban?: string;
 }
 
 export interface ICard {

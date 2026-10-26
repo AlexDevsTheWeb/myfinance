@@ -1,22 +1,23 @@
-import { Add, ChevronRight, Home, Menu as MenuIcon } from '@mui/icons-material';
-import { AppBar, Box, Breadcrumbs, Container, Fab, IconButton, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery } from '@mui/material';
+import { Add, Menu as MenuIcon } from '@mui/icons-material';
+import { AppBar, Box, Container, Fab, IconButton, SwipeableDrawer, Toolbar, useMediaQuery } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import i18n from '../../lib/i18n';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUiStore } from '../../store/useUiStore';
 import { VersionFooter } from '../common/VersionFooter';
 import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
 import Sidebar from './Sidebar';
+import TopBar from './TopBar';
 
 // Initialize dayjs locale based on current language
 dayjs.locale(i18n.language);
 
 const drawerWidth = 240;
 
-const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDescription?: string }> = ({ children, pageTitle, pageDescription }) => {
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const { user } = useAuthStore();
   const isMobile = useMediaQuery('(max-width: 899.95px)');
@@ -32,17 +33,6 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
 
   const isDashboard = location.pathname === '/dashboard' || location.pathname === '/dashboard/';
 
-  const pathnames = location.pathname.split('/').filter((x) => x);
-
-  const breadcrumbNameMap: { [key: string]: string } = {
-    'dashboard': t('navigation.dashboard'),
-    'transactions': 'Transactions',
-    'config': t('navigation.config'),
-    'finance': t('nav.finance'),
-    'investments': 'Investments',
-    'car': t('car.title'),
-    'utilities': t('utilities.title'),
-  };
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'colors.bg' }}>
@@ -74,77 +64,12 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
             </Toolbar>
           </AppBar>
         )}
+        {!isMobile && <TopBar />}
         <Container
           maxWidth={false}
           disableGutters
-          sx={
-            isDashboard
-              ? { p: 0, m: 0, flexGrow: 1, maxWidth: '100%' }
-              : { mt: 3, mb: 3, px: { xs: 2, sm: 3, md: 5 }, flexGrow: 1, maxWidth: '100%' }
-          }
+          sx={{ px: { xs: 2, md: 3 }, py: { xs: 2, md: 3 }, flexGrow: 1, maxWidth: '100%' }}
         >
-          {user && pathnames.length > 0 && !isDashboard && (
-            <Breadcrumbs
-              separator={<ChevronRight fontSize="small" sx={{ opacity: 0.5 }} />}
-              sx={{ mb: 3, color: 'rgba(255,255,255,0.6)' }}
-            >
-              <MuiLink
-                component={Link}
-                to="/dashboard"
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: 'inherit',
-                  textDecoration: 'none',
-                  '&:hover': { color: 'primary.main' },
-                  fontSize: '0.9rem',
-                  fontWeight: 600
-                }}
-              >
-                <Home sx={{ mr: 0.5, fontSize: '1.2rem' }} />
-                {t('navigation.dashboard')}
-              </MuiLink>
-              {pathnames.map((value, index) => {
-                const last = index === pathnames.length - 1;
-                const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-
-                if (value === 'dashboard') return null;
-
-                return last ? (
-                  <Typography key={to} sx={{ color: 'primary.main', fontWeight: 700, fontSize: '0.9rem' }}>
-                    {breadcrumbNameMap[value] || value}
-                  </Typography>
-                ) : (
-                  <MuiLink
-                    key={to}
-                    component={Link}
-                    to={to}
-                    sx={{
-                      color: 'inherit',
-                      textDecoration: 'none',
-                      '&:hover': { color: 'primary.main' },
-                      fontSize: '0.9rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    {breadcrumbNameMap[value] || value}
-                  </MuiLink>
-                );
-              })}
-            </Breadcrumbs>
-          )}
-          {pageTitle && (
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
-                {pageTitle}
-              </Typography>
-              {pageDescription && (
-                <Typography variant="body1" sx={{ opacity: 0.6 }}>
-                  {pageDescription}
-                </Typography>
-              )}
-            </Box>
-          )}
           {children}
         </Container>
 

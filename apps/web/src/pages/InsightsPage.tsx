@@ -1,4 +1,4 @@
-import { BarChart as BarChartIcon, OpenInFull } from '@mui/icons-material';
+import { OpenInFull } from '@mui/icons-material';
 import { Box, Button, Grid, Typography, useMediaQuery } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState, useMemo } from 'react';
@@ -47,13 +47,9 @@ const InsightsPage: React.FC = () => {
   const comparisonData = useMonthlyComparison(currentMonth, currentYear);
 
   return (
-    <Box sx={{ pb: 6 }}>
+    <Box>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
-            <BarChartIcon sx={{ fontSize: 40, color: 'primary.main' }} />
-            Insights
-          </Typography>
           <Typography variant="body1" sx={{ opacity: 0.6 }}>
             Deep dive into your financial performance and trends.
           </Typography>
