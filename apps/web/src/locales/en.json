@@ -366,7 +366,9 @@
     "deleteAccountCancel": "Cancel",
     "deleteAccountSuccess": "Account deleted successfully.",
     "deleteAccountError": "Could not delete account.",
-    "deleteAccountWrongPassword": "Incorrect password. Try again."
+    "deleteAccountWrongPassword": "Incorrect password. Try again.",
+    "addCard": "New Card",
+    "editCard": "Edit Card"
   },
   "language": {
     "italian": "Italiano",
@@ -570,5 +572,14 @@
     "userDisabled": "This account has been disabled.",
     "operationNotAllowed": "This sign-in method is not allowed.",
     "genericError": "Something went wrong. Please try again."
+  },
+  "settings": {
+    "title": "SYSTEM SETTINGS",
+    "subtitle": "Configure parameters, modules and regional preferences.",
+    "drawer": {
+      "recurringHint": "The recurrence starts on the day configured in the template."
+    },
+    "currency": "Currency",
+    "dateFormat": "Date format"
   }
 }

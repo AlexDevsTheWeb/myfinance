@@ -366,7 +366,9 @@
     "deleteAccountCancel": "Annulla",
     "deleteAccountSuccess": "Account eliminato con successo.",
     "deleteAccountError": "Impossibile eliminare l'account.",
-    "deleteAccountWrongPassword": "Password errata. Riprova."
+    "deleteAccountWrongPassword": "Password errata. Riprova.",
+    "addCard": "Nuova Carta",
+    "editCard": "Modifica Carta"
   },
   "language": {
     "italian": "Italiano",
@@ -570,5 +572,14 @@
     "userDisabled": "Questo account è stato disabilitato.",
     "operationNotAllowed": "Questo metodo di accesso non è consentito.",
     "genericError": "Qualcosa è andato storto. Riprova."
+  },
+  "settings": {
+    "title": "IMPOSTAZIONI SISTEMA",
+    "subtitle": "Configurazione parametri, moduli e preferenze regionali.",
+    "drawer": {
+      "recurringHint": "La ricorrenza parte dal giorno indicato nel template."
+    },
+    "currency": "Valuta",
+    "dateFormat": "Formato data"
   }
 }

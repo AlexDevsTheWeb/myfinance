@@ -1,6 +1,6 @@
 import { DndContext, type DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
 import { AccountBalance, Add as AddIcon, Backup as BackupIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, Repeat, ShowChart, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
-import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Select, Switch, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Select, Switch, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
@@ -9,6 +9,11 @@ import TransactionForm from '../components/forms/TransactionForm';
 import type { TransactionFormData } from '../components/forms/TransactionForm';
 import BrokerSettingsModal from '../components/investment/BrokerSettingsModal';
 import { ConfirmDialog } from '../components/shared/ConfirmDialog';
+import { formTextFieldSx } from '../components/shared/form.styles';
+import EntityDrawer from '../components/settings/EntityDrawer';
+import SettingsNav, { type SettingsSection } from '../components/settings/SettingsNav';
+import { categoryColor } from '../components/settings/categoryColor';
+import { monoValueSx } from '../components/settings/settings.styles';
 import { AlertSnackbar } from '../components/shared/AlertSnackbar';
 import { DeleteAccountRequiresPasswordError, deleteUserAccount } from '../lib/deleteAccount';
 import { useAuthStore } from '../store/useAuthStore';
@@ -29,7 +34,7 @@ function TabPanel(props: ITabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ pt: 4 }}>
+        <Box>
           {children}
         </Box>
       )}
@@ -54,16 +59,17 @@ const DraggableSubcategory: React.FC<{ sub: string; catName: string; type: 'inco
       ref={setNodeRef}
       style={style}
       sx={{
-        background: 'rgba(255,255,255,0.03)',
+        background: '#0E1524',
         mb: 1,
         borderRadius: 2,
-        border: '1px solid rgba(255,255,255,0.05)',
-        '&:hover': { background: 'rgba(255,255,255,0.06)' }
+        border: '1px solid #1E293B',
+        '&:hover': { background: '#16233B' }
       }}
     >
       <Box {...listeners} {...attributes} sx={{ cursor: 'grab', mr: 2, display: 'flex', opacity: 0.3 }}>
         <DragIndicatorIcon fontSize="small" />
       </Box>
+      <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: categoryColor(catName), opacity: 0.6, mr: 1.25, flexShrink: 0 }} />
       <ListItemText primary={<Typography variant="body2" sx={{ fontWeight: 500 }}>{sub}</Typography>} />
       <ListItemSecondaryAction>
         <IconButton size="small" onClick={onRename}>
@@ -109,16 +115,19 @@ const DroppableCategory: React.FC<{ cat: ICategory; type: 'income' | 'expense'; 
       ref={setNodeRef}
       sx={{
         mb: 3,
-        background: isOver ? 'rgba(99, 102, 241, 0.1)' : 'rgba(30, 41, 59, 0.5)',
-        border: `1px solid ${isOver ? '#4364f7' : 'rgba(255,255,255,0.1)'}`,
+        background: isOver ? 'rgba(99, 102, 241, 0.1)' : 'colors.surface',
+        border: `1px solid ${isOver ? '#4364f7' : 'colors.border'}`,
         transition: 'all 0.2s',
         minHeight: 150,
         display: 'flex',
         flexDirection: 'column'
       }}
     >
-      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{cat.name}</Typography>
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid', borderColor: 'colors.border' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+          <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: categoryColor(cat.name), flexShrink: 0 }} />
+          <Typography variant="subtitle1" noWrap sx={{ fontWeight: 700 }}>{cat.name}</Typography>
+        </Box>
         <Box>
           <IconButton size="small" onClick={onRename}>
             <EditIcon fontSize="small" />
@@ -147,7 +156,7 @@ const DroppableCategory: React.FC<{ cat: ICategory; type: 'income' | 'expense'; 
   );
 };
 
-const ConfigPage: React.FC = () => {
+const SettingsPage: React.FC = () => {
   const {
     categories,
     incomeCategories,
@@ -198,7 +207,7 @@ const ConfigPage: React.FC = () => {
     }
   }, [settingsLoaded, loadSettings]);
 
-  const handleTabChange = React.useCallback((_event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = React.useCallback((newValue: number) => {
     setTabValue(newValue);
     if (newValue === 5) {
       setProjectionForm({
@@ -618,6 +627,19 @@ const ConfigPage: React.FC = () => {
     </Box>
   );
 
+  const sections: SettingsSection[] = React.useMemo(
+    () => [
+      { id: 0, label: t('config.general'), icon: <ViewQuilt /> },
+      { id: 1, label: t('config.accounts'), icon: <AccountBalance />, badge: accounts.length },
+      { id: 2, label: t('config.expenses'), icon: <TrendingDown />, badge: sortedExpenses.length },
+      { id: 3, label: t('config.incomes'), icon: <TrendingUp />, badge: sortedIncome.length },
+      { id: 4, label: t('config.recurring'), icon: <Repeat />, badge: recurringTransactions.length },
+      { id: 5, label: t('config.projections'), icon: <ShowChart /> },
+      { id: 6, label: t('config.backup'), icon: <BackupIcon /> },
+    ],
+    [t, accounts.length, sortedExpenses.length, sortedIncome.length, recurringTransactions.length],
+  );
+
   // For remap selection
   const remapCategoryObj = remapConfig ? (remapConfig.type === 'income' ? incomeCategories : categories).find(c => c.name === remapConfig.categoryName) : null;
   const otherSubcategories = remapCategoryObj ? remapCategoryObj.subcategories.filter(s => s !== remapConfig?.subToDelete) : [];
@@ -625,42 +647,30 @@ const ConfigPage: React.FC = () => {
   return (
     <DndContext onDragEnd={onDragEnd}>
       <Box sx={{ pb: 8 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 800, letterSpacing: -1 }}>
-          Financial Configuration
-        </Typography>
-
-        <Box sx={{ borderBottom: 1, borderColor: 'rgba(255,255,255,0.1)', mb: 2 }}>
-          <Tabs
-            value={tabValue}
-            onChange={handleTabChange}
-            textColor="inherit"
-            indicatorColor="primary"
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              '& .MuiTab-root': {
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                minHeight: 64,
-                opacity: 0.6,
-                '&.Mui-selected': { opacity: 1 }
-              }
-            }}
-          >
-            <Tab icon={<ViewQuilt sx={{ mr: 1 }} />} iconPosition="start" label={t('config.general')} />
-            <Tab icon={<AccountBalance sx={{ mr: 1 }} />} iconPosition="start" label={t('config.accounts')} />
-            <Tab icon={<TrendingDown sx={{ mr: 1 }} />} iconPosition="start" label={t('config.expenses')} />
-            <Tab icon={<TrendingUp sx={{ mr: 1 }} />} iconPosition="start" label={t('config.incomes')} />
-            <Tab icon={<Repeat sx={{ mr: 1 }} />} iconPosition="start" label={t('config.recurring')} />
-            <Tab icon={<ShowChart sx={{ mr: 1 }} />} iconPosition="start" label={t('config.projections')} />
-            <Tab icon={<BackupIcon sx={{ mr: 1 }} />} iconPosition="start" label={t('config.backup')} />
-          </Tabs>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+            {t('settings.title')}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'colors.subtle', mt: 0.5 }}>
+            {t('settings.subtitle')}
+          </Typography>
         </Box>
+
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '240px minmax(0, 1fr)' },
+            gap: { xs: 2, md: 3 },
+            alignItems: 'start',
+          }}
+        >
+          <SettingsNav sections={sections} value={tabValue} onChange={handleTabChange} />
+          <Box sx={{ minWidth: 0 }}>
 
         <TabPanel value={tabValue} index={0}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B', height: '100%' }}>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
                   {t('config.language')}
                 </Typography>
@@ -684,10 +694,24 @@ const ConfigPage: React.FC = () => {
                     </MenuItem>
                   </Select>
                 </FormControl>
+
+                <Typography variant="caption" sx={{ display: 'block', mt: 2.5, mb: 0.75, color: 'colors.subtle', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                  {t('settings.currency')}
+                </Typography>
+                <FormControl fullWidth variant="filled" disabled>
+                  <Select value="EUR">
+                    <MenuItem value="EUR">EUR (€)</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <Typography variant="caption" sx={{ display: 'block', mt: 2.5, mb: 0.75, color: 'colors.subtle', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                  {t('settings.dateFormat')}
+                </Typography>
+                <Typography sx={{ ...monoValueSx, fontSize: '0.9rem' }}>{t('dateFormat')}</Typography>
               </Paper>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B', height: '100%' }}>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>{t('config.modules')}</Typography>
                 <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
                   {t('config.modulesDescription')}
@@ -748,7 +772,7 @@ const ConfigPage: React.FC = () => {
               </Paper>
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: 'error.main' }}>
                   {t('config.deleteAccount')}
                 </Typography>
@@ -772,7 +796,7 @@ const ConfigPage: React.FC = () => {
         <TabPanel value={tabValue} index={1}>
           <Grid container spacing={4}>
             <Grid size={{ xs: 12, md: 8 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('config.manageAccounts')}</Typography>
                   <Button startIcon={<AddIcon />} variant="outlined" size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'add' })}>
@@ -786,10 +810,10 @@ const ConfigPage: React.FC = () => {
                       <Box key={acc.id} sx={{ mb: 2 }}>
                         <ListItem
                           sx={{
-                            background: 'rgba(255,255,255,0.02)',
+                            background: '#0E1524',
                             borderRadius: 3,
-                            border: acc.isDefault ? '1px solid' : '1px solid rgba(255,255,255,0.05)',
-                            borderColor: acc.isDefault ? 'primary.main' : 'rgba(255,255,255,0.05)'
+                            border: acc.isDefault ? '1px solid' : '1px solid #1E293B',
+                            borderColor: acc.isDefault ? 'primary.main' : 'colors.border'
                           }}
                         >
                           <ListItemText
@@ -799,7 +823,11 @@ const ConfigPage: React.FC = () => {
                                 {acc.isDefault && <Typography variant="caption" sx={{ bgcolor: 'primary.main', px: 1, borderRadius: 1 }}>DEFAULT</Typography>}
                               </Box>
                             }
-                            secondary={`Initial Balance: € ${acc.initialBalance.toLocaleString('it-IT')}`}
+                            secondary={
+                              <Typography component="span" variant="caption" sx={monoValueSx}>
+                                {`€ ${acc.initialBalance.toLocaleString('it-IT')}`}
+                              </Typography>
+                            }
                           />
                           <ListItemSecondaryAction>
                             {!acc.isDefault && (
@@ -821,10 +849,10 @@ const ConfigPage: React.FC = () => {
                             <ListItem
                               key={card.id}
                               sx={{
-                                background: 'rgba(255,255,255,0.01)',
+                                background: '#0E1524',
                                 mb: 0.5,
                                 borderRadius: 2,
-                                border: '1px solid rgba(255,255,255,0.03)',
+                                border: '1px solid #0E1524',
                                 py: 0.5,
                               }}
                             >
@@ -879,10 +907,10 @@ const ConfigPage: React.FC = () => {
                       <ListItem
                         key={broker.id}
                         sx={{
-                          background: 'rgba(255,255,255,0.02)',
+                          background: '#0E1524',
                           mb: 1,
                           borderRadius: 3,
-                          border: '1px solid rgba(255,255,255,0.05)',
+                          border: '1px solid #1E293B',
                         }}
                       >
                         <ListItemText
@@ -905,7 +933,7 @@ const ConfigPage: React.FC = () => {
               </Paper>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B' }}>
                 <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>{t('config.calculationStartDate')}</Typography>
                 <TextField
                   type="date"
@@ -932,7 +960,7 @@ const ConfigPage: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={4}>
-          <Paper sx={{ p: 4, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <Paper sx={{ p: 4, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h5" sx={{ fontWeight: 800 }}>{t('config.recurringTemplates')}</Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
@@ -956,7 +984,7 @@ const ConfigPage: React.FC = () => {
                           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
                             <Typography sx={{ fontWeight: 700, fontSize: '1rem' }}>{rec.description}</Typography>
                             {rec.frequency === 'yearly' && (
-                              <Typography variant="caption" sx={{ background: 'rgba(255,255,255,0.1)', px: 0.8, py: 0.2, borderRadius: 1, fontSize: '0.65rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+                              <Typography variant="caption" sx={{ background: 'colors.border', px: 0.8, py: 0.2, borderRadius: 1, fontSize: '0.65rem', border: '1px solid rgba(255,255,255,0.2)' }}>
                                 YEARLY
                               </Typography>
                             )}
@@ -1002,7 +1030,7 @@ const ConfigPage: React.FC = () => {
         <TabPanel value={tabValue} index={5}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B', height: '100%' }}>
                 <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                   {t('config.projections')}
                 </Typography>
@@ -1066,7 +1094,7 @@ const ConfigPage: React.FC = () => {
         <TabPanel value={tabValue} index={6}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B', height: '100%' }}>
                 <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                   Esporta Backup
                 </Typography>
@@ -1089,7 +1117,7 @@ const ConfigPage: React.FC = () => {
               </Paper>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <Paper sx={{ p: 3, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
+              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B', height: '100%' }}>
                 <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                   {t('config.backup.restore')}
                 </Typography>
@@ -1120,13 +1148,20 @@ const ConfigPage: React.FC = () => {
           </Grid>
         </TabPanel>
 
-        {/* Global Dialog for Add/Edit/Rename */}
-        <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth={dialogConfig?.type === 'recurring' ? 'sm' : 'xs'} slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
-          <DialogTitle sx={{ fontWeight: 800 }}>
-            {dialogConfig?.mode === 'add' ? t('config.addNew') : dialogConfig?.mode === 'edit' ? t('config.edit') : t('config.rename')} {' '}
-            {dialogConfig?.type === 'category' ? t('config.category') : dialogConfig?.type === 'recurring' ? t('config.recurringTemplate') : dialogConfig?.type === 'account' ? t('config.account') : t('config.item')}
-          </DialogTitle>
-          <DialogContent>
+          </Box>
+        </Box>
+
+        {/* Global drawer for Add/Edit/Rename */}
+        <EntityDrawer
+          open={dialogOpen}
+          title={`${dialogConfig?.mode === 'add' ? t('config.addNew') : dialogConfig?.mode === 'edit' ? t('config.edit') : t('config.rename')} ${dialogConfig?.type === 'category' ? t('config.category') : dialogConfig?.type === 'recurring' ? t('config.recurringTemplate') : dialogConfig?.type === 'account' ? t('config.account') : t('config.item')}`}
+          subtitle={dialogConfig?.type === 'recurring' ? t('settings.drawer.recurringHint') : undefined}
+          onClose={handleCloseDialog}
+          onConfirm={handleConfirm}
+          confirmLabel={t('common.save')}
+          confirmDisabled={dialogConfig?.type === 'recurring' ? (!recurringForm.description || !recurringForm.amount || !recurringForm.category || !recurringForm.accountId) : dialogConfig?.type === 'account' ? !inputValue.trim() : !inputValue.trim()}
+        >
+
             {dialogConfig?.type === 'subcategory' && dialogConfig.mode === 'rename' && (
               <Alert severity="warning" sx={{ mb: 2, background: 'rgba(237, 108, 2, 0.1)', border: '1px solid #ed6c02' }}>
                 <Typography variant="body2" sx={{ fontWeight: 700 }}>{t('common.headsUp')}</Typography>
@@ -1145,34 +1180,28 @@ const ConfigPage: React.FC = () => {
               ) : dialogConfig?.type === 'account' ? (
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 12 }}>
-                    <TextField autoFocus fullWidth label="Account Name" variant="filled" value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
+                    <TextField sx={formTextFieldSx} autoFocus fullWidth label="Account Name" variant="outlined" value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
                   </Grid>
                   <Grid size={{ xs: 12 }}>
-                    <TextField fullWidth label="Initial Balance" type="number" variant="filled" value={accountInitialBalance} onChange={(e) => setAccountInitialBalance(e.target.value)} slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }} />
+                    <TextField sx={formTextFieldSx} fullWidth label="Initial Balance" type="number" variant="outlined" value={accountInitialBalance} onChange={(e) => setAccountInitialBalance(e.target.value)} slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }} />
                   </Grid>
                 </Grid>
               ) : (
-                <TextField
+                <TextField sx={formTextFieldSx}
                   autoFocus
                   fullWidth
                   label="Name"
-                  variant="filled"
+                  variant="outlined"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                 />
               )}
             </Box>
-          </DialogContent>
-          <DialogActions sx={{ p: 3 }}>
-            <Button onClick={handleCloseDialog} color="inherit">Cancel</Button>
-            <Button onClick={handleConfirm} variant="contained" disabled={dialogConfig?.type === 'recurring' ? (!recurringForm.description || !recurringForm.amount || !recurringForm.category || !recurringForm.accountId) : dialogConfig?.type === 'account' ? !inputValue.trim() : !inputValue.trim()}>
-              Save Changes
-            </Button>
-          </DialogActions>
-        </Dialog>
+          
+        </EntityDrawer>
 
         {/* Remap Deletion Dialog */}
-        <Dialog open={remapDialogOpen} onClose={handleCloseRemapDialog} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
+        <Dialog open={remapDialogOpen} onClose={handleCloseRemapDialog} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 3 } } }}>
           <DialogTitle sx={{ fontWeight: 800 }}>Delete & Remap</DialogTitle>
           <DialogContent>
             <Alert severity="error" sx={{ mb: 3 }}>
@@ -1216,35 +1245,37 @@ const ConfigPage: React.FC = () => {
           </DialogActions>
         </Dialog>
 
-        <Dialog open={cardDialogOpen} onClose={() => setCardDialogOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
-          <DialogTitle sx={{ fontWeight: 800 }}>{cardDialogMode === 'add' ? 'Add Card' : 'Edit Card'}</DialogTitle>
-          <DialogContent>
+        <EntityDrawer
+          open={cardDialogOpen}
+          title={cardDialogMode === 'add' ? t('config.addCard') : t('config.editCard')}
+          onClose={() => setCardDialogOpen(false)}
+          onConfirm={handleSaveCard}
+          confirmLabel={t('common.save')}
+          confirmDisabled={!cardForm.name.trim() || !cardForm.plafond}
+        >
+
             <Grid container spacing={2} sx={{ mt: 0.5 }}>
               <Grid size={{ xs: 12 }}>
-                <TextField autoFocus fullWidth label="Card Name" variant="filled" value={cardForm.name} onChange={(e) => setCardForm({ ...cardForm, name: e.target.value })} />
+                <TextField sx={formTextFieldSx} autoFocus fullWidth label="Card Name" variant="outlined" value={cardForm.name} onChange={(e) => setCardForm({ ...cardForm, name: e.target.value })} />
               </Grid>
               <Grid size={{ xs: 12 }}>
-                <TextField fullWidth select label="Card Type" variant="filled" value={cardForm.type} onChange={(e) => setCardForm({ ...cardForm, type: e.target.value as 'credit' | 'debit' })}>
+                <TextField sx={formTextFieldSx} fullWidth select label="Card Type" variant="outlined" value={cardForm.type} onChange={(e) => setCardForm({ ...cardForm, type: e.target.value as 'credit' | 'debit' })}>
                   <MenuItem value="credit">Credit</MenuItem>
                   <MenuItem value="debit">Debit</MenuItem>
                 </TextField>
               </Grid>
               <Grid size={{ xs: 6 }}>
-                <TextField fullWidth label="Plafond (€)" type="number" variant="filled" value={cardForm.plafond} onChange={(e) => setCardForm({ ...cardForm, plafond: e.target.value })} slotProps={{ htmlInput: { min: 0 } }} />
+                <TextField sx={formTextFieldSx} fullWidth label="Plafond (€)" type="number" variant="outlined" value={cardForm.plafond} onChange={(e) => setCardForm({ ...cardForm, plafond: e.target.value })} slotProps={{ htmlInput: { min: 0 } }} />
               </Grid>
               <Grid size={{ xs: 6 }}>
-                <TextField fullWidth label="Reset Day" type="number" variant="filled" value={cardForm.billingDay} onChange={(e) => setCardForm({ ...cardForm, billingDay: Number(e.target.value) })} slotProps={{ htmlInput: { min: 1, max: 28 } }} helperText="Day of month plafond resets" />
+                <TextField sx={formTextFieldSx} fullWidth label="Reset Day" type="number" variant="outlined" value={cardForm.billingDay} onChange={(e) => setCardForm({ ...cardForm, billingDay: Number(e.target.value) })} slotProps={{ htmlInput: { min: 1, max: 28 } }} helperText="Day of month plafond resets" />
               </Grid>
             </Grid>
-          </DialogContent>
-          <DialogActions sx={{ p: 3 }}>
-            <Button onClick={() => setCardDialogOpen(false)} color="inherit">Cancel</Button>
-            <Button onClick={handleSaveCard} variant="contained" disabled={!cardForm.name.trim() || !cardForm.plafond}>Save</Button>
-          </DialogActions>
-        </Dialog>
+          
+        </EntityDrawer>
         <BrokerSettingsModal open={brokerDialogOpen} onClose={() => setBrokerDialogOpen(false)} />
 
-        <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
+        <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 3 } } }}>
           <DialogTitle sx={{ fontWeight: 800, color: 'error.main' }}>{t('config.deleteAccountConfirmTitle')}</DialogTitle>
           <DialogContent>
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -1267,7 +1298,7 @@ const ConfigPage: React.FC = () => {
           </DialogActions>
         </Dialog>
 
-        <Dialog open={deletePasswordOpen} onClose={() => setDeletePasswordOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
+        <Dialog open={deletePasswordOpen} onClose={() => setDeletePasswordOpen(false)} fullWidth maxWidth="xs" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 3 } } }}>
           <DialogTitle sx={{ fontWeight: 800 }}>{t('config.deleteAccountPasswordTitle')}</DialogTitle>
           <DialogContent>
             <Typography variant="body2" sx={{ mb: 2, opacity: 0.8 }}>{t('config.deleteAccountPasswordMessage')}</Typography>
@@ -1303,7 +1334,7 @@ const ConfigPage: React.FC = () => {
         />
 
         {/* Backup Preview Dialog */}
-        <Dialog open={previewDialogOpen} onClose={() => setPreviewDialogOpen(false)} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 4 } } }}>
+        <Dialog open={previewDialogOpen} onClose={() => setPreviewDialogOpen(false)} fullWidth maxWidth="sm" slotProps={{ paper: { sx: { background: '#1e293b', borderRadius: 3 } } }}>
           <DialogTitle sx={{ fontWeight: 800 }}>Anteprima Backup</DialogTitle>
           <DialogContent>
             <Alert severity="info" sx={{ mb: 2 }}>
@@ -1359,4 +1390,4 @@ const ConfigPage: React.FC = () => {
   );
 };
 
-export default ConfigPage;
+export default SettingsPage;

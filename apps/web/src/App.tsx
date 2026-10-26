@@ -8,7 +8,7 @@ import { useSyncFinance } from './hooks/useSyncFinance';
 import { auth } from './lib/firebase';
 import AnalysisPage from './pages/AnalysisPage';
 import CarPage from './pages/CarPage';
-import ConfigPage from './pages/ConfigPage';
+import SettingsPage from './pages/SettingsPage';
 import DashboardPage from './pages/DashboardPage';
 import FinancePage from './pages/FinancePage';
 import InvestmentsPage from './pages/InvestmentsPage';
@@ -69,7 +69,7 @@ function App() {
         } />
         <Route path="/config" element={
           <ProtectedRoute>
-            <ConfigPage />
+            <SettingsPage />
           </ProtectedRoute>
         } />
         <Route path="/transactions" element={
