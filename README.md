@@ -1,40 +1,73 @@
-# YAFT - Yet another finance tracker
+# Balancr
 
-YAFT is a modern, premium web application designed to help you track your personal finances with ease and style. It features a sleek dark-mode interface with glassmorphism aesthetics and provides powerful tools to stay on top of your budget.
+Balancr is a personal finance tracker for people who want more than a spreadsheet:
+transactions, recurring items, budgets, a savings-rate engine, car costs, and a
+full investment portfolio with projections.
 
-## 🚀 Features
+> Formerly published as **YAFT** (Yet Another Finance Tracker). The wiki still
+> uses that name in older entries — it is the same project.
 
-- **Dynamic Dashboard**: Get an immediate overview of your current balance, monthly income, and monthly expenses through beautiful charts and recap cards.
-- **Transaction Tracking**: Easily record every income and expense. You can edit or delete them at any time if you make a mistake.
-- **Full Category Customization**: Completely manage your own category system. Add, rename, or delete categories and sub-items for both income and expenses to match your spending habits.
-- **Recurring Transactions**: Set up monthly items once (like Netflix, rent, or your salary) and let the app handle the rest. YAFT automatically generates these transactions for you.
-- **Installment Support**: Recurring items can have an optional end date, perfect for tracking loans or split payments that eventually stop.
-- **Cloud Sync & Auth**: Securely log in with your account. All your data is automatically synced to the cloud, so you never lose your financial history.
-- **Premium UI**: Experience a state-of-the-art interface built with modern web principles, smooth animations, and a responsive design.
+## Features
 
-## 🛠️ Tech Stack
+- **Dashboard** — balance, income/expense recap, account breakdown, net-worth trend.
+- **Transactions** — full CRUD, filters, category customization.
+- **Recurring transactions** — monthly/yearly items with optional end dates.
+- **Budgets & savings rate** — targets, progress tracking, investment bridge.
+- **Investments** — ETF portfolio, multi-broker, PAC automation, dividends,
+  capital-gains tax, historical snapshots, ticker validation.
+- **Projections** — compound-interest simulator with inflation and tax modeling.
+- **Car & utilities** — mileage, tire tracking, utility bills.
+- **Cloud sync** — Firebase Auth + Firestore, with export/restore.
 
-- **Frontend**: React (Vite)
-- **Styling**: Material UI (MUI) with custom glassmorphism theme
-- **State Management**: Zustand (with persistence)
-- **Backend & Auth**: Firebase Auth & Firestore
-- **Date Handling**: Day.js
+## Tech Stack
 
-## 🏁 Getting Started
+- React 19 + Vite + TypeScript 7
+- Material UI with a custom dark theme
+- Zustand (persisted stores)
+- Firebase Auth + Firestore
+- Vitest + Testing Library
+- Day.js, i18next
 
-1. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+## Getting Started
 
-2. **Run the development server**:
-   ```bash
-   npm run dev
-   ```
+```bash
+npm install          # installs workspaces + postinstall fixes
+npm run hooks:install # enable the pre-commit wiki validation gate
+npm run dev          # http://localhost:5173
+```
 
-3. **Configure Firebase**:
-   Ensure you have a `.env` file with your Firebase credentials (refer to `src/lib/firebase.ts` for the required keys).
+Create a `.env` at the **repository root** with the `VITE_FIREBASE_*` variables
+listed in [`AGENTS.md`](AGENTS.md#firebase-setup).
 
-## 📄 License
+## Repository Layout
 
-This project is for personal use. All rights reserved.
+```
+apps/web/       the Balancr app
+apps/website/   marketing site (separate Firebase Hosting target)
+packages/       shared packages
+scripts/        build helpers
+docs/           knowledge bundle — raw/ sources + wiki/ compiled pages
+.claude/skills/ agent skills (OpenCode + Claude Code)
+```
+
+## Documentation
+
+The project keeps a persistent, interlinked wiki instead of scattered notes:
+
+- [`docs/index.md`](docs/index.md) — catalog of every page
+- [`docs/AGENTS.md`](docs/AGENTS.md) — how the bundle is structured and maintained
+- [`docs/wiki/architecture/`](docs/wiki/architecture/) — system design
+- [`docs/wiki/conventions/branch-strategy.md`](docs/wiki/conventions/branch-strategy.md) — branch and PR rules
+
+Validate the bundle with `npm run docs:validate`.
+
+## Contributing
+
+1. Branch off `development` as `feat/YATF-<n>` or `fix/YATF-<n>`.
+2. Write atomic conventional commits.
+3. Document the change in `docs/` (raw note + wiki page) and validate it.
+4. Open a PR against `development`.
+
+## License
+
+Personal project. All rights reserved.

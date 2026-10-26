@@ -1,62 +1,72 @@
-# AGENTS.md - MyFinance Development Notes
+# AGENTS.md — Balancr / MyFinance
+
+Project notes for AI agents and humans. **This file is the entry point; the
+knowledge base lives in [`docs/`](docs/).**
+
+- Wiki schema, ingest workflow, OKF conventions → [`docs/AGENTS.md`](docs/AGENTS.md)
+- Page catalog → [`docs/index.md`](docs/index.md)
+- Recent activity → `tail -30 docs/log.md`
+
+Claude Code reads [`CLAUDE.md`](CLAUDE.md), which imports this file.
 
 ## Commands
 
 ```bash
-npm run dev      # Start dev server (port 5173)
-npm run build    # TypeScript build + Vite build
-npm run lint     # Run ESLint
-npm run preview  # Preview production build
+npm run dev              # Dev server (port 5173)
+npm run build            # tsc -b && vite build (typecheck first)
+npm run lint             # ESLint
+npm run preview          # Preview the production build
+npm test                 # Vitest (apps/web)
+npm run docs:validate    # Validate the docs/ knowledge bundle
+npm run hooks:install    # Enable the pre-commit wiki validation gate
 ```
 
-## Build Order
+## Repository Layout
 
-`npm run build` runs `tsc -b && vite build` — typecheck happens before bundling.
+`npm` workspaces monorepo:
+
+- `apps/web/` — the Balancr app (React 19 + Vite + MUI + Zustand + Firebase)
+- `apps/website/` — marketing site (separate Firebase Hosting target)
+- `packages/` — shared packages (when present)
+- `scripts/` — build helpers (`generate-version.js`, `fix-tsc-bin.js`, `ts-eslint-resolve.cjs`)
+- `docs/` — the knowledge bundle (`raw/` sources → `wiki/` compiled pages)
+- `.claude/skills/` — agent skills (shared by OpenCode and Claude Code)
 
 ## Firebase Setup
 
-Requires `.env` file with `VITE_FIREBASE_*` variables. See `src/lib/firebase.ts` for required keys:
-- VITE_FIREBASE_API_KEY
-- VITE_FIREBASE_AUTH_DOMAIN
-- VITE_FIREBASE_PROJECT_ID
-- VITE_FIREBASE_STORAGE_BUCKET
-- VITE_FIREBASE_MESSAGING_SENDER_ID
-- VITE_FIREBASE_APP_ID
-- VITE_FIREBASE_MEASUREMENT_ID
+Requires a `.env` at the **repo root** (Vite `envDir` points there). See
+`apps/web/src/lib/firebase.ts` for the required keys:
 
-## Project Structure
-
-- `src/components/` - Reusable UI components
-- `src/pages/` - Route pages (Dashboard, Transactions, etc.)
-- `src/store/` - Zustand state stores
-- `src/lib/` - Firebase config and utilities
-- `src/theme/` - MUI theme configuration
+- `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_MEASUREMENT_ID`
 
 ## Branch Workflow
 
-See `docs/YATF/conventions/branch-strategy.md` for full rules.
+Authoritative rules: [`docs/wiki/conventions/branch-strategy.md`](docs/wiki/conventions/branch-strategy.md).
 
-TL;DR: Never commit to `development`/`main` directly. Branch as `feat/YATF-{n}` or `fix/YATF-{n}`. PR to `development`.
-
-## Notes
-
-- No test suite exists in this repo
-- No pre-commit hooks configured
-- TypeScript uses project references (`tsconfig.json` references `tsconfig.app.json`)
-- LLM Wiki lives in `docs/YATF/` — see `docs/YATF/AGENTS.md` for schema
-
-## TypeScript 7 Upgrade
-
-Uses `typescript@rc` (TS 7.0 Go rewrite) for `tsc` — ~10x faster type-checking.
-
-**Linting workaround:** `@typescript-eslint/typescript-estree` is overridden to use `npm:@typescript/typescript6` (TS 6.0 programmatic API) because the Go rewrite doesn't expose the JS API until TS 7.1.
-
-**`tsc` binary fix:** `scripts/fix-tsc-bin.js` runs on `postinstall` to ensure `node_modules/.bin/tsc` points to `typescript/bin/tsc` (TS 7), not `@typescript/old/bin/tsc` (TS 6).
+TL;DR — never commit to `development` or `main` directly. Branch as
+`feat/YATF-<n>` or `fix/YATF-<n>` (kebab-case slug when there is no issue), then
+PR to `development`.
 
 ## Wiki Discipline
 
-Every new feature, bug analysis, implementation, or decision **must be documented**:
+Every feature, bug analysis, implementation, or decision **must** be documented:
 
-1. Write raw notes to `docs/YATF/raw/` — each analysis in its own subfolder (e.g. `raw/<topic>/<topic>.md`)
-2. Ask to ingest into the wiki — the LLM will process it into `docs/YATF/wiki/`, update `docs/YATF/index.md`, cross-link related pages, and append to `docs/YATF/log.md`
-3. Commit changes to `development`
+1. Raw notes go to `docs/raw/<topic>/<topic>.md`.
+2. Compiled pages go to `docs/wiki/<category>/` (`features`, `bugs`, `decisions`,
+   `plans`, `architecture`, `conventions`, `queries`, `references`).
+3. Update `docs/index.md`, the category index, and append to `docs/log.md`.
+4. Run `npm run docs:validate` — the pre-commit hook enforces it.
+
+Agents: load the `wiki-sync` skill for the full procedure and the `issue-to-pr`
+skill for the end-to-end delivery loop.
+
+## Notes
+
+- TypeScript 7 (Go rewrite) with project references; `scripts/fix-tsc-bin.js`
+  runs on `postinstall` to keep the `tsc` binary on TS 7.
+- Lint uses `@typescript/typescript6` through an npm override, because the TS 7
+  Go binary does not expose the JS API yet.
+- Tests: Vitest, co-located `*.test.ts(x)` under `apps/web/src`.
+- CI lives in `.github/workflows/` (typecheck, lint, test, Firebase deploy).
