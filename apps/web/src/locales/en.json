@@ -69,6 +69,70 @@
       "sortBy": "Sort by:",
       "allCategories": "All Categories",
       "allSubcategories": "All Subcategories"
+    },
+    "ledger": {
+      "title": "Transaction Ledger",
+      "totalMovements": "{{count}} total movements",
+      "exportCsv": "Export CSV",
+      "customizeColumns": "Customize Columns",
+      "columns": {
+        "category": "Category",
+        "account": "Account / Method",
+        "type": "Type"
+      },
+      "summary": {
+        "inflow": "Period Inflow",
+        "inflowFooter": "{{count}} credited movements",
+        "vsPrevious": "vs previous period",
+        "outflow": "Period Outflow",
+        "outflowBadge": "Monthly",
+        "outflowFooter": "{{count}} movements",
+        "budgetProgress": "Budget at {{percent}}%",
+        "recurring": "Fixed Recurring Costs",
+        "recurringBadge": "On schedule",
+        "recurringFooter": "{{count}} active subscriptions",
+        "perMonth": "/ month",
+        "next": "Next: {{date}}"
+      },
+      "filters": {
+        "period": {
+          "month": "Current Month",
+          "90d": "Last 90 days",
+          "year": "Year {{year}}",
+          "custom": "Custom"
+        },
+        "allCategories": "All Categories ({{count}})",
+        "allAccounts": "All Accounts ({{count}})",
+        "cards": "Cards",
+        "allCards": "All Cards",
+        "withoutCard": "Without card",
+        "typeAll": "Type: All",
+        "typeRecurring": "Type: Recurring",
+        "typeOneOff": "Type: One-off",
+        "reset": "Clear Filters",
+        "shown": "Showing",
+        "of": "of",
+        "from": "From",
+        "to": "To"
+      },
+      "table": {
+        "date": "Date",
+        "descriptionCategory": "Description & Category",
+        "accountMethod": "Account / Payment Method",
+        "type": "Type",
+        "amount": "Amount",
+        "actions": "Actions",
+        "recurring": "Recurring",
+        "oneOff": "One-off",
+        "duplicate": "Duplicate",
+        "duplicated": "Transaction duplicated",
+        "rowsPerPage": "Rows per page:",
+        "shownRange": "Showing {{from}}-{{to}} of {{total}} filtered records",
+        "previous": "Previous page",
+        "next": "Next page",
+        "deleteTitle": "Delete this transaction?",
+        "deleteMessage": "“{{description}}” will be permanently deleted."
+      }
     }
   },
   "dashboard": {
@@ -210,7 +274,7 @@
   "config": {
     "general": "General",
     "language": "Language",
-    "accounts": "Accounts",
+    "accounts": "Manage Accounts",
     "recurring": "Recurring",
     "expenses": "Expenses",
     "incomes": "Incomes",
@@ -228,7 +292,6 @@
     "budgetTracking": "Budget Tracking",
     "calculationStartDate": "Calculation Start Date",
     "calculationStartDateDescription": "Totals are calculated from this date onwards",
-    "accounts": "Manage Accounts",
     "manageAccounts": "Manage Accounts",
     "addAccount": "Add Account",
     "editAccount": "Edit Account",
@@ -407,7 +470,6 @@
     "pacDismissed": "PAC skipped for this month",
     "tickerValidationError": "Invalid ticker format. Expected format: SYMBOL or SYMBOL.EXCHANGE (e.g., EUNL.DE)",
     "tickerValidationWarning": "Ticker could not be verified on Yahoo Finance",
-    "tickerPlaceholder": "e.g. EUNL.DE",
     "dividend": "Dividend",
     "interest": "Interest",
     "dividendEntry": "Dividend / Interest",

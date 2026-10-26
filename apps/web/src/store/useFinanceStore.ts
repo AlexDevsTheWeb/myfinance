@@ -102,6 +102,8 @@ interface FinanceState {
   addTransaction: (transaction: Transaction) => void;
   updateTransaction: (transaction: Transaction) => void;
   deleteTransaction: (id: string) => void;
+  /** Copy an existing transaction into a new one-off dated today. */
+  duplicateTransaction: (id: string) => Promise<void>;
   setCategories: (categories: Category[]) => void;
   setIncomeCategories: (categories: Category[]) => void;
   setTransactions: (transactions: Transaction[]) => void;
@@ -232,6 +234,29 @@ export const useFinanceStore = create<FinanceState>()(
           });
           console.error('addTransaction error:', err);
         }
+      },
+
+      duplicateTransaction: async (id) => {
+        const state = useFinanceStore.getState();
+        const original = state.transactions.find((t) => t.id === id);
+        if (!original) return;
+
+        // Copy the stable fields only: a duplicate is a new, one-off movement
+        // today — it must not inherit the recurring link, meter readings or
+        // consumption of the original.
+        const copy: Transaction = {
+          id: crypto.randomUUID(),
+          date: dayjs().format('YYYY-MM-DD'),
+          description: original.description,
+          category: original.category,
+          subcategory: original.subcategory,
+          amount: original.amount,
+          type: original.type,
+          accountId: original.accountId,
+          cardId: original.cardId,
+        };
+
+        state.addTransaction(copy);
       },
 
       updateTransaction: async (transaction) => {

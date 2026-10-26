@@ -15,7 +15,7 @@
     "projections": "Proiezioni",
     "budget": "Budget"
   },
-"common": {
+  "common": {
     "save": "Salva",
     "cancel": "Annulla",
     "delete": "Elimina",
@@ -69,6 +69,70 @@
       "sortBy": "Ordina per:",
       "allCategories": "Tutte le categorie",
       "allSubcategories": "Tutte le sottocategorie"
+    },
+    "ledger": {
+      "title": "Registro Transazioni",
+      "totalMovements": "{{count}} movimenti totali",
+      "exportCsv": "Esporta CSV",
+      "customizeColumns": "Personalizza Colonne",
+      "columns": {
+        "category": "Categoria",
+        "account": "Conto / Metodo",
+        "type": "Tipo"
+      },
+      "summary": {
+        "inflow": "Entrate Periodo",
+        "inflowFooter": "{{count}} movimenti accreditati",
+        "vsPrevious": "vs periodo prec.",
+        "outflow": "Uscite Periodo",
+        "outflowBadge": "Mensile",
+        "outflowFooter": "{{count}} movimenti",
+        "budgetProgress": "Budget al {{percent}}%",
+        "recurring": "Spese Ricorrenti Fisse",
+        "recurringBadge": "Regolari",
+        "recurringFooter": "{{count}} abbonamenti attivi",
+        "perMonth": "/ mese",
+        "next": "Prossimo: {{date}}"
+      },
+      "filters": {
+        "period": {
+          "month": "Mese Corrente",
+          "90d": "Ultimi 90 giorni",
+          "year": "Anno {{year}}",
+          "custom": "Personalizzato"
+        },
+        "allCategories": "Tutte le Categorie ({{count}})",
+        "allAccounts": "Tutti i Conti ({{count}})",
+        "cards": "Carte",
+        "allCards": "Tutte le Carte",
+        "withoutCard": "Senza carta",
+        "typeAll": "Tipo: Tutti",
+        "typeRecurring": "Tipo: Ricorrenti",
+        "typeOneOff": "Tipo: Una Tantum",
+        "reset": "Azzera Filtri",
+        "shown": "Mostrati",
+        "of": "di",
+        "from": "Dal",
+        "to": "Al"
+      },
+      "table": {
+        "date": "Data",
+        "descriptionCategory": "Descrizione & Categoria",
+        "accountMethod": "Conto / Metodo Addebito",
+        "type": "Tipo",
+        "amount": "Importo",
+        "actions": "Azioni",
+        "recurring": "Ricorrente",
+        "oneOff": "Una Tantum",
+        "duplicate": "Duplica",
+        "duplicated": "Transazione duplicata",
+        "rowsPerPage": "Righe per pagina:",
+        "shownRange": "Mostrati {{from}}-{{to}} di {{total}} record filtrati",
+        "previous": "Pagina precedente",
+        "next": "Pagina successiva",
+        "deleteTitle": "Eliminare la transazione?",
+        "deleteMessage": "“{{description}}” verrà eliminata definitivamente."
+      }
     }
   },
   "dashboard": {
@@ -210,14 +274,14 @@
   "config": {
     "general": "Generale",
     "language": "Lingua",
-    "accounts": "Conti",
+    "accounts": "Gestione Conti",
     "recurring": "Ricorrenti",
     "expenses": "Spese",
     "incomes": "Entrate",
     "backup": "Backup",
     "backup.export": "Esporta Backup",
     "backup.restore": "Ripristina da Backup",
-"backup.warning": "Attenzione! Il ripristino sovrascriverà tutti i dati attuali. Assicurati di aver esportato un backup prima di procedere.",
+    "backup.warning": "Attenzione! Il ripristino sovrascriverà tutti i dati attuali. Assicurati di aver esportato un backup prima di procedere.",
     "modules": "Moduli attivi",
     "modulesDescription": "Attiva o disattiva i moduli dell'app",
     "financeTracker": "Gestione finanziaria",
@@ -227,7 +291,6 @@
     "budgetTracking": "Gestione budget",
     "calculationStartDate": "Data inizio calcolo",
     "calculationStartDateDescription": "Da questa data in poi vengono calcolati i totali",
-    "accounts": "Gestione Conti",
     "manageAccounts": "Gestione Conti",
     "addAccount": "Aggiungi Conto",
     "editAccount": "Modifica Conto",
@@ -407,7 +470,6 @@
     "pacDismissed": "PAC saltato per questo mese",
     "tickerValidationError": "Formato ticker non valido. Formato atteso: SIMBOLO o SIMBOLO.BORSA (es. EUNL.DE)",
     "tickerValidationWarning": "Il ticker non può essere verificato su Yahoo Finance",
-    "tickerPlaceholder": "es. EUNL.DE",
     "dividend": "Dividendo",
     "interest": "Interessi",
     "dividendEntry": "Dividendi / Interessi",

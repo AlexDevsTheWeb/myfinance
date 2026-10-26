@@ -157,6 +157,48 @@ describe('addTransaction', () => {
   });
 });
 
+describe('duplicateTransaction', () => {
+  it('creates a new one-off transaction dated today and leaves the original untouched', async () => {
+    await useFinanceStore.getState().addTransaction({
+      id: 'txn-original',
+      date: '2026-08-15',
+      description: 'Mutuo',
+      category: 'Food',
+      subcategory: 'Groceries',
+      amount: 620,
+      type: 'expense',
+      accountId: 'acc-1',
+      cardId: 'card-1',
+      recurringLinkId: 'rec-1',
+      consumption: 12,
+    });
+
+    await useFinanceStore.getState().duplicateTransaction('txn-original');
+
+    const transactions = useFinanceStore.getState().transactions;
+    expect(transactions).toHaveLength(2);
+
+    const copy = transactions.find((item) => item.id !== 'txn-original');
+    expect(copy).toBeDefined();
+    expect(copy!.id).not.toBe('txn-original');
+    expect(copy!.description).toBe('Mutuo');
+    expect(copy!.amount).toBe(620);
+    expect(copy!.accountId).toBe('acc-1');
+    expect(copy!.cardId).toBe('card-1');
+    // A duplicate is a fresh movement: no recurring link, no meter readings
+    expect(copy!.recurringLinkId).toBeUndefined();
+    expect(copy!.consumption).toBeUndefined();
+    expect(copy!.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+    expect(transactions.find((item) => item.id === 'txn-original')!.date).toBe('2026-08-15');
+  });
+
+  it('does nothing when the id does not exist', async () => {
+    await useFinanceStore.getState().duplicateTransaction('missing');
+    expect(useFinanceStore.getState().transactions).toHaveLength(0);
+  });
+});
+
 describe('updateTransaction', () => {
   it('updates an existing transaction', async () => {
     await useFinanceStore.getState().addTransaction({
