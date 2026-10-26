@@ -945,3 +945,11 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Files: `docs/AGENTS.md` (new *Implementation Reports* section + *Report an implementation* workflow), `.claude/skills/issue-to-pr/SKILL.md` (step 6 added, steps renumbered), `.claude/skills/wiki-sync/SKILL.md` (report procedure), `docs/templates/report.md`, `docs/scripts/okf_validate.py` (report rules)
 - Validator test: a deliberately malformed report produced 8 errors (wrong type, missing resource, 5 missing sections, no parent link) before being replaced with the real one
 - First report filed: [[wiki/features/transaction-ledger-redesign/report-2026-10-26]] for PR #197
+
+## [2026-10-26] ingest | Feature | Add Transaction Drawer
+- Source: `raw/2026-10-UI-refactor/2026-10-26-add-transaction.md`. Three scope calls agreed with the user: replace the modal everywhere, reuse the generic `consumption` field instead of four new typed fields, and make "set as recurring" save today's transaction **plus** a template starting next month
+- Created [[wiki/features/add-transaction-drawer/add-transaction-drawer]] and [[wiki/features/add-transaction-drawer/report-2026-10-26]]
+- Rewrote [[wiki/features/quick-actions-fab/quick-actions-fab]]: the two-action menu is gone, the FAB is now a single circular button that opens the drawer
+- `TransactionModal` deleted; `useUiStore` renamed to drawer semantics and widened to include `transfer`. `TransactionForm` was **kept** — compilation revealed `ConfigPage` still uses it for its recurring-template editor, correcting the assumption that no UI created templates
+- Deviations recorded: `DatePicker` instead of `DateTimePicker` (model is date-only), no bimonthly frequency, no category colours, odometer stays in the Car module, account balance is a convenience computation that ignores transfers
+- Verification: tsc clean, build green, **241 tests / 15 files** pass (20 new for the drawer helpers), lint 6E/3W (one fewer than baseline because deleting the modal removed a pre-existing violation)

@@ -1,63 +1,64 @@
 ---
 type: Feature
 title: "Quick Actions FAB"
-description: "A single expandable floating action button in the app layout that opens New Income or New Expense from any page except the dashboard and Config."
+description: "A single circular floating action button in the app layout that opens the global Add Transaction drawer from any page except the dashboard and Config."
 tags: [feature, ui, navigation, transactions]
 created: 2026-10-26
 updated: 2026-10-26
 status: implemented
-sources: ["raw/archive/gsd/phases/06-fab-navigation/"]
-related: ["wiki/features/sidebar-redesign/sidebar-redesign", "wiki/features/transaction-layout-improvement/transaction-layout-improvement"]
+sources: ["raw/archive/gsd/phases/06-fab-navigation/", "raw/2026-10-UI-refactor/2026-10-26-add-transaction.md"]
+related: ["wiki/features/add-transaction-drawer/add-transaction-drawer", "wiki/features/sidebar-redesign/sidebar-redesign", "wiki/features/transaction-ledger-redesign/transaction-ledger-redesign"]
 ---
 
 # Feature: Quick Actions FAB
 
-Status: implemented (2026-04-26)
+Status: implemented (2026-04-26) · simplified 2026-10-26
 Priority: medium
 
 ## Description
 
 Transaction entry used to be reachable only from the dashboard. GSD phase 06
-lifted the entry points into the layout so that **New Income** and **New
-Expense** are one click away from every data page.
+lifted the entry point into the layout. Since the
+[[wiki/features/add-transaction-drawer/add-transaction-drawer]] landed, the FAB is
+a **single circular button** rather than a two-action menu: the type is chosen
+inside the drawer, so a menu in front of it was one click too many.
 
 ## Behaviour
 
-`apps/web/src/components/layout/Layout.tsx` renders a fixed bottom-right stack:
+`apps/web/src/components/layout/Layout.tsx` renders a fixed circular `Fab`:
 
-1. A single `+` button toggles the menu.
-2. Expanded state shows **New Income** (green, upward arrow) and **New Expense**
-   (red, downward arrow), each with a short fade-in animation.
-3. Selecting either opens `TransactionModal` with the right type preselected.
+1. Bottom-right, 24px from each edge, `zIndex: 1000`.
+2. Surface background with a 1px cyan border and a soft cyan shadow.
+3. A `+` icon; clicking it calls `openTransactionDrawer('expense')`, which opens
+   the drawer with the expense tab preselected.
 
 Visibility rules — the FAB is **hidden** on:
 
 - `/config` (no transactions belong there)
-- the dashboard (which already exposes its own entry points)
+- the dashboard (which exposes its own primary CTA)
 
 It requires an authenticated user.
 
 ## Implementation Notes
 
-- The modal state was lifted from `DashboardPage` into `Layout`, which is what
-  removes the duplicate FAB the dashboard used to own.
-- The stack is `flex-direction: column-reverse` with `zIndex: 1000`, so the main
-  button stays anchored while actions expand upward.
-- Labels come from i18n (`common.newIncome`, `common.newExpense`) — see
+- The trigger is state, not a component: `useUiStore.openTransactionDrawer()` is
+  the single entry point shared with the dashboard CTA and the ledger row menu.
+- It is a MUI `Fab` rather than a `Button` stack — the previous expandable menu
+  (New Income / New Expense) was removed when the drawer introduced the type tabs.
+- The label comes from i18n (`transactions.drawer.fabLabel`) — see
   [[wiki/features/localization/localization]].
-- It is a plain MUI `Button` stack, not MUI's `SpeedDial`: the styling needed to
-  match the sidebar/glass aesthetic did not fit `SpeedDial`'s internal markup.
 
 ## Requirements (as shipped)
 
 - [x] Reachable from every page except Config and dashboard
-- [x] Single toggle button with two actions
-- [x] Opens the transaction modal with the correct type
+- [x] Single button opening the transaction drawer
+- [x] Drawer opens on the expense tab by default
 - [x] Hidden for unauthenticated users
-- [x] Localized labels
+- [x] Localized accessible label
 
 ## Related
 
+- [[wiki/features/add-transaction-drawer/add-transaction-drawer]]
 - [[wiki/features/sidebar-redesign/sidebar-redesign]]
-- [[wiki/features/transaction-layout-improvement/transaction-layout-improvement]]
+- [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign]]
 - Archived GSD phase: [06-fab-navigation](../../../raw/archive/gsd/phases/06-fab-navigation/)

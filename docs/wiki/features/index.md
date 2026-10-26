@@ -51,3 +51,4 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[wiki/features/localization/localization|localization]] | Italian and English UI via i18next, browser/localStorage detection, dayjs locale sync, selector in ConfigPage. |
 | [[wiki/features/quick-actions-fab/quick-actions-fab|quick-actions-fab]] | Expandable FAB in the layout opening New Income / New Expense from any page except dashboard and Config. |
 | [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign|transaction-ledger-redesign]] | Full-width `/transactions` redesign: KPI cards, one-row filter toolbar, dense sortable table, CSV export, column toggles, pagination. |
+| [[wiki/features/add-transaction-drawer/add-transaction-drawer|add-transaction-drawer]] | Global right-side drawer for create/edit: three type tabs, hero amount, utility and recurring progressive disclosure, one UI-store entry point. |
