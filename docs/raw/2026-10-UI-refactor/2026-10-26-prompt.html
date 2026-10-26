@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-[#0B0F17]" lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Balancr - Finanza Personale | Dashboard</title>
+<!-- Tailwind CSS CDN con plugins standard -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter per UI e JetBrains Mono per dati e numeri -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script data-purpose="tailwind-config" id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            background: '#0B0F17',
+            card: '#131B2E',
+            cardBorder: '#1E293B',
+            brandCyan: '#06B6D4',
+            brandGreen: '#10B981',
+            brandRed: '#EF4444',
+            brandAmber: '#F59E0B',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-utilities">
+    /* Forzatura font tabulare per allineamento preciso dei dati numerici */
+    .num-tabular {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    /* Scrollbar sottile e discreta */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 3px;
+    }
+  </style>
+<meta content="web_dashboard" name="shell-type"/></head>
+<body class="h-full bg-[#0B0F17] text-slate-200 font-sans antialiased flex overflow-hidden">
+<!-- BEGIN: Sidebar -->
+<aside class="w-[240px] flex-shrink-0 bg-[#0E1524] border-r border-[#1E293B] flex flex-col justify-between h-full select-none z-20" data-purpose="main-sidebar">
+<div class="flex flex-col">
+<!-- Logo Balancr -->
+<div class="h-16 flex items-center px-5 border-b border-[#1E293B] gap-3">
+<div class="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-brandCyan font-bold text-lg">
+          $
+        </div>
+<div>
+<span class="font-bold text-white tracking-wider text-sm block leading-none">BALANCR</span>
+<span class="text-[10px] text-slate-400 font-medium tracking-tight uppercase">Finanza Personale</span>
+</div>
+</div>
+<!-- Menu di Navigazione Principale -->
+<nav class="p-3 space-y-1">
+<!-- Elemento Attivo: Dashboard -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-[#16233B] text-brandCyan border border-cyan-500/30" href="#">
+<svg class="w-4 h-4 text-brandCyan" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="truncate">Dashboard</span>
+</a>
+<!-- Transazioni -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="truncate">Transazioni</span>
+</a>
+<!-- Utenze & Consumi -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="truncate">Utenze &amp; Consumi</span>
+</a>
+<!-- Investimenti & PAC -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="truncate">Investimenti &amp; PAC</span>
+</a>
+<!-- Budget Spesa -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="truncate">Budget Spesa</span>
+</a>
+<!-- Flotta / Veicoli -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 2h10l2-2zM13 8h4.5a1.5 1.5 0 011.414 1l1.5 4A1.5 1.5 0 0121 14.5V16h-2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="truncate">Flotta / Veicoli</span>
+</a>
+<!-- Impostazioni -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition-colors" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="truncate">Impostazioni</span>
+</a>
+</nav>
+</div>
+<!-- Profilo Utente Footer -->
+<div class="p-3 border-t border-[#1E293B]">
+<div class="flex items-center justify-between p-2 rounded-lg bg-[#131B2E] border border-[#1E293B]">
+<div class="flex items-center gap-2.5 overflow-hidden">
+<div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-white flex-shrink-0">
+            AT
+          </div>
+<div class="overflow-hidden">
+<p class="text-xs font-semibold text-white truncate">Alessandro Torri</p>
+<p class="text-[10px] text-slate-400 truncate">alessandro@torri.c...</p>
+</div>
+</div>
+<button aria-label="Disconnetti" class="text-slate-400 hover:text-slate-200 p-1" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+</aside>
+<!-- END: Sidebar -->
+<!-- Area Principale di Contenuto -->
+<div class="flex-1 flex flex-col h-full overflow-hidden">
+<!-- BEGIN: TopBar -->
+<header class="h-16 border-b border-[#1E293B] bg-[#0E1524] px-6 flex items-center justify-between flex-shrink-0" data-purpose="top-navbar">
+<!-- Cerca Input -->
+<div class="w-96">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<input class="w-full bg-[#131B2E] border border-[#1E293B] rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500" placeholder="Cerca transazioni, categorie, IBAN..." type="text"/>
+</div>
+</div>
+<!-- Azioni Rapide a Destra -->
+<div class="flex items-center gap-3.5">
+<!-- Selettore Valuta -->
+<button class="flex items-center gap-1.5 text-xs font-medium text-slate-300 bg-[#131B2E] border border-[#1E293B] px-3 py-1.5 rounded-lg hover:border-slate-600 transition" type="button">
+<span class="w-2 h-2 rounded-full bg-brandCyan"></span>
+<span>EUR (€)</span>
+<svg class="w-3.5 h-3.5 text-slate-400 ml-1" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- Campanella Notifiche -->
+<button class="relative p-2 bg-[#131B2E] border border-[#1E293B] rounded-lg text-slate-300 hover:text-white transition" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-brandRed rounded-full"></span>
+</button>
+<!-- Bottone CTA Primario -->
+<button class="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-slate-950 font-semibold text-xs px-3.5 py-1.5 rounded-lg transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+<span>Nuova Operazione</span>
+</button>
+</div>
+</header>
+<!-- END: TopBar -->
+<!-- Scrollable Main Container -->
+<main class="flex-1 overflow-y-auto p-6 space-y-5"><div class="flex flex-col w-full">
+<!-- Top Section: Header & Quick Actions -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5">
+<div>
+<h1 class="text-2xl font-bold tracking-tight text-slate-100 font-sans">REGISTRO TRANSAZIONI</h1>
+<p class="text-sm text-slate-400 font-medium font-sans mt-0.5">1.428 Movimenti totali</p>
+</div>
+<div class="flex items-center gap-2.5">
+<button class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#131B2E] text-slate-300 border border-slate-700 hover:border-slate-500 hover:text-white transition shadow-sm font-sans" type="button">
+<span class="material-symbols-outlined text-[16px] text-slate-400">download</span>
+<span>Esporta CSV</span>
+</button>
+<button class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#131B2E] text-slate-300 border border-slate-700 hover:border-slate-500 hover:text-white transition shadow-sm font-sans" type="button">
+<span class="material-symbols-outlined text-[16px] text-slate-400">view_column</span>
+<span>Personalizza Colonne</span>
+</button>
+</div>
+</div>
+<!-- KPI Metrics Grid (Executive Standard) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+<!-- Card 1: Entrate -->
+<div class="bg-[#131B2E] border border-slate-800 rounded-xl p-5 shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-sans">Entrate Periodo</span>
+<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-sans">
+<span class="material-symbols-outlined text-[12px]">trending_up</span>
+          +12,4%
+        </span>
+</div>
+<div class="text-2xl font-bold font-mono text-emerald-400 num-tabular tracking-tight">
+        +€ 3.250,00
+      </div>
+<div class="mt-2.5 flex items-center text-xs text-slate-400 font-sans">
+<span>84 movimenti accreditati</span>
+<span class="mx-2 text-slate-600">•</span>
+<span class="text-slate-400">vs mese prec.</span>
+</div>
+</div>
+<!-- Card 2: Uscite -->
+<div class="bg-[#131B2E] border border-slate-800 rounded-xl p-5 shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-sans">Uscite Periodo</span>
+<span class="inline-flex items-center text-[11px] font-semibold text-slate-300 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 font-sans">
+          Mensile
+        </span>
+</div>
+<div class="text-2xl font-bold font-mono text-rose-400 num-tabular tracking-tight">
+        -€ 1.840,20
+      </div>
+<div class="mt-2.5 flex items-center text-xs text-slate-400 font-sans">
+<span>Budget mensile al 64%</span>
+<div class="ml-2.5 w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden inline-flex">
+<div class="bg-rose-500 h-full rounded-full" style="width: 64%"></div>
+</div>
+</div>
+</div>
+<!-- Card 3: Spese Ricorrenti Fisse -->
+<div class="bg-[#131B2E] border border-slate-800 rounded-xl p-5 shadow-sm relative overflow-hidden">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-sans">Spese Ricorrenti Fisse</span>
+<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-sans">
+<span class="material-symbols-outlined text-[12px]">schedule</span>
+          Regolari
+        </span>
+</div>
+<div class="text-2xl font-bold font-mono text-amber-400 num-tabular tracking-tight">
+        -€ 620,00 <span class="text-sm font-normal text-slate-400 font-sans">/ mese</span>
+</div>
+<div class="mt-2.5 flex items-center text-xs text-slate-400 font-sans">
+<span>3 mutui/abbonamenti attivi</span>
+<span class="mx-2 text-slate-600">•</span>
+<span class="text-slate-400">Prossimo: 01 Nov</span>
+</div>
+</div>
+</div>
+<!-- Filter & Control Toolbar -->
+<div class="bg-[#131B2E] border border-slate-800 rounded-xl p-3 mb-5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+<!-- Left: Date Range Pills & Dropdowns -->
+<div class="flex flex-wrap items-center gap-2">
+<!-- Date Filter Pills -->
+<div class="inline-flex items-center bg-[#0B0F17] p-1 rounded-lg border border-slate-800 gap-1 text-xs font-sans">
+<button class="px-2.5 py-1 rounded font-medium bg-sky-500/20 text-sky-400 border border-sky-500/40" type="button">Mese Corrente</button>
+<button class="px-2.5 py-1 rounded font-medium text-slate-400 hover:text-slate-200 transition" type="button">Ultimi 90 giorni</button>
+<button class="px-2.5 py-1 rounded font-medium text-slate-400 hover:text-slate-200 transition" type="button">Anno 2026</button>
+<button class="px-2.5 py-1 rounded font-medium text-slate-400 hover:text-slate-200 transition" type="button">Personalizzato</button>
+</div>
+<!-- Select Dropdown: Categories -->
+<div class="relative">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0B0F17] text-slate-300 border border-slate-800 hover:border-slate-700 transition font-sans" type="button">
+<span>Tutte le Categorie (12)</span>
+<span class="material-symbols-outlined text-[14px] text-slate-500">expand_more</span>
+</button>
+</div>
+<!-- Select Dropdown: Accounts -->
+<div class="relative">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0B0F17] text-slate-300 border border-slate-800 hover:border-slate-700 transition font-sans" type="button">
+<span>Tutti i Conti (ING, Intesa, Revolut)</span>
+<span class="material-symbols-outlined text-[14px] text-slate-500">expand_more</span>
+</button>
+</div>
+<!-- Select Dropdown: Cards -->
+<div class="relative">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0B0F17] text-slate-300 border border-slate-800 hover:border-slate-700 transition font-sans" type="button">
+<span>Tutte le Carte</span>
+<span class="material-symbols-outlined text-[14px] text-slate-500">expand_more</span>
+</button>
+</div>
+<!-- Select Dropdown: Type -->
+<div class="relative">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0B0F17] text-slate-300 border border-slate-800 hover:border-slate-700 transition font-sans" type="button">
+<span>Tipo: Tutti</span>
+<span class="material-symbols-outlined text-[14px] text-slate-500">expand_more</span>
+</button>
+</div>
+<!-- Reset Filter Action -->
+<button class="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 transition ml-1 font-sans" type="button">
+<span class="material-symbols-outlined text-[14px]">refresh</span>
+<span>Azzera Filtri</span>
+</button>
+</div>
+<!-- Right: Indicator Count -->
+<div class="text-xs text-slate-400 font-sans">
+      Mostrati <span class="font-mono text-slate-200 num-tabular font-medium">10</span> di <span class="font-mono text-slate-200 num-tabular font-medium">1.428</span> movimenti
+    </div>
+</div>
+<!-- Primary Transactions Ledger Table -->
+<div class="bg-[#131B2E] border border-slate-800/80 rounded-xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-slate-800/80 bg-[#0E1524] text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-sans">
+<th class="px-5 py-3" scope="col">Data</th>
+<th class="px-5 py-3" scope="col">Descrizione &amp; Categoria</th>
+<th class="px-5 py-3" scope="col">Conto / Metodo Addebito</th>
+<th class="px-5 py-3" scope="col">Tipo</th>
+<th class="px-5 py-3 text-right" scope="col">Importo</th>
+<th class="px-4 py-3 text-center w-12" scope="col">Azioni</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-800/50 text-sm font-sans">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              28 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">Bonifico Quota Mutuo</div>
+<div class="text-xs text-slate-400 mt-0.5">Mutui &amp; Finanziamenti</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+<span>Intesa Private • SDD Diretto</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                Ricorrente Mensile
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-rose-400 num-tabular">
+              -€ 31,43
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per Bonifico Quota Mutuo" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              28 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">Stipendio Mensile Dirigenziale</div>
+<div class="text-xs text-slate-400 mt-0.5">Entrate • Bonifico SEPA</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+<span>Conto Arancio ING • Bonifico In</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                Ricorrente Mensile
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-emerald-400 num-tabular">
+              +€ 2.100,00
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per Stipendio Mensile Dirigenziale" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              28 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">Rata Finanziamento Peugeot 3008</div>
+<div class="text-xs text-slate-400 mt-0.5">Flotta • Addebito</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+<span>Conto Arancio ING • SDD</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                Ricorrente Mensile
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-rose-400 num-tabular">
+              -€ 241,85
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per Rata Finanziamento Peugeot 3008" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              25 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">Esselunga Milano CityLife</div>
+<div class="text-xs text-slate-400 mt-0.5">Spese Quotidiane • Alimentari</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+<span>Carta di Credito Gold #4412</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-800 text-slate-300 border border-slate-700">
+                Una Tantum
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-rose-400 num-tabular">
+              -€ 142,60
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per Esselunga Milano CityLife" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              24 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">Enel Flex Luce &amp; Gas</div>
+<div class="text-xs text-slate-400 mt-0.5">Utenze &amp; Consumi • Bolletta</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+<span>SDD Bimodale Automatico</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                Ricorrente Bimestrale
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-rose-400 num-tabular">
+              -€ 97,13
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per Enel Flex Luce &amp; Gas" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 6 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              22 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">PAC iShares Core MSCI World</div>
+<div class="text-xs text-slate-400 mt-0.5">Investimenti &amp; PAC • SWDA</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+<span>Degiro Deposito • Trading</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-sky-500/10 text-sky-400 border border-sky-500/30">
+                PAC Automatico
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-rose-400 num-tabular">
+              -€ 500,00
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per PAC iShares Core MSCI World" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 7 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              20 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">Eni Station A4 Diesel Plus</div>
+<div class="text-xs text-slate-400 mt-0.5">Flotta &amp; Veicoli • Carburante</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+<span>Revolut Corporate Debit #1039</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-800 text-slate-300 border border-slate-700">
+                Una Tantum
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-rose-400 num-tabular">
+              -€ 85,50
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per Eni Station A4 Diesel Plus" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 8 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              18 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">Ristorante Cracco Galleria</div>
+<div class="text-xs text-slate-400 mt-0.5">Ristorazione &amp; Club • Executive Dinner</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+<span>Amex Centurion Black #9018</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-800 text-slate-300 border border-slate-700">
+                Una Tantum
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-rose-400 num-tabular">
+              -€ 250,00
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per Ristorante Cracco Galleria" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 9 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              15 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">AWS Cloud Enterprise &amp; AI</div>
+<div class="text-xs text-slate-400 mt-0.5">Tecnologia &amp; Software • Hosting</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+<span>Amex Centurion Black #9018</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                Ricorrente Mensile
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-rose-400 num-tabular">
+              -€ 49,90
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per AWS Cloud Enterprise &amp; AI" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 10 -->
+<tr class="hover:bg-slate-800/40 transition-colors">
+<td class="px-5 py-3.5 whitespace-nowrap font-mono text-xs text-slate-300 num-tabular">
+              12 OTT 2026
+            </td>
+<td class="px-5 py-3.5">
+<div class="font-semibold text-slate-100 leading-snug">Rimborso Spese Trasferta Zurich</div>
+<div class="text-xs text-slate-400 mt-0.5">Entrate • Note Spese Q3</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-xs text-slate-300">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+<span>UBS Direct Wire CH93</span>
+</div>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-800 text-slate-300 border border-slate-700">
+                Una Tantum
+              </span>
+</td>
+<td class="px-5 py-3.5 whitespace-nowrap text-right font-mono font-semibold text-emerald-400 num-tabular">
+              +€ 1.150,00
+            </td>
+<td class="px-4 py-3.5 text-center whitespace-nowrap">
+<button aria-label="Altre opzioni per Rimborso Spese Trasferta Zurich" class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination Footer -->
+<div class="px-5 py-3.5 bg-[#0E1524] border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-sans">
+<div class="text-slate-400">
+        Mostrati <span class="font-mono text-slate-200 num-tabular font-medium">1-10</span> di <span class="font-mono text-slate-200 num-tabular font-medium">84</span> record filtrati
+      </div>
+<div class="flex items-center gap-4">
+<!-- Rows per page -->
+<div class="flex items-center gap-2 text-slate-400">
+<span>Righe per pagina:</span>
+<select aria-label="Seleziona numero di righe per pagina" class="bg-[#131B2E] border border-slate-800 text-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-sky-500 font-mono">
+<option selected="">10</option>
+<option>25</option>
+<option>50</option>
+<option>100</option>
+</select>
+</div>
+<!-- Page Navigator Buttons -->
+<div class="inline-flex items-center gap-1">
+<button aria-label="Pagina precedente" class="p-1.5 rounded text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition disabled:opacity-40" disabled="" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-7 h-7 rounded text-xs font-medium bg-sky-500/20 text-sky-400 border border-sky-500/40 flex items-center justify-center font-mono" type="button">
+            1
+          </button>
+<button class="w-7 h-7 rounded text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center justify-center font-mono" type="button">
+            2
+          </button>
+<button class="w-7 h-7 rounded text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center justify-center font-mono" type="button">
+            3
+          </button>
+<span class="px-1 text-slate-600 font-mono">...</span>
+<button class="w-7 h-7 rounded text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center justify-center font-mono" type="button">
+            9
+          </button>
+<button aria-label="Pagina successiva" class="p-1.5 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div></main>
+</div>
+</body></html>

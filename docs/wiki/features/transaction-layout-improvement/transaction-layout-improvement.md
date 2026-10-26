@@ -1,18 +1,18 @@
 ---
 type: Feature
-description: "Two-column transaction layout with filter panel and chart on the left side."
+description: "Superseded — two-column transaction layout with filter panel and chart on the left; replaced by the full-width ledger redesign."
 title: "Transaction Layout Improvement"
 tags: [feature, frontend, transactions, planned]
 created: 2026-06-22
-updated: 2026-06-22
-status: planned
+updated: 2026-10-26
+status: superseded
 sources: ["https://github.com/AlexDevsTheWeb/myfinance/issues/80"]
-related: ["plans/transaction-layout-implementation", "architecture/tech-stack"]
+related: ["wiki/features/transaction-ledger-redesign/transaction-ledger-redesign", "wiki/plans/transaction-layout-implementation"]
 ---
 
 # Feature: Better Transaction Layout
 
-Status: planned
+Status: **superseded** (2026-10-26) — replaced by [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign]]. Kept for the reasoning behind the two-column layout that shipped and was later replaced.
 Priority: medium
 
 ## Description

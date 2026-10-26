@@ -37,7 +37,7 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[wiki/features/sidebar-routing-refactor/sidebar-routing-refactor|sidebar-routing-refactor]] | Sidebar flat links, /finance + /investments tabbed pages, removed duplicate title. |
 | [[wiki/features/tax-inflation-modeling/tax-inflation-modeling|tax-inflation-modeling]] | Inflation-adjusted financial projections with real vs nominal toggle. |
 | [[wiki/features/ticker-validation/ticker-validation|ticker-validation]] | Yahoo Finance ticker validation triggered at broker config save. |
-| [[wiki/features/transaction-layout-improvement/transaction-layout-improvement|transaction-layout-improvement]] | Two-column transaction layout with filter panel and chart on the left side. |
+| [[wiki/features/transaction-layout-improvement/transaction-layout-improvement|transaction-layout-improvement]] | ⚠️ Superseded — two-column transaction layout, replaced by the full-width ledger redesign. |
 | [[wiki/features/card-plafond-tracking/card-plafond-tracking|card-plafond-tracking]] | Track spending per card with monthly plafond, configurable per account in settings. |
 | [[wiki/features/user-configurable-rates/user-configurable-rates|user-configurable-rates]] | User-configurable inflation and tax rates in ConfigPage > Projections tab. |
 | [[wiki/features/recurring-card-selection/recurring-card-selection|recurring-card-selection]] | Card selection (None/credit/debit) on recurring expense templates, propagated to generated transactions. |
@@ -50,3 +50,4 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[wiki/features/analytics-insights/analytics-insights|analytics-insights]] | Shared analytics data layer + six chart components on the Insights tab of `/finance`, migrated to MUI X Charts. |
 | [[wiki/features/localization/localization|localization]] | Italian and English UI via i18next, browser/localStorage detection, dayjs locale sync, selector in ConfigPage. |
 | [[wiki/features/quick-actions-fab/quick-actions-fab|quick-actions-fab]] | Expandable FAB in the layout opening New Income / New Expense from any page except dashboard and Config. |
+| [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign|transaction-ledger-redesign]] | Full-width `/transactions` redesign: KPI cards, one-row filter toolbar, dense sortable table, CSV export, column toggles, pagination. |
