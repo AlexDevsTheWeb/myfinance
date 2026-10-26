@@ -1,5 +1,5 @@
-import { ArrowDownward, ArrowUpward, ChevronRight, Home, Menu as MenuIcon } from '@mui/icons-material';
-import { AppBar, Box, Breadcrumbs, Button, Container, IconButton, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery } from '@mui/material';
+import { Add, ChevronRight, Home, Menu as MenuIcon } from '@mui/icons-material';
+import { AppBar, Box, Breadcrumbs, Container, Fab, IconButton, Link as MuiLink, SwipeableDrawer, Toolbar, Typography, useMediaQuery } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ import i18n from '../../lib/i18n';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useUiStore } from '../../store/useUiStore';
 import { VersionFooter } from '../common/VersionFooter';
-import TransactionModal from '../modals/TransactionModal';
+import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
 import Sidebar from './Sidebar';
 
 // Initialize dayjs locale based on current language
@@ -23,26 +23,11 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   const { t } = useTranslation();
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [fabOpen, setFabOpen] = useState(false);
 
-  const txModalOpen = useUiStore((s) => s.txModalOpen);
-  const txModalType = useUiStore((s) => s.txModalType);
-  const txModalTransaction = useUiStore((s) => s.txModalTransaction);
-  const openTransactionModal = useUiStore((s) => s.openTransactionModal);
-  const closeTransactionModal = useUiStore((s) => s.closeTransactionModal);
+  const openTransactionDrawer = useUiStore((s) => s.openTransactionDrawer);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
-  };
-
-  const handleToggleFab = () => {
-    setFabOpen(!fabOpen);
-  };
-
-  const handleCloseFab = () => setFabOpen(false);
-
-  const handleFabSelect = (type: 'income' | 'expense') => {
-    openTransactionModal(type, null);
   };
 
   const isDashboard = location.pathname === '/dashboard' || location.pathname === '/dashboard/';
@@ -164,78 +149,28 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
         </Container>
 
         {user && location.pathname !== '/config' && !isDashboard && (
-          <Box
+          <Fab
+            color="primary"
+            aria-label={t('transactions.drawer.fabLabel')}
+            onClick={() => openTransactionDrawer('expense')}
             sx={{
               position: 'fixed',
               bottom: 24,
               right: 24,
-              display: 'flex',
-              flexDirection: 'column-reverse',
-              alignItems: 'center',
-              gap: 1,
               zIndex: 1000,
+              bgcolor: 'colors.surface',
+              color: 'colors.cyan',
+              border: '1px solid',
+              borderColor: 'colors.cyan',
+              boxShadow: '0 8px 24px rgba(6,182,212,0.25)',
+              '&:hover': { bgcolor: 'colors.active' },
             }}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleToggleFab}
-              sx={{
-                borderRadius: 2,
-                boxShadow: '0 8px 32px rgba(99, 102, 241, 0.4)',
-                fontWeight: 800,
-                minWidth: 120,
-              }}
-            >
-              +
-            </Button>
-            {fabOpen && (
-              <>
-                <Button
-                  variant="contained"
-                  color="success"
-                  startIcon={<ArrowUpward />}
-                  onClick={() => { handleFabSelect('income'); handleCloseFab(); }}
-                  sx={{
-                    borderRadius: 2,
-                    boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
-                    animation: 'fadeIn 0.2s ease-in',
-                    '@keyframes fadeIn': {
-                      from: { opacity: 0, transform: 'translateY(10px)' },
-                      to: { opacity: 1, transform: 'translateY(0)' },
-                    },
-                  }}
-                >
-                  {t('common.newIncome')}
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  startIcon={<ArrowDownward />}
-                  onClick={() => { handleFabSelect('expense'); handleCloseFab(); }}
-                  sx={{
-                    borderRadius: 2,
-                    boxShadow: '0 4px 16px rgba(239, 68, 68, 0.3)',
-                    animation: 'fadeIn 0.2s ease-in 0.05s both',
-                    '@keyframes fadeIn': {
-                      from: { opacity: 0, transform: 'translateY(10px)' },
-                      to: { opacity: 1, transform: 'translateY(0)' },
-                    },
-                  }}
-                >
-                  {t('common.newExpense')}
-                </Button>
-              </>
-            )}
-          </Box>
+            <Add />
+          </Fab>
         )}
 
-        <TransactionModal
-          open={txModalOpen}
-          onClose={closeTransactionModal}
-          type={txModalType}
-          transaction={txModalTransaction}
-        />
+        <AddTransactionDrawer />
         <VersionFooter />
       </Box>
     </Box>

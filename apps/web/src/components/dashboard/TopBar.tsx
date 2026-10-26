@@ -40,7 +40,7 @@ const TopBar: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { enabledModules, carMileage, transactions } = useFinanceStore();
-  const openTransactionModal = useUiStore((s) => s.openTransactionModal);
+  const openTransactionDrawer = useUiStore((s) => s.openTransactionDrawer);
 
   const [search, setSearch] = React.useState('');
   const [notifAnchor, setNotifAnchor] = React.useState<HTMLElement | null>(null);
@@ -164,7 +164,7 @@ const TopBar: React.FC = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => openTransactionModal('expense')}
+          onClick={() => openTransactionDrawer('expense')}
           sx={{
             bgcolor: 'colors.emerald',
             color: '#0B0F17',

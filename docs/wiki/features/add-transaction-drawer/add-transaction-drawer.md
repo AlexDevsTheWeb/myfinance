@@ -1,0 +1,131 @@
+---
+type: Feature
+title: "Add Transaction Drawer"
+description: "Global right-side drawer for creating and editing transactions: three type tabs, hero amount, progressive disclosure for utility consumption and recurrence, driven by a single UI-store entry point."
+tags: [feature, frontend, transactions, ui, drawer]
+created: 2026-10-26
+updated: 2026-10-26
+status: implemented
+sources: ["raw/2026-10-UI-refactor/2026-10-26-add-transaction.md"]
+related: ["wiki/features/quick-actions-fab/quick-actions-fab", "wiki/features/transaction-ledger-redesign/transaction-ledger-redesign", "wiki/architecture/store-architecture"]
+---
+
+# Feature: Add Transaction Drawer
+
+Status: implemented
+Priority: high
+
+## Description
+
+One surface for creating and editing a transaction, replacing the centred
+`TransactionModal`. A right-anchored drawer opens from a single global state, so
+the dashboard CTA, the floating button and the ledger row menu all point at the
+same component.
+
+It replaces the modal rather than living beside it: `components/modals/TransactionModal.tsx`
+was deleted, and no screen renders a dialog form for transactions any more.
+
+## Structure
+
+```
+apps/web/src/
+├── components/transactions/
+│   ├── AddTransactionDrawer.tsx          # drawer shell + form layout
+│   └── transactionDrawer.utils.ts        # validation, units, template mapping (+ tests)
+├── store/useUiStore.ts                   # txDrawerOpen / type / transaction + actions
+├── components/layout/Layout.tsx          # single FAB + mounts the drawer once
+├── components/dashboard/TopBar.tsx       # CTA opens the drawer
+└── pages/TransactionsPage.tsx            # row Edit opens the drawer with the transaction
+```
+
+## Entry points
+
+| Trigger | Opens |
+|---|---|
+| Dashboard primary CTA (`+ Nuova Operazione`) | Drawer, expense |
+| Global floating button (bottom-right, every page except `/config` and the dashboard) | Drawer, expense |
+| Ledger row menu → Edit | Drawer, that transaction |
+
+The drawer is mounted once in `Layout` and reads `useUiStore`, so adding a new
+trigger means calling `openTransactionDrawer(type, transaction?)` — no prop
+drilling.
+
+## Layout
+
+1. **Header** — title + close.
+2. **Segmented tabs** — Expense / Income / Transfer, each with its accent colour
+   (`rose` / `emerald` / `cyan`). Switching type resets category and subcategory,
+   because the category source changes (`categories` vs `incomeCategories` vs the
+   synthetic `Internal Transfer` list).
+3. **Hero amount** — monospaced 2rem field with a `€` adornment and autofocus.
+4. **Core fields** — date, description (autocomplete over past descriptions of
+   the same type, which also back-fills category/subcategory), category,
+   subcategory, account (with computed balance) and card (with plafond).
+5. **Progressive disclosure**
+   - **Consumption & Utilities** — auto-expands when the category/subcategory
+     names a meter or fuel (`Elettricità`/`Electricity` → kWh, `Gas` → smc,
+     `Carburante`/`Diesel` → L). Bills also show the billing period; fuel shows a
+     derived price per litre.
+   - **Recurring** — switch + frequency (monthly/yearly), charge day, month of
+     year for yearly, optional end date. Create mode only.
+6. **Footer** — Cancel + Save.
+
+## Refinement (2026-10-26)
+
+A second pass hardened the look, the amount input and mobile behaviour:
+
+- **One input style.** TextField, Select and DatePicker share the same surface,
+  8px radius and 48px minimum touch target. Hover uses `colors.borderLight`,
+  focus uses cyan at 1.5px — MUI's default white hover border is overridden.
+  Date values render in JetBrains Mono and the calendar icon is muted until hover.
+- **Hero amount.** The digits inherit the active tab colour, not just the `€`.
+  Input is formatted while typing (Italian grouping, decimal comma, two
+  decimals); a comma or a period are both accepted, and `inputMode="decimal"`
+  opens the numeric keypad on mobile. `parseAmountInput` converts the formatted
+  string back to a number for validation, templates and the payload.
+- **Category and subcategory share one row**, and the Date field uses the same
+  compact picker sizing as the billing-period fields.
+- **Mobile.** The drawer becomes a full-viewport sheet (`100vw` × `100dvh`) with
+  the header and footer outside the scroll area; the footer pads with
+  `env(safe-area-inset-bottom)` so the save button clears the home indicator.
+
+The styles live in `components/transactions/drawer.styles.ts`; the amount
+formatter/parser live beside the drawer and are unit-tested.
+
+## Semantics worth knowing
+
+- **A transaction is always saved.** Turning on the recurrence additionally
+  creates a template that starts on the **1st of next month**, so the movement
+  recorded today is not generated a second time by `checkRecurring`.
+- **Editing never creates a template.** The recurring block is hidden in edit
+  mode; for an instance generated by a recurrence the drawer shows a note that
+  editing it does not change the template.
+- **Switching tab clears the type-specific fields.** Date, account and card
+  survive; amount, description, category, subcategory and consumption are reset.
+  Without this the drawer's single draft made an amount typed under *Expense*
+  appear under *Income* — and could have been saved with the wrong type.
+- **Transfers are single-sided.** The model records one `transfer` movement with
+  an account; there is no destination accounts field.
+- **Account balance** = `initialBalance` + income − expenses for that account,
+  ignoring transfers. It is a convenience display, not a ledger reconciliation.
+- **Card figure is the plafond**, not the remaining credit.
+
+## Deviations from the request
+
+| Request | Shipped |
+|---|---|
+| `DateTimePicker` | `DatePicker` — the model stores `date` as `YYYY-MM-DD`, so a time would be dropped silently |
+| `kwh`, `smc`, `liters`, `odometer` as new typed fields | one generic `consumption` (existing) with a dynamic unit; €/L derived from amount ÷ litres; odometer stays in the Car module |
+| Bimestrale frequency | monthly / yearly — the model has no bimonthly frequency |
+| Category colour indicators | omitted — categories carry no colour (budget targets do) |
+| `docs/reports/PR-N.md` for the report | `wiki/features/add-transaction-drawer/report-2026-10-26.md`, per the merged wiki convention |
+| `feature/add-transaction-drawer` branch | `feat/add-transaction-drawer` |
+
+## Related
+
+- [[wiki/features/quick-actions-fab/quick-actions-fab]] (the FAB now opens this drawer)
+- [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign]]
+- [[wiki/architecture/store-architecture]]
+- Implementation report: [[wiki/features/add-transaction-drawer/report-2026-10-26]]
+- Refinement report: [[wiki/features/add-transaction-drawer/report-2026-10-26-refinement]]
+- Source: [raw/2026-10-UI-refactor/2026-10-26-add-transaction.md](../../../raw/2026-10-UI-refactor/2026-10-26-add-transaction.md)
