@@ -992,3 +992,8 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Removed the duplicated page title (`h4`) from every page — dashboard, transactions, finance/insights/salary, investments, budget, car, utilities, settings — keeping subtitles and actions in content
 - Title width-clipped at `md`/`lg` so it cannot run under the centred search; search hidden below `md` with the compact mobile header
 - Verification: tsc clean, build green, **258 tests / 16 files**, lint at the 6E/3W baseline
+
+## [2026-10-26] fix | Feature | TopBar alignment and avatar removal (PR #201)
+- The actions cluster (currency, bell, primary CTA) drifted toward the centre: the title is `flex: 1` but capped by `maxWidth`, so it stopped growing before the row was full and the cluster began right after it. Fixed with `margin-left: auto` on the cluster
+- Removed the avatar from the bar — it had no action attached
+- Verification: tsc clean, build green, 258 tests, lint at the 6E/3W baseline

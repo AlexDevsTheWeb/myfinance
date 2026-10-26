@@ -96,10 +96,10 @@ A second pass aligned the page with the Stitch export and fixed three gaps:
 
 ## Shell & page titles
 
-The global `TopBar` now carries the **page title on the left** and the **search
-field centred**, with currency, notifications, the primary CTA and the avatar on
-the right. The title comes from a route map inside `TopBar`, so there is one
-place to change a label.
+The global `TopBar` carries the **page title on the left** and the **search field
+centred**, with the currency chip, notifications and the primary CTA pinned to the
+right edge. There is no avatar in the bar. The title comes from a route map
+inside `TopBar`, so there is one place to change a label.
 
 Titles were removed from page content on every page — dashboard, transactions,
 finance/insights/salary, investments, budget, car, utilities and settings — which
@@ -108,7 +108,9 @@ its own TopBar: the shell is identical everywhere. Below `md` the bar keeps the
 compact mobile header with the hamburger, and the search is hidden.
 
 The title is width-clipped at `md`/`lg` so it cannot run underneath the centred
-search field.
+search field. Because that cap stops `flex: 1` from filling the row, the
+right-hand cluster carries `margin-left: auto` — without it the capped title
+leaves a gap and the actions drift toward the centre.
 
 ## Deviations from the request
 

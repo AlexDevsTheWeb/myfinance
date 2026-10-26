@@ -3,12 +3,10 @@ import {
   ChevronRight,
   DirectionsCar as CarIcon,
   NotificationsNone as BellIcon,
-  Person as PersonIcon,
   Search as SearchIcon,
   TrendingUp as InvestIcon,
 } from '@mui/icons-material';
 import {
-  Avatar,
   Badge,
   Box,
   Button,
@@ -27,7 +25,6 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/useAuthStore';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useUiStore } from '../../store/useUiStore';
 
@@ -44,7 +41,6 @@ const TopBar: React.FC = () => {
   const navigate = useNavigate();
   const { enabledModules, carMileage, transactions } = useFinanceStore();
   const openTransactionDrawer = useUiStore((s) => s.openTransactionDrawer);
-  const user = useAuthStore((s) => s.user);
 
   const { pathname } = useLocation();
   const pageTitle = React.useMemo(() => {
@@ -174,7 +170,7 @@ const TopBar: React.FC = () => {
         />
       </Box>
 
-      <Stack direction="row" sx={{ alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
+      <Stack direction="row" sx={{ alignItems: 'center', gap: 1.5, flexShrink: 0, ml: 'auto' }}>
         <Box
           sx={{
             display: { xs: 'none', lg: 'flex' },
@@ -237,9 +233,6 @@ const TopBar: React.FC = () => {
           {t('dashboard.newOperation')}
         </Button>
 
-        <Avatar src={user?.photoURL ?? undefined} sx={{ width: 32, height: 32, bgcolor: 'colors.cyan', color: '#04141a' }}>
-          {!user?.photoURL && <PersonIcon sx={{ fontSize: 18 }} />}
-        </Avatar>
       </Stack>
 
       <Popover
