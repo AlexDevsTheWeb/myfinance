@@ -112,6 +112,25 @@ search field. Because that cap stops `flex: 1` from filling the row, the
 right-hand cluster carries `margin-left: auto` — without it the capped title
 leaves a gap and the actions drift toward the centre.
 
+### Grid detail pass (v2)
+
+The second Stitch pass added the details the first one missed:
+
+- **One CTA per section.** `+ Nuovo Conto / Carta` opens a menu with *Account*
+  and *Card*, matching the export's single button instead of two side by side.
+- **Inset summary rows.** Account tiles gained a `SALDO INIZIALE` row and card
+  tiles a `PLAFOND` row, both on `colors.surfaceNested` with a monospaced figure
+  — the export's `flex items-baseline justify-between` block.
+- **Section icons.** Regional, modules, accounts and cards headers now carry a
+  cyan icon, as in the export.
+- **Card tiles** show the linked account as `Appoggio: <account>`.
+
+Two v2 items were intentionally not followed, because they reverse earlier
+decisions: the in-content breadcrumb/title (the title lives in the TopBar) and a
+duplicate accounts grid inside the General tab (accounts have their own tab).
+`CHECKING` / `BROKER` badges were dropped: they appear only in the prompt, not in
+the Stitch export, and the account model has no type.
+
 ### Content frame
 
 Main-content padding now lives in one place: the layout `Container` applies

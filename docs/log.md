@@ -1003,3 +1003,8 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - The layout `Container` now owns it for every page (`px/py { xs: 2, md: 3 }` = 16/24px); per-page root padding removed from dashboard, budget, settings, transactions, insights, salary, car, utilities, investments and projections
 - Dropped the dead `pageTitle`/`pageDescription` props from `Layout` (the title now lives in `TopBar`)
 - Verification: tsc clean, build green, 258 tests, lint at the 6E/3W baseline
+
+## [2026-10-26] report | Feature | Settings grid detail pass v2 (PR #201)
+- v2 restated the page already built, so only the deltas were applied: one `+ Nuovo Conto / Carta` CTA with a menu, inset `SALDO INIZIALE` / `PLAFOND` rows on the tiles, cyan section icons and `Appoggio: <account>` on cards
+- Deliberately not applied: in-content breadcrumb/title (the title is in the TopBar by request), a duplicate accounts grid in General (accounts have their own tab), `CHECKING`/`BROKER` badges (absent from the Stitch export, no account type in the model), `useSettingsStore` (does not exist)
+- Verification: tsc clean, build green, 258 tests, lint at the 6E/3W baseline, docs validator clean

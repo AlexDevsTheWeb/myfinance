@@ -1,6 +1,6 @@
 import { DndContext, type DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
-import { AccountBalance, AccountBalanceWallet, Add as AddIcon, Backup as BackupIcon, Bolt, Check as CheckIcon, CreditCard, Delete as DeleteIcon, DirectionsCar, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, PieChart, Repeat, RestartAlt, ShowChart, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
-import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Select, Switch, TextField, Typography } from '@mui/material';
+import { AccountBalance, AccountBalanceWallet, Add as AddIcon, Backup as BackupIcon, Bolt, Check as CheckIcon, CreditCard, Delete as DeleteIcon, DirectionsCar, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, PieChart, Public as PublicIcon, Repeat, RestartAlt, ShowChart, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
+import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, Menu, MenuItem, Paper, Select, Switch, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -299,6 +299,7 @@ const SettingsPage: React.FC = () => {
     cardId: ''
   });
 
+  const [addEntityAnchor, setAddEntityAnchor] = useState<null | HTMLElement>(null);
   const [cardDialogOpen, setCardDialogOpen] = useState(false);
   const [cardDialogMode, setCardDialogMode] = useState<'add' | 'edit'>('add');
   const [editingCard, setEditingCard] = useState<ICard | null>(null);
@@ -772,7 +773,10 @@ const SettingsPage: React.FC = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Paper sx={settingsCardSx}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 2.5, flexWrap: 'wrap' }}>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('settings.regional.title')}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <PublicIcon sx={{ fontSize: 18, color: 'colors.cyan' }} />
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('settings.regional.title')}</Typography>
+                </Box>
                 <Box
                   component="span"
                   sx={{ px: 1, py: 0.25, borderRadius: 1, border: '1px solid', borderColor: 'colors.border', bgcolor: 'colors.surfaceNested', fontFamily: (th) => th.colors.mono, fontSize: '0.62rem', color: 'colors.subtle', letterSpacing: '0.06em' }}
@@ -838,7 +842,10 @@ const SettingsPage: React.FC = () => {
             </Paper>
 
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('config.modules')}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <ViewQuilt sx={{ fontSize: 18, color: 'colors.cyan' }} />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('config.modules')}</Typography>
+              </Box>
               <Typography variant="body2" sx={{ color: 'colors.subtle', mb: 1.5 }}>{t('config.modulesDescription')}</Typography>
               <Grid container spacing={2.5}>
                 {moduleCards.map((module) => (
@@ -886,23 +893,43 @@ const SettingsPage: React.FC = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('settings.accounts.title')}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <AccountBalance sx={{ fontSize: 18, color: 'colors.cyan' }} />
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('settings.accounts.title')}</Typography>
+                </Box>
                 <Typography variant="caption" sx={{ color: 'colors.subtle' }}>{t('settings.accounts.subtitle')}</Typography>
               </Box>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={() => handleOpenDialog({ type: 'account', mode: 'add' })} sx={{ textTransform: 'none', fontSize: '0.75rem', color: 'colors.cyan', borderColor: 'rgba(6,182,212,0.4)' }}>
-                  {t('settings.accounts.addAccount')}
-                </Button>
+              <Box>
                 <Button
                   size="small"
                   variant="outlined"
-                  startIcon={<CreditCard sx={{ fontSize: 16 }} />}
-                  onClick={() => handleOpenAddCard(accounts.find((account) => account.isDefault)?.id ?? accounts[0]?.id ?? '')}
-                  disabled={accounts.length === 0}
+                  startIcon={<AddIcon />}
+                  onClick={(event) => setAddEntityAnchor(event.currentTarget)}
                   sx={{ textTransform: 'none', fontSize: '0.75rem', color: 'colors.cyan', borderColor: 'rgba(6,182,212,0.4)' }}
                 >
-                  {t('settings.accounts.addCard')}
+                  {t('settings.accounts.addAccountOrCard')}
                 </Button>
+                <Menu anchorEl={addEntityAnchor} open={Boolean(addEntityAnchor)} onClose={() => setAddEntityAnchor(null)}>
+                  <MenuItem
+                    dense
+                    onClick={() => {
+                      setAddEntityAnchor(null);
+                      handleOpenDialog({ type: 'account', mode: 'add' });
+                    }}
+                  >
+                    <AccountBalanceWallet sx={{ fontSize: 16, mr: 1 }} /> {t('settings.accounts.addAccount')}
+                  </MenuItem>
+                  <MenuItem
+                    dense
+                    disabled={accounts.length === 0}
+                    onClick={() => {
+                      setAddEntityAnchor(null);
+                      handleOpenAddCard(accounts.find((account) => account.isDefault)?.id ?? accounts[0]?.id ?? '');
+                    }}
+                  >
+                    <CreditCard sx={{ fontSize: 16, mr: 1 }} /> {t('settings.accounts.addCard')}
+                  </MenuItem>
+                </Menu>
               </Box>
             </Box>
 
@@ -939,9 +966,14 @@ const SettingsPage: React.FC = () => {
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Box>
-                      <Typography sx={{ ...monoValueSx, fontSize: '1.35rem', fontWeight: 700 }}>
-                        {formatCurrency(balance)}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 1, px: 1.5, py: 1, borderRadius: 2, bgcolor: 'colors.surfaceNested' }}>
+                        <Typography variant="caption" sx={{ color: 'colors.subtle', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
+                          {t('settings.accounts.balanceLabel')}
+                        </Typography>
+                        <Typography sx={{ ...monoValueSx, fontSize: '1.1rem', fontWeight: 700, color: 'colors.cyan' }}>
+                          {formatCurrency(balance)}
+                        </Typography>
+                      </Box>
                     </Paper>
                   </Grid>
                 );
@@ -949,7 +981,10 @@ const SettingsPage: React.FC = () => {
             </Grid>
 
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>{t('settings.accounts.cardsTitle')}</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                <CreditCard sx={{ fontSize: 18, color: 'colors.cyan' }} />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('settings.accounts.cardsTitle')}</Typography>
+              </Box>
               <Grid container spacing={2.5}>
                 {cards.map((card) => (
                   <Grid key={card.id} size={{ xs: 12, md: 6 }}>
@@ -973,11 +1008,16 @@ const SettingsPage: React.FC = () => {
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Box>
-                      <Typography sx={{ ...monoValueSx, fontSize: '1.1rem', fontWeight: 700 }}>
-                        {formatCurrency(card.plafond)} <Typography component="span" variant="caption" sx={{ color: 'colors.subtle' }}>{t('settings.accounts.perMonth')}</Typography>
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 1, px: 1.5, py: 1, borderRadius: 2, bgcolor: 'colors.surfaceNested' }}>
+                        <Typography variant="caption" sx={{ color: 'colors.subtle', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
+                          {t('settings.accounts.plafondLabel')}
+                        </Typography>
+                        <Typography sx={{ ...monoValueSx, fontSize: '0.95rem', fontWeight: 600 }}>
+                          {formatCurrency(card.plafond)} <Typography component="span" variant="caption" sx={{ color: 'colors.subtle' }}>{t('settings.accounts.perMonth')}</Typography>
+                        </Typography>
+                      </Box>
                       <Typography variant="caption" sx={{ color: 'colors.subtle' }}>
-                        {accounts.find((account) => account.id === card.accountId)?.name ?? '—'}
+                        {t('settings.accounts.linkedTo', { account: accounts.find((account) => account.id === card.accountId)?.name ?? '—' })}
                       </Typography>
                     </Paper>
                   </Grid>

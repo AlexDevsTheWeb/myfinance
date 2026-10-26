@@ -628,7 +628,11 @@
       "debit": "Debit",
       "resetDay": "Resets on day {{day}}",
       "perMonth": "/ month",
-      "noCards": "No cards configured."
+      "noCards": "No cards configured.",
+      "addAccountOrCard": "New Account / Card",
+      "balanceLabel": "Opening balance",
+      "plafondLabel": "Plafond",
+      "linkedTo": "Linked to: {{account}}"
     },
     "topbar": {
       "currency": "CURRENCY"

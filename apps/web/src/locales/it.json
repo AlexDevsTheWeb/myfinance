@@ -628,7 +628,11 @@
       "debit": "Debito",
       "resetDay": "Reset il {{day}}° del mese",
       "perMonth": "/ mese",
-      "noCards": "Nessuna carta configurata."
+      "noCards": "Nessuna carta configurata.",
+      "addAccountOrCard": "Nuovo Conto / Carta",
+      "balanceLabel": "Saldo iniziale",
+      "plafondLabel": "Plafond",
+      "linkedTo": "Appoggio: {{account}}"
     },
     "topbar": {
       "currency": "VALUTA"
