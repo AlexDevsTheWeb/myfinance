@@ -977,3 +977,11 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Deliberately not shipped: baseline growth rate (no consumer), category icons/reordering (no model fields), currency switching (EUR-only), broker drawer (outside the four agreed flows)
 - Created [[wiki/features/settings-page-redesign/settings-page-redesign]] and [[wiki/features/settings-page-redesign/report-2026-10-26]]; updated `/config` → SettingsPage references in the architecture page and both catalogues
 - Verification: tsc clean, build green, **254 tests / 15 files**, lint at the 6E/3W baseline, 101 pages valid
+
+## [2026-10-26] report | Feature | Settings fidelity pass (PR #201)
+- Second pass on the settings page against the Stitch export: TopBar moved to `components/layout/` and now renders on every non-dashboard page (breadcrumbs removed), gaining the currency chip and avatar
+- Header actions implemented for real: language, module toggles and balance start date are a **draft** applied by *Salva modifiche*; *Reimposta predefiniti* loads defaults. The draft re-baselines while untouched so late Firestore hydration cannot be overwritten — a correctness guard not in the prompt
+- Regional preferences become a 2×2 card (language, EUR currency, date/number preview, start date moved from accounts); modules become 2×2 rich cards; accounts and cards become 2×2 tiles with masked IBAN, PRIMARY/SECONDARY badge and monospaced computed balance
+- `IAccount` gains an optional `iban` (no migration), editable in the account drawer and masked by a tested helper (`IT28 •••• •••• 9012`); nav is 220px with text badges
+- Updated [[wiki/features/settings-page-redesign/settings-page-redesign]] and the report's refinement section; fixed the stale TopBar path in [[wiki/features/add-transaction-drawer/add-transaction-drawer]]
+- Verification: tsc clean, build green, **258 tests / 16 files** (4 new), lint at the 6E/3W baseline

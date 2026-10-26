@@ -76,6 +76,24 @@ dot of the same colour. The value is stable across sessions and devices and need
 no migration. Drag-to-move subcategories between categories already existed and
 is unchanged.
 
+## Fidelity pass (same PR)
+
+A second pass aligned the page with the Stitch export and fixed three gaps:
+
+- **Global TopBar.** `TopBar` moved from `components/dashboard/` to
+  `components/layout/` and now renders on every non-dashboard page; the
+  breadcrumb row was removed. It gained the currency chip and the user avatar.
+- **Draft save.** Language, module toggles and the balance start date are edited
+  as a draft and applied by **Salva modifiche**; **Reimposta predefiniti** loads
+  the defaults into the draft. While the draft is untouched it re-baselines from
+  the store, so Firestore hydration landing after first paint cannot be
+  overwritten by saving defaults. Entity CRUD stays immediate.
+- **Account IBAN.** `IAccount` gained an optional `iban`, editable in the account
+  drawer and displayed masked (`IT28 •••• •••• 9012`) on the tile.
+- **Layout density.** 220px rail with the new labels and text badges
+  (`4 Attivi`), regional preferences as a 2×2 card, modules as 2×2 rich cards,
+  accounts and cards as 2×2 tiles with monospaced balances.
+
 ## Deviations from the request
 
 | Request | Shipped | Why |
@@ -92,5 +110,5 @@ is unchanged.
 - [[wiki/features/card-plafond-tracking/card-plafond-tracking]]
 - [[wiki/features/user-configurable-rates/user-configurable-rates]]
 - [[wiki/architecture/system-architecture]]
-- Implementation report: [[wiki/features/settings-page-redesign/report-2026-10-26]]
+- Implementation report: [[wiki/features/settings-page-redesign/report-2026-10-26]] (includes the fidelity pass)
 - Source: [prompt](../../../raw/2026-10-UI-refactor/2026-10-26-settings.md), [HTML export](../../../raw/2026-10-UI-refactor/2026-10-26-settings.html)
