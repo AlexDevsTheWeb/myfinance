@@ -953,3 +953,17 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `TransactionModal` deleted; `useUiStore` renamed to drawer semantics and widened to include `transfer`. `TransactionForm` was **kept** — compilation revealed `ConfigPage` still uses it for its recurring-template editor, correcting the assumption that no UI created templates
 - Deviations recorded: `DatePicker` instead of `DateTimePicker` (model is date-only), no bimonthly frequency, no category colours, odometer stays in the Car module, account balance is a convenience computation that ignores transfers
 - Verification: tsc clean, build green, **241 tests / 15 files** pass (20 new for the drawer helpers), lint 6E/3W (one fewer than baseline because deleting the modal removed a pre-existing violation)
+
+## [2026-10-26] report | Feature | Add Transaction Drawer refinement (PR #200)
+- Second pass on the drawer: one shared input style across TextField/Select/DatePicker (8px radius, 48px targets, slate hover, cyan focus), accent-coloured amount digits, Italian amount formatting while typing, and a full-viewport mobile layout with safe-area footer
+- Created [[wiki/features/add-transaction-drawer/report-2026-10-26-refinement]]; added a *Refinement* section to [[wiki/features/add-transaction-drawer/add-transaction-drawer]]
+- Convention fix surfaced by this work: two implementations on the same day collided on `report-YYYY-MM-DD.md`. The suffix form `report-YYYY-MM-DD-<slug>.md` is now allowed — schema, `wiki-sync` skill and `okf_validate.py` updated together, and this report is the first user of it
+- Amount handling: `formatAmountInput` / `parseAmountInput` behind validation, payload and recurring template; a single dot with 1–2 trailing digits reads as a decimal, repeated dots as thousands. 11 new tests
+- Verification: tsc clean, build green, **252 tests / 15 files**, lint at the 6E/3W baseline
+- Not verified: no devtools pass at 375px/1280px and no E2E coverage for the typing mask; the PR is stacked on #199 and cannot merge first
+
+## [2026-10-26] fix | Feature | Drawer: amount leaking across type tabs
+- Reported in use: an amount typed under *Expense* appeared under *Income*. Cause was the shared `draft` — `handleTypeChange` reset only category/subcategory, so amount, description, consumption and billing period survived the switch and could be saved with the wrong type
+- `resetDraftForType()` now clears the type-specific fields and keeps date, account and card; covered by 2 tests
+- Also: category and subcategory share one row, and the Date field uses the same compact picker as the billing-period fields
+- Verification: tsc clean, build green, **254 tests / 15 files**, lint at baseline
