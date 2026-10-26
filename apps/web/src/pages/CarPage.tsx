@@ -287,7 +287,7 @@ const CarPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ pb: 6 }}>
+    <Box>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="body1" sx={{ opacity: 0.6 }}>

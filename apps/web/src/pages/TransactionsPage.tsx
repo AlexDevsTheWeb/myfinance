@@ -266,7 +266,7 @@ const TransactionsPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ pb: 6, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
         <Box>
           <Typography variant="body2" sx={{ color: 'colors.subtle' }}>

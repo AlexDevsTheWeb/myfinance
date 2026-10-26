@@ -159,7 +159,7 @@ const SalaryPage: React.FC = () => {
   const commonCardStyle = { background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' };
 
   return (
-    <Box sx={{ pb: 6 }}>
+    <Box>
       <Box sx={{ mb: 4 }}>
         <Typography variant="body1" sx={{ opacity: 0.6 }}>
           Track your income trends and year-over-year performance.

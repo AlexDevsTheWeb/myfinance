@@ -21,7 +21,7 @@ const DashboardPage: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <Box sx={{ p: { xs: 2, md: 3 }, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
         <KpiMetricsRow onOpenAccountDetail={() => setAccountDialogOpen(true)} />
         <CalendarMasterDetailSection />
         <BentoWidgetsRow />

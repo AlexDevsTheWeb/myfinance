@@ -1,5 +1,5 @@
 import { Add, Menu as MenuIcon } from '@mui/icons-material';
-import { AppBar, Box, Container, Fab, IconButton, SwipeableDrawer, Toolbar, Typography, useMediaQuery } from '@mui/material';
+import { AppBar, Box, Container, Fab, IconButton, SwipeableDrawer, Toolbar, useMediaQuery } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +17,7 @@ dayjs.locale(i18n.language);
 
 const drawerWidth = 240;
 
-const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDescription?: string }> = ({ children, pageTitle, pageDescription }) => {
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const { user } = useAuthStore();
   const isMobile = useMediaQuery('(max-width: 899.95px)');
@@ -68,24 +68,8 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
         <Container
           maxWidth={false}
           disableGutters
-          sx={
-            isDashboard
-              ? { p: 0, m: 0, flexGrow: 1, maxWidth: '100%' }
-              : { mt: 3, mb: 3, px: { xs: 2, sm: 3, md: 5 }, flexGrow: 1, maxWidth: '100%' }
-          }
+          sx={{ px: { xs: 2, md: 3 }, py: { xs: 2, md: 3 }, flexGrow: 1, maxWidth: '100%' }}
         >
-          {pageTitle && (
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1 }}>
-                {pageTitle}
-              </Typography>
-              {pageDescription && (
-                <Typography variant="body1" sx={{ opacity: 0.6 }}>
-                  {pageDescription}
-                </Typography>
-              )}
-            </Box>
-          )}
           {children}
         </Container>
 

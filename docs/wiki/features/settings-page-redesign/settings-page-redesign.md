@@ -112,6 +112,15 @@ search field. Because that cap stops `flex: 1` from filling the row, the
 right-hand cluster carries `margin-left: auto` — without it the capped title
 leaves a gap and the actions drift toward the centre.
 
+### Content frame
+
+Main-content padding now lives in one place: the layout `Container` applies
+`px/py { xs: 2, md: 3 }` (16px / 24px) to **every** page, dashboard included.
+Pages no longer own root padding, so the dashboard and settings finally share a
+gutter, and the ledger no longer sits 16px further from the edge than the home
+page. The dashboard's previous full-bleed container and the per-page `p` / `pb`
+values were removed, and the dead `pageTitle` prop on `Layout` went with them.
+
 ## Deviations from the request
 
 | Request | Shipped | Why |

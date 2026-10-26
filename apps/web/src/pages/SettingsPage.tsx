@@ -727,7 +727,7 @@ const SettingsPage: React.FC = () => {
 
   return (
     <DndContext onDragEnd={onDragEnd}>
-      <Box sx={{ pb: 8 }}>
+      <Box>
         <Box sx={{ mb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 2 }}>
           <Box>
             <Typography variant="body2" sx={{ color: 'colors.subtle', mt: 0.5 }}>

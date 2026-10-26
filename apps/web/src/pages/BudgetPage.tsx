@@ -62,7 +62,7 @@ export default function BudgetPage() {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 3 } }}>
+    <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
           <Typography variant="body2" sx={{ opacity: 0.6 }}>{t('budget.subtitle')}</Typography>

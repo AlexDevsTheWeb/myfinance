@@ -997,3 +997,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - The actions cluster (currency, bell, primary CTA) drifted toward the centre: the title is `flex: 1` but capped by `maxWidth`, so it stopped growing before the row was full and the cluster began right after it. Fixed with `margin-left: auto` on the cluster
 - Removed the avatar from the bar — it had no action attached
 - Verification: tsc clean, build green, 258 tests, lint at the 6E/3W baseline
+
+## [2026-10-26] fix | Feature | One content frame for every page (PR #201)
+- Padding differed by page because each page added its own root spacing on top of the layout container: dashboard was full-bleed with `p {xs:2, md:3}`, settings and the ledger inherited `px md:5`, budget added `p` again
+- The layout `Container` now owns it for every page (`px/py { xs: 2, md: 3 }` = 16/24px); per-page root padding removed from dashboard, budget, settings, transactions, insights, salary, car, utilities, investments and projections
+- Dropped the dead `pageTitle`/`pageDescription` props from `Layout` (the title now lives in `TopBar`)
+- Verification: tsc clean, build green, 258 tests, lint at the 6E/3W baseline
