@@ -39,7 +39,7 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[wiki/features/ticker-validation/ticker-validation|ticker-validation]] | Yahoo Finance ticker validation triggered at broker config save. |
 | [[wiki/features/transaction-layout-improvement/transaction-layout-improvement|transaction-layout-improvement]] | ⚠️ Superseded — two-column transaction layout, replaced by the full-width ledger redesign. |
 | [[wiki/features/card-plafond-tracking/card-plafond-tracking|card-plafond-tracking]] | Track spending per card with monthly plafond, configurable per account in settings. |
-| [[wiki/features/user-configurable-rates/user-configurable-rates|user-configurable-rates]] | User-configurable inflation and tax rates in ConfigPage > Projections tab. |
+| [[wiki/features/user-configurable-rates/user-configurable-rates|user-configurable-rates]] | User-configurable inflation and tax rates in Settings > Projections tab. |
 | [[wiki/features/recurring-card-selection/recurring-card-selection|recurring-card-selection]] | Card selection (None/credit/debit) on recurring expense templates, propagated to generated transactions. |
 | [[wiki/features/recurring-subcollection-scaling/recurring-subcollection-scaling|recurring-subcollection-scaling]] | recurringTransactions moved to a Firestore subcollection + offline persistence enabled (persistentLocalCache). |
 | [[wiki/features/account-deletion/account-deletion|account-deletion]] | Users can delete their own account + all data (Firestore doc, subcollections, auth) with re-auth guard and confirmation UI. |
@@ -48,7 +48,8 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[wiki/features/dashboard-calendar/dashboard-calendar|dashboard-calendar]] | Month calendar on the Dashboard — per-day income/expense/transfer dots + selected-day transaction list, live-updating. |
 | [[wiki/features/marketing-website/marketing-website|marketing-website]] | ✅ Balancr marketing landing page as an isolated `apps/website` workspace, with its own Firebase Hosting site. |
 | [[wiki/features/analytics-insights/analytics-insights|analytics-insights]] | Shared analytics data layer + six chart components on the Insights tab of `/finance`, migrated to MUI X Charts. |
-| [[wiki/features/localization/localization|localization]] | Italian and English UI via i18next, browser/localStorage detection, dayjs locale sync, selector in ConfigPage. |
+| [[wiki/features/localization/localization|localization]] | Italian and English UI via i18next, browser/localStorage detection, dayjs locale sync, selector in Settings > General. |
 | [[wiki/features/quick-actions-fab/quick-actions-fab|quick-actions-fab]] | Expandable FAB in the layout opening New Income / New Expense from any page except dashboard and Config. |
 | [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign|transaction-ledger-redesign]] | Full-width `/transactions` redesign: KPI cards, one-row filter toolbar, dense sortable table, CSV export, column toggles, pagination. |
 | [[wiki/features/add-transaction-drawer/add-transaction-drawer|add-transaction-drawer]] | Global right-side drawer for create/edit: three type tabs, hero amount, utility and recurring progressive disclosure, one UI-store entry point. |
+| [[wiki/features/settings-page-redesign/settings-page-redesign|settings-page-redesign]] | SettingsPage (ex ConfigPage) with a 240px sub-sidebar rail / mobile pills, shared entity drawers, theme-token surfaces and deterministic category colours. |

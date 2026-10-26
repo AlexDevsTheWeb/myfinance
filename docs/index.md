@@ -8,7 +8,7 @@ timestamp: 2026-10-26
 # Wiki Index
 
 *Last updated: 2026-10-26* (bundle moved to `docs/`, legacy planning material archived — see [[wiki/decisions/wiki-reorganization]])
-*Total pages: 100* — implementation reports live beside their concept page and are not listed here.
+*Total pages: 101* — implementation reports live beside their concept page and are not listed here.
 
 ---
 
@@ -36,7 +36,7 @@ timestamp: 2026-10-26
 | [[wiki/features/sidebar-redesign/sidebar-redesign]] | ✅ Vertical left sidebar with grouped navigation, collapsible mode, avatar | [`#99`](https://github.com/AlexDevsTheWeb/myfinance/issues/99) |
 | [[wiki/features/investment-professional-enhancements/investment-professional-enhancements]] | 📋 Per-ticker pricing, stamp duty, capital losses, fees, privacy mode — **draft** | [`raw/investment-report/investment-report.md`](raw/investment-report/investment-report.md), [`#110`](https://github.com/AlexDevsTheWeb/myfinance/issues/110) |
 | [[wiki/features/sidebar-routing-refactor/sidebar-routing-refactor]] | ✅ Sidebar flat links, `/finance` + `/investments` tabbed pages, removed duplicate title | [`#113`](https://github.com/AlexDevsTheWeb/myfinance/issues/113) |
-| [[wiki/features/user-configurable-rates/user-configurable-rates]] | ✅ User-configurable inflation & tax rates in ConfigPage > Projections tab | [`raw/103/103.md`](raw/103/103.md) |
+| [[wiki/features/user-configurable-rates/user-configurable-rates]] | ✅ User-configurable inflation & tax rates in Settings > Projections tab | [`raw/103/103.md`](raw/103/103.md) |
 | [[wiki/features/error-boundary/error-boundary]] | ✅ React error boundary wrapping the app — catches render crashes | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/features/mui-dialogs/mui-dialogs]] | ✅ Native alert()/confirm() replaced with MUI Dialog/Snackbar | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
 | [[wiki/features/loading-states/loading-states]] | ✅ Loading indicators on Dashboard, Transactions, Investments during sync | [`#138`](https://github.com/AlexDevsTheWeb/myfinance/issues/138) |
@@ -48,11 +48,12 @@ timestamp: 2026-10-26
 | [[wiki/features/test-infrastructure/test-infrastructure]] | ✅ Vitest test infrastructure — Phase 1 (pure logic) landed: 61 characterization tests, mocked Firebase | [`raw/test-infrastructure/test-infrastructure.md`](raw/test-infrastructure/test-infrastructure.md), [`#127`](https://github.com/AlexDevsTheWeb/myfinance/issues/127) |
 | [[wiki/features/first-of-month-recurring/first-of-month-recurring]] | ✅ Recurrent transactions auto-load on the 1st of each month (daily check + back-fill on open) | [`raw/first-of-month-recurring/first-of-month-recurring.md`](raw/first-of-month-recurring/first-of-month-recurring.md) |
 | [[wiki/features/dashboard-calendar/dashboard-calendar]] | ✅ Month calendar on the Dashboard with per-day transaction dots + day detail list, live-updating | [`raw/dashboard-calendar/dashboard-calendar.md`](raw/dashboard-calendar/dashboard-calendar.md) |
+| [[wiki/features/settings-page-redesign/settings-page-redesign]] | ✅ Settings page rebuilt with a sub-sidebar rail, shared entity drawers for account/card/category/recurring, theme-token surfaces and mono figures | [`raw/2026-10-UI-refactor/2026-10-26-settings.md`](raw/2026-10-UI-refactor/2026-10-26-settings.md) |
 | [[wiki/features/add-transaction-drawer/add-transaction-drawer]] | ✅ Global right-side drawer for create/edit — 3 type tabs, hero amount, utility + recurring progressive disclosure, single UI-store entry point | [`raw/2026-10-UI-refactor/2026-10-26-add-transaction.md`](raw/2026-10-UI-refactor/2026-10-26-add-transaction.md) |
 | [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign]] | ✅ Full-width `/transactions`: KPI cards, one-row filter toolbar, dense sortable table, CSV export, column toggles, pagination | [`raw/2026-10-UI-refactor/2026-10-26-prompt.md`](raw/2026-10-UI-refactor/2026-10-26-prompt.md) |
 | [[wiki/features/marketing-website/marketing-website]] | ✅ Balancr landing page as an isolated `apps/website` workspace — 9 sections, light/dark, pricing model, 59 tests, own hosting site | [`raw/website/website.md`](raw/website/website.md), [`#193`](https://github.com/AlexDevsTheWeb/myfinance/issues/193) |
 | [[wiki/features/analytics-insights/analytics-insights]] | ✅ Shared analytics data layer + six chart components on the Insights tab of `/finance`, migrated to MUI X Charts | [`raw/archive/superpowers/2026-05-23-analytics-charts-design.md`](raw/archive/superpowers/2026-05-23-analytics-charts-design.md), [`#37`](https://github.com/AlexDevsTheWeb/myfinance/issues/37) |
-| [[wiki/features/localization/localization]] | ✅ Italian + English UI via i18next, browser/localStorage detection, dayjs locale sync, selector in ConfigPage | [`raw/archive/gsd/phases/09-language-i18n/`](raw/archive/gsd/phases/09-language-i18n/) |
+| [[wiki/features/localization/localization]] | ✅ Italian + English UI via i18next, browser/localStorage detection, dayjs locale sync, selector in Settings > General | [`raw/archive/gsd/phases/09-language-i18n/`](raw/archive/gsd/phases/09-language-i18n/) |
 | [[wiki/features/quick-actions-fab/quick-actions-fab]] | ✅ Expandable FAB in the layout — New Income / New Expense from any page except dashboard and Config | [`raw/archive/gsd/phases/06-fab-navigation/`](raw/archive/gsd/phases/06-fab-navigation/) |
 
 ## Plans

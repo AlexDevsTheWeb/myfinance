@@ -967,3 +967,13 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `resetDraftForType()` now clears the type-specific fields and keeps date, account and card; covered by 2 tests
 - Also: category and subcategory share one row, and the Date field uses the same compact picker as the billing-period fields
 - Verification: tsc clean, build green, **254 tests / 15 files**, lint at baseline
+
+## [2026-10-26] ingest | Feature | Settings page redesign
+- Source: `raw/2026-10-UI-refactor/2026-10-26-settings.md` + `.html`; the referenced screenshot was not in the repo
+- `pages/ConfigPage.tsx` → `pages/SettingsPage.tsx`, **same `/config` route**; seven top tabs replaced by a 240px rail on desktop and scrollable pills on mobile, both driven by one section list with counts
+- Shared `EntityDrawer` now handles account, category, subcategory and card create/edit; the recurring template form opens in the same shell. Destructive flows stay as dialogs
+- Form styles moved to `components/shared/form.styles.ts` so the transaction drawer and settings share one input definition
+- Category colour dots are derived deterministically from the name (no schema field, no migration); figures use JetBrains Mono; surfaces moved off `rgba(255,255,255,…)` onto theme tokens
+- Deliberately not shipped: baseline growth rate (no consumer), category icons/reordering (no model fields), currency switching (EUR-only), broker drawer (outside the four agreed flows)
+- Created [[wiki/features/settings-page-redesign/settings-page-redesign]] and [[wiki/features/settings-page-redesign/report-2026-10-26]]; updated `/config` → SettingsPage references in the architecture page and both catalogues
+- Verification: tsc clean, build green, **254 tests / 15 files**, lint at the 6E/3W baseline, 101 pages valid
