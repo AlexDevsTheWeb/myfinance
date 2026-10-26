@@ -30,9 +30,5 @@ dist-ssr
 .config/
 .config/*
 apps/web/src/version.ts
-docs/YATF/.obsidian/
-docs/YATF/.obsidian/*
-
-run_agent.sh
-agent_hub.py
+docs/.obsidian/workspace.json
 .venv/
