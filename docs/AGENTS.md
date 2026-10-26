@@ -39,7 +39,8 @@ docs/
     ├── features/          # Feature descriptions, scoping, status
     │   ├── index.md       # OKF subdirectory index — lists all feature pages
     │   └── <feature>/     # Each feature is a subfolder with <feature>.md
-    │       └── <feature>.md
+    │       ├── <feature>.md          # the concept page
+    │       └── report-YYYY-MM-DD.md  # implementation report (see below)
     ├── bugs/              # Bug analysis, reproduction, resolution
     ├── decisions/         # Architecture Decision Records (ADRs) and trade-off analyses
     ├── architecture/      # System architecture, component diagrams, data flow
@@ -53,13 +54,71 @@ Every category directory has its own `index.md`.
 
 ---
 
+## Implementation Reports
+
+Every implementation that opens a PR produces a **report** next to the concept it
+describes. The report is the durable answer to "what did we actually do, and why
+did we do it that way?" — the wiki page describes the feature, the report
+describes the delivery.
+
+### Where the file lives
+
+| Concept layout | Report path |
+|---|---|
+| Folder concept — `wiki/features/<slug>/<slug>.md` | `wiki/features/<slug>/report-YYYY-MM-DD.md` |
+| Flat concept — `wiki/bugs/<slug>.md`, `wiki/plans/<slug>.md`, `wiki/decisions/<slug>.md`, … | `wiki/<category>/<slug>-report-YYYY-MM-DD.md` |
+
+One report per implementation. A feature shipped twice gets two dated reports;
+never overwrite an older one.
+
+### Frontmatter
+
+```yaml
+---
+type: Report
+title: "Implementation Report — <what shipped>"
+description: "One sentence on what changed and how it was verified."
+resource: "https://github.com/AlexDevsTheWeb/myfinance/pull/<n>"
+tags: [report, <area>]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+status: shipped | partially-shipped | reverted
+sources: ["raw/<topic>/<topic>.md"]
+related: ["wiki/features/<slug>/<slug>"]
+---
+```
+
+`resource` is the PR URL — required for reports. `status` records whether the
+work actually shipped, so a reverted implementation is not mistaken for a live
+feature.
+
+### Required sections
+
+1. **Context** — the item that triggered the work and the state before it.
+2. **Changes** — files and behaviours, grouped, not a raw `git diff` dump.
+3. **Decisions** — what was chosen and why, including alternatives rejected.
+4. **Deviations** — where the implementation differs from the request or design.
+5. **Verification** — the commands run and their real outcome.
+6. **Not verified / deferred** — the honest gap list. Never leave this out; write
+   "none" explicitly if there is nothing.
+7. **Wiki pages touched** — the pages created or updated in the same PR.
+8. **Related** — parent concept and raw sources.
+
+### Index rules
+
+Reports are **not** listed in `docs/index.md` or the category `index.md`. They are
+reachable from their parent concept page, which must link to them (usually in its
+`## Related` section). The validator enforces that parent link.
+
+---
+
 ## The Skill Loop (how work actually flows)
 
 The end-to-end loop for any request — a GitHub issue, a document dropped in `raw/`, or a chat instruction — is encoded as an agent skill so every harness runs it the same way:
 
 ```
-.claude/skills/issue-to-pr/SKILL.md   # read → analyze → plan → implement → wiki → draft PR
-.claude/skills/wiki-sync/SKILL.md     # ingest / update / lint the wiki bundle
+.claude/skills/issue-to-pr/SKILL.md   # read → analyze → plan → implement → report → wiki → draft PR
+.claude/skills/wiki-sync/SKILL.md     # ingest / update / lint the wiki bundle, write reports
 ```
 
 `.claude/skills/` is the **single source of truth**: OpenCode loads it through its
@@ -72,8 +131,9 @@ Short version:
 2. **Analyze** — impact, affected files, related wiki pages.
 3. **Propose** an implementation or remediation plan. **Ask** if anything is ambiguous; never guess silently.
 4. **Implement** on a correctly-named branch (see [[wiki/conventions/branch-strategy]]).
-5. **Update the wiki** per the workflows below, then run the validator.
-6. **Open a draft PR** against `development`.
+5. **Write the implementation report** next to the concept page (see above).
+6. **Update the wiki** per the workflows below, then run the validator.
+7. **Open a draft PR** against `development`.
 
 ---
 
@@ -119,7 +179,7 @@ Every wiki page MUST have YAML frontmatter. The bundle follows [Open Knowledge F
 
 ```yaml
 ---
-type: <Feature | Bug | Decision | Plan | Architecture | Convention | Query | Reference | Index | Schema>  # REQUIRED (OKF)
+type: <Feature | Bug | Decision | Plan | Architecture | Convention | Query | Reference | Report | Index | Schema>  # REQUIRED (OKF)
 title: "Page Title"
 description: "One-line summary of this concept."  # REQUIRED by the validator
 resource: "<optional canonical URI — GitHub issue URL, PR, external doc>"  # required when sourced from an issue
@@ -144,12 +204,19 @@ related: ["wiki/architecture/component-x.md"]
 | `wiki/conventions/` | `Convention` |
 | `wiki/queries/` | `Query` |
 | `wiki/references/` | `Reference` |
+| any category, report files | `Report` |
+
+Reports are the one exception to the directory rule: `report-YYYY-MM-DD.md` and
+`<slug>-report-YYYY-MM-DD.md` files carry `type: Report` regardless of the folder
+they sit in.
 
 ### Linking
 
 - Use `[[wiki/<category>/<slug>]]` for Obsidian wikilinks between wiki pages (e.g. `[[wiki/features/budget-savings-engine/budget-savings-engine]]`).
 - Use `[description](../../raw/<topic>/<topic>.md)` for links to raw sources — the relative depth depends on where the page lives.
 - Every page must have at least one inbound or outbound link — no orphan pages. The validator enforces this.
+- Implementation reports are linked from their parent concept page and are not
+  listed in either index; the validator enforces the parent link.
 
 ### Page Templates
 
@@ -300,6 +367,30 @@ How to confirm completion.
 ---
 
 ## Workflows
+
+### Report an implementation
+
+Run this before opening (or updating) a PR. It is mandatory for every branch that
+reaches a PR — there is no "too small to document" exception; a trivial change
+gets a short report, not no report.
+
+1. **Pick the parent concept.** The feature, bug, plan or decision the work
+   belongs to. If no concept page exists, create it first (that is an ingest).
+2. **Create the report** next to the parent — `report-YYYY-MM-DD.md` inside a
+   folder concept, `<slug>-report-YYYY-MM-DD.md` in a flat category. Start from
+   `docs/templates/report.md`.
+3. **Fill the frontmatter.** `type: Report`, `resource:` = PR URL (or the branch
+   URL while the PR does not exist yet), `status:` = shipped /
+   partially-shipped / reverted, `related:` = the parent concept.
+4. **Write the eight sections** from [Required sections](#required-sections).
+   Be specific about deviations and about what was not verified.
+5. **Link it from the parent** — add it to the parent page's `## Related`.
+   The validator fails the bundle if a report has no inbound link from a
+   non-report page.
+6. **Do not add it to `docs/index.md` or the category index.** Reports are
+   history, not concepts.
+7. **Append to `log.md`** with `## [YYYY-MM-DD] report | <Category> | <Title>`.
+8. **Validate** — `python3 docs/scripts/okf_validate.py`.
 
 ### Query
 

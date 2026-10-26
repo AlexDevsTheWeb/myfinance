@@ -104,4 +104,5 @@ The prototype was a Tailwind export for a MUI **v5** codebase and referenced
 - [[wiki/features/transaction-layout-improvement/transaction-layout-improvement]] (superseded)
 - [[wiki/architecture/store-architecture]]
 - [[wiki/features/localization/localization]]
+- Implementation report: [[wiki/features/transaction-ledger-redesign/report-2026-10-26]]
 - Prototype: [prompt](../../../raw/2026-10-UI-refactor/2026-10-26-prompt.md), [HTML export](../../../raw/2026-10-UI-refactor/2026-10-26-prompt.html)

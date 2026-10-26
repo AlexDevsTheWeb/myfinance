@@ -14,6 +14,7 @@ before acting; they are the source of truth, this skill only sequences them.
 | Coding style | `docs/wiki/conventions/coding-conventions.md` |
 | Tests | `docs/wiki/conventions/testing-guide.md` |
 | Wiki schema | `docs/AGENTS.md` |
+| Implementation reports | `docs/AGENTS.md` → *Implementation Reports* |
 | Wiki ingest/lint procedure | `.claude/skills/wiki-sync/SKILL.md` |
 
 ## 0. Orient
@@ -81,7 +82,26 @@ git checkout -b <branch>
 - Run `npm run lint`, `npm run build`, and `npm test` before declaring done.
 - Never commit to `development` or `main`.
 
-## 6. Update the wiki
+## 6. Write the implementation report
+
+**Mandatory for every branch that reaches a PR — no exceptions.** A one-line CSS
+fix still gets a report; it is just shorter.
+
+Follow `.claude/skills/wiki-sync/SKILL.md` → *Implementation reports*:
+
+- Place it beside the parent concept: `wiki/features/<slug>/report-YYYY-MM-DD.md`
+  inside a folder concept, `wiki/<category>/<slug>-report-YYYY-MM-DD.md` for a
+  flat one (bugs, plans, decisions, …).
+- Frontmatter: `type: Report`, `resource:` = PR URL (use the branch URL for now if
+  the PR does not exist yet), `status:` = shipped / partially-shipped / reverted.
+- Cover **Context · Changes · Decisions · Deviations · Verification ·
+  Not verified/deferred · Wiki pages touched · Related**.
+- Link it from the parent page's `## Related`. Do **not** add it to
+  `docs/index.md` or the category index.
+- After `gh pr create`, set `resource:` to the PR URL and include it in the same
+  PR (amend or follow-up commit).
+
+## 7. Update the wiki
 
 Follow `.claude/skills/wiki-sync/SKILL.md`:
 
@@ -90,7 +110,7 @@ Follow `.claude/skills/wiki-sync/SKILL.md`:
 - Update `docs/index.md`, the category index, and append to `docs/log.md`.
 - Validate: `python3 docs/scripts/okf_validate.py`.
 
-## 7. Open the draft PR
+## 8. Open the draft PR
 
 ```bash
 git push -u origin <branch>
@@ -99,10 +119,12 @@ gh pr create --draft --base development \
   --body "<context, what changed, how it was verified, issue link>"
 ```
 
-The PR body must include: the problem, the approach, the wiki pages touched, the
-verification commands run, and `Closes #<n>` when applicable.
+The PR body must include: the problem, the approach, the wiki pages touched, a
+link to the implementation report, the verification commands run, and
+`Closes #<n>` when applicable. Then update the report's `resource:` to this PR
+URL and push that change to the same branch.
 
-## 8. Report back
+## 9. Report back
 
-Summarize: branch, commits, PR URL, wiki pages changed, verification results, and
-anything intentionally deferred.
+Summarize: branch, commits, PR URL, wiki pages and report path, verification
+results, and anything intentionally deferred.

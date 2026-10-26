@@ -48,6 +48,12 @@ TYPE_MAP = {
 
 REQUIRED_FIELDS = ("type", "description")
 
+# Implementation reports: report-YYYY-MM-DD.md or <slug>-report-YYYY-MM-DD.md
+REPORT_RE = re.compile(r"(?:^|-)report-\d{4}-\d{2}-\d{2}\.md$")
+REPORT_TYPE = "Report"
+# Core sections every report must carry; the honesty sections are load-bearing.
+REPORT_SECTIONS = ("Context", "Changes", "Decisions", "Deviation", "Verification", "Not verified")
+
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
 MD_LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 
@@ -113,6 +119,11 @@ def collect_pages() -> list[str]:
     return pages
 
 
+def is_report(path: str) -> bool:
+    """True for implementation report files (distinguished by filename)."""
+    return bool(REPORT_RE.search(os.path.basename(path)))
+
+
 def category_of(path: str) -> str:
     return os.path.relpath(path, WIKI_ROOT).split(os.sep)[0]
 
@@ -134,9 +145,10 @@ def check_frontmatter(path: str, text: str, report: Report, fix: bool) -> None:
         report.error(rel(path), "missing YAML frontmatter")
         return
 
+    expected = REPORT_TYPE if is_report(path) else TYPE_MAP.get(category_of(path))
+
     missing = [field for field in REQUIRED_FIELDS if not fields.get(field)]
     if fix and "type" in missing:
-        expected = TYPE_MAP.get(category_of(path))
         if expected:
             body = text.replace("---\n", f'---\ntype: {expected}\n', 1)
             with open(path, "w", encoding="utf-8") as handle:
@@ -148,10 +160,25 @@ def check_frontmatter(path: str, text: str, report: Report, fix: bool) -> None:
     for field in missing:
         report.error(rel(path), f"missing `{field}`")
 
-    expected = TYPE_MAP.get(category_of(path))
     actual = fields.get("type")
     if expected and actual and actual != expected:
-        report.warn(rel(path), f"type `{actual}` does not match directory (expected `{expected}`)")
+        if is_report(path):
+            report.error(rel(path), f"report must have type `{REPORT_TYPE}`, found `{actual}`")
+        else:
+            report.warn(rel(path), f"type `{actual}` does not match directory (expected `{expected}`)")
+
+    if is_report(path) and not fields.get("resource"):
+        report.error(rel(path), "report is missing `resource` (PR or branch URL)")
+
+
+def check_report_sections(path: str, text: str, report: Report) -> None:
+    if not is_report(path):
+        return
+    headings = re.findall(r"^#{2,3}\s+(.+)$", text, re.MULTILINE)
+    lowered = [heading.lower() for heading in headings]
+    for section in REPORT_SECTIONS:
+        if not any(heading.startswith(section.lower()) for heading in lowered):
+            report.error(rel(path), f"report is missing the `## {section}` section")
 
 
 def check_sources(path: str, fields: dict[str, str], report: Report) -> None:
@@ -208,6 +235,8 @@ def check_index_coverage(pages: list[str], contents: dict[str, str], report: Rep
     root_index_path = os.path.join(DOCS_ROOT, "index.md")
     root_index = contents.get(root_index_path, "")
     for path in pages:
+        if is_report(path):
+            continue  # reports are linked from their parent, never listed in an index
         cid = concept_id(path)
         if f"[[{cid}" not in root_index:
             report.error(rel(path), "not listed in docs/index.md")
@@ -215,6 +244,27 @@ def check_index_coverage(pages: list[str], contents: dict[str, str], report: Rep
         category_index = contents.get(os.path.join(WIKI_ROOT, category, "index.md"), "")
         if f"[[{cid}" not in category_index:
             report.error(rel(path), f"not listed in wiki/{category}/index.md")
+
+
+def check_report_links(pages: list[str], outbound: dict[str, list[str]], report: Report) -> None:
+    """Every report must be linked from a non-report page in its own category."""
+    concept_pages = [path for path in pages if not is_report(path)]
+    for path in pages:
+        if not is_report(path):
+            continue
+        target = concept_id(path)
+        category = category_of(path)
+        inbound = [
+            source
+            for source in concept_pages
+            if target in outbound.get(source, []) and category_of(source) == category
+        ]
+        if not inbound:
+            report.error(
+                rel(path),
+                "report is not linked from any concept page in its category "
+                "(add it to the parent page's `## Related`)",
+            )
 
 
 def check_orphans(pages: list[str], outbound: dict[str, list[str]], report: Report) -> None:
@@ -260,11 +310,13 @@ def main() -> int:
         text = contents[path]
         fields = parse_frontmatter(text)
         check_frontmatter(path, text, report, fix=args.fix)
+        check_report_sections(path, text, report)
         check_sources(path, fields, report)
         check_links(path, text, report)
         outbound[path] = check_wikilinks(path, text, known, report)
 
     check_index_coverage(pages, contents, report)
+    check_report_links(pages, outbound, report)
     if args.orphans:
         check_orphans(pages, outbound, report)
 

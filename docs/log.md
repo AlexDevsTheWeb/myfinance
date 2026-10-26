@@ -938,3 +938,10 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Column visibility persists in `localStorage` (`balancr.ledger.columns`); pagination clamps during render instead of in an effect (lint `react-hooks/set-state-in-effect`)
 - Deviations recorded on the page: MUI v9 not v5, shell reused from `Layout`, search kept in the toolbar (the shell has no global search), type badges reduced to *Ricorrente* / *Una Tantum* because the model has no bimonthly/PAC concept, account column shows account + card instead of payment-method labels
 - Verification: tsc clean, build green, **221 tests / 14 files** pass, lint at the pre-existing 7E/3W baseline
+
+## [2026-10-26] convention | Wiki | Implementation reports are now part of every delivery
+- Added a mandatory **implementation report** step to the loop: after implementing and before opening the PR, write an OKF `type: Report` page beside the parent concept — `report-YYYY-MM-DD.md` inside a concept folder, `<slug>-report-YYYY-MM-DD.md` in a flat category
+- Reports are linked from the parent page only and are **not** listed in `docs/index.md` or the category index; the validator enforces the parent link, the `Report` type, the `resource` (PR) field and the core sections
+- Files: `docs/AGENTS.md` (new *Implementation Reports* section + *Report an implementation* workflow), `.claude/skills/issue-to-pr/SKILL.md` (step 6 added, steps renumbered), `.claude/skills/wiki-sync/SKILL.md` (report procedure), `docs/templates/report.md`, `docs/scripts/okf_validate.py` (report rules)
+- Validator test: a deliberately malformed report produced 8 errors (wrong type, missing resource, 5 missing sections, no parent link) before being replaced with the real one
+- First report filed: [[wiki/features/transaction-ledger-redesign/report-2026-10-26]] for PR #197
