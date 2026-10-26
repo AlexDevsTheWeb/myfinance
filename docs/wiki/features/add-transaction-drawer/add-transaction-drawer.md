@@ -70,6 +70,26 @@ drilling.
      year for yearly, optional end date. Create mode only.
 6. **Footer** — Cancel + Save.
 
+## Refinement (2026-10-26)
+
+A second pass hardened the look, the amount input and mobile behaviour:
+
+- **One input style.** TextField, Select and DatePicker share the same surface,
+  8px radius and 48px minimum touch target. Hover uses `colors.borderLight`,
+  focus uses cyan at 1.5px — MUI's default white hover border is overridden.
+  Date values render in JetBrains Mono and the calendar icon is muted until hover.
+- **Hero amount.** The digits inherit the active tab colour, not just the `€`.
+  Input is formatted while typing (Italian grouping, decimal comma, two
+  decimals); a comma or a period are both accepted, and `inputMode="decimal"`
+  opens the numeric keypad on mobile. `parseAmountInput` converts the formatted
+  string back to a number for validation, templates and the payload.
+- **Mobile.** The drawer becomes a full-viewport sheet (`100vw` × `100dvh`) with
+  the header and footer outside the scroll area; the footer pads with
+  `env(safe-area-inset-bottom)` so the save button clears the home indicator.
+
+The styles live in `components/transactions/drawer.styles.ts`; the amount
+formatter/parser live beside the drawer and are unit-tested.
+
 ## Semantics worth knowing
 
 - **A transaction is always saved.** Turning on the recurrence additionally
@@ -101,4 +121,5 @@ drilling.
 - [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign]]
 - [[wiki/architecture/store-architecture]]
 - Implementation report: [[wiki/features/add-transaction-drawer/report-2026-10-26]]
+- Refinement report: [[wiki/features/add-transaction-drawer/report-2026-10-26-refinement]]
 - Source: [raw/2026-10-UI-refactor/2026-10-26-add-transaction.md](../../../raw/2026-10-UI-refactor/2026-10-26-add-transaction.md)

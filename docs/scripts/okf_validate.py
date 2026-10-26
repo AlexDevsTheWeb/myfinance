@@ -49,7 +49,7 @@ TYPE_MAP = {
 REQUIRED_FIELDS = ("type", "description")
 
 # Implementation reports: report-YYYY-MM-DD.md or <slug>-report-YYYY-MM-DD.md
-REPORT_RE = re.compile(r"(?:^|-)report-\d{4}-\d{2}-\d{2}\.md$")
+REPORT_RE = re.compile(r"(?:^|-)(report-\d{4}-\d{2}-\d{2}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?)\.md$")
 REPORT_TYPE = "Report"
 # Core sections every report must carry; the honesty sections are load-bearing.
 REPORT_SECTIONS = ("Context", "Changes", "Decisions", "Deviation", "Verification", "Not verified")

@@ -71,6 +71,10 @@ describes the delivery.
 One report per implementation. A feature shipped twice gets two dated reports;
 never overwrite an older one.
 
+**Two implementations on the same day** collide on the date. Append a short
+slug so both survive: `report-YYYY-MM-DD-<slug>.md` (e.g.
+`report-2026-10-26-refinement.md`). The validator accepts the suffix.
+
 ### Frontmatter
 
 ```yaml

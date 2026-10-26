@@ -82,7 +82,8 @@ optional extra.
 | Flat concept — `wiki/bugs/<slug>.md`, `wiki/plans/<slug>.md`, `wiki/decisions/<slug>.md`, … | `wiki/<category>/<slug>-report-YYYY-MM-DD.md` |
 
 One file per implementation. Never overwrite an older report; a second delivery of
-the same feature gets a second date.
+the same feature gets a second date. When two implementations land on the **same
+day**, append a short slug to disambiguate: `report-YYYY-MM-DD-<slug>.md`.
 
 ### Frontmatter
 
