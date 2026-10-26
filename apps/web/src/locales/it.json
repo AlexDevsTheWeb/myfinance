@@ -133,6 +133,40 @@
         "deleteTitle": "Eliminare la transazione?",
         "deleteMessage": "“{{description}}” verrà eliminata definitivamente."
       }
+    },
+    "drawer": {
+      "title": "NUOVA OPERAZIONE",
+      "editTitle": "MODIFICA OPERAZIONE",
+      "save": "Salva Operazione",
+      "fabLabel": "Nuova operazione",
+      "tabs": {
+        "expense": "Uscita",
+        "income": "Entrata",
+        "transfer": "Trasferimento"
+      },
+      "selectCategory": "Categoria",
+      "selectSubcategory": "Sottocategoria",
+      "selectAccount": "Conto",
+      "noCard": "Nessuna carta",
+      "utility": {
+        "title": "Consumi & Utenze",
+        "consumption": "Consumo",
+        "consumptionWithUnit": "Consumo ({{unit}})",
+        "pricePerLitre": "Prezzo al litro: {{price}}",
+        "periodFrom": "Periodo dal",
+        "periodTo": "Periodo al"
+      },
+      "recurring": {
+        "title": "Imposta come spesa ricorrente",
+        "hint": "La ricorrenza parte dal 1° del mese prossimo, così l'operazione di oggi non viene duplicata.",
+        "frequency": "Frequenza",
+        "monthly": "Mensile",
+        "yearly": "Annuale",
+        "dayOfMonth": "Giorno del mese",
+        "monthOfYear": "Mese",
+        "endDate": "Data fine (opzionale)",
+        "recurringInstanceNote": "Questa operazione è stata generata da una ricorrenza. Modificarla non cambia il template."
+      }
     }
   },
   "dashboard": {

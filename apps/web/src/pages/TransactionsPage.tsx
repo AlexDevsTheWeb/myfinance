@@ -26,10 +26,10 @@ import {
   type LedgerTypeFilter,
 } from '../components/ledger';
 import { monthlyRecurringCost, nextRecurringCharge, resolvePeriodRange } from '../components/ledger/ledger.utils';
-import TransactionModal from '../components/modals/TransactionModal';
 import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import { useBudgetStore } from '../store/useBudgetStore';
 import { useFinanceStore, type Transaction } from '../store/useFinanceStore';
+import { useUiStore } from '../store/useUiStore';
 import { downloadCsv, transactionsToCsv } from '../utils/csv.utils';
 import { formatNumber } from '../utils/format.utils';
 
@@ -78,10 +78,8 @@ const TransactionsPage: React.FC = () => {
   const [columns, setColumns] = useState<LedgerColumnVisibility>(readStoredColumns);
   const [columnsAnchor, setColumnsAnchor] = useState<null | HTMLElement>(null);
 
-  // Modal / dialogs
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'income' | 'expense' | 'transfer'>('expense');
-  const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
+  // Dialogs — editing is handled by the global drawer in the layout
+  const openTransactionDrawer = useUiStore((state) => state.openTransactionDrawer);
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -238,9 +236,7 @@ const TransactionsPage: React.FC = () => {
   };
 
   const handleEdit = (transaction: Transaction) => {
-    setTransactionToEdit(transaction);
-    setModalType(transaction.type);
-    setModalOpen(true);
+    openTransactionDrawer(transaction.type, transaction);
   };
 
   const handleDuplicate = async (transaction: Transaction) => {
@@ -388,13 +384,6 @@ const TransactionsPage: React.FC = () => {
         onEdit={handleEdit}
         onDuplicate={handleDuplicate}
         onDelete={setDeleteTarget}
-      />
-
-      <TransactionModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        type={modalType}
-        transaction={transactionToEdit}
       />
 
       <ConfirmDialog
