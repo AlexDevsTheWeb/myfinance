@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Pre-commit gate: the docs/ knowledge bundle must stay OKF-valid.
+#
+# Installed by `npm run hooks:install` (sets core.hooksPath = .githooks).
+#
+# Only runs when a wiki page or the bundle index is part of the commit.
+set -euo pipefail
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^docs/(wiki/.*\.md|index\.md)$' || true)
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+echo "🔍 OKF gate: validating docs/ bundle..."
+
+if ! python3 docs/scripts/okf_validate.py --quiet; then
+  echo ""
+  echo "❌ Commit blocked: the knowledge bundle is not valid."
+  echo "   Fix the errors above, then re-commit."
+  echo "   Useful: python3 docs/scripts/okf_validate.py --fix"
+  echo ""
+  exit 1
+fi
+
+echo "✅ OKF validation passed."
