@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import type { Account, Transaction } from '../../store/useFinanceStore';
 import {
   buildRecurringTemplate,
+  formatAmountInput,
+  parseAmountInput,
   computeAccountBalance,
   DEFAULT_RECURRING_DRAFT,
   draftToTransaction,
@@ -27,6 +29,63 @@ const draft = (overrides: Partial<TransactionDraft> = {}): TransactionDraft => (
 });
 
 const today = dayjs('2026-10-26T10:00:00');
+
+describe('formatAmountInput', () => {
+  it('groups thousands with dots while typing', () => {
+    expect(formatAmountInput('2123')).toBe('2.123');
+    expect(formatAmountInput('1234567')).toBe('1.234.567');
+  });
+
+  it('normalises a decimal point to an Italian comma', () => {
+    expect(formatAmountInput('42.5')).toBe('42,5');
+    expect(formatAmountInput('2123.45')).toBe('2.123,45');
+  });
+
+  it('keeps a trailing comma so decimals stay typeable', () => {
+    expect(formatAmountInput('1.234,')).toBe('1.234,');
+    expect(formatAmountInput('0,')).toBe('0,');
+  });
+
+  it('caps decimals at two places', () => {
+    expect(formatAmountInput('42,567')).toBe('42,56');
+  });
+
+  it('strips letters and stray characters', () => {
+    expect(formatAmountInput('abc12x3')).toBe('123');
+    expect(formatAmountInput('')).toBe('');
+  });
+
+  it('treats repeated dots as thousand separators', () => {
+    expect(formatAmountInput('1.234.567')).toBe('1.234.567');
+  });
+});
+
+describe('parseAmountInput', () => {
+  it('reads Italian notation', () => {
+    expect(parseAmountInput('2.123,45')).toBeCloseTo(2123.45);
+    expect(parseAmountInput('620,00')).toBeCloseTo(620);
+  });
+
+  it('reads a single dot as a decimal separator', () => {
+    expect(parseAmountInput('42.5')).toBeCloseTo(42.5);
+  });
+
+  it('reads grouped thousands without decimals', () => {
+    expect(parseAmountInput('2.123')).toBeCloseTo(2123);
+  });
+
+  it('returns NaN for empty or invalid input', () => {
+    expect(Number.isNaN(parseAmountInput(''))).toBe(true);
+    expect(Number.isNaN(parseAmountInput('abc'))).toBe(true);
+  });
+
+  it('round-trips what formatAmountInput produces', () => {
+    for (const raw of ['2123', '42.5', '1234567.89', '0,5']) {
+      const formatted = formatAmountInput(raw);
+      expect(parseAmountInput(formatted)).toBeCloseTo(parseAmountInput(raw));
+    }
+  });
+});
 
 describe('validateDraft', () => {
   it('accepts a complete draft', () => {
@@ -196,7 +255,7 @@ describe('transactionToDraft', () => {
     expect(restored).toMatchObject({
       date: '2026-10-20',
       description: 'Bolletta',
-      amount: '88.4',
+      amount: '88,4',
       accountId: 'acc-1',
       cardId: 'card-1',
       consumption: '210',

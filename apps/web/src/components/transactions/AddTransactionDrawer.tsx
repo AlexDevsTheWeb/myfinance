@@ -26,13 +26,16 @@ import { useTranslation } from 'react-i18next';
 import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 import { useUiStore } from '../../store/useUiStore';
 import { formatCurrency } from '../../utils/format.utils';
+import { drawerDateFieldSx, drawerSelectSx, drawerTextFieldSx } from './drawer.styles';
 import {
   buildRecurringTemplate,
   computeAccountBalance,
   DEFAULT_RECURRING_DRAFT,
   draftToTransaction,
   EMPTY_DRAFT,
+  formatAmountInput,
   hasErrors,
+  parseAmountInput,
   pricePerLitre,
   resolveUtilityUnit,
   showsReadingPeriod,
@@ -42,18 +45,6 @@ import {
   type TransactionDraft,
   type TransactionDrawerType,
 } from './transactionDrawer.utils';
-
-const fieldSx = {
-  '& .MuiFilledInput-root': {
-    bgcolor: 'colors.bg',
-    border: '1px solid',
-    borderColor: 'colors.border',
-    borderRadius: 1.5,
-    '&:hover': { borderColor: 'colors.borderLight' },
-    '&.Mui-focused': { borderColor: 'colors.cyan' },
-    '&:before, &:after': { display: 'none' },
-  },
-};
 
 interface DrawerBodyProps {
   initialType: TransactionDrawerType;
@@ -93,7 +84,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
   const unit = resolveUtilityUnit(draft.category, draft.subcategory);
   const utilityOpen = utilityOverride ?? unit !== null;
   const litres = Number(draft.consumption);
-  const unitPrice = unit === 'L' ? pricePerLitre(Number(draft.amount), litres) : null;
+  const unitPrice = unit === 'L' ? pricePerLitre(parseAmountInput(draft.amount), litres) : null;
 
   const update = <K extends keyof TransactionDraft>(key: K, value: TransactionDraft[K]) =>
     setDraft((current) => ({ ...current, [key]: value }));
@@ -160,23 +151,24 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
         <TextField
           autoFocus
           fullWidth
-          variant="filled"
-          type="number"
+          variant="outlined"
           value={draft.amount}
-          onChange={(event) => update('amount', event.target.value)}
+          onChange={(event) => update('amount', formatAmountInput(event.target.value))}
           placeholder="0,00"
           error={Boolean(errors.amount)}
           sx={{
-            ...fieldSx,
-            '& .MuiFilledInput-input': {
+            ...drawerTextFieldSx,
+            '& .MuiOutlinedInput-input': {
               fontFamily: (theme) => theme.colors.mono,
               fontVariantNumeric: 'tabular-nums',
               fontSize: '2rem',
               fontWeight: 700,
+              color: accent,
               py: 1.5,
             },
           }}
           slotProps={{
+            htmlInput: { inputMode: 'decimal' },
             input: {
               startAdornment: (
                 <InputAdornment position="start">
@@ -191,7 +183,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
           label={t('transactions.date')}
           value={dayjs(draft.date)}
           onChange={(value) => update('date', value ? value.format('YYYY-MM-DD') : draft.date)}
-          slotProps={{ textField: { fullWidth: true, variant: 'filled', sx: fieldSx } }}
+          slotProps={{ textField: { fullWidth: true, variant: 'outlined', sx: drawerDateFieldSx } }}
         />
 
         <Autocomplete
@@ -214,9 +206,9 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
             <TextField
               {...params}
               label={t('transactions.description')}
-              variant="filled"
+              variant="outlined"
               error={Boolean(errors.description)}
-              sx={fieldSx}
+              sx={drawerTextFieldSx}
             />
           )}
         />
@@ -229,7 +221,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
             setDraft((current) => ({ ...current, category: event.target.value, subcategory: '' }));
             setUtilityOverride(null);
           }}
-          sx={{ bgcolor: 'colors.bg', fontSize: '0.875rem' }}
+          sx={drawerSelectSx}
           renderValue={(value) => (value ? String(value) : t('transactions.drawer.selectCategory'))}
           error={Boolean(errors.category)}
         >
@@ -249,7 +241,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
             update('subcategory', event.target.value);
             setUtilityOverride(null);
           }}
-          sx={{ bgcolor: 'colors.bg', fontSize: '0.875rem' }}
+          sx={drawerSelectSx}
           renderValue={(value) => (value ? String(value) : t('transactions.drawer.selectSubcategory'))}
           error={Boolean(errors.subcategory)}
         >
@@ -265,7 +257,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
           fullWidth
           value={draft.accountId}
           onChange={(event) => update('accountId', event.target.value)}
-          sx={{ bgcolor: 'colors.bg', fontSize: '0.875rem' }}
+          sx={drawerSelectSx}
           renderValue={(value) =>
             value ? (accounts.find((account) => account.id === value)?.name ?? '') : t('transactions.drawer.selectAccount')
           }
@@ -292,7 +284,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
             fullWidth
             value={draft.cardId}
             onChange={(event) => update('cardId', event.target.value)}
-            sx={{ bgcolor: 'colors.bg', fontSize: '0.875rem' }}
+            sx={drawerSelectSx}
             renderValue={(value) =>
               value ? (cards.find((card) => card.id === value)?.name ?? '') : t('transactions.drawer.noCard')
             }
@@ -325,13 +317,13 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
           <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               fullWidth
-              variant="filled"
+              variant="outlined"
               type="number"
               label={unit ? t('transactions.drawer.utility.consumptionWithUnit', { unit }) : t('transactions.drawer.utility.consumption')}
               value={draft.consumption}
               onChange={(event) => update('consumption', event.target.value)}
               helperText={unitPrice !== null ? t('transactions.drawer.utility.pricePerLitre', { price: formatCurrency(unitPrice, 3) }) : undefined}
-              sx={fieldSx}
+              sx={drawerTextFieldSx}
             />
             {showsReadingPeriod(unit) && (
               <Box sx={{ display: 'flex', gap: 1.5 }}>
@@ -339,13 +331,13 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                   label={t('transactions.drawer.utility.periodFrom')}
                   value={draft.readingDateStart ? dayjs(draft.readingDateStart) : null}
                   onChange={(value) => update('readingDateStart', value ? value.format('YYYY-MM-DD') : '')}
-                  slotProps={{ textField: { size: 'small', fullWidth: true, variant: 'filled', sx: fieldSx } }}
+                  slotProps={{ textField: { size: 'small', fullWidth: true, variant: 'outlined', sx: drawerDateFieldSx } }}
                 />
                 <DatePicker
                   label={t('transactions.drawer.utility.periodTo')}
                   value={draft.readingDateEnd ? dayjs(draft.readingDateEnd) : null}
                   onChange={(value) => update('readingDateEnd', value ? value.format('YYYY-MM-DD') : '')}
-                  slotProps={{ textField: { size: 'small', fullWidth: true, variant: 'filled', sx: fieldSx } }}
+                  slotProps={{ textField: { size: 'small', fullWidth: true, variant: 'outlined', sx: drawerDateFieldSx } }}
                 />
               </Box>
             )}
@@ -378,37 +370,37 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                 <TextField
                   select
                   fullWidth
-                  variant="filled"
+                  variant="outlined"
                   label={t('transactions.drawer.recurring.frequency')}
                   value={recurring.frequency}
                   onChange={(event) =>
                     setRecurring((current) => ({ ...current, frequency: event.target.value === 'yearly' ? 'yearly' : 'monthly' }))
                   }
-                  sx={fieldSx}
+                  sx={drawerTextFieldSx}
                 >
                   <MenuItem value="monthly">{t('transactions.drawer.recurring.monthly')}</MenuItem>
                   <MenuItem value="yearly">{t('transactions.drawer.recurring.yearly')}</MenuItem>
                 </TextField>
                 <TextField
                   fullWidth
-                  variant="filled"
+                  variant="outlined"
                   type="number"
                   label={t('transactions.drawer.recurring.dayOfMonth')}
                   value={recurring.dayOfMonth}
                   onChange={(event) => setRecurring((current) => ({ ...current, dayOfMonth: Number(event.target.value) }))}
                   slotProps={{ htmlInput: { min: 1, max: 31 } }}
-                  sx={fieldSx}
+                  sx={drawerTextFieldSx}
                 />
               </Box>
               {recurring.frequency === 'yearly' && (
                 <TextField
                   select
                   fullWidth
-                  variant="filled"
+                  variant="outlined"
                   label={t('transactions.drawer.recurring.monthOfYear')}
                   value={recurring.monthOfYear}
                   onChange={(event) => setRecurring((current) => ({ ...current, monthOfYear: Number(event.target.value) }))}
-                  sx={fieldSx}
+                  sx={drawerTextFieldSx}
                 >
                   {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
                     <MenuItem key={month} value={month}>
@@ -421,7 +413,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                 label={t('transactions.drawer.recurring.endDate')}
                 value={recurring.endDate ? dayjs(recurring.endDate) : null}
                 onChange={(value) => setRecurring((current) => ({ ...current, endDate: value ? value.format('YYYY-MM-DD') : '' }))}
-                slotProps={{ textField: { fullWidth: true, variant: 'filled', sx: fieldSx } }}
+                slotProps={{ textField: { fullWidth: true, variant: 'outlined', sx: drawerDateFieldSx } }}
               />
             </AccordionDetails>
           </Accordion>
@@ -435,8 +427,19 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
       </Box>
 
       <Divider sx={{ borderColor: 'colors.border' }} />
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1.5, px: 2.5, py: 2 }}>
-        <Button onClick={onClose} sx={{ textTransform: 'none', color: 'colors.subtle' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          gap: 1.5,
+          px: 2.5,
+          pt: 2,
+          pb: 'calc(16px + env(safe-area-inset-bottom))',
+          bgcolor: 'colors.surface',
+        }}
+      >
+        <Button onClick={onClose} sx={{ textTransform: 'none', color: 'colors.subtle', minHeight: 48 }}>
           {t('common.cancel')}
         </Button>
         <Button
@@ -446,6 +449,8 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
           sx={{
             textTransform: 'none',
             fontWeight: 700,
+            minHeight: 48,
+            px: 3,
             bgcolor: 'colors.emerald',
             color: '#04120c',
             '&:hover': { bgcolor: '#0ea371' },
@@ -478,7 +483,8 @@ const AddTransactionDrawer: React.FC = () => {
       slotProps={{
         paper: {
           sx: {
-            width: { xs: '100%', sm: 480 },
+            width: { xs: '100vw', sm: 480 },
+            height: { xs: '100dvh', sm: '100%' },
             bgcolor: 'colors.surface',
             borderLeft: '1px solid',
             borderColor: 'colors.border',

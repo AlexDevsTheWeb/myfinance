@@ -32,6 +32,66 @@ export interface RecurringDraft {
   endDate: string;
 }
 
+/**
+ * Parse a currency input that may use Italian or international notation.
+ *
+ * Accepts `2.123,45`, `2123.45`, `2,5` and plain `2123`. A single dot followed
+ * by one or two digits is read as a decimal separator; repeated dots (or a dot
+ * followed by three digits) are thousands separators.
+ */
+export function parseAmountInput(value: string): number {
+  const cleaned = value.replace(/[^\d.,]/g, '').trim();
+  if (!cleaned) return Number.NaN;
+
+  let normalized = cleaned;
+  if (cleaned.includes(',')) {
+    normalized = cleaned.replace(/\./g, '').replace(',', '.');
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(cleaned)) {
+    normalized = cleaned.replace(/\./g, '');
+  }
+
+  const amount = Number(normalized);
+  return Number.isFinite(amount) ? amount : Number.NaN;
+}
+
+/**
+ * Normalise a currency input while typing: Italian grouping, decimal comma,
+ * at most two decimals, and a trailing comma preserved so `1.234,` stays
+ * typeable.
+ */
+export function formatAmountInput(value: string): string {
+  const cleaned = value.replace(/[^\d.,]/g, '');
+  if (!cleaned) return '';
+
+  let integerPart: string;
+  let decimalPart = '';
+  let hasDecimal = false;
+
+  const commaIndex = cleaned.lastIndexOf(',');
+  if (commaIndex >= 0) {
+    hasDecimal = true;
+    integerPart = cleaned.slice(0, commaIndex).replace(/\D/g, '');
+    decimalPart = cleaned.slice(commaIndex + 1).replace(/\D/g, '').slice(0, 2);
+  } else if (cleaned.includes('.')) {
+    const dots = (cleaned.match(/\./g) ?? []).length;
+    const lastDot = cleaned.lastIndexOf('.');
+    const digitsAfter = cleaned.slice(lastDot + 1).replace(/\D/g, '');
+    if (dots === 1 && digitsAfter.length > 0 && digitsAfter.length <= 2) {
+      hasDecimal = true;
+      integerPart = cleaned.slice(0, lastDot).replace(/\D/g, '');
+      decimalPart = digitsAfter.slice(0, 2);
+    } else {
+      integerPart = cleaned.replace(/\D/g, '');
+    }
+  } else {
+    integerPart = cleaned.replace(/\D/g, '');
+  }
+
+  integerPart = integerPart.replace(/^0+(?=\d)/, '');
+  const grouped = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return hasDecimal ? `${grouped},${decimalPart}` : grouped;
+}
+
 export const EMPTY_DRAFT: TransactionDraft = {
   date: dayjs().format('YYYY-MM-DD'),
   description: '',
@@ -57,7 +117,7 @@ export const DEFAULT_RECURRING_DRAFT: RecurringDraft = {
 export function validateDraft(draft: TransactionDraft): Record<keyof TransactionDraft, string> {
   const errors = {} as Record<keyof TransactionDraft, string>;
 
-  const amount = Number(draft.amount);
+  const amount = parseAmountInput(draft.amount);
   if (!draft.amount || Number.isNaN(amount) || amount <= 0) {
     errors.amount = 'amount';
   }
@@ -161,7 +221,7 @@ export function buildRecurringTemplate({
     description: draft.description.trim(),
     category: draft.category,
     subcategory: draft.subcategory,
-    amount: Number(draft.amount),
+    amount: parseAmountInput(draft.amount),
     type,
     dayOfMonth,
     accountId: draft.accountId,
@@ -187,7 +247,7 @@ export function draftToTransaction(
     description: draft.description.trim(),
     category: draft.category,
     subcategory: draft.subcategory,
-    amount: Number(draft.amount),
+    amount: parseAmountInput(draft.amount),
     type,
     accountId: draft.accountId,
     ...(draft.cardId ? { cardId: draft.cardId } : {}),
@@ -204,7 +264,7 @@ export function transactionToDraft(transaction: Transaction): TransactionDraft {
     description: transaction.description,
     category: transaction.category,
     subcategory: transaction.subcategory,
-    amount: String(transaction.amount),
+    amount: formatAmountInput(String(transaction.amount)),
     accountId: transaction.accountId,
     cardId: transaction.cardId ?? '',
     consumption: transaction.consumption !== undefined ? String(transaction.consumption) : '',
