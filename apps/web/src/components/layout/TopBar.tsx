@@ -3,10 +3,12 @@ import {
   ChevronRight,
   DirectionsCar as CarIcon,
   NotificationsNone as BellIcon,
+  Person as PersonIcon,
   Search as SearchIcon,
   TrendingUp as InvestIcon,
 } from '@mui/icons-material';
 import {
+  Avatar,
   Badge,
   Box,
   Button,
@@ -25,6 +27,7 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/useAuthStore';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useUiStore } from '../../store/useUiStore';
 
@@ -41,6 +44,7 @@ const TopBar: React.FC = () => {
   const navigate = useNavigate();
   const { enabledModules, carMileage, transactions } = useFinanceStore();
   const openTransactionDrawer = useUiStore((s) => s.openTransactionDrawer);
+  const user = useAuthStore((s) => s.user);
 
   const [search, setSearch] = React.useState('');
   const [notifAnchor, setNotifAnchor] = React.useState<HTMLElement | null>(null);
@@ -138,6 +142,27 @@ const TopBar: React.FC = () => {
       </Box>
 
       <Stack direction="row" sx={{ alignItems: 'center', gap: 1.5, ml: 'auto' }}>
+        <Box
+          sx={{
+            display: { xs: 'none', lg: 'flex' },
+            alignItems: 'center',
+            gap: 0.75,
+            px: 1.25,
+            py: 0.5,
+            borderRadius: 1,
+            bgcolor: 'colors.surfaceInput',
+            border: 1,
+            borderColor: 'colors.border',
+          }}
+        >
+          <Typography variant="caption" sx={{ color: 'colors.muted', fontWeight: 700, letterSpacing: '0.06em', fontSize: '0.6rem' }}>
+            {t('settings.topbar.currency')}
+          </Typography>
+          <Typography variant="caption" sx={{ fontFamily: (theme) => theme.colors.mono, fontWeight: 600, fontSize: '0.7rem' }}>
+            EUR (€)
+          </Typography>
+        </Box>
+
         <IconButton
           onClick={(e) => setNotifAnchor(e.currentTarget)}
           sx={{
@@ -178,6 +203,10 @@ const TopBar: React.FC = () => {
         >
           {t('dashboard.newOperation')}
         </Button>
+
+        <Avatar src={user?.photoURL ?? undefined} sx={{ width: 32, height: 32, bgcolor: 'colors.cyan', color: '#04141a' }}>
+          {!user?.photoURL && <PersonIcon sx={{ fontSize: 18 }} />}
+        </Avatar>
       </Stack>
 
       <Popover

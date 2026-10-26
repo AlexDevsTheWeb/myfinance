@@ -574,12 +574,65 @@
     "genericError": "Something went wrong. Please try again."
   },
   "settings": {
-    "title": "SYSTEM SETTINGS",
-    "subtitle": "Configure parameters, modules and regional preferences.",
+    "title": "GENERAL SETTINGS & INFRASTRUCTURE",
+    "subtitle": "Ledger parameters, active modules and regional preferences.",
     "drawer": {
       "recurringHint": "The recurrence starts on the day configured in the template."
     },
     "currency": "Currency",
-    "dateFormat": "Date format"
+    "dateFormat": "Date format",
+    "eyebrow": "SETTINGS / GENERAL",
+    "active": "active",
+    "saved": "Settings saved",
+    "resetQueued": "Defaults loaded — save to apply them",
+    "actions": {
+      "reset": "Restore defaults",
+      "save": "Save changes"
+    },
+    "nav": {
+      "general": "General & Modules",
+      "accounts": "Accounts & Cards",
+      "expenses": "Expense Categories",
+      "incomes": "Income Categories",
+      "recurring": "Recurring Expenses",
+      "projections": "Projections & Rates",
+      "backup": "Backup & Data"
+    },
+    "regional": {
+      "title": "Regional preferences & currency",
+      "badge": "ISO 4217 / EU COMPLIANT",
+      "language": "Interface language",
+      "currency": "Primary currency",
+      "dateFormat": "Date & number format",
+      "previewExample": "1,234.56 €",
+      "startDate": "Balance calculation start date",
+      "startDateHint": "Balances start from this date; earlier transactions do not affect the balance."
+    },
+    "modules": {
+      "car": "Mileage, fuel (L/100km), tyres and maintenance.",
+      "utilities": "Electricity, gas and water bills with consumption and periods.",
+      "investments": "ETF portfolio, automated PACs and capital gains.",
+      "budget": "Spending targets and savings rate."
+    },
+    "accounts": {
+      "title": "Accounts & payment cards",
+      "subtitle": "Balances, IBAN and card limits.",
+      "addAccount": "New Account",
+      "addCard": "New Card",
+      "cardsTitle": "Cards",
+      "primary": "PRIMARY CC",
+      "secondary": "SECONDARY",
+      "noIban": "No IBAN set",
+      "iban": "IBAN (optional)",
+      "ibanHint": "Shown masked on the account tile.",
+      "credit": "Credit",
+      "debit": "Debit",
+      "resetDay": "Resets on day {{day}}",
+      "perMonth": "/ month",
+      "noCards": "No cards configured."
+    },
+    "topbar": {
+      "currency": "CURRENCY"
+    }
   }
 }

@@ -574,12 +574,65 @@
     "genericError": "Qualcosa è andato storto. Riprova."
   },
   "settings": {
-    "title": "IMPOSTAZIONI SISTEMA",
-    "subtitle": "Configurazione parametri, moduli e preferenze regionali.",
+    "title": "IMPOSTAZIONI GENERALI & INFRASTRUTTURA",
+    "subtitle": "Parametri del mastro, moduli attivi e preferenze regionali.",
     "drawer": {
       "recurringHint": "La ricorrenza parte dal giorno indicato nel template."
     },
     "currency": "Valuta",
-    "dateFormat": "Formato data"
+    "dateFormat": "Formato data",
+    "eyebrow": "IMPOSTAZIONI / GENERALI",
+    "active": "Attivi",
+    "saved": "Impostazioni salvate",
+    "resetQueued": "Predefiniti caricati — salva per applicarli",
+    "actions": {
+      "reset": "Reimposta predefiniti",
+      "save": "Salva modifiche"
+    },
+    "nav": {
+      "general": "Generali & Moduli",
+      "accounts": "Conti & Carte",
+      "expenses": "Categorie Spese",
+      "incomes": "Categorie Entrate",
+      "recurring": "Spese Ricorrenti",
+      "projections": "Proiezioni & Tassi",
+      "backup": "Backup & Dati"
+    },
+    "regional": {
+      "title": "Preferenze regionali & valuta",
+      "badge": "ISO 4217 / EU COMPLIANT",
+      "language": "Lingua interfaccia",
+      "currency": "Valuta principale",
+      "dateFormat": "Formato data & cifre",
+      "previewExample": "1.234,56 €",
+      "startDate": "Data inizio calcoli bilancio",
+      "startDateHint": "I saldi partono da questa data; le transazioni precedenti non concorrono al saldo."
+    },
+    "modules": {
+      "car": "Chilometri, carburante (L/100km), gomme e manutenzione.",
+      "utilities": "Bollette luce, gas e acqua con consumi e periodi.",
+      "investments": "Portafoglio ETF, PAC automatici e plusvalenze.",
+      "budget": "Obiettivi di spesa e tasso di risparmio."
+    },
+    "accounts": {
+      "title": "Conti & carte di regolamento",
+      "subtitle": "Saldi, IBAN e limite delle carte.",
+      "addAccount": "Nuovo Conto",
+      "addCard": "Nuova Carta",
+      "cardsTitle": "Carte",
+      "primary": "PRIMARY CC",
+      "secondary": "SECONDARY",
+      "noIban": "IBAN non impostato",
+      "iban": "IBAN (opzionale)",
+      "ibanHint": "Mostrato mascherato nelle tile del conto.",
+      "credit": "Credito",
+      "debit": "Debito",
+      "resetDay": "Reset il {{day}}° del mese",
+      "perMonth": "/ mese",
+      "noCards": "Nessuna carta configurata."
+    },
+    "topbar": {
+      "currency": "VALUTA"
+    }
   }
 }

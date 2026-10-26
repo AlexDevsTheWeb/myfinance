@@ -6,8 +6,8 @@ export interface SettingsSection {
   id: number;
   label: string;
   icon: React.ReactNode;
-  /** Optional counter rendered as a pill (active accounts, templates, …). */
-  badge?: number;
+  /** Optional label rendered as a pill ("4 Attivi", counts, …). */
+  badge?: string;
 }
 
 interface SettingsNavProps {
@@ -51,7 +51,8 @@ const SettingsNav: React.FC<SettingsNavProps> = ({ sections, value, onChange }) 
       component="nav"
       aria-label="Settings sections"
       sx={{
-        p: 1,
+        p: 1.5,
+        width: 220,
         borderRadius: 3,
         bgcolor: 'colors.surface',
         border: '1px solid',
@@ -74,14 +75,15 @@ const SettingsNav: React.FC<SettingsNavProps> = ({ sections, value, onChange }) 
               alignItems: 'center',
               gap: 1.25,
               px: 1.25,
-              py: 1.1,
+              py: 1.15,
               mb: 0.25,
               borderRadius: 2,
               justifyContent: 'flex-start',
               color: active ? 'colors.cyan' : 'colors.subtle',
               bgcolor: active ? 'colors.active' : 'transparent',
-              borderLeft: '2px solid',
-              borderColor: active ? 'colors.cyan' : 'transparent',
+              border: '1px solid',
+              borderColor: active ? 'rgba(6,182,212,0.4)' : 'transparent',
+              boxShadow: active ? '0 0 12px rgba(6,182,212,0.15)' : 'none',
               transition: 'background-color 0.15s ease, color 0.15s ease',
               '&:hover': { bgcolor: active ? 'colors.active' : 'rgba(148,163,184,0.08)', color: active ? 'colors.cyan' : 'colors.subtle' },
             }}
@@ -90,7 +92,7 @@ const SettingsNav: React.FC<SettingsNavProps> = ({ sections, value, onChange }) 
             <Typography noWrap sx={{ flex: 1, fontSize: '0.8rem', fontWeight: active ? 700 : 500, textAlign: 'left' }}>
               {section.label}
             </Typography>
-            {typeof section.badge === 'number' && section.badge > 0 && (
+            {section.badge && (
               <Box
                 component="span"
                 sx={{

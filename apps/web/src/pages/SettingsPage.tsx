@@ -1,7 +1,8 @@
 import { DndContext, type DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core';
-import { AccountBalance, Add as AddIcon, Backup as BackupIcon, Delete as DeleteIcon, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, Repeat, ShowChart, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
+import { AccountBalance, AccountBalanceWallet, Add as AddIcon, Backup as BackupIcon, Bolt, Check as CheckIcon, CreditCard, Delete as DeleteIcon, DirectionsCar, DragIndicator as DragIndicatorIcon, Edit as EditIcon, Download, PieChart, Repeat, RestartAlt, ShowChart, TrendingDown, TrendingUp, Upload, ViewQuilt } from '@mui/icons-material';
 import { Alert, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, MenuItem, Paper, Select, Switch, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -13,14 +14,19 @@ import { formTextFieldSx } from '../components/shared/form.styles';
 import EntityDrawer from '../components/settings/EntityDrawer';
 import SettingsNav, { type SettingsSection } from '../components/settings/SettingsNav';
 import { categoryColor } from '../components/settings/categoryColor';
-import { monoValueSx } from '../components/settings/settings.styles';
+import { monoValueSx, settingsCardSx } from '../components/settings/settings.styles';
 import { AlertSnackbar } from '../components/shared/AlertSnackbar';
 import { DeleteAccountRequiresPasswordError, deleteUserAccount } from '../lib/deleteAccount';
 import { useAuthStore } from '../store/useAuthStore';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { useInvestmentStore } from '../store/useInvestmentStore';
 import { useProjectionSettingsStore, DEFAULT_PROJECTION_SETTINGS } from '../store/useProjectionSettingsStore';
+import { DEFAULT_BALANCE_START_DATE, DEFAULT_ENABLED_MODULES, DEFAULT_LANGUAGE } from '../store/defaults';
+import { computeAccountBalance } from '../components/transactions/transactionDrawer.utils';
+import { maskIban } from '../components/settings/format';
+import { formatCurrency } from '../utils/format.utils';
 import type { ICard, ICategory } from '../store/types/finance.types';
+import type { AppModules } from '../store/useFinanceStore';
 import type { ITabPanelProps } from '../types/props.types';
 
 function TabPanel(props: ITabPanelProps) {
@@ -201,6 +207,51 @@ const SettingsPage: React.FC = () => {
   const [tabValue, setTabValue] = React.useState(0);
   const [projectionForm, setProjectionForm] = React.useState({ inflationRate: '', taxRate: '' });
 
+  // Regional settings and module toggles are edited as a draft: nothing is
+  // persisted until "Salva modifiche". Entity CRUD stays immediate.
+  const [settingsDraft, setSettingsDraft] = React.useState<{
+    language: string;
+    balanceStartDate: string;
+    modules: AppModules;
+  }>(() => ({
+    language: language || DEFAULT_LANGUAGE,
+    balanceStartDate: balanceStartDate || DEFAULT_BALANCE_START_DATE,
+    modules: { ...enabledModules },
+  }));
+
+  const [settingsDraftTouched, setSettingsDraftTouched] = React.useState(false);
+
+  // Re-baseline the draft while the user has not edited anything: Firestore
+  // hydration can land after the first render, and saving the initial defaults
+  // over the user's real settings would be destructive.
+  React.useEffect(() => {
+    if (settingsDraftTouched) return;
+    // Syncing a draft with an external store after hydration is the intended
+    // pattern here; the lint rule targets effects that derive state from props.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSettingsDraft({
+      language: language || DEFAULT_LANGUAGE,
+      balanceStartDate: balanceStartDate || DEFAULT_BALANCE_START_DATE,
+      modules: { ...enabledModules },
+    });
+  }, [language, balanceStartDate, enabledModules, settingsDraftTouched]);
+
+  const updateDraft = React.useCallback((patch: Partial<{ language: string; balanceStartDate: string; modules: AppModules }>) => {
+    setSettingsDraftTouched(true);
+    setSettingsDraft((current) => ({ ...current, ...patch }));
+  }, []);
+
+  const settingsDirty = React.useMemo(
+    () =>
+      settingsDraft.language !== language ||
+      settingsDraft.balanceStartDate !== balanceStartDate ||
+      (Object.keys(settingsDraft.modules) as (keyof AppModules)[]).some(
+        (key) => settingsDraft.modules[key] !== enabledModules[key],
+      ),
+    [settingsDraft, language, balanceStartDate, enabledModules],
+  );
+
+
   React.useEffect(() => {
     if (!settingsLoaded) {
       loadSettings();
@@ -221,6 +272,7 @@ const SettingsPage: React.FC = () => {
   const [dialogConfig, setDialogConfig] = useState<DialogConfig | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [accountInitialBalance, setAccountInitialBalance] = useState('0');
+  const [accountIban, setAccountIban] = useState('');
 
   // Remap Deletion State
   const [remapDialogOpen, setRemapDialogOpen] = useState(false);
@@ -340,6 +392,25 @@ const SettingsPage: React.FC = () => {
     setAlertState(prev => ({ ...prev, open: false }));
   };
 
+  const handleSaveSettings = React.useCallback(() => {
+    if (settingsDraft.language !== language) setLanguage(settingsDraft.language);
+    if (settingsDraft.balanceStartDate !== balanceStartDate) setBalanceStartDate(settingsDraft.balanceStartDate);
+    (Object.keys(settingsDraft.modules) as (keyof AppModules)[]).forEach((key) => {
+      if (settingsDraft.modules[key] !== enabledModules[key]) toggleModule(key);
+    });
+    showAlert(t('settings.saved'), 'success');
+  }, [settingsDraft, language, balanceStartDate, enabledModules, setLanguage, setBalanceStartDate, toggleModule, t]);
+
+  const handleResetSettings = React.useCallback(() => {
+    setSettingsDraftTouched(true);
+    setSettingsDraft({
+      language: DEFAULT_LANGUAGE,
+      balanceStartDate: DEFAULT_BALANCE_START_DATE,
+      modules: { ...DEFAULT_ENABLED_MODULES },
+    });
+    showAlert(t('settings.resetQueued'), 'info');
+  }, [t]);
+
   // Delete Account state
   const navigate = useNavigate();
   const user = useAuthStore(s => s.user);
@@ -434,10 +505,12 @@ const SettingsPage: React.FC = () => {
         if (acc) {
           setInputValue(acc.name);
           setAccountInitialBalance(acc.initialBalance.toString());
+          setAccountIban(acc.iban ?? '');
         }
       } else {
         setInputValue('');
         setAccountInitialBalance('0');
+        setAccountIban('');
       }
     } else {
       setInputValue(config.mode === 'rename' ? config.oldValue : '');
@@ -527,6 +600,7 @@ const SettingsPage: React.FC = () => {
         id: dialogConfig.accountId || crypto.randomUUID(),
         name: inputValue.trim(),
         initialBalance: Number(accountInitialBalance),
+        ...(accountIban.trim() ? { iban: accountIban.trim().toUpperCase() } : {}),
         isDefault: dialogConfig.mode === 'add' ? (accounts.length === 0) : (accounts.find(a => a.id === dialogConfig.accountId)?.isDefault || false)
       };
       if (dialogConfig.mode === 'add') {
@@ -629,16 +703,23 @@ const SettingsPage: React.FC = () => {
 
   const sections: SettingsSection[] = React.useMemo(
     () => [
-      { id: 0, label: t('config.general'), icon: <ViewQuilt /> },
-      { id: 1, label: t('config.accounts'), icon: <AccountBalance />, badge: accounts.length },
-      { id: 2, label: t('config.expenses'), icon: <TrendingDown />, badge: sortedExpenses.length },
-      { id: 3, label: t('config.incomes'), icon: <TrendingUp />, badge: sortedIncome.length },
-      { id: 4, label: t('config.recurring'), icon: <Repeat />, badge: recurringTransactions.length },
-      { id: 5, label: t('config.projections'), icon: <ShowChart /> },
-      { id: 6, label: t('config.backup'), icon: <BackupIcon /> },
+      { id: 0, label: t('settings.nav.general'), icon: <ViewQuilt /> },
+      { id: 1, label: t('settings.nav.accounts'), icon: <AccountBalance />, badge: `${accounts.length} ${t('settings.active')}` },
+      { id: 2, label: t('settings.nav.expenses'), icon: <TrendingDown />, badge: String(sortedExpenses.length) },
+      { id: 3, label: t('settings.nav.incomes'), icon: <TrendingUp />, badge: String(sortedIncome.length) },
+      { id: 4, label: t('settings.nav.recurring'), icon: <Repeat />, badge: String(recurringTransactions.length) },
+      { id: 5, label: t('settings.nav.projections'), icon: <ShowChart /> },
+      { id: 6, label: t('settings.nav.backup'), icon: <BackupIcon /> },
     ],
     [t, accounts.length, sortedExpenses.length, sortedIncome.length, recurringTransactions.length],
   );
+
+  const moduleCards: { key: keyof AppModules; icon: React.ReactNode; label: string; description: string }[] = [
+    { key: 'carManagement', icon: <DirectionsCar fontSize="small" />, label: t('config.carManagement'), description: t('settings.modules.car') },
+    { key: 'utilityTracker', icon: <Bolt fontSize="small" />, label: t('config.utilityTracker'), description: t('settings.modules.utilities') },
+    { key: 'investmentTracking', icon: <TrendingUp fontSize="small" />, label: t('config.investmentTracking'), description: t('settings.modules.investments') },
+    { key: 'budgetTracking', icon: <PieChart fontSize="small" />, label: t('config.budgetTracking'), description: t('settings.modules.budget') },
+  ];
 
   // For remap selection
   const remapCategoryObj = remapConfig ? (remapConfig.type === 'income' ? incomeCategories : categories).find(c => c.name === remapConfig.categoryName) : null;
@@ -647,13 +728,39 @@ const SettingsPage: React.FC = () => {
   return (
     <DndContext onDragEnd={onDragEnd}>
       <Box sx={{ pb: 8 }}>
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-            {t('settings.title')}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'colors.subtle', mt: 0.5 }}>
-            {t('settings.subtitle')}
-          </Typography>
+        <Box sx={{ mb: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 2 }}>
+          <Box>
+            <Typography variant="caption" sx={{ color: 'colors.cyan', fontWeight: 700, letterSpacing: '0.08em' }}>
+              {t('settings.eyebrow')}
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em', mt: 0.25 }}>
+              {t('settings.title')}
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'colors.subtle', mt: 0.5 }}>
+              {t('settings.subtitle')}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<RestartAlt sx={{ fontSize: 16 }} />}
+              onClick={handleResetSettings}
+              sx={{ textTransform: 'none', fontSize: '0.75rem', color: 'colors.subtle', borderColor: 'colors.border' }}
+            >
+              {t('settings.actions.reset')}
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<CheckIcon sx={{ fontSize: 16 }} />}
+              onClick={handleSaveSettings}
+              disabled={!settingsDirty}
+              sx={{ textTransform: 'none', fontSize: '0.75rem', fontWeight: 700, bgcolor: 'colors.cyan', color: '#04141a', '&:hover': { bgcolor: '#0891b2' } }}
+            >
+              {t('settings.actions.save')}
+            </Button>
+          </Box>
         </Box>
 
         <Box
@@ -668,287 +775,250 @@ const SettingsPage: React.FC = () => {
           <Box sx={{ minWidth: 0 }}>
 
         <TabPanel value={tabValue} index={0}>
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B', height: '100%' }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
-                  {t('config.language')}
-                </Typography>
-                <FormControl fullWidth variant="filled">
-                  <Select
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    sx={{
-                      '& .MuiSelect-select': { display: 'flex', alignItems: 'center', gap: 1 }
-                    }}
-                  >
-                    <MenuItem value="it">
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <span>🇮🇹</span> {t('language.italian')}
-                      </Box>
-                    </MenuItem>
-                    <MenuItem value="en">
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <span>🇬🇧</span> {t('language.english')}
-                      </Box>
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-
-                <Typography variant="caption" sx={{ display: 'block', mt: 2.5, mb: 0.75, color: 'colors.subtle', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
-                  {t('settings.currency')}
-                </Typography>
-                <FormControl fullWidth variant="filled" disabled>
-                  <Select value="EUR">
-                    <MenuItem value="EUR">EUR (€)</MenuItem>
-                  </Select>
-                </FormControl>
-
-                <Typography variant="caption" sx={{ display: 'block', mt: 2.5, mb: 0.75, color: 'colors.subtle', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
-                  {t('settings.dateFormat')}
-                </Typography>
-                <Typography sx={{ ...monoValueSx, fontSize: '0.9rem' }}>{t('dateFormat')}</Typography>
-              </Paper>
-            </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B', height: '100%' }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>{t('config.modules')}</Typography>
-                <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
-                  {t('config.modulesDescription')}
-                </Typography>
-                <List>
-                  <ListItem sx={{ px: 0 }}>
-                    <ListItemText
-                      primary={<Typography sx={{ fontWeight: 600 }}>{t('config.financeTracker')}</Typography>}
-                      secondary={t('dashboard.recentTransactions')}
-                    />
-                    <Switch checked={true} disabled />
-                  </ListItem>
-                  <ListItem sx={{ px: 0 }}>
-                    <ListItemText
-                      primary={<Typography sx={{ fontWeight: 600 }}>{t('config.carManagement')}</Typography>}
-                      secondary={t('car.maintenance')}
-                    />
-                    <Switch
-                      checked={enabledModules.carManagement}
-                      onChange={() => toggleModule('carManagement')}
-                      color="primary"
-                    />
-                  </ListItem>
-                    <ListItem sx={{ px: 0 }}>
-                      <ListItemText
-                        primary={<Typography sx={{ fontWeight: 600 }}>{t('config.utilityTracker')}</Typography>}
-                        secondary={t('utilities.title')}
-                      />
-                      <Switch
-                        checked={enabledModules.utilityTracker}
-                        onChange={() => toggleModule('utilityTracker')}
-                        color="primary"
-                      />
-                    </ListItem>
-                    <ListItem sx={{ px: 0 }}>
-                      <ListItemText
-                        primary={<Typography sx={{ fontWeight: 600 }}>{t('config.investmentTracking')}</Typography>}
-                        secondary={t('investment.title')}
-                      />
-                      <Switch
-                        checked={enabledModules.investmentTracking}
-                        onChange={() => toggleModule('investmentTracking')}
-                        color="primary"
-                      />
-                    </ListItem>
-                    <ListItem sx={{ px: 0 }}>
-                      <ListItemText
-                        primary={<Typography sx={{ fontWeight: 600 }}>{t('config.budgetTracking')}</Typography>}
-                        secondary={t('budget.title')}
-                      />
-                      <Switch
-                        checked={enabledModules.budgetTracking}
-                        onChange={() => toggleModule('budgetTracking')}
-                        color="primary"
-                      />
-                    </ListItem>
-                  </List>
-              </Paper>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: 'error.main' }}>
-                  {t('config.deleteAccount')}
-                </Typography>
-                <Typography variant="body2" sx={{ mb: 2, opacity: 0.7 }}>
-                  {t('config.deleteAccountDescription')}
-                </Typography>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={<DeleteIcon />}
-                  onClick={handleDeleteAccountClick}
-                  disabled={isDeletingAccount}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Paper sx={settingsCardSx}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 2.5, flexWrap: 'wrap' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('settings.regional.title')}</Typography>
+                <Box
+                  component="span"
+                  sx={{ px: 1, py: 0.25, borderRadius: 1, border: '1px solid', borderColor: 'colors.border', bgcolor: 'colors.surfaceNested', fontFamily: (th) => th.colors.mono, fontSize: '0.62rem', color: 'colors.subtle', letterSpacing: '0.06em' }}
                 >
-                  {t('config.deleteAccount')}
-                </Button>
-              </Paper>
-            </Grid>
-          </Grid>
+                  {t('settings.regional.badge')}
+                </Box>
+              </Box>
+
+              <Grid container spacing={2.5}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="caption" sx={{ display: 'block', mb: 0.75, color: 'colors.subtle', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                    {t('settings.regional.language')}
+                  </Typography>
+                  <FormControl fullWidth variant="filled">
+                    <Select
+                      value={settingsDraft.language}
+                      onChange={(event) => updateDraft({ language: event.target.value })}
+                      sx={{ '& .MuiSelect-select': { display: 'flex', alignItems: 'center', gap: 1 } }}
+                    >
+                      <MenuItem value="it"><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><span>🇮🇹</span> {t('language.italian')}</Box></MenuItem>
+                      <MenuItem value="en"><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><span>🇬🇧</span> {t('language.english')}</Box></MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="caption" sx={{ display: 'block', mb: 0.75, color: 'colors.subtle', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                    {t('settings.regional.currency')}
+                  </Typography>
+                  <FormControl fullWidth variant="filled" disabled>
+                    <Select value="EUR">
+                      <MenuItem value="EUR">EUR (€)</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="caption" sx={{ display: 'block', mb: 0.75, color: 'colors.subtle', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                    {t('settings.regional.dateFormat')}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Typography sx={{ ...monoValueSx, fontSize: '0.9rem' }}>{t('dateFormat')}</Typography>
+                    <Box component="span" sx={{ px: 1, py: 0.25, borderRadius: 1, border: '1px solid', borderColor: 'colors.border', bgcolor: 'colors.surfaceNested', ...monoValueSx, fontSize: '0.72rem', color: 'colors.subtle' }}>
+                      {t('settings.regional.previewExample')}
+                    </Box>
+                  </Box>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant="caption" sx={{ display: 'block', mb: 0.75, color: 'colors.subtle', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                    {t('settings.regional.startDate')}
+                  </Typography>
+                  <DatePicker
+                    value={dayjs(settingsDraft.balanceStartDate)}
+                    onChange={(value) => { if (value) updateDraft({ balanceStartDate: value.format('YYYY-MM-DD') }); }}
+                    slotProps={{ textField: { fullWidth: true, size: 'small', variant: 'outlined', sx: formTextFieldSx } }}
+                  />
+                  <Typography variant="caption" sx={{ display: 'block', mt: 0.75, color: 'colors.subtle' }}>
+                    {t('settings.regional.startDateHint')}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Paper>
+
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('config.modules')}</Typography>
+              <Typography variant="body2" sx={{ color: 'colors.subtle', mb: 1.5 }}>{t('config.modulesDescription')}</Typography>
+              <Grid container spacing={2.5}>
+                {moduleCards.map((module) => (
+                  <Grid key={module.key} size={{ xs: 12, md: 6 }}>
+                    <Paper sx={{ ...settingsCardSx, display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'rgba(6,182,212,0.12)', color: 'colors.cyan', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {module.icon}
+                      </Box>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: '0.9rem' }}>{module.label}</Typography>
+                        <Typography variant="caption" sx={{ color: 'colors.subtle' }}>{module.description}</Typography>
+                      </Box>
+                      <Switch
+                        color="info"
+                        checked={Boolean(settingsDraft.modules[module.key])}
+                        onChange={() => updateDraft({ modules: { ...settingsDraft.modules, [module.key]: !settingsDraft.modules[module.key] } })}
+                      />
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+
+            <Paper sx={{ ...settingsCardSx, borderColor: 'rgba(239,68,68,0.3)' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: 'error.main' }}>
+                {t('config.deleteAccount')}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 2, color: 'colors.subtle' }}>
+                {t('config.deleteAccountDescription')}
+              </Typography>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={handleDeleteAccountClick}
+                disabled={isDeletingAccount}
+              >
+                {t('config.deleteAccount')}
+              </Button>
+            </Paper>
+          </Box>
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
-          <Grid container spacing={4}>
-            <Grid size={{ xs: 12, md: 8 }}>
-              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('config.manageAccounts')}</Typography>
-                  <Button startIcon={<AddIcon />} variant="outlined" size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'add' })}>
-                    {t('config.addAccount')}
-                  </Button>
-                </Box>
-                <List>
-                  {accounts.map((acc) => {
-                    const accountCards = cards.filter(c => c.accountId === acc.id);
-                    return (
-                      <Box key={acc.id} sx={{ mb: 2 }}>
-                        <ListItem
-                          sx={{
-                            background: '#0E1524',
-                            borderRadius: 3,
-                            border: acc.isDefault ? '1px solid' : '1px solid #1E293B',
-                            borderColor: acc.isDefault ? 'primary.main' : 'colors.border'
-                          }}
-                        >
-                          <ListItemText
-                            primary={
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography sx={{ fontWeight: 700 }}>{acc.name}</Typography>
-                                {acc.isDefault && <Typography variant="caption" sx={{ bgcolor: 'primary.main', px: 1, borderRadius: 1 }}>DEFAULT</Typography>}
-                              </Box>
-                            }
-                            secondary={
-                              <Typography component="span" variant="caption" sx={monoValueSx}>
-                                {`€ ${acc.initialBalance.toLocaleString('it-IT')}`}
-                              </Typography>
-                            }
-                          />
-                          <ListItemSecondaryAction>
-                            {!acc.isDefault && (
-                              <Button size="small" variant="text" onClick={() => setDefaultAccount(acc.id)} sx={{ mr: 1, fontSize: '0.7rem' }}>{t('config.setDefault')}</Button>
-                            )}
-                            <IconButton size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'edit', accountId: acc.id })}>
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                            <IconButton size="small" color="error" disabled={accounts.length <= 1} onClick={() => handleOpenConfirm(`Delete account "${acc.name}"?`, 'This action cannot be undone.', () => deleteAccount(acc.id))}>
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                        <Box sx={{ pl: 4, pr: 2, mt: 1 }}>
-                          <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.6, textTransform: 'uppercase', fontSize: '0.65rem' }}>
-                            Cards
-                          </Typography>
-                          {accountCards.map(card => (
-                            <ListItem
-                              key={card.id}
-                              sx={{
-                                background: '#0E1524',
-                                mb: 0.5,
-                                borderRadius: 2,
-                                border: '1px solid #0E1524',
-                                py: 0.5,
-                              }}
-                            >
-                              <ListItemText
-                                primary={
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{card.name}</Typography>
-                                    <Typography variant="caption" sx={{
-                                      bgcolor: card.type === 'credit' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(16, 185, 129, 0.2)',
-                                      color: card.type === 'credit' ? '#818cf8' : '#34d399',
-                                      px: 0.8, borderRadius: 1, fontSize: '0.6rem', fontWeight: 700
-                                    }}>
-                                      {card.type.toUpperCase()}
-                                    </Typography>
-                                  </Box>
-                                }
-                                secondary={`Plafond: €${card.plafond.toLocaleString('it-IT')} · resets day ${card.billingDay}`}
-                                slotProps={{ secondary: { variant: 'caption', sx: { opacity: 0.6 } } }}
-                              />
-                              <ListItemSecondaryAction>
-                                <IconButton size="small" onClick={() => handleOpenEditCard(card)}>
-                                  <EditIcon fontSize="inherit" />
-                                </IconButton>
-                                <IconButton size="small" color="error" onClick={() => handleOpenConfirm(`Delete card "${card.name}"?`, 'This action cannot be undone.', () => deleteCard(card.id))}>
-                                  <DeleteIcon fontSize="inherit" />
-                                </IconButton>
-                              </ListItemSecondaryAction>
-                            </ListItem>
-                          ))}
-                          <Button
-                            size="small"
-                            startIcon={<AddIcon />}
-                            onClick={() => handleOpenAddCard(acc.id)}
-                            sx={{ mt: 0.5, fontSize: '0.75rem', opacity: 0.6 }}
-                          >
-                            Add Card
-                          </Button>
-                        </Box>
-                      </Box>
-                    );
-                  })}
-                </List>
-
-                <Typography variant="h6" sx={{ fontWeight: 700, mt: 4, mb: 2 }}>Broker Accounts</Typography>
-                {brokerAccounts.length === 0 ? (
-                  <Typography sx={{ opacity: 0.6, textAlign: 'center', py: 2, fontStyle: 'italic' }}>
-                    No broker accounts configured.
-                  </Typography>
-                ) : (
-                  <List>
-                    {brokerAccounts.map(broker => (
-                      <ListItem
-                        key={broker.id}
-                        sx={{
-                          background: '#0E1524',
-                          mb: 1,
-                          borderRadius: 3,
-                          border: '1px solid #1E293B',
-                        }}
-                      >
-                        <ListItemText
-                          primary={<Typography sx={{ fontWeight: 700 }}>{broker.name}</Typography>}
-                          secondary={`Lump: €${broker.baseLumpSum.toLocaleString()} · PAC: €${broker.monthlyPacAmount.toLocaleString()} · Rate: ${broker.interestRate}%`}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
-                <Button
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={() => setBrokerDialogOpen(true)}
-                  fullWidth
-                  sx={{ mt: 1 }}
-                >
-                  Add Broker Account
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>{t('settings.accounts.title')}</Typography>
+                <Typography variant="caption" sx={{ color: 'colors.subtle' }}>{t('settings.accounts.subtitle')}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={() => handleOpenDialog({ type: 'account', mode: 'add' })} sx={{ textTransform: 'none', fontSize: '0.75rem', color: 'colors.cyan', borderColor: 'rgba(6,182,212,0.4)' }}>
+                  {t('settings.accounts.addAccount')}
                 </Button>
-              </Paper>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<CreditCard sx={{ fontSize: 16 }} />}
+                  onClick={() => handleOpenAddCard(accounts.find((account) => account.isDefault)?.id ?? accounts[0]?.id ?? '')}
+                  disabled={accounts.length === 0}
+                  sx={{ textTransform: 'none', fontSize: '0.75rem', color: 'colors.cyan', borderColor: 'rgba(6,182,212,0.4)' }}
+                >
+                  {t('settings.accounts.addCard')}
+                </Button>
+              </Box>
+            </Box>
+
+            <Grid container spacing={2.5}>
+              {accounts.map((account) => {
+                const balance = computeAccountBalance(account.id, accounts, transactions) ?? account.initialBalance;
+                return (
+                  <Grid key={account.id} size={{ xs: 12, md: 6 }}>
+                    <Paper sx={{ ...settingsCardSx, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'rgba(6,182,212,0.12)', color: 'colors.cyan', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <AccountBalanceWallet fontSize="small" />
+                        </Box>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography noWrap sx={{ fontWeight: 700 }}>{account.name}</Typography>
+                            <Box component="span" sx={{ px: 0.75, py: 0.1, borderRadius: 1, fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.05em', bgcolor: account.isDefault ? 'rgba(16,185,129,0.12)' : 'colors.surfaceNested', color: account.isDefault ? 'colors.emerald' : 'colors.subtle', border: '1px solid', borderColor: account.isDefault ? 'rgba(16,185,129,0.3)' : 'colors.border' }}>
+                              {account.isDefault ? t('settings.accounts.primary') : t('settings.accounts.secondary')}
+                            </Box>
+                          </Box>
+                          <Typography variant="caption" sx={{ ...monoValueSx, color: 'colors.subtle' }}>
+                            {maskIban(account.iban) ?? t('settings.accounts.noIban')}
+                          </Typography>
+                        </Box>
+                        {!account.isDefault && (
+                          <Button size="small" variant="text" onClick={() => setDefaultAccount(account.id)} sx={{ fontSize: '0.65rem', textTransform: 'none' }}>
+                            {t('config.setDefault')}
+                          </Button>
+                        )}
+                        <IconButton size="small" onClick={() => handleOpenDialog({ type: 'account', mode: 'edit', accountId: account.id })}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" color="error" disabled={accounts.length <= 1} onClick={() => handleOpenConfirm(`Delete account "${account.name}"?`, 'This action cannot be undone.', () => deleteAccount(account.id))}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                      <Typography sx={{ ...monoValueSx, fontSize: '1.35rem', fontWeight: 700 }}>
+                        {formatCurrency(balance)}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                );
+              })}
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Paper sx={{ p: 3, borderRadius: 3, background: 'colors.surface', border: '1px solid #1E293B' }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>{t('config.calculationStartDate')}</Typography>
-                <TextField
-                  type="date"
-                  fullWidth
-                  value={balanceStartDate}
-                  onChange={(e) => setBalanceStartDate(e.target.value)}
-                  variant="filled"
-                  slotProps={{ inputLabel: { shrink: true } }}
-                />
-                <Alert severity="info" sx={{ mt: 2, '& .MuiAlert-message': { fontSize: '0.8rem' } }}>
-                  {t('config.calculationStartDateDescription')}
-                </Alert>
-              </Paper>
-            </Grid>
-          </Grid>
+
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>{t('settings.accounts.cardsTitle')}</Typography>
+              <Grid container spacing={2.5}>
+                {cards.map((card) => (
+                  <Grid key={card.id} size={{ xs: 12, md: 6 }}>
+                    <Paper sx={{ ...settingsCardSx, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: 'rgba(139,92,246,0.12)', color: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <CreditCard fontSize="small" />
+                        </Box>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography noWrap sx={{ fontWeight: 700 }}>{card.name}</Typography>
+                          <Typography variant="caption" sx={{ color: 'colors.subtle' }}>
+                            {cards.find((item) => item.id === card.id)?.type === 'credit' ? t('settings.accounts.credit') : t('settings.accounts.debit')}
+                            {' · '}
+                            {t('settings.accounts.resetDay', { day: card.billingDay })}
+                          </Typography>
+                        </Box>
+                        <IconButton size="small" onClick={() => handleOpenEditCard(card)}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" color="error" onClick={() => handleOpenConfirm(`Delete card "${card.name}"?`, 'This action cannot be undone.', () => deleteCard(card.id))}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                      <Typography sx={{ ...monoValueSx, fontSize: '1.1rem', fontWeight: 700 }}>
+                        {formatCurrency(card.plafond)} <Typography component="span" variant="caption" sx={{ color: 'colors.subtle' }}>{t('settings.accounts.perMonth')}</Typography>
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: 'colors.subtle' }}>
+                        {accounts.find((account) => account.id === card.accountId)?.name ?? '—'}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                ))}
+                {cards.length === 0 && (
+                  <Grid size={{ xs: 12 }}>
+                    <Typography sx={{ color: 'colors.subtle', fontStyle: 'italic', py: 2 }}>{t('settings.accounts.noCards')}</Typography>
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
+
+            <Paper sx={settingsCardSx}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>Broker Accounts</Typography>
+              {brokerAccounts.length === 0 ? (
+                <Typography sx={{ color: 'colors.subtle', textAlign: 'center', py: 2, fontStyle: 'italic' }}>
+                  No broker accounts configured.
+                </Typography>
+              ) : (
+                <List>
+                  {brokerAccounts.map((broker) => (
+                    <ListItem key={broker.id} sx={{ bgcolor: 'colors.surfaceNested', mb: 1, borderRadius: 2, border: '1px solid', borderColor: 'colors.border' }}>
+                      <ListItemText
+                        primary={<Typography sx={{ fontWeight: 700 }}>{broker.name}</Typography>}
+                        secondary={<Typography component="span" variant="caption" sx={monoValueSx}>{`Lump: ${formatCurrency(broker.baseLumpSum)} · PAC: ${formatCurrency(broker.monthlyPacAmount)} · Rate: ${broker.interestRate}%`}</Typography>}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+              <Button variant="outlined" startIcon={<AddIcon />} onClick={() => setBrokerDialogOpen(true)} fullWidth sx={{ mt: 1, textTransform: 'none' }}>
+                Add Broker Account
+              </Button>
+            </Paper>
+          </Box>
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
@@ -1184,6 +1254,18 @@ const SettingsPage: React.FC = () => {
                   </Grid>
                   <Grid size={{ xs: 12 }}>
                     <TextField sx={formTextFieldSx} fullWidth label="Initial Balance" type="number" variant="outlined" value={accountInitialBalance} onChange={(e) => setAccountInitialBalance(e.target.value)} slotProps={{ input: { startAdornment: <Typography sx={{ mr: 1, opacity: 0.5 }}>€</Typography> } }} />
+                  </Grid>
+                  <Grid size={{ xs: 12 }}>
+                    <TextField
+                      sx={formTextFieldSx}
+                      fullWidth
+                      label={t('settings.accounts.iban')}
+                      variant="outlined"
+                      value={accountIban}
+                      onChange={(e) => setAccountIban(e.target.value)}
+                      helperText={t('settings.accounts.ibanHint')}
+                      slotProps={{ htmlInput: { maxLength: 34 } }}
+                    />
                   </Grid>
                 </Grid>
               ) : (

@@ -5,7 +5,7 @@ import BentoWidgetsRow from '../components/dashboard/BentoWidgetsRow';
 import CalendarMasterDetailSection from '../components/dashboard/CalendarMasterDetailSection';
 import ChartsRow from '../components/dashboard/ChartsRow';
 import KpiMetricsRow from '../components/dashboard/KpiMetricsRow';
-import TopBar from '../components/dashboard/TopBar';
+import TopBar from '../components/layout/TopBar';
 import { useFinanceStore } from '../store/useFinanceStore';
 
 const DashboardPage: React.FC = () => {
