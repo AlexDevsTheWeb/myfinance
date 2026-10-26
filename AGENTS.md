@@ -56,8 +56,12 @@ Every feature, bug analysis, implementation, or decision **must** be documented:
 1. Raw notes go to `docs/raw/<topic>/<topic>.md`.
 2. Compiled pages go to `docs/wiki/<category>/` (`features`, `bugs`, `decisions`,
    `plans`, `architecture`, `conventions`, `queries`, `references`).
-3. Update `docs/index.md`, the category index, and append to `docs/log.md`.
-4. Run `npm run docs:validate` — the pre-commit hook enforces it.
+3. Write an implementation report beside the concept page
+   (`wiki/features/<slug>/report-YYYY-MM-DD.md`, or
+   `wiki/<category>/<slug>-report-YYYY-MM-DD.md` for flat pages) and link it from
+   the parent page. Mandatory for every PR.
+4. Update `docs/index.md`, the category index, and append to `docs/log.md`.
+5. Run `npm run docs:validate` — the pre-commit hook enforces it.
 
 Agents: load the `wiki-sync` skill for the full procedure and the `issue-to-pr`
 skill for the end-to-end delivery loop.

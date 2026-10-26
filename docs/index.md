@@ -8,7 +8,7 @@ timestamp: 2026-10-26
 # Wiki Index
 
 *Last updated: 2026-10-26* (bundle moved to `docs/`, legacy planning material archived — see [[wiki/decisions/wiki-reorganization]])
-*Total pages: 99*
+*Total pages: 99* — implementation reports live beside their concept page and are not listed here.
 
 ---
 

@@ -19,8 +19,11 @@ docs/
 ├── scripts/
 │   ├── okf_validate.py  # linter
 │   └── install-hooks.sh # enables the pre-commit gate
-├── raw/<topic>/<topic>.md   # immutable sources
-└── wiki/<category>/         # compiled pages
+├── raw/<topic>/<topic>.md       # immutable sources
+└── wiki/<category>/             # compiled pages
+    └── <slug>/
+        ├── <slug>.md            # concept page
+        └── report-YYYY-MM-DD.md # implementation report (type: Report)
 ```
 
 Categories: `features`, `bugs`, `decisions`, `plans`, `architecture`,
@@ -64,6 +67,65 @@ Categories: `features`, `bugs`, `decisions`, `plans`, `architecture`,
    ```
 
 10. Validate (see below).
+
+## Implementation reports
+
+**Every implementation that opens a PR gets a report — no exceptions.** It sits
+next to the concept it describes, and it is part of the wiki update, not an
+optional extra.
+
+### Placement
+
+| Concept layout | Report path |
+|---|---|
+| Folder concept — `wiki/features/<slug>/<slug>.md` | `wiki/features/<slug>/report-YYYY-MM-DD.md` |
+| Flat concept — `wiki/bugs/<slug>.md`, `wiki/plans/<slug>.md`, `wiki/decisions/<slug>.md`, … | `wiki/<category>/<slug>-report-YYYY-MM-DD.md` |
+
+One file per implementation. Never overwrite an older report; a second delivery of
+the same feature gets a second date.
+
+### Frontmatter
+
+```yaml
+---
+type: Report
+title: "Implementation Report — <what shipped>"
+description: "<one sentence: what changed and how it was verified>"
+resource: "<PR URL>"
+tags: [report, <area>]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+status: shipped | partially-shipped | reverted
+sources: ["raw/<topic>/<topic>.md"]
+related: ["wiki/features/<slug>/<slug>"]
+---
+```
+
+`resource` is required for reports. `status` matters: a reverted implementation
+must not read like a live feature.
+
+### Sections
+
+1. **Context** — trigger and prior state.
+2. **Changes** — grouped by area, never a raw diff.
+3. **Decisions** — chosen, rejected, why.
+4. **Deviations** — from the request/prototype/design; say whether agreed or a
+   judgement call. "None" when there are none.
+5. **Verification** — commands and real outcomes, including failures found and
+   fixed during the work.
+6. **Not verified / deferred** — explicit. "None" if genuinely nothing.
+7. **Wiki pages touched** — created/updated in the same PR.
+8. **Related** — parent concept and raw sources.
+
+### Wiring it in
+
+- Add the report to the parent page's `## Related` (the validator requires an
+  inbound link from a non-report page).
+- **Do not** list reports in `docs/index.md` or the category `index.md`.
+- Append to `docs/log.md` with `## [YYYY-MM-DD] report | <Category> | <Title>`.
+- Start from `docs/templates/report.md`.
+- Run the validator; it checks the `Report` type, the filename pattern, the
+  parent link, and that the required `context`/`verification` sections exist.
 
 ## Update an existing page
 
