@@ -9,7 +9,7 @@ timestamp: 2026-07-18
 
 This is the top-level entry point for the compiled wiki. Each category has its own `index.md` that lists all pages in that category.
 
-For the master catalog (all 98 pages in one view), see [`docs/index.md`](../index.md).
+For the master catalog (all 99 pages in one view), see [`docs/index.md`](../index.md).
 
 ## Categories
 

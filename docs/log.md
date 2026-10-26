@@ -928,3 +928,13 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Updated [[wiki/architecture/project-state]] store section and cross-linked the archive map from [[wiki/decisions/wiki-reorganization]]
 - Wired the 11 pages that had no inbound links (car-statistics-year, charts-ui, etf-pricing-total-return, silent-login-errors, balancr-identity-system, account-deletion, dashboard-calendar, investment-professional-enhancements, sidebar-routing-refactor, italian-tax-enhancements, daily-historical-chart) into their topical neighbours — `--orphans` is now clean too
 - Validation: `python3 docs/scripts/okf_validate.py` → 98 pages valid, indexes complete, 0 warnings
+
+## [2026-10-26] ingest | Feature | Transaction Ledger redesign (Stitch prototype)
+- Source: `raw/2026-10-UI-refactor/2026-10-26-prompt.md` + `2026-10-26-prompt.html`. The referenced screenshot was not in the repo; the HTML export was the visual reference
+- Rebuilt `/transactions` as a full-width ledger: 3 KPI cards, one-row filter toolbar (period pills, search, category/subcategory, account, card, type, reset + count), dense sortable table with row menu, pagination footer
+- Created [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign]]; marked [[wiki/features/transaction-layout-improvement/transaction-layout-improvement]] **superseded** (it had shipped but was still listed as *planned*)
+- New store action `duplicateTransaction`: copies the stable fields only and dates the copy today — deliberately drops `recurringLinkId`, `consumption` and meter readings. Covered by 2 tests
+- New `utils/csv.utils.ts`: UTF-8 BOM, `;` separator, decimal comma, RFC 4180 quoting (Italian Excel opens it directly). The first test run caught the quote rule applying the comma separator to an `;`-delimited file; the escape function now takes the active separator
+- Column visibility persists in `localStorage` (`balancr.ledger.columns`); pagination clamps during render instead of in an effect (lint `react-hooks/set-state-in-effect`)
+- Deviations recorded on the page: MUI v9 not v5, shell reused from `Layout`, search kept in the toolbar (the shell has no global search), type badges reduced to *Ricorrente* / *Una Tantum* because the model has no bimonthly/PAC concept, account column shows account + card instead of payment-method labels
+- Verification: tsc clean, build green, **221 tests / 14 files** pass, lint at the pre-existing 7E/3W baseline
