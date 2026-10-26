@@ -93,9 +93,66 @@
     "netDeltaMonth": "Net Delta (Month)",
     "betaDisclaimer": "Welcome to the Balancr Soft Beta!",
     "betaDisclaimerText": "This application is currently in an experimental testing phase. While all data transmissions are encrypted and isolated inside a dedicated Firestore database, please do not input real banking credentials or highly sensitive financial passwords. This platform operates purely as a self-contained tracking sandbox and has no integrations with external banking institutions.",
+    "liquidBalance": "Liquid Balance",
+    "vsPreviousMonth": "vs previous month",
+    "movementsRegistered": "movements recorded",
+    "savingsRate": "Savings Rate",
+    "today": "Today",
+    "searchPlaceholder": "Search transactions, categories, IBAN...",
+    "newOperation": "New Transaction",
+    "notifications": {
+      "title": "Notifications",
+      "empty": "No notifications right now",
+      "pacTitle": "ETF PAC Reminder",
+      "pacMessage": "It's the 2nd of the month: check the automatic PAC contribution to your ETFs."
+    },
     "calendar": {
-      "title": "Calendar",
-      "noTransactions": "No transactions on this day"
+      "title": "Monthly Calendar",
+      "noTransactions": "No transactions on this day",
+      "movements": "Movements & Schedules",
+      "netDayBalance": "Net day balance",
+      "items": "items"
+    },
+    "plafond": {
+      "title": "Card Limits & Debits",
+      "empty": "No cards configured",
+      "freeMargin": "Free margin",
+      "usage": "Usage",
+      "debitNote": "Account balance debit on the 1st",
+      "totalCommitted": "Total committed"
+    },
+    "fleet": {
+      "title": "Fleet / Vehicles",
+      "avgConsumption": "Average consumption",
+      "nextService": "Next service",
+      "tirePressure": "Tire pressure"
+    },
+    "utilities": {
+      "title": "Utilities",
+      "fixedSpend": "Fixed spend current month",
+      "electricity": "Electricity",
+      "gas": "Natural Gas",
+      "nextBill": "Next bill due:"
+    },
+    "investments": {
+      "title": "Investments / PAC",
+      "totalBadge": "Tot.",
+      "capitalInvested": "Current invested capital",
+      "monthlyPac": "Monthly PAC amount",
+      "nextPurchase": "Next purchase",
+      "instrument": "Instrument",
+      "pnlGreen": "P&L Green",
+      "pnlRed": "P&L Red"
+    },
+    "charts": {
+      "cashFlow": "Cash Flow Trend",
+      "portfolio": "Portfolio Value vs Invested",
+      "noHistory": "No historical data available",
+      "currentValue": "Real Value",
+      "investedCapital": "Invested Capital",
+      "last6Months": "Last 6 months",
+      "last12Months": "Last 12 months",
+      "pacTimeline": "PAC Timeline"
     }
   },
   "salary": {

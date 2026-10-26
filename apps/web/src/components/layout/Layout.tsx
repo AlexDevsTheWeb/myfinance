@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import i18n from '../../lib/i18n';
 import { useAuthStore } from '../../store/useAuthStore';
-import type { Transaction } from '../../store/useFinanceStore';
+import { useUiStore } from '../../store/useUiStore';
 import { VersionFooter } from '../common/VersionFooter';
 import TransactionModal from '../modals/TransactionModal';
 import Sidebar from './Sidebar';
@@ -23,10 +23,13 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   const { t } = useTranslation();
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
-  const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
+
+  const txModalOpen = useUiStore((s) => s.txModalOpen);
+  const txModalType = useUiStore((s) => s.txModalType);
+  const txModalTransaction = useUiStore((s) => s.txModalTransaction);
+  const openTransactionModal = useUiStore((s) => s.openTransactionModal);
+  const closeTransactionModal = useUiStore((s) => s.closeTransactionModal);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -39,10 +42,10 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   const handleCloseFab = () => setFabOpen(false);
 
   const handleFabSelect = (type: 'income' | 'expense') => {
-    setTransactionToEdit(null);
-    setModalType(type);
-    setModalOpen(true);
+    openTransactionModal(type, null);
   };
+
+  const isDashboard = location.pathname === '/dashboard' || location.pathname === '/dashboard/';
 
   const pathnames = location.pathname.split('/').filter((x) => x);
 
@@ -57,7 +60,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', background: 'linear-gradient(135deg, #0b0f19 0%, #111827 100%)' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'colors.bg' }}>
       {/* Desktop Sidebar (permanent) */}
       {!isMobile && <Sidebar />}
 
@@ -78,7 +81,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
 
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 }}>
         {isMobile && (
-          <AppBar position="sticky" elevation={0} sx={{ background: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <AppBar position="sticky" elevation={0} sx={{ background: 'colors.sidebar', borderBottom: '1px solid', borderColor: 'colors.border' }}>
             <Toolbar>
               <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2 }}>
                 <MenuIcon />
@@ -86,8 +89,16 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
             </Toolbar>
           </AppBar>
         )}
-        <Container maxWidth={false} sx={{ mt: 3, mb: 3, px: { xs: 2, sm: 3, md: 5 }, flexGrow: 1, maxWidth: '100%' }}>
-          {user && pathnames.length > 0 && (
+        <Container
+          maxWidth={false}
+          disableGutters
+          sx={
+            isDashboard
+              ? { p: 0, m: 0, flexGrow: 1, maxWidth: '100%' }
+              : { mt: 3, mb: 3, px: { xs: 2, sm: 3, md: 5 }, flexGrow: 1, maxWidth: '100%' }
+          }
+        >
+          {user && pathnames.length > 0 && !isDashboard && (
             <Breadcrumbs
               separator={<ChevronRight fontSize="small" sx={{ opacity: 0.5 }} />}
               sx={{ mb: 3, color: 'rgba(255,255,255,0.6)' }}
@@ -152,7 +163,7 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
           {children}
         </Container>
 
-        {user && location.pathname !== '/config' && (
+        {user && location.pathname !== '/config' && !isDashboard && (
           <Box
             sx={{
               position: 'fixed',
@@ -220,10 +231,10 @@ const Layout: React.FC<{ children: React.ReactNode; pageTitle?: string; pageDesc
         )}
 
         <TransactionModal
-          open={modalOpen}
-          onClose={() => setModalOpen(false)}
-          type={modalType}
-          transaction={transactionToEdit}
+          open={txModalOpen}
+          onClose={closeTransactionModal}
+          type={txModalType}
+          transaction={txModalTransaction}
         />
         <VersionFooter />
       </Box>
