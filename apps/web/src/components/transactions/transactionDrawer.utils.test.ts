@@ -10,11 +10,14 @@ import {
   draftToTransaction,
   EMPTY_DRAFT,
   hasErrors,
+  parseOptionalAmount,
   pricePerLitre,
   resetDraftForType,
   resolveUtilityUnit,
   showsReadingPeriod,
+  splitUtilityFees,
   transactionToDraft,
+  utilityTypeForUnit,
   validateDraft,
   type TransactionDraft,
 } from './transactionDrawer.utils';
@@ -148,6 +151,11 @@ describe('resolveUtilityUnit', () => {
     expect(resolveUtilityUnit('Auto', 'Metano')).toBe('smc');
   });
 
+  it('detects water', () => {
+    expect(resolveUtilityUnit('Utenze', 'Acqua')).toBe('m³');
+    expect(resolveUtilityUnit('Utilities', 'Water')).toBe('m³');
+  });
+
   it('detects fuel', () => {
     expect(resolveUtilityUnit('Auto', 'Carburante')).toBe('L');
     expect(resolveUtilityUnit('Car', 'Diesel')).toBe('L');
@@ -158,10 +166,24 @@ describe('resolveUtilityUnit', () => {
   });
 });
 
+describe('utilityTypeForUnit', () => {
+  it('maps metered units to the persisted utility kind', () => {
+    expect(utilityTypeForUnit('kWh')).toBe('electricity');
+    expect(utilityTypeForUnit('smc')).toBe('gas');
+    expect(utilityTypeForUnit('m³')).toBe('water');
+  });
+
+  it('does not treat fuel as a household utility', () => {
+    expect(utilityTypeForUnit('L')).toBeNull();
+    expect(utilityTypeForUnit(null)).toBeNull();
+  });
+});
+
 describe('showsReadingPeriod', () => {
   it('is true only for metered utilities', () => {
     expect(showsReadingPeriod('kWh')).toBe(true);
     expect(showsReadingPeriod('smc')).toBe(true);
+    expect(showsReadingPeriod('m³')).toBe(true);
     expect(showsReadingPeriod('L')).toBe(false);
     expect(showsReadingPeriod(null)).toBe(false);
   });
@@ -295,5 +317,84 @@ describe('transactionToDraft', () => {
       cardId: 'card-1',
       consumption: '210',
     });
+  });
+
+  it('restores the utility quotas, supplier and meter', () => {
+    const restored = transactionToDraft({
+      id: 'tx-2',
+      date: '2026-10-20',
+      description: 'Bolletta gas',
+      category: 'Bollette',
+      subcategory: 'Gas',
+      amount: 100,
+      type: 'expense',
+      accountId: 'acc-1',
+      utilityType: 'gas',
+      fixedFee: 30,
+      energyFee: 70,
+      provider: 'Plenitude',
+      meterId: 'PDR-9',
+    });
+
+    expect(restored.fixedFee).toBe('30');
+    expect(restored.energyFee).toBe('70');
+    expect(restored.provider).toBe('Plenitude');
+    expect(restored.meterId).toBe('PDR-9');
+  });
+});
+
+describe('parseOptionalAmount', () => {
+  it('distinguishes a blank field from zero', () => {
+    expect(Number.isNaN(parseOptionalAmount(''))).toBe(true);
+    expect(Number.isNaN(parseOptionalAmount('   '))).toBe(true);
+    expect(parseOptionalAmount('0')).toBe(0);
+    expect(parseOptionalAmount('1.234,50')).toBeCloseTo(1234.5);
+  });
+});
+
+describe('splitUtilityFees', () => {
+  it('returns null when neither quota is provided', () => {
+    expect(splitUtilityFees(100, Number.NaN, Number.NaN)).toBeNull();
+  });
+
+  it('derives the missing quota from the total', () => {
+    expect(splitUtilityFees(100, 30, Number.NaN)).toEqual({ fixedFee: 30, energyFee: 70 });
+    expect(splitUtilityFees(100, Number.NaN, 70)).toEqual({ fixedFee: 30, energyFee: 70 });
+  });
+
+  it('keeps both quotas when provided and never goes negative', () => {
+    expect(splitUtilityFees(100, 30, 70)).toEqual({ fixedFee: 30, energyFee: 70 });
+    expect(splitUtilityFees(10, 30, Number.NaN)).toEqual({ fixedFee: 30, energyFee: 0 });
+  });
+});
+
+describe('draftToTransaction utility fields', () => {
+  it('persists the derived utility kind, the split and the identification', () => {
+    const transaction = draftToTransaction(
+      draft({
+        category: 'Bollette',
+        subcategory: 'Gas',
+        consumption: '120',
+        fixedFee: '12',
+        provider: 'Plenitude',
+        meterId: 'PDR-9',
+      }),
+      'expense',
+    );
+
+    expect(transaction.utilityType).toBe('gas');
+    expect(transaction.fixedFee).toBe(12);
+    expect(transaction.energyFee).toBeCloseTo(30.5);
+    expect(transaction.provider).toBe('Plenitude');
+    expect(transaction.meterId).toBe('PDR-9');
+  });
+
+  it('omits the utility fields for ordinary expenses', () => {
+    const transaction = draftToTransaction(draft(), 'expense');
+    expect(transaction.utilityType).toBeUndefined();
+    expect(transaction.fixedFee).toBeUndefined();
+    expect(transaction.energyFee).toBeUndefined();
+    expect(transaction.provider).toBeUndefined();
+    expect(transaction.meterId).toBeUndefined();
   });
 });

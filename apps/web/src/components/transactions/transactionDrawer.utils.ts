@@ -6,7 +6,7 @@
  * from a drawer draft to a recurring template.
  */
 import dayjs from 'dayjs';
-import type { Account, RecurringTransaction, Transaction } from '../../store/useFinanceStore';
+import type { Account, RecurringTransaction, Transaction, UtilityType } from '../../store/useFinanceStore';
 import type { TransactionDrawerType } from '../../store/useUiStore';
 
 export type { TransactionDrawerType };
@@ -22,6 +22,10 @@ export interface TransactionDraft {
   consumption: string;
   readingDateStart: string;
   readingDateEnd: string;
+  fixedFee: string;
+  energyFee: string;
+  provider: string;
+  meterId: string;
 }
 
 export interface RecurringDraft {
@@ -103,6 +107,10 @@ export const EMPTY_DRAFT: TransactionDraft = {
   consumption: '',
   readingDateStart: '',
   readingDateEnd: '',
+  fixedFee: '',
+  energyFee: '',
+  provider: '',
+  meterId: '',
 };
 
 /**
@@ -123,6 +131,10 @@ export function resetDraftForType(draft: TransactionDraft): TransactionDraft {
     consumption: '',
     readingDateStart: '',
     readingDateEnd: '',
+    fixedFee: '',
+    energyFee: '',
+    provider: '',
+    meterId: '',
   };
 }
 
@@ -162,10 +174,11 @@ export function hasErrors(errors: Record<string, string>): boolean {
   return Object.keys(errors).length > 0;
 }
 
-export type UtilityUnit = 'kWh' | 'smc' | 'L';
+export type UtilityUnit = 'kWh' | 'smc' | 'm³' | 'L';
 
 const ELECTRICITY = ['elettricità', 'elettricita', 'electricity', 'luce', 'energia'];
 const GAS = ['gas', 'metano'];
+const WATER = ['acqua', 'water', 'idrico', 'acquedotto'];
 const FUEL = ['carburante', 'benzina', 'diesel', 'gasolio', 'fuel'];
 
 /**
@@ -177,20 +190,74 @@ const FUEL = ['carburante', 'benzina', 'diesel', 'gasolio', 'fuel'];
 export function resolveUtilityUnit(category: string, subcategory: string): UtilityUnit | null {
   const needle = `${category} ${subcategory}`.toLowerCase();
   if (FUEL.some((term) => needle.includes(term))) return 'L';
+  if (WATER.some((term) => needle.includes(term))) return 'm³';
   if (GAS.some((term) => needle.includes(term))) return 'smc';
   if (ELECTRICITY.some((term) => needle.includes(term))) return 'kWh';
   return null;
 }
 
-/** Utility bills record the billing period; fuel and everything else do not. */
-export function showsReadingPeriod(unit: UtilityUnit | null): boolean {
-  return unit === 'kWh' || unit === 'smc';
+/**
+ * Map a meter unit to the persisted utility kind. Fuel (litres) is a metered
+ * reading but not a household utility, so it maps to `null`.
+ */
+export function utilityTypeForUnit(unit: UtilityUnit | null): UtilityType | null {
+  switch (unit) {
+    case 'kWh':
+      return 'electricity';
+    case 'smc':
+      return 'gas';
+    case 'm³':
+      return 'water';
+    default:
+      return null;
+  }
 }
 
-/** Price per litre, derived from the total amount and the recorded litres. */
+/** Utility bills record the billing period; fuel and everything else do not. */
+export function showsReadingPeriod(unit: UtilityUnit | null): boolean {
+  return unit === 'kWh' || unit === 'smc' || unit === 'm³';
+}
+
+/** Price per unit, derived from the total amount and the recorded volume. */
+export function pricePerUnit(amount: number, volume: number): number | null {
+  if (!Number.isFinite(amount) || !Number.isFinite(volume) || volume <= 0) return null;
+  return amount / volume;
+}
+
+/** Price per litre — the fuel-specific case of [[pricePerUnit]]. */
 export function pricePerLitre(amount: number, litres: number): number | null {
-  if (!Number.isFinite(amount) || !Number.isFinite(litres) || litres <= 0) return null;
-  return amount / litres;
+  return pricePerUnit(amount, litres);
+}
+
+export interface UtilityFeeSplit {
+  fixedFee: number;
+  energyFee: number;
+}
+
+/** Parse an optional currency field: blank means "not provided", not zero. */
+export function parseOptionalAmount(value: string): number {
+  return value.trim() === '' ? Number.NaN : parseAmountInput(value);
+}
+
+/**
+ * Normalise the fixed/energy split of a bill.
+ *
+ * Both quotas are optional: when only one is entered the other is derived from
+ * the total, so the page can always show a split. Returns `null` when neither
+ * is provided — the bill is then treated as a single energy charge.
+ */
+export function splitUtilityFees(amount: number, fixedFee: number, energyFee: number): UtilityFeeSplit | null {
+  const hasFixed = Number.isFinite(fixedFee);
+  const hasEnergy = Number.isFinite(energyFee);
+  if (!hasFixed && !hasEnergy) return null;
+
+  if (hasFixed && hasEnergy) {
+    return { fixedFee: Math.max(0, fixedFee), energyFee: Math.max(0, energyFee) };
+  }
+  if (hasFixed) {
+    return { fixedFee: Math.max(0, fixedFee), energyFee: Math.max(0, amount - fixedFee) };
+  }
+  return { fixedFee: Math.max(0, amount - energyFee), energyFee: Math.max(0, energyFee) };
 }
 
 /** Liquid balance for a single account: initial balance + income − expenses. */
@@ -261,6 +328,13 @@ export function draftToTransaction(
   existingId?: string,
 ): Transaction {
   const consumption = draft.consumption !== '' ? Number(draft.consumption) : undefined;
+  const amount = parseAmountInput(draft.amount);
+  const split = splitUtilityFees(
+    amount,
+    parseOptionalAmount(draft.fixedFee),
+    parseOptionalAmount(draft.energyFee),
+  );
+  const utilityType = utilityTypeForUnit(resolveUtilityUnit(draft.category, draft.subcategory));
 
   return {
     id: existingId ?? crypto.randomUUID(),
@@ -268,13 +342,17 @@ export function draftToTransaction(
     description: draft.description.trim(),
     category: draft.category,
     subcategory: draft.subcategory,
-    amount: parseAmountInput(draft.amount),
+    amount,
     type,
     accountId: draft.accountId,
     ...(draft.cardId ? { cardId: draft.cardId } : {}),
     ...(consumption !== undefined && !Number.isNaN(consumption) ? { consumption } : {}),
     ...(draft.readingDateStart ? { readingDateStart: draft.readingDateStart } : {}),
     ...(draft.readingDateEnd ? { readingDateEnd: draft.readingDateEnd } : {}),
+    ...(utilityType ? { utilityType } : {}),
+    ...(split ?? {}),
+    ...(draft.provider.trim() ? { provider: draft.provider.trim() } : {}),
+    ...(draft.meterId.trim() ? { meterId: draft.meterId.trim() } : {}),
   };
 }
 
@@ -291,5 +369,9 @@ export function transactionToDraft(transaction: Transaction): TransactionDraft {
     consumption: transaction.consumption !== undefined ? String(transaction.consumption) : '',
     readingDateStart: transaction.readingDateStart ?? '',
     readingDateEnd: transaction.readingDateEnd ?? '',
+    fixedFee: transaction.fixedFee !== undefined ? formatAmountInput(String(transaction.fixedFee)) : '',
+    energyFee: transaction.energyFee !== undefined ? formatAmountInput(String(transaction.energyFee)) : '',
+    provider: transaction.provider ?? '',
+    meterId: transaction.meterId ?? '',
   };
 }
