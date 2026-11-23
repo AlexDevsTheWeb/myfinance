@@ -1018,3 +1018,11 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Routing and the module-gated sidebar entry already existed; page titles stay in `TopBar`; all labels live in `locales/{it,en}.json` — the prompt's hard-coded Italian was not copied
 - Created [[wiki/features/utilities-consumption-page/utilities-consumption-page]] and [[wiki/features/utilities-consumption-page/report-2026-11-23]]; updated [[wiki/features/add-transaction-drawer/add-transaction-drawer]], both catalogues
 - Verification: tsc clean, build green, **301 tests / 17 files**, lint at the 6E/3W baseline, docs validator clean
+
+
+## [2026-11-23] review | Feature | Single create action (PR #202)
+- `/utilities` exposed three controls that opened the same drawer (TopBar CTA, page CTA, floating button). Removed the page CTA and the FAB globally; the TopBar CTA is now route-aware and seeds the bill category on `/utilities`
+- New `hooks/useNewTransaction.ts` is the one create action; the mobile header (below 900px, where the TopBar is not rendered) gained the same `+` so removing the FAB does not strand mobile users
+- Marked [[wiki/features/quick-actions-fab/quick-actions-fab]] deprecated; flagged the historical FAB claims in the dashboard and sidebar redesign pages
+- Updated [[wiki/features/utilities-consumption-page/utilities-consumption-page]], its report and [[wiki/features/add-transaction-drawer/add-transaction-drawer]]
+- Verification: tsc clean, build green, **301 tests / 17 files**, lint at the 6E/3W baseline, docs validator clean

@@ -69,6 +69,12 @@ Replace the horizontal top navigation bar with a vertical left sidebar. Group Fi
 - Use MUI `Drawer` (variant `permanent` for desktop, `temporary` for mobile)
 - Group items use `ListSubheader` or nested `List` with `Collapse`
 
+## Update (2026-11-23)
+
+The FAB requirement above is historical: the button was removed and its action
+moved to the single create control in the shell (TopBar CTA on desktop, header
+`+` on mobile). See [[wiki/features/quick-actions-fab/quick-actions-fab]].
+
 ## Related
 
 - [[wiki/features/dashboard-redesign/dashboard-redesign]]

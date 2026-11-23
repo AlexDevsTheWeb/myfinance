@@ -32,8 +32,9 @@ apps/web/src/
 ├── components/transactions/
 │   ├── AddTransactionDrawer.tsx          # drawer shell + form layout
 │   └── transactionDrawer.utils.ts        # validation, units, template mapping (+ tests)
-├── store/useUiStore.ts                   # txDrawerOpen / type / transaction + actions
-├── components/layout/Layout.tsx          # single FAB + mounts the drawer once
+├── store/useUiStore.ts                   # txDrawerOpen / type / transaction / preset + actions
+├── hooks/useNewTransaction.ts            # the single "new transaction" action (route-aware)
+├── components/layout/Layout.tsx          # mounts the drawer once + mobile header action
 ├── components/layout/TopBar.tsx          # global CTA opens the drawer
 └── pages/TransactionsPage.tsx            # row Edit opens the drawer with the transaction
 ```
@@ -42,13 +43,15 @@ apps/web/src/
 
 | Trigger | Opens |
 |---|---|
-| Dashboard primary CTA (`+ Nuova Operazione`) | Drawer, expense |
-| Global floating button (bottom-right, every page except `/config` and the dashboard) | Drawer, expense |
+| TopBar CTA `+ Nuova Operazione` (desktop, every page) | Drawer, expense — with the bill preset on `/utilities` |
+| Mobile header `+` (below 900px) | Same action, via the shared `useNewTransaction` hook |
 | Ledger row menu → Edit | Drawer, that transaction |
+| Utilities table row menu → Edit | Drawer, that bill |
 
 The drawer is mounted once in `Layout` and reads `useUiStore`, so adding a new
-trigger means calling `openTransactionDrawer(type, transaction?)` — no prop
-drilling.
+trigger means calling `openTransactionDrawer(type, transaction?, preset?)` — no
+prop drilling. The standard "new transaction" action lives in
+`useNewTransaction()` so the desktop and mobile headers cannot drift apart.
 
 ## Layout
 
@@ -108,9 +111,9 @@ block gained four fields and a preset entry point:
   billing-period pickers appear for it, and `utilityTypeForUnit` maps it to the
   persisted `water` kind. Fuel (`L`) stays a meter reading but not a utility.
 - **Preset**: `openTransactionDrawer(type, transaction?, preset?)` accepts
-  `{ category, subcategory, utility }`. The utilities CTA uses it to pre-select
-  the bill category (and the matching subcategory when one utility is filtered)
-  and to expand the block before a unit resolves.
+  `{ category, subcategory, utility }`. The TopBar CTA uses it when the route is
+  `/utilities` to pre-select the bill category and expand the block; the same
+  action is shared with the mobile header through `useNewTransaction()`.
 
 Inventory of the field set and the aggregation rules lives in
 [[wiki/features/utilities-consumption-page/utilities-consumption-page]].

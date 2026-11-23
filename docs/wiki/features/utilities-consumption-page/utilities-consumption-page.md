@@ -7,7 +7,7 @@ created: 2026-11-23
 updated: 2026-11-23
 status: implemented
 sources: ["raw/2026-11-23-utilities/2026-11-23-utilities.md"]
-related: ["wiki/features/transaction-ledger-redesign/transaction-ledger-redesign", "wiki/features/add-transaction-drawer/add-transaction-drawer", "wiki/architecture/store-architecture", "wiki/features/localization/localization"]
+related: ["wiki/features/transaction-ledger-redesign/transaction-ledger-redesign", "wiki/features/add-transaction-drawer/add-transaction-drawer", "wiki/features/quick-actions-fab/quick-actions-fab", "wiki/architecture/store-architecture", "wiki/features/localization/localization"]
 ---
 
 # Feature: Utilities & Consumption Page
@@ -33,7 +33,7 @@ cross-utility view, no fixed/energy split and no Year-over-Year comparison.
 apps/web/src/
 ├── pages/UtilitiesPage.tsx                     # filters, scopes, presets, CSV, dialogs
 └── components/utilities/
-    ├── UtilitiesFilterHeader.tsx               # year pills, utility segmented control, YoY switch, CTA
+    ├── UtilitiesFilterHeader.tsx               # year pills, utility segmented control, YoY switch
     ├── UtilitiesSummaryCards.tsx               # total + electricity + gas + water KPIs
     ├── UtilitiesAnalyticsCharts.tsx            # stacked bars + consumption line, YoY overlay
     ├── UtilitiesTable.tsx                      # dense bill ledger, sort, search, pagination, actions
@@ -72,7 +72,7 @@ without a meter concept (phone, TV, internet) are deliberately not utilities.
 | Year pills | Every year that contains a utility bill, newest first, plus **Tutti**. Defaults to the current year. |
 | Utility filter | **Tutte le Utenze** / **Luce (kWh)** / **Gas (SMC)** / **Acqua (m³)**. |
 | YoY switch | Enables the seasonal comparison. Disabled when the period is *Tutti* or the utility filter is mixed, because the comparison needs one year and one physical unit. |
-| CTA | `+ Nuova Bolletta / Lettura` opens the global `AddTransactionDrawer` with the bill category (and the matching subcategory when a single utility is selected) pre-filled and the utility block expanded. |
+| Create | No page-local button. The global TopBar CTA (or the mobile header `+`) opens the drawer; on `/utilities` the shared `useNewTransaction()` hook pre-selects the bill category and expands the utility block. |
 | KPI — total | Period spend, bill count and a YoY delta badge against the previous year (hidden for *Tutti*). |
 | KPI — per utility | Spend, physical volume (kWh / SMC / m³), weighted average rate (`€/unit`) and the fixed-vs-energy share of the bills that recorded a split. |
 | Chart A | Stacked bars in EUR (fixed quota in slate, energy quota in the utility accent) plus a line for physical volume on a right axis. The line is omitted in the mixed view, where kWh, SMC and m³ cannot share an axis. Hovering a month shows total bill, fixed quota, energy quota, volume and effective unit price. |
@@ -101,8 +101,14 @@ without a meter concept (phone, TV, internet) are deliberately not utilities.
   (`DEFAULT_CATEGORIES`), alongside `Elettricità` and `Gas`. Existing users keep
   their stored category list and can add `Acqua` themselves.
 - **The drawer is the only creation surface.** The page never writes a form of
-  its own; it seeds the shareable drawer through the new
-  `useUiStore.openTransactionDrawer(type, transaction, preset)` third argument.
+  its own. It relies on the shell's single create action — the TopBar CTA on
+  desktop and the header `+` on mobile, both backed by
+  `hooks/useNewTransaction.ts`. On `/utilities` that hook seeds the bill category
+  through `useUiStore.openTransactionDrawer(type, transaction, preset)`.
+- **One create entry point.** The page-local `+ Nuova Bolletta / Lettura` button
+  and the floating action button were removed in review: on this route three
+  controls opened the same drawer. See
+  [[wiki/features/quick-actions-fab/quick-actions-fab]].
 
 ## Deviations from the request
 
@@ -115,6 +121,7 @@ without a meter concept (phone, TV, internet) are deliberately not utilities.
 | `docs/reports/PR-[NUMBER]-utilities-page.md` | `wiki/features/utilities-consumption-page/report-2026-11-23.md` | Wiki convention supersedes the older `docs/reports/` path |
 | Separate "Fornitore / Contratto" and "Azienda / Contatore (POD/PDR)" columns | Supplier column + meter column | Both map onto the two new fields; "azienda" had no distinct data source |
 | Unit cost to 3 decimals | 4 decimals for kWh/SMC/m³, 3 for litres | Metered utility rates are routinely sub-cent (e.g. `0,2841 €/kWh`) |
+| Page CTA `+ Nuova Bolletta / Lettura` (plus the app-wide FAB) | Removed in review; the TopBar CTA presets the bill category on `/utilities` | User decision — three controls opened the same drawer |
 
 ## Verification
 
@@ -134,6 +141,7 @@ build — no visual or E2E harness exists.
 
 - [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign]] — the ledger patterns reused here (dense table, page window, CSV)
 - [[wiki/features/add-transaction-drawer/add-transaction-drawer]] — now carries the utility quota, supplier and meter fields
+- [[wiki/features/quick-actions-fab/quick-actions-fab]] — deprecated in the same review; the shell has one create action
 - [[wiki/architecture/store-architecture]]
 - [[wiki/features/localization/localization]]
 - Implementation report: [[wiki/features/utilities-consumption-page/report-2026-11-23]]
