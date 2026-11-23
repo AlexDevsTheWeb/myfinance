@@ -2,7 +2,7 @@
 type: Index
 title: "Features — Index"
 description: "Feature pages describing all implemented, planned, and deprecated features."
-timestamp: 2026-10-05
+timestamp: 2026-11-23
 ---
 
 # Features
@@ -53,3 +53,4 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign|transaction-ledger-redesign]] | Full-width `/transactions` redesign: KPI cards, one-row filter toolbar, dense sortable table, CSV export, column toggles, pagination. |
 | [[wiki/features/add-transaction-drawer/add-transaction-drawer|add-transaction-drawer]] | Global right-side drawer for create/edit: three type tabs, hero amount, utility and recurring progressive disclosure, one UI-store entry point. |
 | [[wiki/features/settings-page-redesign/settings-page-redesign|settings-page-redesign]] | SettingsPage (ex ConfigPage): 220px sub-sidebar, shared entity drawers, draft save/reset, global TopBar, masked IBAN tiles and deterministic category colours. |
+| [[wiki/features/utilities-consumption-page/utilities-consumption-page|utilities-consumption-page]] | Unified `/utilities` analytics for electricity/gas/water: period + utility filters, unit-rate KPIs, fixed-vs-energy split, dual-axis chart, YoY overlay, dense bill ledger and CSV export. |

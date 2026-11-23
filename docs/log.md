@@ -1008,3 +1008,13 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - v2 restated the page already built, so only the deltas were applied: one `+ Nuovo Conto / Carta` CTA with a menu, inset `SALDO INIZIALE` / `PLAFOND` rows on the tiles, cyan section icons and `Appoggio: <account>` on cards
 - Deliberately not applied: in-content breadcrumb/title (the title is in the TopBar by request), a duplicate accounts grid in General (accounts have their own tab), `CHECKING`/`BROKER` badges (absent from the Stitch export, no account type in the model), `useSettingsStore` (does not exist)
 - Verification: tsc clean, build green, 258 tests, lint at the 6E/3W baseline, docs validator clean
+
+
+## [2026-11-23] ingest | Feature | Utilities & Consumption page
+- Source: `raw/2026-11-23-utilities/2026-11-23-utilities.md` (prompt for a React + MUI v9 `/utilities` rebuild; no screenshot supplied)
+- Page rebuilt from two electricity/gas tabs to one view: year pills + utility segmented control + YoY switch, four KPI cards (spend, volume, weighted `€/unit`, fixed-vs-energy share), stacked-bar/dual-axis chart with a bill tooltip, 12-month YoY overlay, and a dense 10-column bill ledger with search, sort, pagination, duplicate/delete and CSV export
+- Data model: five **optional** `ITransaction` fields (`utilityType`, `fixedFee`, `energyFee`, `provider`, `meterId`) persisted through the sanitiser, the Firestore converter and the legacy backfill — no migration; bills without `utilityType` are classified from category/subcategory keywords, so existing data appears immediately
+- `AddTransactionDrawer` gained supplier, meter and both quotas (one quota derives the other from the total), water (`m³`) support, and a `preset` argument in `useUiStore.openTransactionDrawer` used by the page CTA
+- Routing and the module-gated sidebar entry already existed; page titles stay in `TopBar`; all labels live in `locales/{it,en}.json` — the prompt's hard-coded Italian was not copied
+- Created [[wiki/features/utilities-consumption-page/utilities-consumption-page]] and [[wiki/features/utilities-consumption-page/report-2026-11-23]]; updated [[wiki/features/add-transaction-drawer/add-transaction-drawer]], both catalogues
+- Verification: tsc clean, build green, **301 tests / 17 files**, lint at the 6E/3W baseline, docs validator clean

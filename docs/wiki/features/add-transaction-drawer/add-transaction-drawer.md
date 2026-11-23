@@ -4,10 +4,10 @@ title: "Add Transaction Drawer"
 description: "Global right-side drawer for creating and editing transactions: three type tabs, hero amount, progressive disclosure for utility consumption and recurrence, driven by a single UI-store entry point."
 tags: [feature, frontend, transactions, ui, drawer]
 created: 2026-10-26
-updated: 2026-10-26
+updated: 2026-11-23
 status: implemented
 sources: ["raw/2026-10-UI-refactor/2026-10-26-add-transaction.md"]
-related: ["wiki/features/quick-actions-fab/quick-actions-fab", "wiki/features/transaction-ledger-redesign/transaction-ledger-redesign", "wiki/architecture/store-architecture"]
+related: ["wiki/features/quick-actions-fab/quick-actions-fab", "wiki/features/transaction-ledger-redesign/transaction-ledger-redesign", "wiki/features/utilities-consumption-page/utilities-consumption-page", "wiki/architecture/store-architecture"]
 ---
 
 # Feature: Add Transaction Drawer
@@ -92,6 +92,29 @@ A second pass hardened the look, the amount input and mobile behaviour:
 The styles live in `components/transactions/drawer.styles.ts`; the amount
 formatter/parser live beside the drawer and are unit-tested.
 
+## Refinement (2026-11-23) — utility ledger fields
+
+The utilities page needs more than a volume to explain a bill, so the utility
+block gained four fields and a preset entry point:
+
+- **Supplier** (`provider`) and **meter** (`meterId`, POD/PDR) — identification
+  shown in the utilities ledger.
+- **Fixed quota** and **energy quota** (`fixedFee`, `energyFee`) — optional money
+  fields. Entering one derives the other from the total and shows a live
+  `Fissa X · Energia Y` preview; entering neither leaves the bill as a single
+  energy charge. Both are stored as numbers and persisted through the converter
+  and sanitiser.
+- **Water** joins the meter keywords: `Acqua`/`Water` resolve to `m³`, the
+  billing-period pickers appear for it, and `utilityTypeForUnit` maps it to the
+  persisted `water` kind. Fuel (`L`) stays a meter reading but not a utility.
+- **Preset**: `openTransactionDrawer(type, transaction?, preset?)` accepts
+  `{ category, subcategory, utility }`. The utilities CTA uses it to pre-select
+  the bill category (and the matching subcategory when one utility is filtered)
+  and to expand the block before a unit resolves.
+
+Inventory of the field set and the aggregation rules lives in
+[[wiki/features/utilities-consumption-page/utilities-consumption-page]].
+
 ## Semantics worth knowing
 
 - **A transaction is always saved.** Turning on the recurrence additionally
@@ -125,6 +148,7 @@ formatter/parser live beside the drawer and are unit-tested.
 
 - [[wiki/features/quick-actions-fab/quick-actions-fab]] (the FAB now opens this drawer)
 - [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign]]
+- [[wiki/features/utilities-consumption-page/utilities-consumption-page]] (preset entry point and utility fields)
 - [[wiki/architecture/store-architecture]]
 - Implementation report: [[wiki/features/add-transaction-drawer/report-2026-10-26]]
 - Refinement report: [[wiki/features/add-transaction-drawer/report-2026-10-26-refinement]]
