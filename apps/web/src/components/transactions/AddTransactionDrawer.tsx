@@ -26,7 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 import { useUiStore } from '../../store/useUiStore';
 import { formatCurrency } from '../../utils/format.utils';
-import { drawerDateFieldSx, drawerSelectSx, drawerTextFieldSx } from './drawer.styles';
+import { formDateFieldSx, formSelectSx, formTextFieldSx } from '../shared/form.styles';
 import {
   buildRecurringTemplate,
   computeAccountBalance,
@@ -158,7 +158,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
           placeholder="0,00"
           error={Boolean(errors.amount)}
           sx={{
-            ...drawerTextFieldSx,
+            ...formTextFieldSx,
             '& .MuiOutlinedInput-input': {
               fontFamily: (theme) => theme.colors.mono,
               fontVariantNumeric: 'tabular-nums',
@@ -184,7 +184,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
           label={t('transactions.date')}
           value={dayjs(draft.date)}
           onChange={(value) => update('date', value ? value.format('YYYY-MM-DD') : draft.date)}
-          slotProps={{ textField: { fullWidth: true, size: 'small', variant: 'outlined', sx: drawerDateFieldSx } }}
+          slotProps={{ textField: { fullWidth: true, size: 'small', variant: 'outlined', sx: formDateFieldSx } }}
         />
 
         <Autocomplete
@@ -209,7 +209,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
               label={t('transactions.description')}
               variant="outlined"
               error={Boolean(errors.description)}
-              sx={drawerTextFieldSx}
+              sx={formTextFieldSx}
             />
           )}
         />
@@ -223,7 +223,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
               setDraft((current) => ({ ...current, category: event.target.value, subcategory: '' }));
               setUtilityOverride(null);
             }}
-            sx={drawerSelectSx}
+            sx={formSelectSx}
             renderValue={(value) => (value ? String(value) : t('transactions.drawer.selectCategory'))}
             error={Boolean(errors.category)}
           >
@@ -243,7 +243,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
               update('subcategory', event.target.value);
               setUtilityOverride(null);
             }}
-            sx={drawerSelectSx}
+            sx={formSelectSx}
             renderValue={(value) => (value ? String(value) : t('transactions.drawer.selectSubcategory'))}
             error={Boolean(errors.subcategory)}
           >
@@ -260,7 +260,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
           fullWidth
           value={draft.accountId}
           onChange={(event) => update('accountId', event.target.value)}
-          sx={drawerSelectSx}
+          sx={formSelectSx}
           renderValue={(value) =>
             value ? (accounts.find((account) => account.id === value)?.name ?? '') : t('transactions.drawer.selectAccount')
           }
@@ -287,7 +287,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
             fullWidth
             value={draft.cardId}
             onChange={(event) => update('cardId', event.target.value)}
-            sx={drawerSelectSx}
+            sx={formSelectSx}
             renderValue={(value) =>
               value ? (cards.find((card) => card.id === value)?.name ?? '') : t('transactions.drawer.noCard')
             }
@@ -326,7 +326,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
               value={draft.consumption}
               onChange={(event) => update('consumption', event.target.value)}
               helperText={unitPrice !== null ? t('transactions.drawer.utility.pricePerLitre', { price: formatCurrency(unitPrice, 3) }) : undefined}
-              sx={drawerTextFieldSx}
+              sx={formTextFieldSx}
             />
             {showsReadingPeriod(unit) && (
               <Box sx={{ display: 'flex', gap: 1.5 }}>
@@ -334,13 +334,13 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                   label={t('transactions.drawer.utility.periodFrom')}
                   value={draft.readingDateStart ? dayjs(draft.readingDateStart) : null}
                   onChange={(value) => update('readingDateStart', value ? value.format('YYYY-MM-DD') : '')}
-                  slotProps={{ textField: { size: 'small', fullWidth: true, variant: 'outlined', sx: drawerDateFieldSx } }}
+                  slotProps={{ textField: { size: 'small', fullWidth: true, variant: 'outlined', sx: formDateFieldSx } }}
                 />
                 <DatePicker
                   label={t('transactions.drawer.utility.periodTo')}
                   value={draft.readingDateEnd ? dayjs(draft.readingDateEnd) : null}
                   onChange={(value) => update('readingDateEnd', value ? value.format('YYYY-MM-DD') : '')}
-                  slotProps={{ textField: { size: 'small', fullWidth: true, variant: 'outlined', sx: drawerDateFieldSx } }}
+                  slotProps={{ textField: { size: 'small', fullWidth: true, variant: 'outlined', sx: formDateFieldSx } }}
                 />
               </Box>
             )}
@@ -379,7 +379,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                   onChange={(event) =>
                     setRecurring((current) => ({ ...current, frequency: event.target.value === 'yearly' ? 'yearly' : 'monthly' }))
                   }
-                  sx={drawerTextFieldSx}
+                  sx={formTextFieldSx}
                 >
                   <MenuItem value="monthly">{t('transactions.drawer.recurring.monthly')}</MenuItem>
                   <MenuItem value="yearly">{t('transactions.drawer.recurring.yearly')}</MenuItem>
@@ -392,7 +392,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                   value={recurring.dayOfMonth}
                   onChange={(event) => setRecurring((current) => ({ ...current, dayOfMonth: Number(event.target.value) }))}
                   slotProps={{ htmlInput: { min: 1, max: 31 } }}
-                  sx={drawerTextFieldSx}
+                  sx={formTextFieldSx}
                 />
               </Box>
               {recurring.frequency === 'yearly' && (
@@ -403,7 +403,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                   label={t('transactions.drawer.recurring.monthOfYear')}
                   value={recurring.monthOfYear}
                   onChange={(event) => setRecurring((current) => ({ ...current, monthOfYear: Number(event.target.value) }))}
-                  sx={drawerTextFieldSx}
+                  sx={formTextFieldSx}
                 >
                   {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
                     <MenuItem key={month} value={month}>
@@ -416,7 +416,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                 label={t('transactions.drawer.recurring.endDate')}
                 value={recurring.endDate ? dayjs(recurring.endDate) : null}
                 onChange={(value) => setRecurring((current) => ({ ...current, endDate: value ? value.format('YYYY-MM-DD') : '' }))}
-                slotProps={{ textField: { fullWidth: true, size: 'small', variant: 'outlined', sx: drawerDateFieldSx } }}
+                slotProps={{ textField: { fullWidth: true, size: 'small', variant: 'outlined', sx: formDateFieldSx } }}
               />
             </AccordionDetails>
           </Accordion>

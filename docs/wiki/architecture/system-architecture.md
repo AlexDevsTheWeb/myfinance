@@ -67,7 +67,7 @@ Client-side SPA with centralized Zustand state and Firebase Firestore backend sy
 | `/budget` | BudgetPage | — |
 | `/car` | CarPage | — |
 | `/utilities` | UtilitiesPage | — |
-| `/config` | ConfigPage | — |
+| `/config` | SettingsPage | — |
 | `/analysis` | AnalysisPage | Redirects to `/insights` (dead — no route exists) |
 
 ## Stores (5 Zustand)

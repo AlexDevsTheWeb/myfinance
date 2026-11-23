@@ -34,7 +34,7 @@ apps/web/src/
 │   └── transactionDrawer.utils.ts        # validation, units, template mapping (+ tests)
 ├── store/useUiStore.ts                   # txDrawerOpen / type / transaction + actions
 ├── components/layout/Layout.tsx          # single FAB + mounts the drawer once
-├── components/dashboard/TopBar.tsx       # CTA opens the drawer
+├── components/layout/TopBar.tsx          # global CTA opens the drawer
 └── pages/TransactionsPage.tsx            # row Edit opens the drawer with the transaction
 ```
 

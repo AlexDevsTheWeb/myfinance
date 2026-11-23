@@ -18,7 +18,7 @@ const hoverFocus = {
 };
 
 /** TextField / DatePicker slot styling. */
-export const drawerTextFieldSx: SxProps<Theme> = {
+export const formTextFieldSx: SxProps<Theme> = {
   '& .MuiOutlinedInput-root': {
     ...surface,
     '& fieldset': { borderColor: 'colors.border', ...hoverFocus },
@@ -30,7 +30,7 @@ export const drawerTextFieldSx: SxProps<Theme> = {
 };
 
 /** Select is its own OutlinedInput root, so the selectors target itself. */
-export const drawerSelectSx: SxProps<Theme> = {
+export const formSelectSx: SxProps<Theme> = {
   ...surface,
   fontSize: '0.875rem',
   '& .MuiOutlinedInput-notchedOutline': { borderColor: 'colors.border', ...hoverFocus },
@@ -39,8 +39,8 @@ export const drawerSelectSx: SxProps<Theme> = {
 };
 
 /** Date field: monospaced value and a muted calendar icon that turns cyan. */
-export const drawerDateFieldSx: SxProps<Theme> = {
-  ...drawerTextFieldSx,
+export const formDateFieldSx: SxProps<Theme> = {
+  ...formTextFieldSx,
   '& .MuiInputBase-input': {
     fontFamily: (theme) => theme.colors.mono,
     fontVariantNumeric: 'tabular-nums',

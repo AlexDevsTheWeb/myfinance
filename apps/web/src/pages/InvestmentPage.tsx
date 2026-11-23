@@ -86,13 +86,9 @@ const InvestmentPage: React.FC = () => {
   }));
 
   return (
-    <Box sx={{ pb: 6 }}>
+    <Box>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -1, display: 'flex', alignItems: 'center', gap: 2 }}>
-            <AccountBalance sx={{ fontSize: 40, color: 'primary.main' }} />
-            Investments
-          </Typography>
           <Typography variant="body1" sx={{ opacity: 0.6 }}>
             Track ETF portfolio and broker cash.
           </Typography>

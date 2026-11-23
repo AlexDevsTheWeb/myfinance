@@ -967,3 +967,44 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `resetDraftForType()` now clears the type-specific fields and keeps date, account and card; covered by 2 tests
 - Also: category and subcategory share one row, and the Date field uses the same compact picker as the billing-period fields
 - Verification: tsc clean, build green, **254 tests / 15 files**, lint at baseline
+
+## [2026-10-26] ingest | Feature | Settings page redesign
+- Source: `raw/2026-10-UI-refactor/2026-10-26-settings.md` + `.html`; the referenced screenshot was not in the repo
+- `pages/ConfigPage.tsx` → `pages/SettingsPage.tsx`, **same `/config` route**; seven top tabs replaced by a 240px rail on desktop and scrollable pills on mobile, both driven by one section list with counts
+- Shared `EntityDrawer` now handles account, category, subcategory and card create/edit; the recurring template form opens in the same shell. Destructive flows stay as dialogs
+- Form styles moved to `components/shared/form.styles.ts` so the transaction drawer and settings share one input definition
+- Category colour dots are derived deterministically from the name (no schema field, no migration); figures use JetBrains Mono; surfaces moved off `rgba(255,255,255,…)` onto theme tokens
+- Deliberately not shipped: baseline growth rate (no consumer), category icons/reordering (no model fields), currency switching (EUR-only), broker drawer (outside the four agreed flows)
+- Created [[wiki/features/settings-page-redesign/settings-page-redesign]] and [[wiki/features/settings-page-redesign/report-2026-10-26]]; updated `/config` → SettingsPage references in the architecture page and both catalogues
+- Verification: tsc clean, build green, **254 tests / 15 files**, lint at the 6E/3W baseline, 101 pages valid
+
+## [2026-10-26] report | Feature | Settings fidelity pass (PR #201)
+- Second pass on the settings page against the Stitch export: TopBar moved to `components/layout/` and now renders on every non-dashboard page (breadcrumbs removed), gaining the currency chip and avatar
+- Header actions implemented for real: language, module toggles and balance start date are a **draft** applied by *Salva modifiche*; *Reimposta predefiniti* loads defaults. The draft re-baselines while untouched so late Firestore hydration cannot be overwritten — a correctness guard not in the prompt
+- Regional preferences become a 2×2 card (language, EUR currency, date/number preview, start date moved from accounts); modules become 2×2 rich cards; accounts and cards become 2×2 tiles with masked IBAN, PRIMARY/SECONDARY badge and monospaced computed balance
+- `IAccount` gains an optional `iban` (no migration), editable in the account drawer and masked by a tested helper (`IT28 •••• •••• 9012`); nav is 220px with text badges
+- Updated [[wiki/features/settings-page-redesign/settings-page-redesign]] and the report's refinement section; fixed the stale TopBar path in [[wiki/features/add-transaction-drawer/add-transaction-drawer]]
+- Verification: tsc clean, build green, **258 tests / 16 files** (4 new), lint at the 6E/3W baseline
+
+## [2026-10-26] report | Feature | Shell header: page title left, search centred (PR #201)
+- `TopBar` now shows the page title on the left, the search absolutely centred and the actions on the right; the title comes from a route map inside the component
+- The dashboard uses the global bar instead of its own `<TopBar />`, so the shell is identical on every page
+- Removed the duplicated page title (`h4`) from every page — dashboard, transactions, finance/insights/salary, investments, budget, car, utilities, settings — keeping subtitles and actions in content
+- Title width-clipped at `md`/`lg` so it cannot run under the centred search; search hidden below `md` with the compact mobile header
+- Verification: tsc clean, build green, **258 tests / 16 files**, lint at the 6E/3W baseline
+
+## [2026-10-26] fix | Feature | TopBar alignment and avatar removal (PR #201)
+- The actions cluster (currency, bell, primary CTA) drifted toward the centre: the title is `flex: 1` but capped by `maxWidth`, so it stopped growing before the row was full and the cluster began right after it. Fixed with `margin-left: auto` on the cluster
+- Removed the avatar from the bar — it had no action attached
+- Verification: tsc clean, build green, 258 tests, lint at the 6E/3W baseline
+
+## [2026-10-26] fix | Feature | One content frame for every page (PR #201)
+- Padding differed by page because each page added its own root spacing on top of the layout container: dashboard was full-bleed with `p {xs:2, md:3}`, settings and the ledger inherited `px md:5`, budget added `p` again
+- The layout `Container` now owns it for every page (`px/py { xs: 2, md: 3 }` = 16/24px); per-page root padding removed from dashboard, budget, settings, transactions, insights, salary, car, utilities, investments and projections
+- Dropped the dead `pageTitle`/`pageDescription` props from `Layout` (the title now lives in `TopBar`)
+- Verification: tsc clean, build green, 258 tests, lint at the 6E/3W baseline
+
+## [2026-10-26] report | Feature | Settings grid detail pass v2 (PR #201)
+- v2 restated the page already built, so only the deltas were applied: one `+ Nuovo Conto / Carta` CTA with a menu, inset `SALDO INIZIALE` / `PLAFOND` rows on the tiles, cyan section icons and `Appoggio: <account>` on cards
+- Deliberately not applied: in-content breadcrumb/title (the title is in the TopBar by request), a duplicate accounts grid in General (accounts have their own tab), `CHECKING`/`BROKER` badges (absent from the Stitch export, no account type in the model), `useSettingsStore` (does not exist)
+- Verification: tsc clean, build green, 258 tests, lint at the 6E/3W baseline, docs validator clean
