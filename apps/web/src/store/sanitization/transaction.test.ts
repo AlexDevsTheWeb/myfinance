@@ -46,4 +46,29 @@ describe('sanitizeTransaction', () => {
     })
     expect(out.consumption).toBeNull()
   })
+
+  it('defaults the utility fields to null', () => {
+    const out = sanitizeTransaction(baseTxn)
+    expect(out.utilityType).toBeNull()
+    expect(out.fixedFee).toBeNull()
+    expect(out.energyFee).toBeNull()
+    expect(out.provider).toBeNull()
+    expect(out.meterId).toBeNull()
+  })
+
+  it('passes through utility fields and coerces the quotas to numbers', () => {
+    const out = sanitizeTransaction({
+      ...baseTxn,
+      utilityType: 'gas',
+      fixedFee: '18.5' as unknown as number,
+      energyFee: 42,
+      provider: '  Plenitude  ',
+      meterId: ' PDR-9 ',
+    })
+    expect(out.utilityType).toBe('gas')
+    expect(out.fixedFee).toBe(18.5)
+    expect(out.energyFee).toBe(42)
+    expect(out.provider).toBe('Plenitude')
+    expect(out.meterId).toBe('PDR-9')
+  })
 })

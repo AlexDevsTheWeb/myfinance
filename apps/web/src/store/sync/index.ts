@@ -88,6 +88,11 @@ export async function backfillTransactionsToSubCollection(userId: string): Promi
       consumption: txn.consumption ?? null,
       readingDateStart: txn.readingDateStart ?? null,
       readingDateEnd: txn.readingDateEnd ?? null,
+      utilityType: txn.utilityType ?? null,
+      fixedFee: txn.fixedFee ?? null,
+      energyFee: txn.energyFee ?? null,
+      provider: txn.provider ?? null,
+      meterId: txn.meterId ?? null,
     });
     written++;
   }
