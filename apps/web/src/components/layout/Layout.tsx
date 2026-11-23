@@ -1,12 +1,10 @@
 import { Add, Menu as MenuIcon } from '@mui/icons-material';
-import { AppBar, Box, Container, Fab, IconButton, SwipeableDrawer, Toolbar, useMediaQuery } from '@mui/material';
+import { AppBar, Box, Container, IconButton, SwipeableDrawer, Toolbar, useMediaQuery } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import i18n from '../../lib/i18n';
-import { useAuthStore } from '../../store/useAuthStore';
-import { useUiStore } from '../../store/useUiStore';
+import { useNewTransaction } from '../../hooks/useNewTransaction';
 import { VersionFooter } from '../common/VersionFooter';
 import AddTransactionDrawer from '../transactions/AddTransactionDrawer';
 import Sidebar from './Sidebar';
@@ -18,21 +16,15 @@ dayjs.locale(i18n.language);
 const drawerWidth = 240;
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const location = useLocation();
-  const { user } = useAuthStore();
   const isMobile = useMediaQuery('(max-width: 899.95px)');
   const { t } = useTranslation();
+  const handleNewTransaction = useNewTransaction();
 
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const openTransactionDrawer = useUiStore((s) => s.openTransactionDrawer);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-
-  const isDashboard = location.pathname === '/dashboard' || location.pathname === '/dashboard/';
-
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'colors.bg' }}>
@@ -61,6 +53,15 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2 }}>
                 <MenuIcon />
               </IconButton>
+              <Box sx={{ flexGrow: 1 }} />
+              <IconButton
+                color="inherit"
+                aria-label={t('dashboard.newOperation')}
+                onClick={handleNewTransaction}
+                sx={{ color: 'colors.cyan' }}
+              >
+                <Add />
+              </IconButton>
             </Toolbar>
           </AppBar>
         )}
@@ -72,28 +73,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         >
           {children}
         </Container>
-
-        {user && location.pathname !== '/config' && !isDashboard && (
-          <Fab
-            color="primary"
-            aria-label={t('transactions.drawer.fabLabel')}
-            onClick={() => openTransactionDrawer('expense')}
-            sx={{
-              position: 'fixed',
-              bottom: 24,
-              right: 24,
-              zIndex: 1000,
-              bgcolor: 'colors.surface',
-              color: 'colors.cyan',
-              border: '1px solid',
-              borderColor: 'colors.cyan',
-              boxShadow: '0 8px 24px rgba(6,182,212,0.25)',
-              '&:hover': { bgcolor: 'colors.active' },
-            }}
-          >
-            <Add />
-          </Fab>
-        )}
 
         <AddTransactionDrawer />
         <VersionFooter />

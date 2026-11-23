@@ -26,7 +26,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useFinanceStore } from '../../store/useFinanceStore';
-import { useUiStore } from '../../store/useUiStore';
+import { useNewTransaction } from '../../hooks/useNewTransaction';
 
 interface Reminder {
   id: string;
@@ -40,9 +40,10 @@ const TopBar: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { enabledModules, carMileage, transactions } = useFinanceStore();
-  const openTransactionDrawer = useUiStore((s) => s.openTransactionDrawer);
+  const handleNewTransaction = useNewTransaction();
 
   const { pathname } = useLocation();
+  const currentPath = pathname.replace(/\/$/, '');
   const pageTitle = React.useMemo(() => {
     const titles: Record<string, string> = {
       '/dashboard': t('navigation.dashboard'),
@@ -54,8 +55,8 @@ const TopBar: React.FC = () => {
       '/utilities': t('utilities.title'),
       '/config': t('settings.title'),
     };
-    return titles[pathname.replace(/\/$/, '')] ?? '';
-  }, [pathname, t]);
+    return titles[currentPath] ?? '';
+  }, [currentPath, t]);
 
   const [search, setSearch] = React.useState('');
   const [notifAnchor, setNotifAnchor] = React.useState<HTMLElement | null>(null);
@@ -218,7 +219,7 @@ const TopBar: React.FC = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => openTransactionDrawer('expense')}
+          onClick={handleNewTransaction}
           sx={{
             bgcolor: 'colors.emerald',
             color: '#0B0F17',

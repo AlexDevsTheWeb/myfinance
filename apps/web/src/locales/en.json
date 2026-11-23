@@ -138,7 +138,6 @@
       "title": "NEW TRANSACTION",
       "editTitle": "EDIT TRANSACTION",
       "save": "Save Transaction",
-      "fabLabel": "New transaction",
       "tabs": {
         "expense": "Expense",
         "income": "Income",
@@ -329,9 +328,6 @@
     "filters": {
       "allYears": "All",
       "yoy": "Seasonal YoY comparison"
-    },
-    "actions": {
-      "addBill": "New Bill / Reading"
     },
     "kpi": {
       "totalSpend": "Total Utility Spend",

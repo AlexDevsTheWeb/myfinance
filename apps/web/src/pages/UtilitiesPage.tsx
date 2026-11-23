@@ -26,7 +26,6 @@ import {
   buildUtilityDuplicate,
   buildYearOverYearSeries,
   classifyUtility,
-  resolveBillPreset,
   searchUtilityRows,
   selectUtilities,
   sortUtilityRows,
@@ -42,7 +41,7 @@ import { formatCurrency, formatNumber } from '../utils/format.utils';
 const UtilitiesPage: React.FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { transactions, categories, isLoading, addTransaction, deleteTransaction } = useFinanceStore();
+  const { transactions, isLoading, addTransaction, deleteTransaction } = useFinanceStore();
   const openTransactionDrawer = useUiStore((state) => state.openTransactionDrawer);
 
   const currentYear = dayjs().year();
@@ -115,11 +114,6 @@ const UtilitiesPage: React.FC = () => {
         ? { field, direction: current.direction === 'asc' ? 'desc' : 'asc' }
         : { field, direction: field === 'date' ? 'desc' : 'asc' },
     );
-  };
-
-  const handleAdd = () => {
-    const preset = resolveBillPreset(categories, typeFilter);
-    openTransactionDrawer('expense', null, { ...preset, utility: true });
   };
 
   const handleEdit = (row: UtilityRow) => {
@@ -196,7 +190,6 @@ const UtilitiesPage: React.FC = () => {
         yoyEnabled={yoyEnabled}
         onYoyChange={setYoyEnabled}
         yoyDisabled={period === 'all' || typeFilter === 'all'}
-        onAdd={handleAdd}
       />
 
       <UtilitiesSummaryCards

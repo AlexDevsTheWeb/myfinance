@@ -1,4 +1,4 @@
-import { Add, Bolt, LocalFireDepartment, WaterDrop } from '@mui/icons-material';
+import { Bolt, LocalFireDepartment, WaterDrop } from '@mui/icons-material';
 import { Box, Button, FormControlLabel, Paper, Switch, Typography } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,6 @@ interface UtilitiesFilterHeaderProps {
   onYoyChange: (enabled: boolean) => void;
   /** YoY compares a year with the one before, so it needs a concrete year. */
   yoyDisabled: boolean;
-  onAdd: () => void;
 }
 
 const pillSx = {
@@ -38,7 +37,6 @@ const UtilitiesFilterHeader: React.FC<UtilitiesFilterHeaderProps> = ({
   yoyEnabled,
   onYoyChange,
   yoyDisabled,
-  onAdd,
 }) => {
   const { t } = useTranslation();
 
@@ -52,8 +50,7 @@ const UtilitiesFilterHeader: React.FC<UtilitiesFilterHeaderProps> = ({
   return (
     <Paper sx={{ p: 1.5, borderRadius: 3 }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
-          <Box
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>          <Box
             sx={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -144,25 +141,6 @@ const UtilitiesFilterHeader: React.FC<UtilitiesFilterHeaderProps> = ({
             sx={{ ml: 0.5, mr: 0 }}
           />
         </Box>
-
-        <Button
-          variant="contained"
-          size="small"
-          startIcon={<Add sx={{ fontSize: 16 }} />}
-          onClick={onAdd}
-          sx={{
-            textTransform: 'none',
-            fontWeight: 700,
-            fontSize: '0.78rem',
-            px: 1.75,
-            py: 0.75,
-            bgcolor: 'colors.emerald',
-            color: '#04120c',
-            '&:hover': { bgcolor: '#0ea371' },
-          }}
-        >
-          {t('utilities.actions.addBill')}
-        </Button>
       </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 1 }}>

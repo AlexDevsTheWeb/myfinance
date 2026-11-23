@@ -138,7 +138,6 @@
       "title": "NUOVA OPERAZIONE",
       "editTitle": "MODIFICA OPERAZIONE",
       "save": "Salva Operazione",
-      "fabLabel": "Nuova operazione",
       "tabs": {
         "expense": "Uscita",
         "income": "Entrata",
@@ -329,9 +328,6 @@
     "filters": {
       "allYears": "Tutti",
       "yoy": "Confronto stagionale YoY"
-    },
-    "actions": {
-      "addBill": "Nuova Bolletta / Lettura"
     },
     "kpi": {
       "totalSpend": "Spesa Totale Utenze",
