@@ -12,6 +12,7 @@ export type {
   ITireChangeRecord,
   ITireSettings,
   IFinanceState,
+  UtilityType,
 } from './finance.types';
 
 export type {

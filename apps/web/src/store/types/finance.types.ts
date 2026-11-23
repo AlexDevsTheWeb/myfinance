@@ -26,6 +26,9 @@ export interface ICard {
   accountId: string;
 }
 
+/** Metered utility kind. Bills without a meter reading (phone, internet) are not utilities here. */
+export type UtilityType = 'electricity' | 'gas' | 'water';
+
 export interface ITransaction {
   id: string;
   date: string;
@@ -40,6 +43,19 @@ export interface ITransaction {
   readingDateStart?: string;
   readingDateEnd?: string;
   cardId?: string;
+  /**
+   * Explicit utility kind. Optional so existing bills keep working: when it is
+   * absent the kind is inferred from category/subcategory keywords.
+   */
+  utilityType?: UtilityType;
+  /** Fixed quota of a utility bill (EUR) — the part independent of consumption. */
+  fixedFee?: number;
+  /** Energy/consumption quota of a utility bill (EUR). */
+  energyFee?: number;
+  /** Supplier / contract name, e.g. "Enel Energia". */
+  provider?: string;
+  /** Meter identifier: POD (electricity), PDR (gas) or the water service code. */
+  meterId?: string;
 }
 
 export interface IRecurringTransaction {

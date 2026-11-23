@@ -4,6 +4,14 @@ import type { Transaction } from './useFinanceStore';
 
 export type TransactionDrawerType = 'income' | 'expense' | 'transfer';
 
+/** Pre-seeded values for a new transaction opened from a specific surface. */
+export interface TransactionDrawerPreset {
+  category?: string;
+  subcategory?: string;
+  /** Expand the utility block even before a meter unit resolves. */
+  utility?: boolean;
+}
+
 interface UiState {
   /** Currently selected day in the dashboard calendar (YYYY-MM-DD). */
   selectedDate: string;
@@ -13,7 +21,12 @@ interface UiState {
   txDrawerOpen: boolean;
   txDrawerType: TransactionDrawerType;
   txDrawerTransaction: Transaction | null;
-  openTransactionDrawer: (type: TransactionDrawerType, transaction?: Transaction | null) => void;
+  txDrawerPreset: TransactionDrawerPreset | null;
+  openTransactionDrawer: (
+    type: TransactionDrawerType,
+    transaction?: Transaction | null,
+    preset?: TransactionDrawerPreset | null,
+  ) => void;
   closeTransactionDrawer: () => void;
 }
 
@@ -24,7 +37,8 @@ export const useUiStore = create<UiState>()((set) => ({
   txDrawerOpen: false,
   txDrawerType: 'expense',
   txDrawerTransaction: null,
-  openTransactionDrawer: (type, transaction = null) =>
-    set({ txDrawerOpen: true, txDrawerType: type, txDrawerTransaction: transaction }),
-  closeTransactionDrawer: () => set({ txDrawerOpen: false, txDrawerTransaction: null }),
+  txDrawerPreset: null,
+  openTransactionDrawer: (type, transaction = null, preset = null) =>
+    set({ txDrawerOpen: true, txDrawerType: type, txDrawerTransaction: transaction, txDrawerPreset: preset }),
+  closeTransactionDrawer: () => set({ txDrawerOpen: false, txDrawerTransaction: null, txDrawerPreset: null }),
 }));

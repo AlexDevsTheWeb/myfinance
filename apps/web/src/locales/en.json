@@ -138,7 +138,6 @@
       "title": "NEW TRANSACTION",
       "editTitle": "EDIT TRANSACTION",
       "save": "Save Transaction",
-      "fabLabel": "New transaction",
       "tabs": {
         "expense": "Expense",
         "income": "Income",
@@ -154,7 +153,14 @@
         "consumptionWithUnit": "Consumption ({{unit}})",
         "pricePerLitre": "Price per litre: {{price}}",
         "periodFrom": "Period from",
-        "periodTo": "Period to"
+        "periodTo": "Period to",
+        "provider": "Supplier",
+        "meterId": "Meter (POD/PDR)",
+        "fixedFee": "Fixed quota (€)",
+        "energyFee": "Energy quota (€)",
+        "unitPrice": "{{price}}/{{unit}}",
+        "splitHint": "Enter at least one quota: the other is derived from the total.",
+        "splitPreview": "Fixed {{fixed}} · Energy {{energy}}"
       },
       "recurring": {
         "title": "Set as recurring expense",
@@ -303,7 +309,73 @@
     "unitCost": "Unit Cost",
     "billHistory": "Bill History",
     "consumptionTrend": "Consumption Trend",
-    "noBills": "No bills."
+    "noBills": "No bills.",
+    "page": {
+      "subtitle": "Track costs, physical consumption and the fixed vs energy quota split."
+    },
+    "types": {
+      "all": "All Utilities",
+      "electricity": "Electricity",
+      "gas": "Gas",
+      "water": "Water",
+      "electricityWithUnit": "Electricity (kWh)",
+      "gasWithUnit": "Gas (SMC)",
+      "waterWithUnit": "Water (m³)"
+    },
+    "units": {
+      "hint": "Volumes and prices shown in {{unit}}"
+    },
+    "filters": {
+      "allYears": "All",
+      "yoy": "Seasonal YoY comparison"
+    },
+    "kpi": {
+      "totalSpend": "Total Utility Spend",
+      "billCount": "{{count}} bills",
+      "volume": "{{value}} {{unit}}",
+      "fixedShare": "Fixed {{percent}}%",
+      "energyShare": "Energy {{percent}}%",
+      "noSplit": "Split n/a",
+      "rateUnavailable": "Unit cost n/a",
+      "vsPreviousYear": "vs previous year",
+      "allYears": "All years"
+    },
+    "charts": {
+      "spendTitle": "Spend vs Consumption",
+      "spendCaptionWithUnit": "Bars: fixed + energy quota (€) · Line: consumption ({{unit}})",
+      "spendCaptionMixed": "Bars: fixed + energy quota (€) — pick a single utility to show the consumption line",
+      "fixedQuota": "Fixed quota",
+      "energyQuota": "Energy quota",
+      "volume": "Consumption",
+      "noData": "No bills in the selected period.",
+      "yoyTitle": "Seasonal comparison",
+      "yoyCaption": "{{year}} vs {{previous}} · {{unit}}"
+    },
+    "table": {
+      "period": "Date / Period",
+      "provider": "Supplier / Contract",
+      "kind": "Utility",
+      "total": "Total Amount",
+      "fixedFee": "Fixed Quota",
+      "energyFee": "Energy Quota",
+      "consumption": "Metered Consumption",
+      "unit": "Unit",
+      "unitRate": "Effective Price",
+      "meter": "Meter (POD/PDR)",
+      "actions": "Actions",
+      "duplicate": "Duplicate",
+      "duplicated": "Bill duplicated",
+      "search": "Search supplier, meter…",
+      "exportCsv": "Export CSV",
+      "summary": "{{count}} bills · {{spend}}",
+      "empty": "No bills yet: add the first reading.",
+      "shownRange": "{{from}}–{{to}} of {{total}}",
+      "rowsPerPage": "Rows",
+      "previous": "Previous page",
+      "next": "Next page",
+      "deleteTitle": "Delete bill",
+      "deleteMessage": "Delete “{{description}}”? This cannot be undone."
+    }
   },
   "config": {
     "general": "General",

@@ -20,5 +20,10 @@ export const sanitizeTransaction = (t: ITransaction): TransactionDoc => {
     readingDateStart: t.readingDateStart ?? null,
     readingDateEnd: t.readingDateEnd ?? null,
     cardId: t.cardId ?? null,
+    utilityType: t.utilityType ?? null,
+    fixedFee: (t.fixedFee !== undefined && t.fixedFee !== null && String(t.fixedFee) !== '') ? Number(t.fixedFee) : null,
+    energyFee: (t.energyFee !== undefined && t.energyFee !== null && String(t.energyFee) !== '') ? Number(t.energyFee) : null,
+    provider: t.provider?.trim() || null,
+    meterId: t.meterId?.trim() || null,
   };
 };

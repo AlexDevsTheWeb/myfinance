@@ -138,7 +138,6 @@
       "title": "NUOVA OPERAZIONE",
       "editTitle": "MODIFICA OPERAZIONE",
       "save": "Salva Operazione",
-      "fabLabel": "Nuova operazione",
       "tabs": {
         "expense": "Uscita",
         "income": "Entrata",
@@ -154,7 +153,14 @@
         "consumptionWithUnit": "Consumo ({{unit}})",
         "pricePerLitre": "Prezzo al litro: {{price}}",
         "periodFrom": "Periodo dal",
-        "periodTo": "Periodo al"
+        "periodTo": "Periodo al",
+        "provider": "Fornitore",
+        "meterId": "Contatore (POD/PDR)",
+        "fixedFee": "Quota fissa (€)",
+        "energyFee": "Quota energia (€)",
+        "unitPrice": "{{price}}/{{unit}}",
+        "splitHint": "Inserisci almeno una quota: l'altra viene calcolata dal totale.",
+        "splitPreview": "Fissa {{fixed}} · Energia {{energy}}"
       },
       "recurring": {
         "title": "Imposta come spesa ricorrente",
@@ -303,7 +309,73 @@
     "unitCost": "Costo Unitario",
     "billHistory": "Storico Bollette",
     "consumptionTrend": "Andamento Consumi",
-    "noBills": "Nessuna bolletta."
+    "noBills": "Nessuna bolletta.",
+    "page": {
+      "subtitle": "Monitoraggio costi, consumi fisici e scomposizione quota fissa vs energia."
+    },
+    "types": {
+      "all": "Tutte le Utenze",
+      "electricity": "Luce",
+      "gas": "Gas",
+      "water": "Acqua",
+      "electricityWithUnit": "Luce (kWh)",
+      "gasWithUnit": "Gas (SMC)",
+      "waterWithUnit": "Acqua (m³)"
+    },
+    "units": {
+      "hint": "Volumi e prezzi espressi in {{unit}}"
+    },
+    "filters": {
+      "allYears": "Tutti",
+      "yoy": "Confronto stagionale YoY"
+    },
+    "kpi": {
+      "totalSpend": "Spesa Totale Utenze",
+      "billCount": "{{count}} bollette",
+      "volume": "{{value}} {{unit}}",
+      "fixedShare": "Fissa {{percent}}%",
+      "energyShare": "Energia {{percent}}%",
+      "noSplit": "Ripartizione n/d",
+      "rateUnavailable": "Costo unitario n/d",
+      "vsPreviousYear": "vs anno precedente",
+      "allYears": "Tutti gli anni"
+    },
+    "charts": {
+      "spendTitle": "Spesa vs Consumo",
+      "spendCaptionWithUnit": "Barre: quota fissa + quota energia (€) · Linea: consumo ({{unit}})",
+      "spendCaptionMixed": "Barre: quota fissa + quota energia (€) — seleziona una singola utenza per la linea dei consumi",
+      "fixedQuota": "Quota fissa",
+      "energyQuota": "Quota energia",
+      "volume": "Consumo",
+      "noData": "Nessuna bolletta nel periodo selezionato.",
+      "yoyTitle": "Confronto stagionale",
+      "yoyCaption": "{{year}} vs {{previous}} · {{unit}}"
+    },
+    "table": {
+      "period": "Data / Periodo",
+      "provider": "Fornitore / Contratto",
+      "kind": "Tipo Utenza",
+      "total": "Importo Totale",
+      "fixedFee": "Quota Fissa",
+      "energyFee": "Quota Energia",
+      "consumption": "Consumo Rilevato",
+      "unit": "Unità",
+      "unitRate": "Prezzo Effettivo",
+      "meter": "Contatore (POD/PDR)",
+      "actions": "Azioni",
+      "duplicate": "Duplica",
+      "duplicated": "Bolletta duplicata",
+      "search": "Cerca fornitore, contatore…",
+      "exportCsv": "Esporta CSV",
+      "summary": "{{count}} bollette · {{spend}}",
+      "empty": "Nessuna bolletta: aggiungi la prima lettura.",
+      "shownRange": "{{from}}–{{to}} di {{total}}",
+      "rowsPerPage": "Righe",
+      "previous": "Pagina precedente",
+      "next": "Pagina successiva",
+      "deleteTitle": "Elimina bolletta",
+      "deleteMessage": "Eliminare «{{description}}»? L'operazione non può essere annullata."
+    }
   },
   "config": {
     "general": "Generale",

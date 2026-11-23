@@ -72,6 +72,13 @@ Priority: **high**
 - Reuse existing analytics hooks (`useNetWorth`, `useAccountBreakdown`) and budget components
 - StatCard computes investment return %, budget savings rate, car latest odometer, and monthly utility bills from store data
 
+## Update (2026-11-23)
+
+The FAB referenced above no longer exists. It was removed in favour of the
+shell's single create action — the TopBar CTA on desktop and a header `+` on
+mobile — so quick income/expense insertion is still available from every page.
+See [[wiki/features/quick-actions-fab/quick-actions-fab]].
+
 ## Related
 
 - [[wiki/features/sidebar-redesign/sidebar-redesign]]

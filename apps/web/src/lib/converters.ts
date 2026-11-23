@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions, Timestamp, doc, collection } from 'firebase/firestore';
 import { db } from './firebase';
-import { type IAccount, type ICard, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget } from '../store/types';
+import { type IAccount, type ICard, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget, type UtilityType } from '../store/types';
 
 /**
  * Raw shapes read back from Firestore.
@@ -63,6 +63,11 @@ export interface TransactionDoc {
   readingDateStart?: string | null;
   readingDateEnd?: string | null;
   cardId?: string | null;
+  utilityType?: UtilityType | null;
+  fixedFee?: number | null;
+  energyFee?: number | null;
+  provider?: string | null;
+  meterId?: string | null;
   createdAt?: ReturnType<typeof Timestamp.now>;
 }
 
@@ -81,6 +86,11 @@ export const transactionConverter: FirestoreDataConverter<TransactionDoc> = {
     readingDateStart: tx.readingDateStart ?? null,
     readingDateEnd: tx.readingDateEnd ?? null,
     cardId: tx.cardId ?? null,
+    utilityType: tx.utilityType ?? null,
+    fixedFee: tx.fixedFee ?? null,
+    energyFee: tx.energyFee ?? null,
+    provider: tx.provider ?? null,
+    meterId: tx.meterId ?? null,
     createdAt: tx.createdAt ?? Timestamp.now(),
   }),
   fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): TransactionDoc => {
@@ -99,6 +109,14 @@ export const transactionConverter: FirestoreDataConverter<TransactionDoc> = {
       readingDateStart: data.readingDateStart,
       readingDateEnd: data.readingDateEnd,
       cardId: data.cardId || undefined,
+      utilityType:
+        data.utilityType === 'electricity' || data.utilityType === 'gas' || data.utilityType === 'water'
+          ? data.utilityType
+          : undefined,
+      fixedFee: typeof data.fixedFee === 'number' ? data.fixedFee : undefined,
+      energyFee: typeof data.energyFee === 'number' ? data.energyFee : undefined,
+      provider: data.provider || undefined,
+      meterId: data.meterId || undefined,
     };
   },
 };

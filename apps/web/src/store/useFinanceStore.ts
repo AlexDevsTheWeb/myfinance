@@ -24,6 +24,7 @@ export type Category = Types.ICategory;
 export type Account = Types.IAccount;
 export type Card = Types.ICard;
 export type Transaction = Types.ITransaction;
+export type UtilityType = Types.UtilityType;
 export type RecurringTransaction = Types.IRecurringTransaction;
 export type AppModules = Types.IAppModules;
 export type CarMileageRecord = Types.ICarMileageRecord;

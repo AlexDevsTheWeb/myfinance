@@ -24,8 +24,8 @@ import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
-import { useUiStore } from '../../store/useUiStore';
-import { formatCurrency } from '../../utils/format.utils';
+import { useUiStore, type TransactionDrawerPreset } from '../../store/useUiStore';
+import { formatCurrency, formatNumber } from '../../utils/format.utils';
 import { formDateFieldSx, formSelectSx, formTextFieldSx } from '../shared/form.styles';
 import {
   buildRecurringTemplate,
@@ -36,10 +36,12 @@ import {
   formatAmountInput,
   hasErrors,
   parseAmountInput,
+  parseOptionalAmount,
   resetDraftForType,
-  pricePerLitre,
+  pricePerUnit,
   resolveUtilityUnit,
   showsReadingPeriod,
+  splitUtilityFees,
   transactionToDraft,
   validateDraft,
   type RecurringDraft,
@@ -50,10 +52,11 @@ import {
 interface DrawerBodyProps {
   initialType: TransactionDrawerType;
   transaction: Transaction | null;
+  preset: TransactionDrawerPreset | null;
   onClose: () => void;
 }
 
-const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClose }) => {
+const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, preset, onClose }) => {
   const { t } = useTranslation();
   const { categories, incomeCategories, accounts, cards, transactions, addTransaction, updateTransaction, addRecurring } =
     useFinanceStore();
@@ -64,12 +67,14 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
       ? transactionToDraft(transaction)
       : {
           ...EMPTY_DRAFT,
+          category: preset?.category ?? '',
+          subcategory: preset?.subcategory ?? '',
           accountId: accounts.find((account) => account.isDefault)?.id ?? accounts[0]?.id ?? '',
         },
   );
   const [recurring, setRecurring] = useState<RecurringDraft>(DEFAULT_RECURRING_DRAFT);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [utilityOverride, setUtilityOverride] = useState<boolean | null>(null);
+  const [utilityOverride, setUtilityOverride] = useState<boolean | null>(preset?.utility ? true : null);
   const [saving, setSaving] = useState(false);
 
   const isEdit = Boolean(transaction);
@@ -84,8 +89,13 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
 
   const unit = resolveUtilityUnit(draft.category, draft.subcategory);
   const utilityOpen = utilityOverride ?? unit !== null;
-  const litres = Number(draft.consumption);
-  const unitPrice = unit === 'L' ? pricePerLitre(parseAmountInput(draft.amount), litres) : null;
+  const volume = Number(draft.consumption);
+  const unitPrice = pricePerUnit(parseAmountInput(draft.amount), volume);
+  const feeSplit = splitUtilityFees(
+    parseAmountInput(draft.amount),
+    parseOptionalAmount(draft.fixedFee),
+    parseOptionalAmount(draft.energyFee),
+  );
 
   const update = <K extends keyof TransactionDraft>(key: K, value: TransactionDraft[K]) =>
     setDraft((current) => ({ ...current, [key]: value }));
@@ -318,6 +328,24 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
             </Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', gap: 1.5 }}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                label={t('transactions.drawer.utility.provider')}
+                value={draft.provider}
+                onChange={(event) => update('provider', event.target.value)}
+                sx={formTextFieldSx}
+              />
+              <TextField
+                fullWidth
+                variant="outlined"
+                label={t('transactions.drawer.utility.meterId')}
+                value={draft.meterId}
+                onChange={(event) => update('meterId', event.target.value)}
+                sx={formTextFieldSx}
+              />
+            </Box>
             <TextField
               fullWidth
               variant="outlined"
@@ -325,7 +353,14 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
               label={unit ? t('transactions.drawer.utility.consumptionWithUnit', { unit }) : t('transactions.drawer.utility.consumption')}
               value={draft.consumption}
               onChange={(event) => update('consumption', event.target.value)}
-              helperText={unitPrice !== null ? t('transactions.drawer.utility.pricePerLitre', { price: formatCurrency(unitPrice, 3) }) : undefined}
+              helperText={
+                unitPrice !== null
+                  ? t('transactions.drawer.utility.unitPrice', {
+                      price: formatNumber(unitPrice, unit === 'L' ? 3 : 4),
+                      unit,
+                    })
+                  : undefined
+              }
               sx={formTextFieldSx}
             />
             {showsReadingPeriod(unit) && (
@@ -344,6 +379,46 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, onClo
                 />
               </Box>
             )}
+            <Box sx={{ display: 'flex', gap: 1.5 }}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                value={draft.fixedFee}
+                onChange={(event) => update('fixedFee', formatAmountInput(event.target.value))}
+                label={t('transactions.drawer.utility.fixedFee')}
+                placeholder="0,00"
+                slotProps={{
+                  htmlInput: { inputMode: 'decimal' },
+                  input: {
+                    startAdornment: <InputAdornment position="start">€</InputAdornment>,
+                  },
+                }}
+                sx={formTextFieldSx}
+              />
+              <TextField
+                fullWidth
+                variant="outlined"
+                value={draft.energyFee}
+                onChange={(event) => update('energyFee', formatAmountInput(event.target.value))}
+                label={t('transactions.drawer.utility.energyFee')}
+                placeholder="0,00"
+                slotProps={{
+                  htmlInput: { inputMode: 'decimal' },
+                  input: {
+                    startAdornment: <InputAdornment position="start">€</InputAdornment>,
+                  },
+                }}
+                sx={formTextFieldSx}
+              />
+            </Box>
+            <Typography variant="caption" sx={{ color: 'colors.subtle' }}>
+              {feeSplit
+                ? t('transactions.drawer.utility.splitPreview', {
+                    fixed: formatCurrency(feeSplit.fixedFee),
+                    energy: formatCurrency(feeSplit.energyFee),
+                  })
+                : t('transactions.drawer.utility.splitHint')}
+            </Typography>
           </AccordionDetails>
         </Accordion>
 
@@ -476,6 +551,7 @@ const AddTransactionDrawer: React.FC = () => {
   const open = useUiStore((state) => state.txDrawerOpen);
   const type = useUiStore((state) => state.txDrawerType);
   const transaction = useUiStore((state) => state.txDrawerTransaction);
+  const preset = useUiStore((state) => state.txDrawerPreset);
   const close = useUiStore((state) => state.closeTransactionDrawer);
 
   return (
@@ -496,7 +572,15 @@ const AddTransactionDrawer: React.FC = () => {
         },
       }}
     >
-      {open && <DrawerBody key={transaction?.id ?? 'new'} initialType={type} transaction={transaction} onClose={close} />}
+      {open && (
+        <DrawerBody
+          key={`${transaction?.id ?? 'new'}-${preset?.category ?? ''}-${preset?.subcategory ?? ''}`}
+          initialType={type}
+          transaction={transaction}
+          preset={preset}
+          onClose={close}
+        />
+      )}
     </Drawer>
   );
 };
