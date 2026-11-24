@@ -48,6 +48,27 @@ keyword inference when a field is missing.
 `ICarMileageRecord` also gained an optional `vehicleName`. Records written
 before it existed are untagged and attributed to the primary vehicle.
 
+## What counts as a car expense
+
+`Trasporti` is shared with public transport, so the category alone cannot decide.
+A transaction is a car expense when:
+
+1. it carries a **strong car field** — `odometerKm`, `liters`, `pricePerLiter`
+   or an explicit `expenseType`;
+2. or an explicit `vehicleName` / `vehicleType`;
+3. or it sits in a vehicle category **and** matches a car keyword (fuel,
+   maintenance, tax, parking, toll, rental, car wash).
+
+**Public transport is excluded** — `Trasporto pubblico`, train, metro, bus, tram,
+flight, taxi, ferry, transport subscriptions and tickets — even when the `/car`
+preset auto-set `vehicleType: 'car'`. A generic `Trasporti/Bagaglio` row without
+a vehicle tag is excluded too. Those rows stay in the normal transaction ledger;
+they are simply not vehicle running costs.
+
+Parking, tolls and rentals **are** kept as car costs and classified as
+`maintenance` (the non-fuel running-cost bucket). No category or subcategory data
+needs to change.
+
 Why `vehicleName` and not a registry: the schema stays lightweight and additive,
 and the selector is built from the values that actually appear. A vehicle
 becomes visible on the page the moment an expense is tagged with it.
@@ -123,7 +144,7 @@ apps/web/src/
 ├── pages/CarPage.tsx                          # scope, filters, CSV, dialogs
 └── components/car/
     ├── car.utils.ts                           # classification, deltas, totals, series, legacy fallback
-    ├── car.utils.test.ts                      # 31 tests
+    ├── car.utils.test.ts                      # 37 tests
     ├── types.ts                               # colours, sort/expense types
     ├── CarScopeBar.tsx                        # vehicle select + year pills
     ├── CarSummaryCards.tsx                    # 4 KPIs with YoY badge

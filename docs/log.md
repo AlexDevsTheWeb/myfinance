@@ -1067,3 +1067,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Untagged mileage records now belong to the **primary vehicle** (most-used car); tagged records to their own vehicle; the log is added to transaction distance per vehicle, never for a vehicle that already has odometer deltas
 - `ICarMileageRecord` gained an optional `vehicleName`; the Vehicle log can assign readings and shows the effective vehicle
 - Tests 334 → **339 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (public transport)
+- `Trasporti` alone marked every row as a car expense, so train/metro tickets inflated the spend chart and appeared in the ledger
+- `isPublicTransport()` excludes the common modes (IT/EN) even when the `/car` preset set `vehicleType: 'car'`; the legacy fallback now requires a vehicle category **and** a car keyword
+- Parking, tolls and rentals stay car costs (`maintenance`); no category or subcategory data change is needed
+- Tests 339 → **345 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
