@@ -110,6 +110,11 @@ export interface ICarMileageRecord {
   year: number;
   month: number;
   reading: number;
+  /**
+   * Vehicle this reading belongs to. Absent for legacy records, which are
+   * attributed to the primary vehicle (the most-used car).
+   */
+  vehicleName?: string;
 }
 
 export interface ITireChangeRecord {

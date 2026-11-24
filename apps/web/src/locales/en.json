@@ -314,6 +314,7 @@
     "cost": "Cost",
     "fuelTrend": "Fuel Efficiency Trend",
     "log": {
+      "vehicle": "Vehicle",
       "title": "Vehicle log",
       "noMileage": "No mileage readings for this year.",
       "noTires": "No tire changes yet."

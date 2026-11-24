@@ -79,6 +79,8 @@ export interface CarMileageReading {
   year: number;
   month: number;
   reading: number;
+  /** Absent for records written before the car page learned about vehicles. */
+  vehicleName?: string;
 }
 
 /** One month of distance derived from the legacy mileage log. */
@@ -188,7 +190,10 @@ export function vehicleTypeOf(transaction: Transaction): VehicleType {
 }
 
 /** Distinct vehicles present in the data, most-used first. */
-export function listVehicleOptions(transactions: Transaction[]): VehicleOption[] {
+export function listVehicleOptions(
+  transactions: Transaction[],
+  mileage: CarMileageReading[] = [],
+): VehicleOption[] {
   const map = new Map<string, VehicleOption>();
   for (const transaction of transactions) {
     if (!isCarTransaction(transaction)) continue;
@@ -205,7 +210,55 @@ export function listVehicleOptions(transactions: Transaction[]): VehicleOption[]
       });
     }
   }
+
+  // A vehicle may exist only in the manual log (no expense tagged yet). It must
+  // still be selectable, otherwise its readings cannot be inspected.
+  for (const record of mileage) {
+    const name = record.vehicleName?.trim();
+    if (!name || map.has(name)) continue;
+    map.set(name, { key: name, name, type: 'car', count: 0 });
+  }
+
   return Array.from(map.values()).sort((a, b) => b.count - a.count || (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
+/**
+ * The main vehicle.
+ *
+ * The manual mileage log predates the vehicle field, so its untagged records
+ * are attributed to the most-used car (or, failing that, the most-used named
+ * vehicle). This is what lets a user who selected "Peugeot 3008" see the km
+ * they recorded before transactions carried odometers.
+ */
+export function primaryVehicle(transactions: Transaction[], mileage: CarMileageReading[] = []): string | null {
+  const named = listVehicleOptions(transactions, mileage).filter((option) => option.name !== null);
+  if (named.length === 0) return null;
+  return (named.find((option) => option.type === 'car') ?? named[0]).name;
+}
+
+/**
+ * Mileage records that belong to the selected scope.
+ *
+ * `all` and the primary vehicle include untagged records; a tagged vehicle only
+ * gets its own. `Unassigned` gets the untagged records only. This prevents a
+ * tagged rental's log from leaking into another vehicle's distance.
+ */
+export function mileageForScope(
+  mileage: CarMileageReading[],
+  vehicle: CarVehicleFilter,
+  primary: string | null,
+): CarMileageReading[] {
+  const nameOf = (record: CarMileageReading): string => record.vehicleName?.trim() ?? '';
+
+  if (vehicle === 'all') {
+    return mileage.filter((record) => !nameOf(record) || nameOf(record) === primary);
+  }
+  if (vehicle === UNASSIGNED_VEHICLE) {
+    return mileage.filter((record) => !nameOf(record));
+  }
+  return mileage.filter(
+    (record) => nameOf(record) === vehicle || (!nameOf(record) && vehicle === primary),
+  );
 }
 
 export function availableCarYears(transactions: Transaction[], today: dayjs.Dayjs = dayjs()): number[] {
@@ -512,7 +565,7 @@ export function applyLegacyDistance(
   }
 
   return buckets.map((bucket) => {
-    const distanceKm = byMonth.get(bucket.month) ?? 0;
+    const distanceKm = bucket.distanceKm + (byMonth.get(bucket.month) ?? 0);
     const spend = bucket.fuelSpend + bucket.otherSpend;
     return {
       ...bucket,
@@ -538,6 +591,18 @@ export function legacyDistanceYoY(points: LegacyMileagePoint[], year: number): C
   }
 
   return series;
+}
+
+/** Add a legacy series on top of a transaction series, keeping true gaps null. */
+export function mergeYoY(base: CarYoYPoint[], extra: CarYoYPoint[]): CarYoYPoint[] {
+  const combine = (a: number | null, b: number | null): number | null =>
+    a === null && b === null ? null : (a ?? 0) + (b ?? 0);
+
+  return base.map((point, index) => ({
+    month: point.month,
+    current: combine(point.current, extra[index]?.current ?? null),
+    previous: combine(point.previous, extra[index]?.previous ?? null),
+  }));
 }
 
 /** Replace the distance and recompute every ratio that depends on it. */

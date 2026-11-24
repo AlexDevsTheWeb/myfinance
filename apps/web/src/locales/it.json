@@ -314,6 +314,7 @@
     "cost": "Costo",
     "fuelTrend": "Andamento Consumo Carburante",
     "log": {
+      "vehicle": "Veicolo",
       "title": "Registro veicolo",
       "noMileage": "Nessuna lettura per questo anno.",
       "noTires": "Nessun cambio pneumatici."

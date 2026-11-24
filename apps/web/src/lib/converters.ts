@@ -346,6 +346,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       year: readNumber(m.year, readNumber(data.year)),
       month: readNumber(m.month, readNumber(data.month)),
       reading: readNumber(m.reading),
+      vehicleName: readString(m.vehicleName) || undefined,
     }));
 
     const carInitialMileage: number = readNumber(data.carInitialMileage);

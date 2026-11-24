@@ -31,8 +31,11 @@ import {
   legacyDistanceYoY,
   legacyMileageSeries,
   listVehicleOptions,
+  mergeYoY,
+  mileageForScope,
   odometerDeltas,
   percentChange,
+  primaryVehicle,
   selectCarTransactions,
   UNASSIGNED_VEHICLE,
   withDistance,
@@ -70,7 +73,7 @@ const CarPage: React.FC = () => {
   const latestDataYear = useMemo(() => latestCarDataYear(transactions, carMileage), [transactions, carMileage]);
   /** `null` means "follow the latest year with data", so a 2025-only account is not empty in 2026. */
   const effectivePeriod: CarPeriod = period ?? latestDataYear;
-  const vehicles = useMemo(() => listVehicleOptions(transactions), [transactions]);
+  const vehicles = useMemo(() => listVehicleOptions(transactions, carMileage), [transactions, carMileage]);
 
   /** All years for the selected vehicle: odometer deltas need the prior reading. */
   const scopedTransactions = useMemo(
@@ -95,32 +98,48 @@ const CarPage: React.FC = () => {
     [totals.spend, previousTotals],
   );
 
+  const primary = useMemo(() => primaryVehicle(transactions, carMileage), [transactions, carMileage]);
+  const scopedMileage = useMemo(
+    () => mileageForScope(carMileage, vehicle, primary),
+    [carMileage, vehicle, primary],
+  );
   const legacyPoints = useMemo(
-    () => legacyMileageSeries(carMileage, carInitialMileage),
-    [carMileage, carInitialMileage],
+    () => legacyMileageSeries(scopedMileage, carInitialMileage),
+    [scopedMileage, carInitialMileage],
   );
 
   /**
-   * The manual log has no vehicle, so it belongs to the untagged/main scope. Use
-   * it only while that scope has no transaction-level distance, otherwise the
-   * same km would be counted twice.
+   * The manual log predates the vehicle field, so its untagged records belong to
+   * the primary vehicle. It is a **fallback**: used only while the selected
+   * scope has no transaction-level odometer distance, so km cannot be counted
+   * twice once expenses carry odometers.
    */
   const unassignedTotals = useMemo(
     () => computeCarTotals(transactions, deltas, { vehicle: UNASSIGNED_VEHICLE, period: effectivePeriod }),
     [transactions, deltas, effectivePeriod],
   );
-  const legacyScope = vehicle === 'all' || vehicle === UNASSIGNED_VEHICLE;
-  const useLegacyDistance = legacyScope && unassignedTotals.distanceKm === 0 && legacyPoints.length > 0;
+  const primaryTotals = useMemo(
+    () =>
+      primary
+        ? computeCarTotals(transactions, deltas, { vehicle: primary, period: effectivePeriod })
+        : null,
+    [transactions, deltas, primary, effectivePeriod],
+  );
+  const scopeTransactionDistance =
+    vehicle === 'all' || vehicle === UNASSIGNED_VEHICLE
+      ? unassignedTotals.distanceKm + (primaryTotals?.distanceKm ?? 0)
+      : totals.distanceKm;
+  const useLegacyDistance = legacyPoints.length > 0 && scopeTransactionDistance === 0;
+
   const legacyDistance = useMemo(
     () => legacyDistanceFor(legacyPoints, effectivePeriod),
     [legacyPoints, effectivePeriod],
   );
   const displayTotals = useMemo(() => {
     if (!useLegacyDistance) return totals;
-    const baseDistance = vehicle === 'all' ? totals.distanceKm : 0;
     const months = Array.from(new Set([...totals.months, ...legacyDistance.months])).sort();
-    return withDistance(totals, baseDistance + legacyDistance.distanceKm, months);
-  }, [useLegacyDistance, totals, vehicle, legacyDistance]);
+    return withDistance(totals, totals.distanceKm + legacyDistance.distanceKm, months);
+  }, [useLegacyDistance, totals, legacyDistance]);
 
   const chartYear = effectivePeriod === 'all' ? latestDataYear : effectivePeriod;
   const buckets = useMemo(
@@ -136,7 +155,10 @@ const CarPage: React.FC = () => {
     [useLegacyDistance, buckets, legacyPoints, chartYear],
   );
   const displayYoY = useMemo(
-    () => (useLegacyDistance ? legacyDistanceYoY(legacyPoints, chartYear) : yoy),
+    () =>
+      useLegacyDistance
+        ? mergeYoY(yoy, legacyDistanceYoY(legacyPoints, chartYear))
+        : yoy,
     [useLegacyDistance, legacyPoints, chartYear, yoy],
   );
 

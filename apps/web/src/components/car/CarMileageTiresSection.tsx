@@ -24,6 +24,7 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFinanceStore, type CarMileageRecord, type TireChangeRecord } from '../../store/useFinanceStore';
 import { formatNumber } from '../../utils/format.utils';
+import { listVehicleOptions, primaryVehicle } from './car.utils';
 import { CAR_COLORS } from './types';
 
 interface CarMileageTiresSectionProps {
@@ -56,6 +57,7 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
   const {
     carMileage,
     carInitialMileage,
+    transactions,
     setCarInitialMileage,
     addCarMileage,
     updateCarMileage,
@@ -68,6 +70,7 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
   const [newReading, setNewReading] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(dayjs().month() + 1);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [mileageVehicle, setMileageVehicle] = useState('');
   const [initialMileageValue, setInitialMileageValue] = useState(String(carInitialMileage));
   const [newTireChange, setNewTireChange] = useState({
     date: dayjs().format('YYYY-MM-DD'),
@@ -75,6 +78,13 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
     odometer: '',
   });
   const [editingTireId, setEditingTireId] = useState<string | null>(null);
+
+  const vehicleOptions = useMemo(
+    () => listVehicleOptions(transactions, carMileage).filter((option) => option.name !== null),
+    [transactions, carMileage],
+  );
+  const primary = useMemo(() => primaryVehicle(transactions, carMileage), [transactions, carMileage]);
+  const effectiveVehicle = mileageVehicle || primary || '';
 
   const totalOdometer = useMemo(() => {
     if (carMileage.length === 0) return carInitialMileage;
@@ -158,11 +168,26 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
     if (!Number.isFinite(reading) || reading < 0) return;
 
     if (editingId) {
-      updateCarMileage({ id: editingId, year, month: selectedMonth, reading });
+      const existing = carMileage.find((m) => m.id === editingId);
+      updateCarMileage({
+        id: editingId,
+        year,
+        month: selectedMonth,
+        reading,
+        ...(effectiveVehicle ? { vehicleName: effectiveVehicle } : {}),
+        ...(existing?.vehicleName && !effectiveVehicle ? { vehicleName: existing.vehicleName } : {}),
+      });
     } else {
       const existing = carMileage.find((m) => m.month === selectedMonth && m.year === year);
-      if (existing) updateCarMileage({ ...existing, reading });
-      else addCarMileage({ id: crypto.randomUUID(), year, month: selectedMonth, reading });
+      const record = {
+        id: existing?.id ?? crypto.randomUUID(),
+        year,
+        month: selectedMonth,
+        reading,
+        ...(effectiveVehicle ? { vehicleName: effectiveVehicle } : {}),
+      };
+      if (existing) updateCarMileage(record);
+      else addCarMileage(record);
     }
     setNewReading('');
     setEditingId(null);
@@ -171,6 +196,7 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
   const editMileage = (record: CarMileageRecord) => {
     setEditingId(record.id);
     setSelectedMonth(record.month);
+    setMileageVehicle(record.vehicleName ?? '');
     setNewReading(String(record.reading));
   };
 
@@ -226,6 +252,23 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
               <Typography sx={{ fontFamily: (theme) => theme.colors.mono, fontSize: '1.3rem', fontWeight: 700 }}>
                 {formatNumber(totalOdometer)} km
               </Typography>
+
+              <TextField
+                select
+                size="small"
+                fullWidth
+                label={t('car.log.vehicle')}
+                value={effectiveVehicle}
+                disabled={vehicleOptions.length === 0}
+                onChange={(event) => setMileageVehicle(event.target.value)}
+                sx={{ mb: 1, mt: 1.5 }}
+              >
+                {vehicleOptions.map((option) => (
+                  <MenuItem key={option.key} value={option.name ?? ''}>
+                    {option.name}
+                  </MenuItem>
+                ))}
+              </TextField>
 
               <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
                 <TextField
@@ -341,6 +384,7 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
                 <Table size="small">
                   <TableHead>
                     <TableRow>
+                      <TableCell sx={headerCellSx}>{t('car.log.vehicle')}</TableCell>
                       <TableCell sx={headerCellSx}>{t('car.month')}</TableCell>
                       <TableCell align="right" sx={headerCellSx}>
                         {t('car.km')}
@@ -351,6 +395,9 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
                   <TableBody>
                     {yearStats.monthlyData.map((row) => (
                       <TableRow key={row.id}>
+                        <TableCell sx={bodyCellSx}>
+                          {row.vehicleName ?? primary ?? t('car.vehicles.unassigned')}
+                        </TableCell>
                         <TableCell sx={bodyCellSx}>{monthLabel(row.month)}</TableCell>
                         <TableCell align="right" sx={{ ...bodyCellSx, fontFamily: (theme) => theme.colors.mono }}>
                           +{formatNumber(row.delta)}

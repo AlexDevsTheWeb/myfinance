@@ -2,24 +2,27 @@ import dayjs from 'dayjs';
 import { describe, expect, it } from 'vitest';
 import type { Transaction } from '../../store/useFinanceStore';
 import {
+  applyLegacyDistance,
   availableCarYears,
   buildCarRows,
   buildDistanceYoY,
   buildMonthlyBuckets,
   classifyCarExpense,
-  applyLegacyDistance,
   computeCarTotals,
   fuelLitersOf,
   inferCarExpenseType,
   isCarCategory,
   isCarTransaction,
+  latestCarDataYear,
   legacyDistanceFor,
   legacyDistanceYoY,
-  latestCarDataYear,
   legacyMileageSeries,
   listVehicleOptions,
+  mergeYoY,
+  mileageForScope,
   odometerDeltas,
   percentChange,
+  primaryVehicle,
   resolveCarPreset,
   selectCarTransactions,
   UNASSIGNED_VEHICLE,
@@ -325,5 +328,87 @@ describe('legacy baseline and default year', () => {
     expect(latestCarDataYear([main({ date: '2025-06-01' })], [{ year: 2024, month: 1, reading: 1 }])).toBe(2025);
     expect(latestCarDataYear([], [{ year: 2023, month: 1, reading: 1 }])).toBe(2023);
     expect(latestCarDataYear([], [], dayjs('2026-11-24'))).toBe(2026);
+  });
+});
+
+describe('vehicle attribution of the manual log', () => {
+  it('uses the most-used car as the primary vehicle', () => {
+    expect(primaryVehicle([main(), main(), scooter()])).toBe('Peugeot 208');
+    expect(primaryVehicle([scooter()])).toBe('Vespa');
+    expect(primaryVehicle([])).toBeNull();
+  });
+
+  it('attributes untagged readings to the primary and tagged ones to their vehicle', () => {
+    const mileage = [
+      { year: 2026, month: 1, reading: 1000 },
+      { year: 2026, month: 2, reading: 1500, vehicleName: 'Vespa' },
+      { year: 2026, month: 3, reading: 2000, vehicleName: 'Peugeot 208' },
+    ];
+    expect(mileageForScope(mileage, 'Peugeot 208', 'Peugeot 208')).toHaveLength(2);
+    expect(mileageForScope(mileage, 'Vespa', 'Peugeot 208')).toEqual([mileage[1]]);
+    expect(mileageForScope(mileage, 'all', 'Peugeot 208')).toHaveLength(2);
+    expect(mileageForScope(mileage, UNASSIGNED_VEHICLE, 'Peugeot 208')).toEqual([mileage[0]]);
+  });
+
+  it('adds legacy distance on top of transaction distance in the buckets', () => {
+    const rows = [
+      main({ id: 'a', date: '2026-01-01', odometerKm: 1000 }),
+      main({ id: 'b', date: '2026-02-01', odometerKm: 1500 }),
+    ];
+    const buckets = buildMonthlyBuckets(rows, odometerDeltas(rows), 'Peugeot 208', 2026);
+    const points = legacyMileageSeries([{ year: 2026, month: 2, reading: 400 }], 100);
+    const overlayed = applyLegacyDistance(buckets, points, 2026);
+    expect(overlayed[1].distanceKm).toBe(800);
+  });
+
+  it('merges a legacy series into the transaction YoY series', () => {
+    const rows = [
+      main({ id: 'a', date: '2026-01-01', odometerKm: 1000 }),
+      main({ id: 'b', date: '2026-02-01', odometerKm: 1500 }),
+    ];
+    const base = buildDistanceYoY(rows, odometerDeltas(rows), 'Peugeot 208', 2026);
+    const legacy = legacyDistanceYoY(legacyMileageSeries([{ year: 2026, month: 2, reading: 300 }], 0), 2026);
+    const merged = mergeYoY(base, legacy);
+    expect(merged[1]).toMatchObject({ month: 2, current: 500, previous: null });
+    expect(merged[0].current).toBeNull();
+  });
+});
+
+describe('primary vehicle with a manual log and no transaction odometers', () => {
+  it('gives the selected primary vehicle the manual distance', () => {
+    const transactions = [
+      main({ id: 'f1', date: '2026-01-10', amount: 50, vehicleName: 'Peugeot 3008', odometerKm: undefined }),
+      main({ id: 'f2', date: '2026-02-10', amount: 60, vehicleName: 'Peugeot 3008', odometerKm: undefined }),
+    ];
+    const mileage = [
+      { year: 2026, month: 1, reading: 10500 },
+      { year: 2026, month: 2, reading: 11000 },
+    ];
+
+    const primary = primaryVehicle(transactions);
+    expect(primary).toBe('Peugeot 3008');
+
+    const scoped = mileageForScope(mileage, 'Peugeot 3008', primary);
+    const points = legacyMileageSeries(scoped, 10000);
+    expect(points).toEqual([
+      { year: 2026, month: 1, distanceKm: 500 },
+      { year: 2026, month: 2, distanceKm: 500 },
+    ]);
+
+    const totals = computeCarTotals(transactions, odometerDeltas(transactions), {
+      vehicle: 'Peugeot 3008',
+      period: 2026,
+    });
+    expect(totals.distanceKm).toBe(0);
+
+    const legacy = legacyDistanceFor(points, 2026);
+    const display = withDistance(
+      totals,
+      totals.distanceKm + legacy.distanceKm,
+      Array.from(new Set([...totals.months, ...legacy.months])).sort(),
+    );
+    expect(display.distanceKm).toBe(1000);
+    expect(display.costPerKm).toBeCloseTo(110 / 1000, 5);
+    expect(display.avgMonthlyKm).toBe(500);
   });
 });
