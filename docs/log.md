@@ -1040,3 +1040,55 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 ## [2026-11-24] report | Plan | v1.0.0-beta.1 release
 - Created [[wiki/plans/v1.0.0-beta.1-release-report-2026-11-24]] — status `partially-shipped` (switch shipped, tag deferred)
 - Deviations recorded: no tag/Release in the PR, document changelog corrected (Dashboard/marketing/monorepo were missing; `#0B0E14` → `#0B0F17`), regex fix was unrequested but required
+
+## [2026-11-24] ingest | Feature | Car & Fleet Analytics
+- Source: `raw/2026-11-24/2026-11-24-car-fleet-en.md` (prompt to rebuild `/car` as a vehicle-scoped fleet page)
+- Decisions agreed with the requester: keep tires + manual mileage as a collapsible secondary section; identify vehicles with `vehicleName` + `vehicleType`; add dedicated `liters` / `pricePerLiter`
+- Six optional additive `ITransaction` fields, carried through the converter and sanitiser; no migration
+- `/car` rebuilt: scope bar (vehicle + year), four KPI cards, dual-axis spend/€-km chart, YoY distance, dense expense ledger with search/type filter/sort/pagination/duplicate/delete/CSV
+- Strict isolation: odometer deltas are computed per vehicle; first reading is a baseline, decreasing readings are ignored
+- Drawer gained a Vehicle & fuel block; the utility block is hidden for car expenses; `useNewTransaction()` seeds the car preset on `/car`
+- Created [[wiki/features/car-fleet-analytics/car-fleet-analytics]]; marked [[wiki/features/car-management-redesign/car-management-redesign]] superseded; updated [[wiki/features/add-transaction-drawer/add-transaction-drawer]]
+- The document's `#0B0E14` shell is not the real token — theme uses `#0B0F17`
+- Verification: tsc clean, build green, **326 tests / 18 files**, lint 4E/2W (improved from the 6E/3W baseline)
+
+## [2026-11-24] report | Feature | Car & Fleet Analytics
+- Created [[wiki/features/car-fleet-analytics/report-2026-11-24]]
+- Deviations recorded: PR number assigned by GitHub (not `#204`), data-driven vehicle labels, enum expense types, dashed line via CSS, "fixed fees" = non-fuel car spend, mileage log kept out of the KPIs
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics
+- Review found empty KPIs on existing data: distance lives in `carMileage` and old fuel litres in `consumption`, not in the new transaction fields
+- Added a **non-additive** legacy fallback for distance and a `consumption` fallback for fuel litres; default period is now the latest year with data; charts show a manual-log note
+- Unset `carInitialMileage` (0) now makes the first reading a baseline instead of a huge delta
+- Tests 326 → **334 / 18 files**; tsc clean, build green, lint at 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (selected vehicle)
+- Selecting a named vehicle still showed 0 km: the manual log was only attached to All/Unassigned
+- Untagged mileage records now belong to the **primary vehicle** (most-used car); tagged records to their own vehicle; the log is added to transaction distance per vehicle, never for a vehicle that already has odometer deltas
+- `ICarMileageRecord` gained an optional `vehicleName`; the Vehicle log can assign readings and shows the effective vehicle
+- Tests 334 → **339 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (public transport)
+- `Trasporti` alone marked every row as a car expense, so train/metro tickets inflated the spend chart and appeared in the ledger
+- `isPublicTransport()` excludes the common modes (IT/EN) even when the `/car` preset set `vehicleType: 'car'`; the legacy fallback now requires a vehicle category **and** a car keyword
+- Parking, tolls and rentals stay car costs (`maintenance`); no category or subcategory data change is needed
+- Tests 339 → **345 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (type clearing)
+- The drawer re-inferred `expenseType` on save and the ledger showed a missing `vehicleType` as `Car`, so clearing type fields looked ineffective
+- `expenseType` now accepts the persisted value `none` (explicit no type) and suppresses inference; the drawer offers `Auto (inferred)`, `No type` and a reset action
+- A missing `vehicleType` displays as `Not set` instead of the implicit `Car`
+- Tests 345 → **350 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (mileage month/year)
+- A reading entered on 1 November for October's km could be saved as November (the form month default) or under the page's current year
+- The Vehicle log form now has an explicit **Year** select (moves the page year) and a **Month covered** label plus an "Odometer at the end of {{month}} {{year}}" hint; the log row shows the year
+- `readNumber` now coerces numeric strings, so a hand-edited `carMileage` record (`"2026"`, `"10"`) is not dropped
+- Tests 350 → **351 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (mileage persistence)
+- A direct Firestore check showed the last mileage record was September; the October entry was never persisted
+- The add was optimistic and kept the row locally on failure, `saveError` was never rendered, and edit/delete rewrote the whole array from stale local state
+- Add/update/delete now roll back on failure and surface the error in the Vehicle log; update/delete run in a transaction that reads the latest array; Save is disabled while `isSaving`
+- The Firestore fake now returns the transaction callback value, matching the real API
+- Tests 351 → **353 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean

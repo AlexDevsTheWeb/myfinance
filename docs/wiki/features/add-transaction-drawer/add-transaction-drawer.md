@@ -147,11 +147,25 @@ Inventory of the field set and the aggregation rules lives in
 | `docs/reports/PR-N.md` for the report | `wiki/features/add-transaction-drawer/report-2026-10-26.md`, per the merged wiki convention |
 | `feature/add-transaction-drawer` branch | `feat/add-transaction-drawer` |
 
+## Update (2026-11-24) — car block
+
+The drawer gained a **Vehicle & fuel** accordion for car expenses: vehicle name
+(free text with autocomplete), vehicle type, expense type, odometer, litres and
+price per litre. It is shown when the category is a vehicle category or when the
+drawer is opened from `/car` with the car preset. The utility accordion is hidden
+while the car block is active.
+
+The row above that says "odometer stays in the Car module" is now historical:
+`odometerKm`, `liters`, `pricePerLiter`, `vehicleName`, `vehicleType` and
+`expenseType` are optional transaction fields. `consumption` remains the utility
+volume (kWh, SMC, m³, L) and is not reused for fuel.
+
 ## Related
 
 - [[wiki/features/quick-actions-fab/quick-actions-fab]] (the FAB now opens this drawer)
 - [[wiki/features/transaction-ledger-redesign/transaction-ledger-redesign]]
 - [[wiki/features/utilities-consumption-page/utilities-consumption-page]] (preset entry point and utility fields)
+- [[wiki/features/car-fleet-analytics/car-fleet-analytics]] (car block and vehicle fields)
 - [[wiki/architecture/store-architecture]]
 - Implementation report: [[wiki/features/add-transaction-drawer/report-2026-10-26]]
 - Refinement report: [[wiki/features/add-transaction-drawer/report-2026-10-26-refinement]]

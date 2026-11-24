@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { resolveBillPreset } from '../components/utilities/utilities.utils';
+import { resolveCarPreset } from '../components/car/car.utils';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { useUiStore } from '../store/useUiStore';
 
@@ -9,7 +10,8 @@ import { useUiStore } from '../store/useUiStore';
  *
  * Shared by the desktop TopBar CTA and the mobile header action so both open the
  * same global drawer. On `/utilities` it seeds the bill category and expands the
- * utility block; everywhere else it opens a blank expense.
+ * utility block; on `/car` it seeds the vehicle category and expands the car
+ * block; everywhere else it opens a blank expense.
  */
 export function useNewTransaction(): () => void {
   const categories = useFinanceStore((state) => state.categories);
@@ -21,6 +23,11 @@ export function useNewTransaction(): () => void {
     if (currentPath === '/utilities') {
       const preset = resolveBillPreset(categories, 'all');
       openTransactionDrawer('expense', null, { ...preset, utility: true });
+      return;
+    }
+    if (currentPath === '/car') {
+      const preset = resolveCarPreset(categories);
+      openTransactionDrawer('expense', null, { ...preset, car: true, vehicleType: 'car' });
       return;
     }
     openTransactionDrawer('expense');

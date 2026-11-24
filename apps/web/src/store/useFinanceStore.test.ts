@@ -794,3 +794,31 @@ describe('recurring future-instance cascades', () => {
     expect(_getDocData(`${userPath}/transactions/txn-past`)).toBeDefined();
   });
 });
+
+describe('car mileage', () => {
+  const september = { id: 'mileage-sep', year: 2026, month: 9, reading: 10568 };
+  const october = { id: 'mileage-oct', year: 2026, month: 10, reading: 11200 };
+
+  it('updateCarMileage preserves a record added by another device', async () => {
+    useFinanceStore.setState({ carMileage: [september] });
+    _seedDoc(userPath, { ..._getDocData(userPath)!, carMileage: [september, october] });
+
+    await useFinanceStore.getState().updateCarMileage({ ...september, reading: 10570 });
+
+    const persisted = _getDocData(userPath)!.carMileage as typeof september[];
+    expect(persisted.find((m) => m.id === september.id)!.reading).toBe(10570);
+    expect(persisted.find((m) => m.id === october.id)).toBeDefined();
+    expect(useFinanceStore.getState().carMileage.find((m) => m.id === october.id)).toBeDefined();
+  });
+
+  it('deleteCarMileage preserves a record added by another device', async () => {
+    useFinanceStore.setState({ carMileage: [september] });
+    _seedDoc(userPath, { ..._getDocData(userPath)!, carMileage: [september, october] });
+
+    await useFinanceStore.getState().deleteCarMileage(september.id);
+
+    const persisted = _getDocData(userPath)!.carMileage as typeof september[];
+    expect(persisted.find((m) => m.id === september.id)).toBeUndefined();
+    expect(persisted.find((m) => m.id === october.id)).toBeDefined();
+  });
+});

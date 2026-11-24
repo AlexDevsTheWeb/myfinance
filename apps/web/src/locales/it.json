@@ -162,6 +162,23 @@
         "splitHint": "Inserisci almeno una quota: l'altra viene calcolata dal totale.",
         "splitPreview": "Fissa {{fixed}} · Energia {{energy}}"
       },
+      "car": {
+        "title": "Veicolo e carburante",
+        "vehicle": "Veicolo",
+        "vehiclePlaceholder": "es. Peugeot 208",
+        "vehicleType": "Tipo veicolo",
+        "expenseType": "Tipo spesa",
+        "autoType": "Automatico (dedotto)",
+        "noneType": "Nessun tipo",
+        "clearTypes": "Cancella tipo e tipo spesa",
+        "odometer": "Contachilometri (km)",
+        "liters": "Litri",
+        "pricePerLiter": "Prezzo al litro (€/L)",
+        "hint": "I km/L sono calcolati nella pagina Auto dalle letture consecutive del contachilometri.",
+        "priceHint": "{{price}} €/L dal totale",
+        "inferred": "Rilevato: {{type}}",
+        "none": "Non impostato"
+      },
       "recurring": {
         "title": "Imposta come spesa ricorrente",
         "hint": "La ricorrenza parte dal 1° del mese prossimo, così l'operazione di oggi non viene duplicata.",
@@ -277,10 +294,14 @@
     "addTire": "Aggiungi pneumatico",
     "settings": "Impostazioni Veicolo",
     "save": "Salva",
+    "update": "Aggiorna",
     "totalKm": "Totale Km",
+    "initialKm": "Km iniziali",
+    "odometer": "Contachilometri (km)",
     "trend": "Andamento Chilometraggio",
     "statistics": "Statistiche {{year}}",
     "month": "Mese",
+    "year": "Anno",
     "km": "Km",
     "tireUsage": "Uso Pneumatici",
     "summer": "Estivi",
@@ -295,7 +316,99 @@
     "efficiency": "Efficienza",
     "monthlyDetails": "Dettagli Mensili",
     "cost": "Costo",
-    "fuelTrend": "Andamento Consumo Carburante"
+    "fuelTrend": "Andamento Consumo Carburante",
+    "log": {
+      "vehicle": "Veicolo",
+      "title": "Registro veicolo",
+      "monthCovered": "Mese di riferimento",
+      "saveError": "Impossibile salvare la lettura: {{message}}",
+      "saving": "Salvataggio…",
+      "readingHint": "Contachilometri alla fine di {{month}} {{year}}.",
+      "noMileage": "Nessuna lettura per questo anno.",
+      "noTires": "Nessun cambio pneumatici."
+    },
+    "filters": {
+      "vehicle": "Veicolo",
+      "allVehicles": "Tutti i veicoli",
+      "allYears": "Tutti gli anni",
+      "allTypes": "Tutti i tipi",
+      "isolation": "Efficienza e €/km sono calcolati rigorosamente per veicolo.",
+      "tagHint": "Assegna un veicolo a una spesa per separare la flotta. Le righe senza veicolo finiscono in Non assegnato."
+    },
+    "vehicles": {
+      "car": "Auto",
+      "scooter": "Scooter",
+      "rental": "Noleggio",
+      "other": "Altro",
+      "unassigned": "Non assegnato",
+      "notSet": "Non impostato"
+    },
+    "expenseTypes": {
+      "fuel": "Carburante",
+      "maintenance": "Manutenzione",
+      "tax": "Bollo e assicurazione"
+    },
+    "kpi": {
+      "noData": "Nessun dato nel periodo",
+      "spend": {
+        "title": "Spesa carburante e veicolo",
+        "fuelShare": "{{percent}}% carburante",
+        "otherShare": "{{percent}}% altro"
+      },
+      "distance": {
+        "title": "Distanza percorsa",
+        "avgMonthly": "{{km}} km / mese con dati"
+      },
+      "costPerKm": {
+        "title": "Costo reale per km",
+        "hint": "Servono due letture del contachilometri",
+        "fuel": "Carburante {{value}}",
+        "other": "Altro {{value}}"
+      },
+      "efficiency": {
+        "title": "Efficienza",
+        "liters": "{{liters}} L registrati",
+        "hint": "Servono contachilometri e litri",
+        "litersHint": "Aggiungi i litri a una spesa di carburante"
+      }
+    },
+    "charts": {
+      "spendTitle": "Spesa e costo per km",
+      "spendCaption": "Spesa mensile impilata (barre, sinistra) e €/km ponderato (linea, destra).",
+      "fuel": "Carburante",
+      "other": "Manutenzione e bolli",
+      "rate": "€ / km",
+      "yoyTitle": "Distanza mensile — anno su anno",
+      "yoyCaption": "{{year}} vs {{previous}} dalle letture consecutive del contachilometri.",
+      "noData": "Nessuna spesa nel periodo.",
+      "noYoY": "Letture insufficienti per il confronto.",
+      "legacyNote": "Distanza dal registro chilometrico manuale — aggiungi le letture del contachilometri alle spese per il dettaglio per veicolo."
+    },
+    "table": {
+      "date": "Data",
+      "vehicle": "Veicolo",
+      "vehicleType": "Tipo veicolo",
+      "type": "Tipo",
+      "description": "Descrizione",
+      "odometer": "Contachilometri",
+      "liters": "Litri",
+      "pricePerLiter": "€ / L",
+      "total": "Totale",
+      "efficiency": "km / L",
+      "search": "Cerca veicolo o descrizione…",
+      "exportCsv": "Esporta CSV",
+      "summary": "{{count}} righe · {{spend}}",
+      "empty": "Nessuna spesa veicolo nel periodo.",
+      "actions": "Azioni",
+      "duplicate": "Duplica",
+      "deleteTitle": "Eliminare la spesa veicolo?",
+      "deleteMessage": "Eliminare \"{{description}}\"? L'operazione non è reversibile.",
+      "duplicated": "Spesa veicolo duplicata.",
+      "rowsPerPage": "Righe",
+      "shownRange": "{{from}}–{{to}} di {{total}}",
+      "previous": "Pagina precedente",
+      "next": "Pagina successiva"
+    }
   },
   "utilities": {
     "title": "Utenze",

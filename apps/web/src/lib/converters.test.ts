@@ -258,6 +258,13 @@ describe('userDocConverter.fromFirestore — nested collections', () => {
     ]);
   });
 
+  it('coerces numeric strings in a mileage record', () => {
+    const out = readUser({
+      carMileage: [{ id: 'm3', year: '2026', month: '10', reading: '45200' }],
+    });
+    expect(out.carMileage[0]).toMatchObject({ year: 2026, month: 10, reading: 45200 });
+  });
+
   it('narrows a tire change type and defaults an invalid one to summer', () => {
     const out = readUser({
       tireChanges: [

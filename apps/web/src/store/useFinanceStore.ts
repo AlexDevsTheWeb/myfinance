@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { arrayUnion, doc, updateDoc, setDoc, deleteDoc, writeBatch, getDocs } from 'firebase/firestore';
+import { arrayUnion, doc, updateDoc, setDoc, deleteDoc, writeBatch, getDocs, runTransaction } from 'firebase/firestore';
 import { create } from 'zustand';
 import { db } from '../lib/firebase';
 import { getTransactionDocRef, getTransactionsCollectionRef, getRecurringDocRef, getRecurringTransactionsCollectionRef } from '../lib/converters';
@@ -1299,56 +1299,87 @@ setBalanceStartDate: async (date) => {
 
       addCarMileage: async (record) => {
         const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
+        if (!userId) {
+          set({ saveError: 'Not signed in' });
+          return;
+        }
 
-        set({ saveError: null, isSaving: true });
+        const previous = useFinanceStore.getState().carMileage;
+        set({ carMileage: [...previous, record], saveError: null, isSaving: true });
         try {
-          set((state) => ({ carMileage: [...state.carMileage, record], isSaving: false }));
           const docRef = doc(db, 'users', userId);
           await updateDoc(docRef, { carMileage: arrayUnion(record) });
+          set({ isSaving: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to add car mileage';
-          set({ saveError: errorMessage, isSaving: false });
+          set({ carMileage: previous, saveError: errorMessage, isSaving: false });
           console.error('addCarMileage error:', err);
         }
       },
 
       updateCarMileage: async (record) => {
         const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
+        if (!userId) {
+          set({ saveError: 'Not signed in' });
+          return;
+        }
 
-        set({ saveError: null, isSaving: true });
+        const previous = useFinanceStore.getState().carMileage;
+        set({
+          carMileage: previous.map(m => m.id === record.id ? record : m),
+          saveError: null,
+          isSaving: true,
+        });
         try {
           const docRef = doc(db, 'users', userId);
-          set((state) => {
-            const updatedMileage = state.carMileage.map(m => m.id === record.id ? record : m);
-            return { carMileage: updatedMileage, isSaving: false };
+          // Read-modify-write inside a transaction: another device may have
+          // appended a reading since this client loaded, and writing the stale
+          // local array would silently delete it.
+          const next = await runTransaction(db, async (transaction) => {
+            const snapshot = await transaction.get(docRef);
+            const remote = snapshot.data()?.carMileage;
+            const current = Array.isArray(remote) ? (remote as CarMileageRecord[]) : [];
+            const updated = current.some(m => m.id === record.id)
+              ? current.map(m => m.id === record.id ? record : m)
+              : [...current, record];
+            transaction.update(docRef, { carMileage: updated });
+            return updated;
           });
-          const updatedMileage = useFinanceStore.getState().carMileage;
-          await updateDoc(docRef, { carMileage: updatedMileage });
+          set({ carMileage: next, isSaving: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to update car mileage';
-          set({ saveError: errorMessage, isSaving: false });
+          set({ carMileage: previous, saveError: errorMessage, isSaving: false });
           console.error('updateCarMileage error:', err);
         }
       },
 
       deleteCarMileage: async (id) => {
         const userId = useAuthStore.getState().user?.uid;
-        if (!userId) return;
+        if (!userId) {
+          set({ saveError: 'Not signed in' });
+          return;
+        }
 
-        set({ saveError: null, isSaving: true });
+        const previous = useFinanceStore.getState().carMileage;
+        set({
+          carMileage: previous.filter(m => m.id !== id),
+          saveError: null,
+          isSaving: true,
+        });
         try {
-          set((state) => {
-            const updatedMileage = state.carMileage.filter(m => m.id !== id);
-            return { carMileage: updatedMileage, isSaving: false };
-          });
           const docRef = doc(db, 'users', userId);
-          const updatedMileage = useFinanceStore.getState().carMileage;
-          await updateDoc(docRef, { carMileage: updatedMileage });
+          const next = await runTransaction(db, async (transaction) => {
+            const snapshot = await transaction.get(docRef);
+            const remote = snapshot.data()?.carMileage;
+            const current = Array.isArray(remote) ? (remote as CarMileageRecord[]) : [];
+            const updated = current.filter(m => m.id !== id);
+            transaction.update(docRef, { carMileage: updated });
+            return updated;
+          });
+          set({ carMileage: next, isSaving: false });
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete car mileage';
-          set({ saveError: errorMessage, isSaving: false });
+          set({ carMileage: previous, saveError: errorMessage, isSaving: false });
           console.error('deleteCarMileage error:', err);
         }
       },

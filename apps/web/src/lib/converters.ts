@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions, Timestamp, doc, collection } from 'firebase/firestore';
 import { db } from './firebase';
-import { type IAccount, type ICard, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget, type UtilityType } from '../store/types';
+import { type IAccount, type ICard, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget, type UtilityType, type VehicleType, type CarExpenseSetting } from '../store/types';
 
 /**
  * Raw shapes read back from Firestore.
@@ -30,8 +30,21 @@ const asRecordArray = (value: unknown): RawRecord[] =>
 const readString = (value: unknown, fallback = ''): string =>
   typeof value === 'string' ? value : fallback;
 
-const readNumber = (value: unknown, fallback = 0): number =>
-  typeof value === 'number' ? value : fallback;
+/**
+ * Coerce a Firestore value to a number.
+ *
+ * Numbers pass through, numeric strings are accepted (a hand-edited document or
+ * a legacy writer may store `"2026"`), and anything else falls back. `NaN` and
+ * `Infinity` are rejected rather than poisoning downstream arithmetic.
+ */
+const readNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : fallback;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
+};
 
 /** Keeps only string entries — mirrors the legacy `filter(sc => typeof sc === 'string')`. */
 const readStringArray = (value: unknown): string[] =>
@@ -68,6 +81,12 @@ export interface TransactionDoc {
   energyFee?: number | null;
   provider?: string | null;
   meterId?: string | null;
+  vehicleName?: string | null;
+  vehicleType?: VehicleType | null;
+  odometerKm?: number | null;
+  liters?: number | null;
+  pricePerLiter?: number | null;
+  expenseType?: CarExpenseSetting | null;
   createdAt?: ReturnType<typeof Timestamp.now>;
 }
 
@@ -91,6 +110,12 @@ export const transactionConverter: FirestoreDataConverter<TransactionDoc> = {
     energyFee: tx.energyFee ?? null,
     provider: tx.provider ?? null,
     meterId: tx.meterId ?? null,
+    vehicleName: tx.vehicleName?.trim() || null,
+    vehicleType: tx.vehicleType ?? null,
+    odometerKm: tx.odometerKm ?? null,
+    liters: tx.liters ?? null,
+    pricePerLiter: tx.pricePerLiter ?? null,
+    expenseType: tx.expenseType ?? null,
     createdAt: tx.createdAt ?? Timestamp.now(),
   }),
   fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): TransactionDoc => {
@@ -117,6 +142,18 @@ export const transactionConverter: FirestoreDataConverter<TransactionDoc> = {
       energyFee: typeof data.energyFee === 'number' ? data.energyFee : undefined,
       provider: data.provider || undefined,
       meterId: data.meterId || undefined,
+      vehicleName: typeof data.vehicleName === 'string' && data.vehicleName.trim() ? data.vehicleName.trim() : undefined,
+      vehicleType:
+        data.vehicleType === 'car' || data.vehicleType === 'scooter' || data.vehicleType === 'rental' || data.vehicleType === 'other'
+          ? data.vehicleType
+          : undefined,
+      odometerKm: typeof data.odometerKm === 'number' && Number.isFinite(data.odometerKm) ? data.odometerKm : undefined,
+      liters: typeof data.liters === 'number' && Number.isFinite(data.liters) ? data.liters : undefined,
+      pricePerLiter: typeof data.pricePerLiter === 'number' && Number.isFinite(data.pricePerLiter) ? data.pricePerLiter : undefined,
+      expenseType:
+        data.expenseType === 'none' || data.expenseType === 'fuel' || data.expenseType === 'maintenance' || data.expenseType === 'tax'
+          ? data.expenseType
+          : undefined,
     };
   },
 };
@@ -322,6 +359,7 @@ export const userDocConverter: FirestoreDataConverter<UserDoc> = {
       year: readNumber(m.year, readNumber(data.year)),
       month: readNumber(m.month, readNumber(data.month)),
       reading: readNumber(m.reading),
+      vehicleName: readString(m.vehicleName) || undefined,
     }));
 
     const carInitialMileage: number = readNumber(data.carInitialMileage);

@@ -1,691 +1,420 @@
-import { Edit as EditIcon, LocalGasStation as FuelIcon, Speed as SpeedIcon, DriveEta as TireIcon } from '@mui/icons-material';
-import { Box, Button, Card, CardContent, Collapse, Grid, IconButton, MenuItem, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, TextField, Typography } from '@mui/material';
+import { Download, Search } from '@mui/icons-material';
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  InputAdornment,
+  MenuItem,
+  Select,
+  Snackbar,
+  TextField,
+  Typography,
+} from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LineChart } from '@mui/x-charts/LineChart';
-import { axisClasses } from '@mui/x-charts';
-import { YearSelector } from '../components/common/YearSelector.component';
-import { useFinanceStore, type CarMileageRecord, type TireChangeRecord } from '../store/useFinanceStore';
-
-const months = [
-  'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-  'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
-];
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-  return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
-    </div>
-  );
-}
+import CarAnalyticsCharts from '../components/car/CarAnalyticsCharts';
+import CarExpenseTable from '../components/car/CarExpenseTable';
+import CarMileageTiresSection from '../components/car/CarMileageTiresSection';
+import CarScopeBar from '../components/car/CarScopeBar';
+import CarSummaryCards from '../components/car/CarSummaryCards';
+import {
+  applyLegacyDistance,
+  availableCarYears,
+  buildCarRows,
+  buildDistanceYoY,
+  buildMonthlyBuckets,
+  computeCarTotals,
+  latestCarDataYear,
+  legacyDistanceFor,
+  legacyDistanceYoY,
+  legacyMileageSeries,
+  listVehicleOptions,
+  mergeYoY,
+  mileageForScope,
+  odometerDeltas,
+  percentChange,
+  primaryVehicle,
+  selectCarTransactions,
+  UNASSIGNED_VEHICLE,
+  withDistance,
+  type CarPeriod,
+  type CarRow,
+  type CarVehicleFilter,
+} from '../components/car/car.utils';
+import type { CarExpenseFilter, CarSort, CarSortField } from '../components/car/types';
+import { ConfirmDialog } from '../components/shared/ConfirmDialog';
+import { useFinanceStore } from '../store/useFinanceStore';
+import { useUiStore } from '../store/useUiStore';
+import { downloadCsv, escapeCsvField } from '../utils/csv.utils';
+import { formatCurrency, formatNumber } from '../utils/format.utils';
 
 const CarPage: React.FC = () => {
-  const {
-    carMileage, carInitialMileage, setCarInitialMileage, addCarMileage, updateCarMileage,
-    tireSettings, tireChanges, addTireChange, updateTireChange,
-    transactions
-  } = useFinanceStore();
-
   const { t } = useTranslation();
+  const { transactions, carMileage, carInitialMileage, isLoading, duplicateTransaction, deleteTransaction } =
+    useFinanceStore();
+  const openTransactionDrawer = useUiStore((state) => state.openTransactionDrawer);
 
-  const [tabValue, setTabValue] = useState(0);
+  const [vehicle, setVehicle] = useState<CarVehicleFilter>('all');
+  const [period, setPeriod] = useState<CarPeriod | null>(null);
+  const [search, setSearch] = useState('');
+  const [expenseFilter, setExpenseFilter] = useState<CarExpenseFilter>('all');
+  const [sort, setSort] = useState<CarSort>({ field: 'date', direction: 'desc' });
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [deleteTarget, setDeleteTarget] = useState<CarRow | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
-  // Mileage State
-  const [newReading, setNewReading] = useState('');
-  const [selectedMonth, setSelectedMonth] = useState(dayjs().month() + 1);
-  const [selectedYear, setSelectedYear] = useState(dayjs().year());
-  const [selectedYearFilter, setSelectedYearFilter] = useState(dayjs().year());
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [initialMileageValue, setInitialMileageValue] = useState(carInitialMileage.toString());
+  const years = useMemo(() => {
+    const set = new Set([...availableCarYears(transactions), ...carMileage.map((record) => record.year)]);
+    return Array.from(set).sort((a, b) => b - a);
+  }, [transactions, carMileage]);
+  const latestDataYear = useMemo(() => latestCarDataYear(transactions, carMileage), [transactions, carMileage]);
+  /** `null` means "follow the latest year with data", so a 2025-only account is not empty in 2026. */
+  const effectivePeriod: CarPeriod = period ?? latestDataYear;
+  const vehicles = useMemo(() => listVehicleOptions(transactions, carMileage), [transactions, carMileage]);
 
-  // Tire State
-  const [newTireChange, setNewTireChange] = useState({ date: dayjs().format('YYYY-MM-DD'), type: 'winter' as 'summer' | 'winter', odometer: '' });
-  const [editingTireChangeId, setEditingTireChangeId] = useState<string | null>(null);
+  /** All years for the selected vehicle: odometer deltas need the prior reading. */
+  const scopedTransactions = useMemo(
+    () => selectCarTransactions(transactions, { vehicle, period: 'all' }),
+    [transactions, vehicle],
+  );
+  const deltas = useMemo(() => odometerDeltas(scopedTransactions), [scopedTransactions]);
 
-  // Fuel Categories helper
-  const fuelCategories = useMemo(() => ['Carburante', 'Benzina', 'Gasolio'], []);
+  const totals = useMemo(
+    () => computeCarTotals(transactions, deltas, { vehicle, period: effectivePeriod }),
+    [transactions, deltas, vehicle, effectivePeriod],
+  );
+  const previousTotals = useMemo(
+    () =>
+      effectivePeriod === 'all'
+        ? null
+        : computeCarTotals(transactions, deltas, { vehicle, period: effectivePeriod - 1 }),
+    [transactions, deltas, vehicle, effectivePeriod],
+  );
+  const spendDeltaPercent = useMemo(
+    () => (previousTotals === null ? null : percentChange(totals.spend, previousTotals.spend)),
+    [totals.spend, previousTotals],
+  );
 
-  const availableYears = useMemo(() => {
-    const mileageYears = carMileage.map(m => m.year);
-    const fuelYears = transactions
-      .filter(t => t.type === 'expense' && (t.category === 'Trasporti' || t.category === 'Transport') && fuelCategories.some(fuelWord => t.subcategory.includes(fuelWord)))
-      .map(t => dayjs(t.date).year());
+  const primary = useMemo(() => primaryVehicle(transactions, carMileage), [transactions, carMileage]);
+  const scopedMileage = useMemo(
+    () => mileageForScope(carMileage, vehicle, primary),
+    [carMileage, vehicle, primary],
+  );
+  const legacyPoints = useMemo(
+    () => legacyMileageSeries(scopedMileage, carInitialMileage),
+    [scopedMileage, carInitialMileage],
+  );
 
-    const years = Array.from(new Set([...mileageYears, ...fuelYears]));
-    if (!years.includes(dayjs().year())) years.push(dayjs().year());
-    return years.sort((a, b) => b - a);
-  }, [carMileage, transactions, fuelCategories]);
+  /**
+   * The manual log predates the vehicle field, so its untagged records belong to
+   * the primary vehicle. It is a **fallback**: used only while the selected
+   * scope has no transaction-level odometer distance, so km cannot be counted
+   * twice once expenses carry odometers.
+   */
+  const unassignedTotals = useMemo(
+    () => computeCarTotals(transactions, deltas, { vehicle: UNASSIGNED_VEHICLE, period: effectivePeriod }),
+    [transactions, deltas, effectivePeriod],
+  );
+  const primaryTotals = useMemo(
+    () =>
+      primary
+        ? computeCarTotals(transactions, deltas, { vehicle: primary, period: effectivePeriod })
+        : null,
+    [transactions, deltas, primary, effectivePeriod],
+  );
+  const scopeTransactionDistance =
+    vehicle === 'all' || vehicle === UNASSIGNED_VEHICLE
+      ? unassignedTotals.distanceKm + (primaryTotals?.distanceKm ?? 0)
+      : totals.distanceKm;
+  const useLegacyDistance = legacyPoints.length > 0 && scopeTransactionDistance === 0;
 
-  const totalOdometer = useMemo(() => {
-    if (carMileage.length === 0) return carInitialMileage;
-    return Math.max(...carMileage.map(m => m.reading), carInitialMileage);
-  }, [carMileage, carInitialMileage]);
+  const legacyDistance = useMemo(
+    () => legacyDistanceFor(legacyPoints, effectivePeriod),
+    [legacyPoints, effectivePeriod],
+  );
+  const displayTotals = useMemo(() => {
+    if (!useLegacyDistance) return totals;
+    const months = Array.from(new Set([...totals.months, ...legacyDistance.months])).sort();
+    return withDistance(totals, totals.distanceKm + legacyDistance.distanceKm, months);
+  }, [useLegacyDistance, totals, legacyDistance]);
 
-  const yearStats = useMemo(() => {
-    const yearRecords = carMileage
-      .filter(m => m.year === selectedYearFilter)
-      .sort((a, b) => a.month - b.month);
+  const chartYear = effectivePeriod === 'all' ? latestDataYear : effectivePeriod;
+  const buckets = useMemo(
+    () => buildMonthlyBuckets(transactions, deltas, vehicle, chartYear),
+    [transactions, deltas, vehicle, chartYear],
+  );
+  const yoy = useMemo(
+    () => buildDistanceYoY(transactions, deltas, vehicle, chartYear),
+    [transactions, deltas, vehicle, chartYear],
+  );
+  const displayBuckets = useMemo(
+    () => (useLegacyDistance ? applyLegacyDistance(buckets, legacyPoints, chartYear) : buckets),
+    [useLegacyDistance, buckets, legacyPoints, chartYear],
+  );
+  const displayYoY = useMemo(
+    () =>
+      useLegacyDistance
+        ? mergeYoY(yoy, legacyDistanceYoY(legacyPoints, chartYear))
+        : yoy,
+    [useLegacyDistance, legacyPoints, chartYear, yoy],
+  );
 
-    const monthlyData = yearRecords.map((record) => {
-      let prevReading = 0;
-      const allPrev = carMileage.filter(m =>
-        m.year < record.year || (m.year === record.year && m.month < record.month)
-      ).sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month);
+  const rows = useMemo(
+    () => buildCarRows(selectCarTransactions(transactions, { vehicle, period: effectivePeriod }), deltas),
+    [transactions, deltas, vehicle, effectivePeriod],
+  );
 
-      if (allPrev.length > 0) {
-        prevReading = allPrev[allPrev.length - 1].reading;
-      } else {
-        prevReading = carInitialMileage;
-      }
+  const filteredRows = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return rows.filter((row) => {
+      if (expenseFilter !== 'all' && row.expenseType !== expenseFilter) return false;
+      if (!query) return true;
+      return [row.transaction.description, row.vehicleName, row.transaction.category, row.transaction.subcategory]
+        .filter((value): value is string => Boolean(value))
+        .some((value) => value.toLowerCase().includes(query));
+    });
+  }, [rows, search, expenseFilter]);
 
-      const delta = record.reading - prevReading;
-      return { ...record, delta };
+  const sortedRows = useMemo(() => {
+    const sorted = [...filteredRows].sort((a, b) => {
+      if (sort.field === 'amount') return Math.abs(a.transaction.amount) - Math.abs(b.transaction.amount);
+      if (sort.field === 'odometer') return (a.transaction.odometerKm ?? 0) - (b.transaction.odometerKm ?? 0);
+      return a.transaction.date.localeCompare(b.transaction.date);
+    });
+    return sort.direction === 'asc' ? sorted : sorted.reverse();
+  }, [filteredRows, sort]);
+
+  const lastPage = Math.max(0, Math.ceil(sortedRows.length / rowsPerPage) - 1);
+  const currentPage = Math.min(page, lastPage);
+  const paginatedRows = useMemo(
+    () => sortedRows.slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage),
+    [sortedRows, currentPage, rowsPerPage],
+  );
+  const filteredSpend = useMemo(
+    () => sortedRows.reduce((sum, row) => sum + Math.abs(row.transaction.amount), 0),
+    [sortedRows],
+  );
+
+  const hasSpend = displayBuckets.some((bucket) => bucket.fuelSpend + bucket.otherSpend > 0);
+  const hasDistance =
+    displayTotals.distanceKm > 0 || displayYoY.some((point) => point.current !== null || point.previous !== null);
+  const onlyUnassigned = vehicles.length > 0 && vehicles.every((option) => option.key === UNASSIGNED_VEHICLE);
+
+  const resetPage = () => setPage(0);
+
+  const handleSortChange = (field: CarSortField) => {
+    setSort((current) => ({
+      field,
+      direction: current.field === field ? (current.direction === 'asc' ? 'desc' : 'asc') : field === 'date' ? 'desc' : 'asc',
+    }));
+  };
+
+  const handleEdit = (row: CarRow) => {
+    openTransactionDrawer('expense', row.transaction);
+  };
+
+  const handleDuplicate = (row: CarRow) => {
+    void duplicateTransaction(row.transaction.id);
+    setToast(t('car.table.duplicated'));
+  };
+
+  const handleExportCsv = () => {
+    const separator = ';';
+    const header = [
+      t('car.table.date'),
+      t('car.table.vehicle'),
+      t('car.table.vehicleType'),
+      t('car.table.type'),
+      t('car.table.description'),
+      t('car.table.odometer'),
+      t('car.table.liters'),
+      t('car.table.pricePerLiter'),
+      t('car.table.total'),
+      t('car.table.efficiency'),
+    ];
+
+    const lines = sortedRows.map((row) => {
+      const { transaction } = row;
+      return [
+        transaction.date,
+        row.vehicleName ?? t('car.vehicles.unassigned'),
+        t(`car.vehicles.${row.vehicleType}`),
+        row.expenseType ? t(`car.expenseTypes.${row.expenseType}`) : '',
+        transaction.description,
+        transaction.odometerKm !== undefined ? formatNumber(transaction.odometerKm) : '',
+        row.liters !== null ? formatNumber(row.liters, 2) : '',
+        row.pricePerLiter === null ? '' : formatNumber(row.pricePerLiter, 3),
+        formatNumber(Math.abs(transaction.amount), 2),
+        row.kmPerLiter === null ? '' : formatNumber(row.kmPerLiter, 2),
+      ]
+        .map((field) => escapeCsvField(String(field), separator))
+        .join(separator);
     });
 
-    const totalKmYear = monthlyData.reduce((acc, curr) => acc + curr.delta, 0);
-    const avgKmYear = monthlyData.length > 0 ? totalKmYear / monthlyData.length : 0;
-
-    return {
-      year: selectedYearFilter,
-      monthlyData: [...monthlyData].reverse(),
-      totalKmYear,
-      avgKmYear,
-      chartData: monthlyData.map(d => ({
-        name: months[d.month - 1].substring(0, 3),
-        km: d.delta,
-        reading: d.reading
-      }))
-    };
-  }, [carMileage, selectedYearFilter, carInitialMileage]);
-
-  // Historical averages for all years
-  const historicalStats = useMemo(() => {
-    const yearMap = new Map<number, { total: number; months: number; avgWithData: number; avgFullYear: number }>();
-    
-    const sortedMileage = [...carMileage].sort((a, b) => (a.year * 12 + a.month) - (b.year * 12 + b.month));
-    
-    sortedMileage.forEach(m => {
-      const prevReadings = sortedMileage.filter(p => p.year * 12 + p.month < m.year * 12 + m.month);
-      const prevReading = prevReadings.length > 0 ? prevReadings[prevReadings.length - 1].reading : carInitialMileage;
-      const delta = m.reading - prevReading;
-      
-      const existing = yearMap.get(m.year) || { total: 0, months: 0, avgWithData: 0, avgFullYear: 0 };
-      yearMap.set(m.year, {
-        total: existing.total + delta,
-        months: existing.months + 1,
-        avgWithData: 0,
-        avgFullYear: 0
-      });
-    });
-    
-    yearMap.forEach((val) => {
-      val.avgWithData = val.months > 0 ? val.total / val.months : 0;
-      val.avgFullYear = val.total / 12;
-    });
-    
-    return Array.from(yearMap.entries())
-      .map(([year, val]) => ({ year, ...val }))
-      .sort((a, b) => b.year - a.year);
-  }, [carMileage, carInitialMileage]);
-
-  // Tire Calculations
-  const tireStats = useMemo(() => {
-    const sortedChanges = [...tireChanges].sort((a, b) => a.date.localeCompare(b.date));
-    let summerKm = 0;
-    let winterKm = 0;
-
-    let lastOdometer = carInitialMileage;
-    let lastType = tireSettings.initialTireType || 'summer';
-    const changesWithRun = [];
-
-    for (const change of sortedChanges) {
-      const runKm = change.odometer - lastOdometer;
-      if (lastType === 'summer') summerKm += runKm;
-      else winterKm += runKm;
-      changesWithRun.push({ ...change, runKm, tireThatRan: lastType });
-      lastOdometer = change.odometer;
-      lastType = change.type;
-    }
-
-    const currentRunKm = totalOdometer - lastOdometer;
-    if (lastType === 'summer') summerKm += currentRunKm;
-    else winterKm += currentRunKm;
-
-    return {
-      history: [...changesWithRun].reverse(),
-      summerTotal: summerKm,
-      winterTotal: winterKm,
-      currentTire: lastType,
-      currentRunKm
-    };
-  }, [tireChanges, totalOdometer, carInitialMileage, tireSettings.initialTireType]);
-
-  // Cost Efficiency Calculations
-  const costStats = useMemo(() => {
-    const fuelTransactions = transactions.filter(t =>
-      t.type === 'expense' &&
-      (t.category === 'Trasporti' || t.category === 'Transport') &&
-      fuelCategories.some(fuelWord => t.subcategory.includes(fuelWord))
+    downloadCsv(
+      `auto-${effectivePeriod === 'all' ? 'tutti-gli-anni' : effectivePeriod}-${dayjs().format('YYYY-MM-DD')}.csv`,
+      `\uFEFF${[header.map((field) => escapeCsvField(field, separator)).join(separator), ...lines].join('\r\n')}\r\n`,
     );
-
-    const expensesByMonth: Record<string, number> = {};
-    fuelTransactions.forEach(t => {
-      const date = dayjs(t.date);
-      const key = `${date.year()}-${date.month() + 1}`;
-      expensesByMonth[key] = (expensesByMonth[key] || 0) + Math.abs(t.amount);
-    });
-
-    const allRecords = [...carMileage].sort((a, b) => (a.year * 12 + a.month) - (b.year * 12 + b.month));
-
-    const efficiencyData = allRecords.map((m, idx) => {
-      let prevReading = 0;
-      if (idx > 0) {
-        prevReading = allRecords[idx - 1].reading;
-      } else {
-        prevReading = carInitialMileage;
-      }
-
-      const kmDriven = m.reading - prevReading;
-      const fuelCost = expensesByMonth[`${m.year}-${m.month}`] || 0;
-      const euroPerKm = kmDriven > 0 ? fuelCost / kmDriven : 0;
-
-      return {
-        year: m.year,
-        month: m.month,
-        kmDriven,
-        fuelCost,
-        euroPerKm
-      };
-    }).filter(d => d.year === selectedYearFilter);
-
-    const totalCostYear = efficiencyData.reduce((acc, curr) => acc + curr.fuelCost, 0);
-    const totalKmYear = efficiencyData.reduce((acc, curr) => acc + curr.kmDriven, 0);
-    const avgEfficiencyYear = totalKmYear > 0 ? totalCostYear / totalKmYear : 0;
-
-    return {
-      monthlyEfficiency: [...efficiencyData].reverse(),
-      totalCostYear,
-      totalKmYear,
-      avgEfficiencyYear,
-      chartData: efficiencyData.map(d => ({
-        name: months[d.month - 1].substring(0, 3),
-        val: parseFloat(d.euroPerKm.toFixed(3))
-      }))
-    };
-  }, [transactions, carMileage, carInitialMileage, selectedYearFilter, fuelCategories]);
-
-  const handleSaveMileage = () => {
-    const reading = parseFloat(newReading);
-    if (isNaN(reading)) return;
-
-    if (editingId) {
-      updateCarMileage({ id: editingId, year: selectedYear, month: selectedMonth, reading });
-      setEditingId(null);
-    } else {
-      const existing = carMileage.find(m => m.month === selectedMonth && m.year === selectedYear);
-      if (existing) {
-        updateCarMileage({ ...existing, reading });
-      } else {
-        addCarMileage({ id: crypto.randomUUID(), year: selectedYear, month: selectedMonth, reading });
-      }
-    }
-    setNewReading('');
-    setEditingId(null);
   };
 
-  const handleEditMileage = (record: CarMileageRecord) => {
-    setEditingId(record.id);
-    setSelectedYear(record.year);
-    setSelectedMonth(record.month);
-    setNewReading(record.reading.toString());
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleSaveInitialMileage = () => {
-    const val = parseFloat(initialMileageValue);
-    if (!isNaN(val)) {
-      setCarInitialMileage(val);
-      setShowSettings(false);
-    }
-  };
-
-  const handleSaveTireChange = () => {
-    const odo = parseFloat(newTireChange.odometer);
-    if (isNaN(odo)) return;
-
-    const record: TireChangeRecord = {
-      id: editingTireChangeId || crypto.randomUUID(),
-      date: newTireChange.date,
-      type: newTireChange.type,
-      odometer: odo
-    };
-
-    if (editingTireChangeId) {
-      updateTireChange(record);
-    } else {
-      addTireChange(record);
-    }
-
-    setNewTireChange({ date: dayjs().format('YYYY-MM-DD'), type: 'winter', odometer: '' });
-    setEditingTireChangeId(null);
-  };
-
-  // Note: handleEditTireChange not currently used but kept for future edit feature
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleEditTireChange = (record: TireChangeRecord) => {
-    setNewTireChange({ date: record.date, type: record.type, odometer: record.odometer.toString() });
-  };
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <Box>
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Typography variant="body1" sx={{ opacity: 0.6 }}>
-            Track mileage, tires, and fuel efficiency.
-          </Typography>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+      <CarScopeBar
+        vehicles={vehicles}
+        vehicle={vehicle}
+        onVehicleChange={(value) => {
+          setVehicle(value);
+          resetPage();
+        }}
+        years={years}
+        period={effectivePeriod}
+        onPeriodChange={(value) => {
+          setPeriod(value);
+          resetPage();
+        }}
+      />
+
+      {onlyUnassigned && (
+        <Alert severity="info" variant="outlined" sx={{ borderRadius: 2 }}>
+          {t('car.filters.tagHint')}
+        </Alert>
+      )}
+
+      <CarSummaryCards totals={displayTotals} spendDeltaPercent={spendDeltaPercent} />
+
+      <CarAnalyticsCharts
+        buckets={displayBuckets}
+        yoy={displayYoY}
+        year={chartYear}
+        hasSpend={hasSpend}
+        hasDistance={hasDistance}
+        legacyDistance={useLegacyDistance}
+      />
+
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
+          <TextField
+            size="small"
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              resetPage();
+            }}
+            placeholder={t('car.table.search')}
+            sx={{ width: 230, '& .MuiInputBase-input': { fontSize: '0.75rem', py: 1 } }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search sx={{ fontSize: 16, color: 'colors.muted' }} />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+
+          <Select
+            size="small"
+            value={expenseFilter}
+            onChange={(event) => {
+              setExpenseFilter(event.target.value as CarExpenseFilter);
+              resetPage();
+            }}
+            inputProps={{ 'aria-label': t('car.table.type') }}
+            sx={{
+              minWidth: 160,
+              height: 34,
+              fontSize: '0.75rem',
+              bgcolor: 'colors.bg',
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: 'colors.border' },
+            }}
+          >
+            <MenuItem value="all" sx={{ fontSize: '0.78rem' }}>
+              {t('car.filters.allTypes')}
+            </MenuItem>
+            <MenuItem value="fuel" sx={{ fontSize: '0.78rem' }}>
+              {t('car.expenseTypes.fuel')}
+            </MenuItem>
+            <MenuItem value="maintenance" sx={{ fontSize: '0.78rem' }}>
+              {t('car.expenseTypes.maintenance')}
+            </MenuItem>
+            <MenuItem value="tax" sx={{ fontSize: '0.78rem' }}>
+              {t('car.expenseTypes.tax')}
+            </MenuItem>
+          </Select>
         </Box>
-        <YearSelector
-          availableYears={availableYears}
-          selectedYear={selectedYearFilter}
-          onYearChange={setSelectedYearFilter}
-        />
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Typography variant="caption" noWrap sx={{ color: 'colors.subtle' }}>
+            {t('car.table.summary', {
+              count: formatNumber(sortedRows.length),
+              spend: formatCurrency(filteredSpend),
+            })}
+          </Typography>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<Download sx={{ fontSize: 16 }} />}
+            onClick={handleExportCsv}
+            sx={{ textTransform: 'none', fontSize: '0.75rem', color: 'colors.subtle', borderColor: 'colors.border' }}
+          >
+            {t('car.table.exportCsv')}
+          </Button>
+        </Box>
       </Box>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 3 }}>
-        <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)} textColor="inherit" indicatorColor="primary">
-          <Tab label="Mileage" icon={<SpeedIcon />} iconPosition="start" />
-          <Tab label="Tires" icon={<TireIcon />} iconPosition="start" />
-          <Tab label="Fuel" icon={<FuelIcon />} iconPosition="start" />
-        </Tabs>
-      </Box>
+      <CarExpenseTable
+        rows={paginatedRows}
+        sort={sort}
+        onSortChange={handleSortChange}
+        page={currentPage}
+        rowsPerPage={rowsPerPage}
+        total={sortedRows.length}
+        onPageChange={setPage}
+        onRowsPerPageChange={(value) => {
+          setRowsPerPage(value);
+          resetPage();
+        }}
+        onEdit={handleEdit}
+        onDuplicate={handleDuplicate}
+        onDelete={setDeleteTarget}
+      />
 
-      <Collapse in={showSettings}>
-        <Paper sx={{ p: 1.5, mb: 3, background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>{t('car.settings')}</Typography>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <TextField
-              label="Initial Km"
-              type="number"
-              value={initialMileageValue}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInitialMileageValue(e.target.value)}
-              variant="filled"
-              size="small"
-              sx={{ flexGrow: 1 }}
-            />
-            <Button variant="contained" onClick={handleSaveInitialMileage}>{t('car.save')}</Button>
-          </Box>
-        </Paper>
-      </Collapse>
+      <CarMileageTiresSection
+        year={effectivePeriod === 'all' ? chartYear : effectivePeriod}
+        years={years}
+        onYearChange={(value) => setPeriod(value)}
+      />
 
-      {/* CHILOMETRAGGIO TAB */}
-      <TabPanel value={tabValue} index={0}>
-        <Grid container spacing={3}>
-          {/* Column 1: Total Odometer + New Reading Form */}
-          <Grid size={{ xs: 12, md: 3 }}>
-            <Card sx={{ background: 'linear-gradient(135deg, #4364f7 0%, #4364f7 100%)', borderRadius: 4, boxShadow: '0 8px 32px rgba(37, 99, 235, 0.3)', mb: 3 }}>
-              <CardContent sx={{ p: 1.5 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <SpeedIcon sx={{ mr: 1, opacity: 0.8 }} />
-                  <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, textTransform: 'uppercase' }}>{t('car.totalKm')}</Typography>
-                </Box>
-                <Typography variant="h4" sx={{ fontWeight: 900 }}>{totalOdometer.toLocaleString('it-IT')} <small style={{ fontSize: '1rem', opacity: 0.7 }}>km</small></Typography>
-              </CardContent>
-            </Card>
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title={t('car.table.deleteTitle')}
+        message={t('car.table.deleteMessage', { description: deleteTarget?.transaction.description ?? '' })}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) void deleteTransaction(deleteTarget.transaction.id);
+          setDeleteTarget(null);
+        }}
+      />
 
-            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 2 }}>
-                {editingId ? 'Edit Reading' : 'New Reading'}
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 6 }}>
-                  <TextField select fullWidth label="Month" value={selectedMonth} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedMonth(Number(e.target.value))} variant="filled" slotProps={{ select: { native: true } }} size="small">
-                    {months.map((m, i) => <option key={m} value={i + 1}>{m.substring(0, 3)}</option>)}
-                  </TextField>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <TextField type="number" fullWidth label="Year" value={selectedYear} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSelectedYear(Number(e.target.value))} variant="filled" size="small" />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField type="number" fullWidth label="Odometer" value={newReading} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewReading(e.target.value)} variant="filled" placeholder="e.g. 45200" />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <Button fullWidth variant="contained" onClick={handleSaveMileage}>{editingId ? 'Update' : 'Save'}</Button>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-
-          {/* Column 2: 4 stats in 2x2 grid + chart */}
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              {/* Current year total */}
-              <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{selectedYearFilter}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: 'primary.main' }}>{yearStats.totalKmYear.toLocaleString()} km</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Avg with data */}
-              <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.avgData')}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 800 }}>{yearStats.avgKmYear.toLocaleString()} km</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Avg full year */}
-              <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.avg12')}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 800 }}>{(yearStats.totalKmYear / 12).toLocaleString()} km</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Historical summary */}
-              <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700, display: 'block', mb: 1 }}>{t('car.history')}</Typography>
-                    <Box sx={{ maxHeight: 50, overflow: 'auto' }}>
-                      {historicalStats.slice(0, 3).map(h => (
-                        <Box key={h.year} sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                          <span>{h.year}</span>
-                          <span style={{ fontWeight: 600 }}>{h.total.toLocaleString()}</span>
-                        </Box>
-                      ))}
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
-
-            {/* Mileage Trend Chart */}
-            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.trend')}</Typography>
-              <Box sx={{ height: 200, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
-                <LineChart
-                  series={[{ data: yearStats.chartData.map(d => d.km), color: '#4364f7', showMark: false }]}
-                  xAxis={[{ scaleType: 'band', data: yearStats.chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
-                  yAxis={[{ disableLine: true, disableTicks: true }]}
-                  grid={{ vertical: false, horizontal: true }}
-                  height={200}
-                  margin={{ top: 10, right: 10, bottom: 20, left: 40 }}
-                  sx={{
-                    '& svg': { overflow: 'visible !important' },
-                    [`.${axisClasses.tickLabel}`]: {
-                      fill: 'rgba(255,255,255,0.5)',
-                      fontSize: 11,
-                    },
-                  }}
-                />
-              </Box>
-            </Paper>
-          </Grid>
-
-          {/* Column 3: Statistics Table */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 800 }}>{t('car.statistics', { year: selectedYearFilter })}</Typography>
-              </Box>
-              <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>{t('car.month')}</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>{t('car.km')}</TableCell>
-                      <TableCell align="right" sx={{ p: 1 }}></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {yearStats.monthlyData.map((row) => (
-                      <TableRow key={row.id}>
-                        <TableCell sx={{ p: 1 }}>{months[row.month - 1].substring(0, 3)}</TableCell>
-                        <TableCell align="right" sx={{ p: 1, fontWeight: 600 }}>+{row.delta.toLocaleString()}</TableCell>
-                        <TableCell align="right" sx={{ p: 1 }}>
-                          <IconButton size="small" onClick={() => handleEditMileage(row)}><EditIcon fontSize="small" /></IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
-        </Grid>
-      </TabPanel>
-
-      {/* PNEUMATICI TAB */}
-      <TabPanel value={tabValue} index={1}>
-        <Grid container spacing={3}>
-          {/* Column 1: Stats + Form */}
-          <Grid size={{ xs: 12, md: 3 }}>
-            {/* 3 Stat cards - Current spans 2 columns */}
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              {/* Summer Total */}
-              <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'rgba(237, 108, 2, 0.1)', borderRadius: 4, border: '1px solid', borderColor: 'warning.main' }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.summer')}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: 'warning.main' }}>{tireStats.summerTotal.toLocaleString()} km</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Winter Total */}
-              <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'rgba(67, 100, 247, 0.1)', borderRadius: 4, border: '1px solid', borderColor: 'primary.main' }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.winter')}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: 'primary.main' }}>{tireStats.winterTotal.toLocaleString()} km</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Current - spans 2 columns */}
-              <Grid size={{ xs: 12 }}>
-                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4 }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>{t('car.current')}</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{tireStats.currentTire === 'summer' ? t('car.summer') : t('car.winter')}</Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.6 }}>{tireStats.currentRunKm.toLocaleString()} km</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
-
-            {/* New Tire Change Form */}
-            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.newTire')}</Typography>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 6 }}>
-                  <TextField type="date" fullWidth label={t('car.date')} value={newTireChange.date} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTireChange({ ...newTireChange, date: e.target.value })} variant="filled" size="small" slotProps={{ inputLabel: { shrink: true } }} />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <TextField select fullWidth label={t('car.type')} value={newTireChange.type} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTireChange({ ...newTireChange, type: e.target.value === 'winter' ? 'winter' : 'summer' })} variant="filled" size="small">
-                    <MenuItem value="summer">{t('car.summer')}</MenuItem>
-                    <MenuItem value="winter">{t('car.winter')}</MenuItem>
-                  </TextField>
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField type="number" fullWidth label="Odometer" value={newTireChange.odometer} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTireChange({ ...newTireChange, odometer: e.target.value })} variant="filled" />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <Button fullWidth variant="contained" onClick={handleSaveTireChange}>{editingTireChangeId ? 'Update' : 'Save'}</Button>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-
-          {/* Column 2: History Table */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
-              <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>History</Typography>
-              <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>{t('car.date')}</TableCell>
-                      <TableCell sx={{ p: 1 }}>{t('car.type')}</TableCell>
-                      <TableCell align="right" sx={{ p: 1 }}>{t('car.km')}</TableCell>
-                      <TableCell align="right" sx={{ p: 1 }}></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {tireStats.history.map((row) => (
-                      <TableRow key={row.id}>
-                        <TableCell sx={{ p: 1 }}>{dayjs(row.date).format('L')}</TableCell>
-                        <TableCell sx={{ p: 1, color: row.type === 'summer' ? 'warning.main' : 'primary.main' }}>{row.type === 'summer' ? t('car.summer') : t('car.winter')}</TableCell>
-                        <TableCell align="right" sx={{ p: 1, fontWeight: 600 }}>{row.runKm.toLocaleString()}</TableCell>
-                        <TableCell align="right" sx={{ p: 1 }}>
-                          <IconButton size="small" onClick={() => handleEditTireChange(row)}><EditIcon fontSize="small" /></IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
-
-          {/* Column 3: Tire Usage Chart */}
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{t('car.tireUsage')}</Typography>
-              <Box sx={{ height: 250, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
-                <LineChart
-                  series={[{ data: tireStats.history.slice(0, 10).map(t => t.runKm), color: '#ed6c02', showMark: false }]}
-                  xAxis={[{ scaleType: 'band', data: tireStats.history.slice(0, 10).map((_, i) => `${i + 1}`), disableLine: true, disableTicks: true }]}
-                  yAxis={[{ disableLine: true, disableTicks: true }]}
-                  grid={{ vertical: false, horizontal: true }}
-                  height={250}
-                  margin={{ top: 10, right: 10, bottom: 20, left: 40 }}
-                  sx={{
-                    '&, & *, & svg': { overflow: 'visible !important' },
-                    [`.${axisClasses.tickLabel}`]: {
-                      fill: 'rgba(255,255,255,0.5)',
-                      fontSize: 11,
-                    },
-                  }}
-                />
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
-      </TabPanel>
-
-      {/* ANALISI COSTI TAB */}
-      <TabPanel value={tabValue} index={2}>
-        <Grid container spacing={3}>
-          {/* Column 1: Stats */}
-          <Grid size={{ xs: 12, md: 3 }}>
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              {/* Total Spent */}
-              <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'linear-gradient(135deg, #10b981 0%, #10b981 100%)', borderRadius: 4 }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.8, fontWeight: 700 }}>Total Spent</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{costStats.totalCostYear.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Efficiency */}
-              <Grid size={{ xs: 6 }}>
-                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Efficiency</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: 'success.main' }}>{costStats.avgEfficiencyYear.toFixed(3)} €/km</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Total Km - spans 2 columns */}
-              <Grid size={{ xs: 12 }}>
-                <Card sx={{ background: 'rgba(30, 41, 59, 0.5)', borderRadius: 4, border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <CardContent sx={{ p: 1.5 }}>
-                    <Typography variant="caption" sx={{ opacity: 0.6, fontWeight: 700 }}>Total Km</Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900 }}>{costStats.totalKmYear.toLocaleString()}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
-          </Grid>
-
-          {/* Column 2: Monthly Details Table */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
-              <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Monthly Details</Typography>
-              <TableContainer sx={{ background: 'rgba(0,0,0,0.1)', borderRadius: 2 }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 700, opacity: 0.7, p: 1 }}>Month</TableCell>
-                      <TableCell align="right" sx={{ p: 1 }}>Km</TableCell>
-                      <TableCell align="right" sx={{ p: 1 }}>Cost</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {costStats.monthlyEfficiency.map((row) => (
-                      <TableRow key={`${row.year}-${row.month}`}>
-                        <TableCell sx={{ p: 1, fontWeight: 600 }}>{months[row.month - 1].substring(0, 3)}</TableCell>
-                        <TableCell align="right" sx={{ p: 1 }}>{row.kmDriven.toLocaleString()}</TableCell>
-                        <TableCell align="right" sx={{ p: 1 }}>{row.fuelCost.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}</TableCell>
-                      </TableRow>
-                    ))}
-                    {costStats.monthlyEfficiency.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={3} align="center" sx={{ py: 2, opacity: 0.5 }}>No data.</TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </Grid>
-
-          {/* Column 3: Fuel Efficiency Trend Chart */}
-          <Grid size={{ xs: 12, md: 5 }}>
-            <Paper sx={{ p: 1.5, borderRadius: 4, background: 'rgba(30, 41, 59, 0.3)', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Fuel Efficiency Trend</Typography>
-              <Box sx={{ height: 250, width: '100%', '&, & *, & svg': { overflow: 'visible !important' } }}>
-                <LineChart
-                  series={[{ data: costStats.chartData.map(d => d.val), color: '#10b981', showMark: false }]}
-                  xAxis={[{ scaleType: 'band', data: costStats.chartData.map(d => d.name), disableLine: true, disableTicks: true }]}
-                  yAxis={[{ disableLine: true, disableTicks: true }]}
-                  grid={{ vertical: false, horizontal: true }}
-                  height={250}
-                  margin={{ top: 10, right: 10, bottom: 20, left: 40 }}
-                  sx={{
-                    '&, & *, & svg': { overflow: 'visible !important' },
-                    [`.${axisClasses.tickLabel}`]: {
-                      fill: 'rgba(255,255,255,0.5)',
-                      fontSize: 11,
-                    },
-                  }}
-                />
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
-      </TabPanel>
+      <Snackbar open={Boolean(toast)} autoHideDuration={2500} onClose={() => setToast(null)}>
+        <Alert severity="success" variant="filled" onClose={() => setToast(null)}>
+          {toast}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

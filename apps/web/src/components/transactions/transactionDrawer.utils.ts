@@ -7,7 +7,9 @@
  */
 import dayjs from 'dayjs';
 import type { Account, RecurringTransaction, Transaction, UtilityType } from '../../store/useFinanceStore';
+import type { CarExpenseSetting, VehicleType } from '../../store/types';
 import type { TransactionDrawerType } from '../../store/useUiStore';
+import { inferCarExpenseType, isCarCategory } from '../car/car.utils';
 
 export type { TransactionDrawerType };
 
@@ -26,6 +28,12 @@ export interface TransactionDraft {
   energyFee: string;
   provider: string;
   meterId: string;
+  vehicleName: string;
+  vehicleType: '' | VehicleType;
+  odometerKm: string;
+  liters: string;
+  pricePerLiter: string;
+  expenseType: '' | CarExpenseSetting;
 }
 
 export interface RecurringDraft {
@@ -111,6 +119,12 @@ export const EMPTY_DRAFT: TransactionDraft = {
   energyFee: '',
   provider: '',
   meterId: '',
+  vehicleName: '',
+  vehicleType: '',
+  odometerKm: '',
+  liters: '',
+  pricePerLiter: '',
+  expenseType: '',
 };
 
 /**
@@ -135,6 +149,12 @@ export function resetDraftForType(draft: TransactionDraft): TransactionDraft {
     energyFee: '',
     provider: '',
     meterId: '',
+    vehicleName: '',
+    vehicleType: '',
+    odometerKm: '',
+    liters: '',
+    pricePerLiter: '',
+    expenseType: '',
   };
 }
 
@@ -335,6 +355,28 @@ export function draftToTransaction(
     parseOptionalAmount(draft.energyFee),
   );
   const utilityType = utilityTypeForUnit(resolveUtilityUnit(draft.category, draft.subcategory));
+  const odometerKm = parseOptionalAmount(draft.odometerKm);
+  const liters = parseOptionalAmount(draft.liters);
+  const priceInput = parseOptionalAmount(draft.pricePerLiter);
+  const hasOdometer = Number.isFinite(odometerKm) && odometerKm >= 0;
+  const hasLiters = Number.isFinite(liters) && liters > 0;
+  const pricePerLiter = Number.isFinite(priceInput) && priceInput > 0
+    ? priceInput
+    : hasLiters
+      ? amount / liters
+      : Number.NaN;
+  const expenseType: CarExpenseSetting | null =
+    draft.expenseType === 'none'
+      ? 'none'
+      : draft.expenseType || inferCarExpenseType(draft.category, draft.subcategory, draft.description);
+  const hasCarFields =
+    isCarCategory(draft.category, draft.subcategory) ||
+    draft.vehicleName.trim() !== '' ||
+    draft.vehicleType !== '' ||
+    draft.expenseType !== '' ||
+    hasOdometer ||
+    hasLiters ||
+    (Number.isFinite(pricePerLiter) && pricePerLiter > 0);
 
   return {
     id: existingId ?? crypto.randomUUID(),
@@ -353,6 +395,12 @@ export function draftToTransaction(
     ...(split ?? {}),
     ...(draft.provider.trim() ? { provider: draft.provider.trim() } : {}),
     ...(draft.meterId.trim() ? { meterId: draft.meterId.trim() } : {}),
+    ...(hasCarFields && draft.vehicleName.trim() ? { vehicleName: draft.vehicleName.trim() } : {}),
+    ...(hasCarFields && draft.vehicleType ? { vehicleType: draft.vehicleType } : {}),
+    ...(hasCarFields && expenseType ? { expenseType } : {}),
+    ...(hasCarFields && hasOdometer ? { odometerKm } : {}),
+    ...(hasCarFields && hasLiters ? { liters } : {}),
+    ...(hasCarFields && Number.isFinite(pricePerLiter) && pricePerLiter > 0 ? { pricePerLiter } : {}),
   };
 }
 
@@ -373,5 +421,11 @@ export function transactionToDraft(transaction: Transaction): TransactionDraft {
     energyFee: transaction.energyFee !== undefined ? formatAmountInput(String(transaction.energyFee)) : '',
     provider: transaction.provider ?? '',
     meterId: transaction.meterId ?? '',
+    vehicleName: transaction.vehicleName ?? '',
+    vehicleType: transaction.vehicleType ?? '',
+    odometerKm: transaction.odometerKm !== undefined ? String(transaction.odometerKm) : '',
+    liters: transaction.liters !== undefined ? String(transaction.liters) : '',
+    pricePerLiter: transaction.pricePerLiter !== undefined ? String(transaction.pricePerLiter) : '',
+    expenseType: transaction.expenseType ?? '',
   };
 }
