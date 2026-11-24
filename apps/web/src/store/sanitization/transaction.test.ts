@@ -72,3 +72,45 @@ describe('sanitizeTransaction', () => {
     expect(out.meterId).toBe('PDR-9')
   })
 })
+
+describe('sanitizeTransaction — car fields', () => {
+  it('defaults the car fields to null', () => {
+    const out = sanitizeTransaction(baseTxn)
+    expect(out.vehicleName).toBeNull()
+    expect(out.vehicleType).toBeNull()
+    expect(out.odometerKm).toBeNull()
+    expect(out.liters).toBeNull()
+    expect(out.pricePerLiter).toBeNull()
+    expect(out.expenseType).toBeNull()
+  })
+
+  it('coerces the numeric car fields and trims the vehicle name', () => {
+    const out = sanitizeTransaction({
+      ...baseTxn,
+      vehicleName: '  Peugeot 208  ',
+      vehicleType: 'car',
+      odometerKm: '10500' as unknown as number,
+      liters: '42.5' as unknown as number,
+      pricePerLiter: '1.75' as unknown as number,
+      expenseType: 'fuel',
+    })
+    expect(out.vehicleName).toBe('Peugeot 208')
+    expect(out.vehicleType).toBe('car')
+    expect(out.odometerKm).toBe(10500)
+    expect(out.liters).toBe(42.5)
+    expect(out.pricePerLiter).toBe(1.75)
+    expect(out.expenseType).toBe('fuel')
+  })
+
+  it('treats empty numeric strings as null', () => {
+    const out = sanitizeTransaction({
+      ...baseTxn,
+      odometerKm: '' as unknown as number,
+      liters: '' as unknown as number,
+      pricePerLiter: '' as unknown as number,
+    })
+    expect(out.odometerKm).toBeNull()
+    expect(out.liters).toBeNull()
+    expect(out.pricePerLiter).toBeNull()
+  })
+})

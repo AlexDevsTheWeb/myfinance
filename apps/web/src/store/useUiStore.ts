@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { create } from 'zustand';
+import type { VehicleType } from './types';
 import type { Transaction } from './useFinanceStore';
 
 export type TransactionDrawerType = 'income' | 'expense' | 'transfer';
@@ -10,6 +11,10 @@ export interface TransactionDrawerPreset {
   subcategory?: string;
   /** Expand the utility block even before a meter unit resolves. */
   utility?: boolean;
+  /** Expand the car block even before the category resolves to a vehicle. */
+  car?: boolean;
+  vehicleName?: string;
+  vehicleType?: VehicleType;
 }
 
 interface UiState {

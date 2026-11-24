@@ -25,5 +25,11 @@ export const sanitizeTransaction = (t: ITransaction): TransactionDoc => {
     energyFee: (t.energyFee !== undefined && t.energyFee !== null && String(t.energyFee) !== '') ? Number(t.energyFee) : null,
     provider: t.provider?.trim() || null,
     meterId: t.meterId?.trim() || null,
+    vehicleName: t.vehicleName?.trim() || null,
+    vehicleType: t.vehicleType ?? null,
+    odometerKm: (t.odometerKm !== undefined && t.odometerKm !== null && String(t.odometerKm) !== '') ? Number(t.odometerKm) : null,
+    liters: (t.liters !== undefined && t.liters !== null && String(t.liters) !== '') ? Number(t.liters) : null,
+    pricePerLiter: (t.pricePerLiter !== undefined && t.pricePerLiter !== null && String(t.pricePerLiter) !== '') ? Number(t.pricePerLiter) : null,
+    expenseType: t.expenseType ?? null,
   };
 };

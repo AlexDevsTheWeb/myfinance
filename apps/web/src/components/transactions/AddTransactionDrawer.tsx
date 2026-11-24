@@ -25,8 +25,10 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFinanceStore, type Transaction } from '../../store/useFinanceStore';
 import { useUiStore, type TransactionDrawerPreset } from '../../store/useUiStore';
+import type { VehicleType } from '../../store/types';
 import { formatCurrency, formatNumber } from '../../utils/format.utils';
 import { formDateFieldSx, formSelectSx, formTextFieldSx } from '../shared/form.styles';
+import { inferCarExpenseType, isCarCategory, listVehicleOptions } from '../car/car.utils';
 import {
   buildRecurringTemplate,
   computeAccountBalance,
@@ -69,12 +71,15 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, prese
           ...EMPTY_DRAFT,
           category: preset?.category ?? '',
           subcategory: preset?.subcategory ?? '',
+          vehicleName: preset?.vehicleName ?? '',
+          vehicleType: preset?.vehicleType ?? '',
           accountId: accounts.find((account) => account.isDefault)?.id ?? accounts[0]?.id ?? '',
         },
   );
   const [recurring, setRecurring] = useState<RecurringDraft>(DEFAULT_RECURRING_DRAFT);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [utilityOverride, setUtilityOverride] = useState<boolean | null>(preset?.utility ? true : null);
+  const [carOverride, setCarOverride] = useState<boolean | null>(preset?.car ? true : null);
   const [saving, setSaving] = useState(false);
 
   const isEdit = Boolean(transaction);
@@ -97,6 +102,20 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, prese
     parseOptionalAmount(draft.energyFee),
   );
 
+  const carDetected =
+    Boolean(preset?.car) ||
+    isCarCategory(draft.category, draft.subcategory) ||
+    draft.vehicleName.trim() !== '' ||
+    draft.vehicleType !== '' ||
+    draft.expenseType !== '';
+  const carOpen = carOverride ?? carDetected;
+  const vehicleOptions = useMemo(
+    () => listVehicleOptions(transactions).map((option) => option.name).filter((name): name is string => name !== null),
+    [transactions],
+  );
+  const inferredExpenseType = draft.expenseType || inferCarExpenseType(draft.category, draft.subcategory, draft.description);
+  const fuelUnitPrice = pricePerUnit(parseAmountInput(draft.amount), parseOptionalAmount(draft.liters));
+
   const update = <K extends keyof TransactionDraft>(key: K, value: TransactionDraft[K]) =>
     setDraft((current) => ({ ...current, [key]: value }));
 
@@ -105,6 +124,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, prese
     // Each tab is a fresh movement: type-specific fields must not leak across.
     setDraft((current) => resetDraftForType(current));
     setUtilityOverride(null);
+    setCarOverride(null);
     setErrors({});
   };
 
@@ -316,9 +336,120 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, prese
           </Select>
         )}
 
-        <Accordion
-          expanded={utilityOpen}
-          onChange={(_, expanded) => setUtilityOverride(expanded)}
+        {carDetected && (
+          <Accordion
+            expanded={carOpen}
+            onChange={(_, expanded) => setCarOverride(expanded)}
+            disableGutters
+            sx={{ bgcolor: 'colors.bg', border: '1px solid', borderColor: 'colors.border', borderRadius: 1.5, '&:before': { display: 'none' } }}
+          >
+            <AccordionSummary expandIcon={<span>⌄</span>}>
+              <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
+                {t('transactions.drawer.car.title')}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Autocomplete
+                freeSolo
+                options={vehicleOptions}
+                value={draft.vehicleName}
+                onInputChange={(_, value) => update('vehicleName', value)}
+                onChange={(_, value) => {
+                  if (typeof value === 'string') update('vehicleName', value);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('transactions.drawer.car.vehicle')}
+                    placeholder={t('transactions.drawer.car.vehiclePlaceholder')}
+                    sx={formTextFieldSx}
+                  />
+                )}
+              />
+              <Box sx={{ display: 'flex', gap: 1.5 }}>
+                <TextField
+                  select
+                  fullWidth
+                  variant="outlined"
+                  label={t('transactions.drawer.car.vehicleType')}
+                  value={draft.vehicleType}
+                  onChange={(event) => update('vehicleType', event.target.value as VehicleType | '')}
+                  sx={formTextFieldSx}
+                >
+                  <MenuItem value="">{t('transactions.drawer.car.none')}</MenuItem>
+                  <MenuItem value="car">{t('car.vehicles.car')}</MenuItem>
+                  <MenuItem value="scooter">{t('car.vehicles.scooter')}</MenuItem>
+                  <MenuItem value="rental">{t('car.vehicles.rental')}</MenuItem>
+                  <MenuItem value="other">{t('car.vehicles.other')}</MenuItem>
+                </TextField>
+                <TextField
+                  select
+                  fullWidth
+                  variant="outlined"
+                  label={t('transactions.drawer.car.expenseType')}
+                  value={draft.expenseType}
+                  onChange={(event) => update('expenseType', event.target.value as TransactionDraft['expenseType'])}
+                  helperText={
+                    inferredExpenseType && !draft.expenseType
+                      ? t('transactions.drawer.car.inferred', { type: t(`car.expenseTypes.${inferredExpenseType}`) })
+                      : undefined
+                  }
+                  sx={formTextFieldSx}
+                >
+                  <MenuItem value="">{t('transactions.drawer.car.none')}</MenuItem>
+                  <MenuItem value="fuel">{t('car.expenseTypes.fuel')}</MenuItem>
+                  <MenuItem value="maintenance">{t('car.expenseTypes.maintenance')}</MenuItem>
+                  <MenuItem value="tax">{t('car.expenseTypes.tax')}</MenuItem>
+                </TextField>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1.5 }}>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  type="number"
+                  label={t('transactions.drawer.car.odometer')}
+                  value={draft.odometerKm}
+                  onChange={(event) => update('odometerKm', event.target.value)}
+                  slotProps={{ htmlInput: { inputMode: 'numeric', min: 0 } }}
+                  sx={formTextFieldSx}
+                />
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  type="number"
+                  label={t('transactions.drawer.car.liters')}
+                  value={draft.liters}
+                  onChange={(event) => update('liters', event.target.value)}
+                  slotProps={{ htmlInput: { inputMode: 'decimal', min: 0, step: 0.01 } }}
+                  sx={formTextFieldSx}
+                />
+              </Box>
+              <TextField
+                fullWidth
+                variant="outlined"
+                type="number"
+                label={t('transactions.drawer.car.pricePerLiter')}
+                value={draft.pricePerLiter}
+                onChange={(event) => update('pricePerLiter', event.target.value)}
+                helperText={
+                  fuelUnitPrice !== null
+                    ? t('transactions.drawer.car.priceHint', { price: formatNumber(fuelUnitPrice, 3) })
+                    : undefined
+                }
+                slotProps={{ htmlInput: { inputMode: 'decimal', min: 0, step: 0.001 } }}
+                sx={formTextFieldSx}
+              />
+              <Typography variant="caption" sx={{ color: 'colors.subtle' }}>
+                {t('transactions.drawer.car.hint')}
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+        )}
+
+        {!carDetected && (
+          <Accordion
+            expanded={utilityOpen}
+            onChange={(_, expanded) => setUtilityOverride(expanded)}
           disableGutters
           sx={{ bgcolor: 'colors.bg', border: '1px solid', borderColor: 'colors.border', borderRadius: 1.5, '&:before': { display: 'none' } }}
         >
@@ -421,6 +552,7 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, prese
             </Typography>
           </AccordionDetails>
         </Accordion>
+        )}
 
         {!isEdit && (
           <Accordion

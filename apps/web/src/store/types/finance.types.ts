@@ -29,6 +29,12 @@ export interface ICard {
 /** Metered utility kind. Bills without a meter reading (phone, internet) are not utilities here. */
 export type UtilityType = 'electricity' | 'gas' | 'water';
 
+/** Vehicle class, used to scope and badge car expenses. */
+export type VehicleType = 'car' | 'scooter' | 'rental' | 'other';
+
+/** Car expense kind. Absent means "infer from category/subcategory". */
+export type CarExpenseType = 'fuel' | 'maintenance' | 'tax';
+
 export interface ITransaction {
   id: string;
   date: string;
@@ -56,6 +62,22 @@ export interface ITransaction {
   provider?: string;
   /** Meter identifier: POD (electricity), PDR (gas) or the water service code. */
   meterId?: string;
+  /**
+   * Vehicle this car expense belongs to, e.g. "Peugeot 208". Optional and free
+   * text: no vehicle registry exists, so the selector is built from the values
+   * that actually appear on transactions.
+   */
+  vehicleName?: string;
+  /** Vehicle class. Absent is treated as `car`. */
+  vehicleType?: VehicleType;
+  /** Odometer reading at the time of the expense (km). */
+  odometerKm?: number;
+  /** Litres filled — fuel rows only. Kept separate from utility `consumption`. */
+  liters?: number;
+  /** Price paid per litre (EUR/L). Derived from amount ÷ litres when absent. */
+  pricePerLiter?: number;
+  /** Car expense kind. Absent means the page infers it from category keywords. */
+  expenseType?: CarExpenseType;
 }
 
 export interface IRecurringTransaction {

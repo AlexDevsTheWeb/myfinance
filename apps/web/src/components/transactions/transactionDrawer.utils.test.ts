@@ -34,8 +34,7 @@ const draft = (overrides: Partial<TransactionDraft> = {}): TransactionDraft => (
 
 const today = dayjs('2026-10-26T10:00:00');
 
-describe('resetDraftForType', () => {
-  it('clears type-specific fields but keeps date and account', () => {
+describe('resetDraftForType', () => {  it('clears type-specific fields but keeps date and account', () => {
     const filled = draft({
       amount: '2.123,45',
       description: 'Esselunga',
@@ -54,6 +53,12 @@ describe('resetDraftForType', () => {
     expect(reset.consumption).toBe('');
     expect(reset.readingDateStart).toBe('');
     expect(reset.readingDateEnd).toBe('');
+    expect(reset.vehicleName).toBe('');
+    expect(reset.vehicleType).toBe('');
+    expect(reset.odometerKm).toBe('');
+    expect(reset.liters).toBe('');
+    expect(reset.pricePerLiter).toBe('');
+    expect(reset.expenseType).toBe('');
     // Shared context survives the tab switch
     expect(reset.date).toBe(filled.date);
     expect(reset.accountId).toBe('acc-1');
@@ -396,5 +401,54 @@ describe('draftToTransaction utility fields', () => {
     expect(transaction.energyFee).toBeUndefined();
     expect(transaction.provider).toBeUndefined();
     expect(transaction.meterId).toBeUndefined();
+  });
+});
+
+describe('car expense mapping', () => {
+  const carDraft = () =>
+    draft({
+      category: 'Trasporti',
+      subcategory: 'Carburante',
+      amount: '60',
+      vehicleName: '  Peugeot 208 ',
+      vehicleType: 'car',
+      odometerKm: '10500',
+      liters: '50',
+    });
+
+  it('persists the vehicle fields and infers the expense type', () => {
+    const transaction = draftToTransaction(carDraft(), 'expense');
+
+    expect(transaction.vehicleName).toBe('Peugeot 208');
+    expect(transaction.vehicleType).toBe('car');
+    expect(transaction.odometerKm).toBe(10500);
+    expect(transaction.liters).toBe(50);
+    expect(transaction.expenseType).toBe('fuel');
+    expect(transaction.pricePerLiter).toBeCloseTo(1.2);
+  });
+
+  it('prefers an explicit price per litre over the derived one', () => {
+    const transaction = draftToTransaction({ ...carDraft(), pricePerLiter: '1,299' }, 'expense');
+    expect(transaction.pricePerLiter).toBeCloseTo(1.299);
+  });
+
+  it('omits the car fields for an ordinary expense', () => {
+    const transaction = draftToTransaction({ ...draft(), vehicleName: '', liters: '', odometerKm: '' }, 'expense');
+    expect(transaction.vehicleName).toBeUndefined();
+    expect(transaction.vehicleType).toBeUndefined();
+    expect(transaction.odometerKm).toBeUndefined();
+    expect(transaction.liters).toBeUndefined();
+    expect(transaction.pricePerLiter).toBeUndefined();
+    expect(transaction.expenseType).toBeUndefined();
+  });
+
+  it('round-trips through transactionToDraft', () => {
+    const transaction = draftToTransaction(carDraft(), 'expense');
+    const back = transactionToDraft(transaction);
+    expect(back.vehicleName).toBe('Peugeot 208');
+    expect(back.vehicleType).toBe('car');
+    expect(back.odometerKm).toBe('10500');
+    expect(back.liters).toBe('50');
+    expect(back.expenseType).toBe('fuel');
   });
 });

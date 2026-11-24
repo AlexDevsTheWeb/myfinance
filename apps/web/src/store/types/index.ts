@@ -13,6 +13,8 @@ export type {
   ITireSettings,
   IFinanceState,
   UtilityType,
+  VehicleType,
+  CarExpenseType,
 } from './finance.types';
 
 export type {
