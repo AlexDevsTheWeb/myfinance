@@ -2,7 +2,7 @@
 type: Decision
 title: "Adopt SemVer 1.0 for Balancr"
 description: "Replace year-prefixed CalVer (2026.x.y) with SemVer, starting at 1.0.0-beta.1, so the public beta has a stable, comparable version line."
-resource: "https://github.com/AlexDevsTheWeb/myfinance/tree/chore/semver-1-0-adoption"
+resource: "https://github.com/AlexDevsTheWeb/myfinance/pull/203"
 tags: [decision, versioning, release, semver]
 created: 2026-11-24
 updated: 2026-11-24
