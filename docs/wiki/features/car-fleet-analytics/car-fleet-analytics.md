@@ -153,6 +153,14 @@ being saved.
 The converter also accepts numeric strings in `carMileage` (`"2026"`, `"10"`),
 so a legacy or hand-edited Firestore record is not silently dropped.
 
+### Save reliability
+
+Mileage writes are optimistic and **roll back** when Firestore rejects them,
+with an error banner in the Vehicle log. Editing or deleting a reading runs in a
+transaction that reads the latest `carMileage` array first, so a record added by
+another device is not clobbered by a stale local copy. Save is disabled while a
+write is in flight.
+
 ## Page structure
 
 ```

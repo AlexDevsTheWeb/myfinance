@@ -1085,3 +1085,10 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - The Vehicle log form now has an explicit **Year** select (moves the page year) and a **Month covered** label plus an "Odometer at the end of {{month}} {{year}}" hint; the log row shows the year
 - `readNumber` now coerces numeric strings, so a hand-edited `carMileage` record (`"2026"`, `"10"`) is not dropped
 - Tests 350 → **351 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (mileage persistence)
+- A direct Firestore check showed the last mileage record was September; the October entry was never persisted
+- The add was optimistic and kept the row locally on failure, `saveError` was never rendered, and edit/delete rewrote the whole array from stale local state
+- Add/update/delete now roll back on failure and surface the error in the Vehicle log; update/delete run in a transaction that reads the latest array; Save is disabled while `isSaving`
+- The Firestore fake now returns the transaction callback value, matching the real API
+- Tests 351 → **353 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
