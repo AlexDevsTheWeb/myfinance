@@ -7,8 +7,8 @@ timestamp: 2026-11-24
 
 # Wiki Index
 
-*Last updated: 2026-11-24* (SemVer 1.0 adopted; `v1.0.0-beta.1` milestone planned — see [[wiki/decisions/semver-1-0-adoption]])
-*Total pages: 105* — implementation reports live beside their concept page and are not listed here.
+*Last updated: 2026-11-24* (SemVer 1.0 adopted; Car & Fleet Analytics rebuilt — see [[wiki/features/car-fleet-analytics/car-fleet-analytics]])
+*Total pages: 106* — implementation reports live beside their concept page and are not listed here.
 
 ---
 
@@ -16,7 +16,8 @@ timestamp: 2026-11-24
 
 | Page | Summary | Sources |
 |------|---------|---------|
-| [[wiki/features/car-management-redesign/car-management-redesign]] | Car page bento grid redesign with monthly averages | [`raw/SPEC/SPEC.md`](raw/SPEC/SPEC.md) |
+| [[wiki/features/car-management-redesign/car-management-redesign]] | ⚠️ Superseded — June 2026 bento plan, replaced by the fleet analytics rebuild | [`raw/SPEC/SPEC.md`](raw/SPEC/SPEC.md) |
+| [[wiki/features/car-fleet-analytics/car-fleet-analytics]] | ✅ Vehicle-scoped `/car` analytics: 4 KPIs, dual-axis spend/€-km, YoY distance, dense ledger, car drawer block | [`raw/2026-11-24/2026-11-24-car-fleet-en.md`](raw/2026-11-24/2026-11-24-car-fleet-en.md) |
 | [[wiki/features/transaction-layout-improvement/transaction-layout-improvement]] | ⚠️ **Superseded** — two-column transaction layout with filter + chart on left, replaced by the ledger redesign | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
 | [[wiki/features/investment-tracking/investment-tracking]] | ✅ ETF portfolio tracking, broker integration, PAC strategy, and asset-vs-expense separation | [`raw/81-tax-refund/81-tax-refund.md`](raw/81-tax-refund/81-tax-refund.md) |
 | [[wiki/features/financial-projections/financial-projections]] | ✅ Compound interest simulator with parametric sliders and real-time chart | [`#83`](https://github.com/AlexDevsTheWeb/myfinance/issues/83) |

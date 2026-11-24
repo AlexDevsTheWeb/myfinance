@@ -1040,3 +1040,18 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 ## [2026-11-24] report | Plan | v1.0.0-beta.1 release
 - Created [[wiki/plans/v1.0.0-beta.1-release-report-2026-11-24]] — status `partially-shipped` (switch shipped, tag deferred)
 - Deviations recorded: no tag/Release in the PR, document changelog corrected (Dashboard/marketing/monorepo were missing; `#0B0E14` → `#0B0F17`), regex fix was unrequested but required
+
+## [2026-11-24] ingest | Feature | Car & Fleet Analytics
+- Source: `raw/2026-11-24/2026-11-24-car-fleet-en.md` (prompt to rebuild `/car` as a vehicle-scoped fleet page)
+- Decisions agreed with the requester: keep tires + manual mileage as a collapsible secondary section; identify vehicles with `vehicleName` + `vehicleType`; add dedicated `liters` / `pricePerLiter`
+- Six optional additive `ITransaction` fields, carried through the converter and sanitiser; no migration
+- `/car` rebuilt: scope bar (vehicle + year), four KPI cards, dual-axis spend/€-km chart, YoY distance, dense expense ledger with search/type filter/sort/pagination/duplicate/delete/CSV
+- Strict isolation: odometer deltas are computed per vehicle; first reading is a baseline, decreasing readings are ignored
+- Drawer gained a Vehicle & fuel block; the utility block is hidden for car expenses; `useNewTransaction()` seeds the car preset on `/car`
+- Created [[wiki/features/car-fleet-analytics/car-fleet-analytics]]; marked [[wiki/features/car-management-redesign/car-management-redesign]] superseded; updated [[wiki/features/add-transaction-drawer/add-transaction-drawer]]
+- The document's `#0B0E14` shell is not the real token — theme uses `#0B0F17`
+- Verification: tsc clean, build green, **326 tests / 18 files**, lint 4E/2W (improved from the 6E/3W baseline)
+
+## [2026-11-24] report | Feature | Car & Fleet Analytics
+- Created [[wiki/features/car-fleet-analytics/report-2026-11-24]]
+- Deviations recorded: PR number assigned by GitHub (not `#204`), data-driven vehicle labels, enum expense types, dashed line via CSS, "fixed fees" = non-fuel car spend, mileage log kept out of the KPIs

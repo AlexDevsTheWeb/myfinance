@@ -1,18 +1,24 @@
 ---
 type: Feature
-description: "Car page bento grid redesign with monthly cost averages and improved UX."
+description: "Car page bento grid redesign with monthly cost averages and improved UX — superseded by the 2026-11-24 fleet analytics rebuild."
 title: "Car Management Redesign"
-tags: [feature, frontend, car, planned]
+tags: [feature, frontend, car, superseded]
 created: 2026-06-22
-updated: 2026-06-22
-status: planned
+updated: 2026-11-24
+status: superseded
 sources: ["raw/SPEC/SPEC.md"]
-related: ["plans/car-redesign-implementation", "architecture/project-state"]
+related: ["plans/car-redesign-implementation", "architecture/project-state", "wiki/features/car-fleet-analytics/car-fleet-analytics"]
 ---
 
 # Feature: Car Management Redesign
 
-Status: planned
+> ⚠️ **Superseded (2026-11-24)** by
+> [[wiki/features/car-fleet-analytics/car-fleet-analytics]]. The June 2026 bento
+> plan was replaced by the fleet analytics rebuild. Tires and manual mileage
+> were preserved in the collapsible *Vehicle log*; the three-tab layout and the
+> legacy blue palette are gone.
+
+Status: superseded
 Priority: medium
 
 ## Description
@@ -83,6 +89,7 @@ Redesign the Car page (`src/pages/CarPage.tsx`) with a bento grid layout, add mo
 
 ## Related
 
+- [[wiki/features/car-fleet-analytics/car-fleet-analytics]] — the 2026-11-24 rebuild that supersedes this plan
 - [[wiki/plans/car-redesign-implementation]]
 - [[wiki/architecture/project-state]]
 - [[wiki/conventions/coding-conventions]]

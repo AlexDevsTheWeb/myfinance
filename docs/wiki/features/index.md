@@ -2,7 +2,7 @@
 type: Index
 title: "Features — Index"
 description: "Feature pages describing all implemented, planned, and deprecated features."
-timestamp: 2026-11-23
+timestamp: 2026-11-24
 ---
 
 # Features
@@ -16,7 +16,8 @@ Feature pages describing all implemented, planned, and deprecated features.
 | [[wiki/features/balancr-branding/balancr-branding|balancr-branding]] | Complete rebrand from YAFT to Balancr: Linked Hexagons logo and new color palette. |
 | [[wiki/features/budget-savings-architecture/budget-savings-architecture|budget-savings-architecture]] | Architecture reference for the Budget & Savings Rate module: data flow, Firestore schema, and component tree. |
 | [[wiki/features/budget-savings-engine/budget-savings-engine|budget-savings-engine]] | V4 budget targets, savings rate engine, progress tracking, and investment bridge. |
-| [[wiki/features/car-management-redesign/car-management-redesign|car-management-redesign]] | Car page bento grid redesign with monthly cost averages and improved UX. |
+| [[wiki/features/car-management-redesign/car-management-redesign|car-management-redesign]] | ⚠️ Superseded — June 2026 bento plan replaced by the fleet analytics rebuild; tires and manual mileage preserved in the Vehicle log. |
+| [[wiki/features/car-fleet-analytics/car-fleet-analytics|car-fleet-analytics]] | ✅ Vehicle-scoped `/car` analytics: 4 KPI cards, dual-axis spend/€-km, YoY distance, dense expense ledger with CSV, and a car block in the drawer. |
 | [[wiki/features/dynamic-portfolio-chart/dynamic-portfolio-chart|dynamic-portfolio-chart]] | Recompute portfolio chart from current market prices — live valuations for historical data. |
 | [[wiki/features/crud-etf-transactions/crud-etf-transactions|crud-etf-transactions]] | Edit and delete ETF transactions with safe cascade recalculation. |
 | [[wiki/features/dashboard-redesign/dashboard-redesign|dashboard-redesign]] | Dashboard split view, account detail dialog, additional charts, and overview stat cards. |
