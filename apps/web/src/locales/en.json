@@ -162,6 +162,20 @@
         "splitHint": "Enter at least one quota: the other is derived from the total.",
         "splitPreview": "Fixed {{fixed}} · Energy {{energy}}"
       },
+      "car": {
+        "title": "Vehicle & fuel",
+        "vehicle": "Vehicle",
+        "vehiclePlaceholder": "e.g. Peugeot 208",
+        "vehicleType": "Vehicle type",
+        "expenseType": "Expense type",
+        "odometer": "Odometer (km)",
+        "liters": "Litres",
+        "pricePerLiter": "Price per litre (€/L)",
+        "hint": "km/L is calculated on the Car page from consecutive odometer readings.",
+        "priceHint": "{{price}} €/L from the total",
+        "inferred": "Inferred: {{type}}",
+        "none": "Not set"
+      },
       "recurring": {
         "title": "Set as recurring expense",
         "hint": "The recurrence starts on the 1st of next month, so today's movement is not duplicated.",
@@ -277,7 +291,10 @@
     "addTire": "Add Tire",
     "settings": "Vehicle Settings",
     "save": "Save",
+    "update": "Update",
     "totalKm": "Total Km",
+    "initialKm": "Initial km",
+    "odometer": "Odometer (km)",
     "trend": "Mileage Trend",
     "statistics": "Statistics {{year}}",
     "month": "Month",
@@ -295,7 +312,91 @@
     "efficiency": "Efficiency",
     "monthlyDetails": "Monthly Details",
     "cost": "Cost",
-    "fuelTrend": "Fuel Efficiency Trend"
+    "fuelTrend": "Fuel Efficiency Trend",
+    "log": {
+      "title": "Vehicle log",
+      "noMileage": "No mileage readings for this year.",
+      "noTires": "No tire changes yet."
+    },
+    "filters": {
+      "vehicle": "Vehicle",
+      "allVehicles": "All vehicles",
+      "allYears": "All years",
+      "allTypes": "All expense types",
+      "isolation": "Efficiency and €/km are calculated strictly per vehicle.",
+      "tagHint": "Tag a vehicle on an expense to split the fleet. Untagged rows are grouped as Unassigned."
+    },
+    "vehicles": {
+      "car": "Car",
+      "scooter": "Scooter",
+      "rental": "Rental",
+      "other": "Other",
+      "unassigned": "Unassigned"
+    },
+    "expenseTypes": {
+      "fuel": "Fuel",
+      "maintenance": "Maintenance",
+      "tax": "Tax & insurance"
+    },
+    "kpi": {
+      "noData": "No data in this period",
+      "spend": {
+        "title": "Fuel & vehicle spend",
+        "fuelShare": "{{percent}}% fuel",
+        "otherShare": "{{percent}}% other"
+      },
+      "distance": {
+        "title": "Distance driven",
+        "avgMonthly": "{{km}} km / month with data"
+      },
+      "costPerKm": {
+        "title": "Real cost per km",
+        "hint": "Needs two odometer readings",
+        "fuel": "Fuel {{value}}",
+        "other": "Other {{value}}"
+      },
+      "efficiency": {
+        "title": "Fuel efficiency",
+        "liters": "{{liters}} L recorded",
+        "hint": "Needs odometer and litres"
+      }
+    },
+    "charts": {
+      "spendTitle": "Spend vs cost per km",
+      "spendCaption": "Stacked monthly spend (bars, left) and weighted €/km (line, right).",
+      "fuel": "Fuel",
+      "other": "Maintenance & fees",
+      "rate": "€ / km",
+      "yoyTitle": "Monthly distance — year over year",
+      "yoyCaption": "{{year}} vs {{previous}} distance from consecutive odometer readings.",
+      "noData": "No spend in this period.",
+      "noYoY": "Not enough odometer readings for a comparison."
+    },
+    "table": {
+      "date": "Date",
+      "vehicle": "Vehicle",
+      "vehicleType": "Vehicle type",
+      "type": "Type",
+      "description": "Description",
+      "odometer": "Odometer",
+      "liters": "Litres",
+      "pricePerLiter": "€ / L",
+      "total": "Total",
+      "efficiency": "km / L",
+      "search": "Search vehicle or description…",
+      "exportCsv": "Export CSV",
+      "summary": "{{count}} rows · {{spend}}",
+      "empty": "No vehicle expenses in this period.",
+      "actions": "Actions",
+      "duplicate": "Duplicate",
+      "deleteTitle": "Delete vehicle expense?",
+      "deleteMessage": "Delete “{{description}}”? This cannot be undone.",
+      "duplicated": "Vehicle expense duplicated.",
+      "rowsPerPage": "Rows",
+      "shownRange": "{{from}}–{{to}} of {{total}}",
+      "previous": "Previous page",
+      "next": "Next page"
+    }
   },
   "utilities": {
     "title": "Utilities",
