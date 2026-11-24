@@ -30,8 +30,21 @@ const asRecordArray = (value: unknown): RawRecord[] =>
 const readString = (value: unknown, fallback = ''): string =>
   typeof value === 'string' ? value : fallback;
 
-const readNumber = (value: unknown, fallback = 0): number =>
-  typeof value === 'number' ? value : fallback;
+/**
+ * Coerce a Firestore value to a number.
+ *
+ * Numbers pass through, numeric strings are accepted (a hand-edited document or
+ * a legacy writer may store `"2026"`), and anything else falls back. `NaN` and
+ * `Infinity` are rejected rather than poisoning downstream arithmetic.
+ */
+const readNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : fallback;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
+};
 
 /** Keeps only string entries — mirrors the legacy `filter(sc => typeof sc === 'string')`. */
 const readStringArray = (value: unknown): string[] =>

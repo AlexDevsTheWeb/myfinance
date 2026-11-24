@@ -301,6 +301,7 @@
     "trend": "Andamento Chilometraggio",
     "statistics": "Statistiche {{year}}",
     "month": "Mese",
+    "year": "Anno",
     "km": "Km",
     "tireUsage": "Uso Pneumatici",
     "summer": "Estivi",
@@ -319,6 +320,8 @@
     "log": {
       "vehicle": "Veicolo",
       "title": "Registro veicolo",
+      "monthCovered": "Mese di riferimento",
+      "readingHint": "Contachilometri alla fine di {{month}} {{year}}.",
       "noMileage": "Nessuna lettura per questo anno.",
       "noTires": "Nessun cambio pneumatici."
     },

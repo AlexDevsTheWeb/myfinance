@@ -30,6 +30,9 @@ import { CAR_COLORS } from './types';
 interface CarMileageTiresSectionProps {
   /** Year selected in the page scope bar. The vehicle log is not vehicle-scoped. */
   year: number;
+  /** Years available in the page scope, so the form can switch the page year. */
+  years: number[];
+  onYearChange: (year: number) => void;
 }
 
 const chartSx = {
@@ -52,7 +55,7 @@ const headerCellSx = {
 
 const bodyCellSx = { py: 0.9, px: 1.25, borderColor: 'rgba(30,41,59,0.5)' };
 
-const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year }) => {
+const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year, years, onYearChange }) => {
   const { t } = useTranslation();
   const {
     carMileage,
@@ -85,6 +88,13 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
   );
   const primary = useMemo(() => primaryVehicle(transactions, carMileage), [transactions, carMileage]);
   const effectiveVehicle = mileageVehicle || primary || '';
+
+  const yearOptions = useMemo(() => {
+    const set = new Set<number>([year, ...years]);
+    const now = dayjs().year();
+    for (let candidate = now - 5; candidate <= now; candidate += 1) set.add(candidate);
+    return Array.from(set).sort((a, b) => b - a);
+  }, [year, years]);
 
   const totalOdometer = useMemo(() => {
     if (carMileage.length === 0) return carInitialMileage;
@@ -274,10 +284,24 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
                 <TextField
                   select
                   size="small"
-                  label={t('car.month')}
+                  label={t('car.year')}
+                  value={year}
+                  onChange={(event) => onYearChange(Number(event.target.value))}
+                  sx={{ width: 96 }}
+                >
+                  {yearOptions.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  select
+                  size="small"
+                  label={t('car.log.monthCovered')}
                   value={selectedMonth}
                   onChange={(event) => setSelectedMonth(Number(event.target.value))}
-                  sx={{ width: 110 }}
+                  sx={{ minWidth: 140, flexGrow: 1 }}
                 >
                   {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
                     <MenuItem key={month} value={month}>
@@ -285,15 +309,18 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
                     </MenuItem>
                   ))}
                 </TextField>
-                <TextField
-                  size="small"
-                  type="number"
-                  label={t('car.odometer')}
-                  value={newReading}
-                  onChange={(event) => setNewReading(event.target.value)}
-                  sx={{ flexGrow: 1 }}
-                />
               </Box>
+              <TextField
+                size="small"
+                type="number"
+                label={t('car.odometer')}
+                value={newReading}
+                onChange={(event) => setNewReading(event.target.value)}
+                sx={{ mt: 1 }}
+              />
+              <Typography variant="caption" sx={{ display: 'block', mt: 0.75, color: 'colors.subtle' }}>
+                {t('car.log.readingHint', { month: monthLabel(selectedMonth), year })}
+              </Typography>
               <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                 <Button size="small" variant="contained" onClick={saveMileage} sx={{ textTransform: 'none' }}>
                   {editingId ? t('car.update') : t('car.addMileage')}
@@ -398,7 +425,12 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year })
                         <TableCell sx={bodyCellSx}>
                           {row.vehicleName ?? primary ?? t('car.vehicles.unassigned')}
                         </TableCell>
-                        <TableCell sx={bodyCellSx}>{monthLabel(row.month)}</TableCell>
+                        <TableCell sx={bodyCellSx}>
+                          {monthLabel(row.month)}{' '}
+                          <Box component="span" sx={{ color: 'colors.subtle', fontSize: '0.68rem' }}>
+                            {row.year}
+                          </Box>
+                        </TableCell>
                         <TableCell align="right" sx={{ ...bodyCellSx, fontFamily: (theme) => theme.colors.mono }}>
                           +{formatNumber(row.delta)}
                         </TableCell>

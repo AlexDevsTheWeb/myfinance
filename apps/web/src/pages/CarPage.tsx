@@ -391,7 +391,11 @@ const CarPage: React.FC = () => {
         onDelete={setDeleteTarget}
       />
 
-      <CarMileageTiresSection year={effectivePeriod === 'all' ? chartYear : effectivePeriod} />
+      <CarMileageTiresSection
+        year={effectivePeriod === 'all' ? chartYear : effectivePeriod}
+        years={years}
+        onYearChange={(value) => setPeriod(value)}
+      />
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}

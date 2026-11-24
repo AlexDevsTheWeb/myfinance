@@ -301,6 +301,7 @@
     "trend": "Mileage Trend",
     "statistics": "Statistics {{year}}",
     "month": "Month",
+    "year": "Year",
     "km": "Km",
     "tireUsage": "Tire Usage",
     "summer": "Summer",
@@ -319,6 +320,8 @@
     "log": {
       "vehicle": "Vehicle",
       "title": "Vehicle log",
+      "monthCovered": "Month covered",
+      "readingHint": "Odometer at the end of {{month}} {{year}}.",
       "noMileage": "No mileage readings for this year.",
       "noTires": "No tire changes yet."
     },
