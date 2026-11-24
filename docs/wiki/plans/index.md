@@ -2,7 +2,7 @@
 type: Index
 title: "Plans — Index"
 description: "Implementation plans, step-by-step breakdowns, and roadmap items."
-timestamp: 2026-10-05
+timestamp: 2026-11-24
 ---
 
 # Plans
@@ -13,6 +13,7 @@ Implementation plans, step-by-step breakdowns, and roadmap items.
 
 | Concept | Description |
 |---------|-------------|
+| [[wiki/plans/v1.0.0-beta.1-release|v1.0.0-beta.1-release]] | First SemVer milestone: scope, release notes, and post-merge tag commands. |
 | [[wiki/plans/backup-restore-data-coverage|backup-restore-data-coverage]] | Plan to add missing budget and investment data to the backup/restore feature. |
 | [[wiki/plans/beta-launch-playbook|beta-launch-playbook]] | Phase 2 execution details: disclaimer banner, backup/restore verification, tester invitation. |
 | [[wiki/plans/56-blite-recurring-migration|56-blite-recurring-migration]] | ✅ Completed: recurringTransactions migrated to subcollection + Firestore offline persistence enabled; virtualization/PWA deferred to launch. |

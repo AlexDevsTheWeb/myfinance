@@ -5,10 +5,10 @@ description: "How code reaches production: blocking CI, main branch protection, 
 resource: "https://github.com/AlexDevsTheWeb/myfinance/pull/185"
 tags: [architecture, ci, cd, release, github-actions, firebase, versioning, website]
 created: 2026-10-04
-updated: 2026-10-05
+updated: 2026-11-24
 status: active
 sources: [".github/workflows/ci.yml", ".github/workflows/version-bump.yml", ".github/workflows/firebase-hosting-pull-request.yml", "firebase.json", ".firebaserc"]
-related: ["wiki/architecture/versioning", "wiki/architecture/external-integrations", "wiki/conventions/branch-strategy", "wiki/plans/monorepo-migration", "wiki/architecture/concerns-and-tech-debt", "wiki/decisions/website-as-separate-hosting-target", "wiki/features/marketing-website/marketing-website"]
+related: ["wiki/architecture/versioning", "wiki/architecture/external-integrations", "wiki/conventions/branch-strategy", "wiki/plans/monorepo-migration", "wiki/architecture/concerns-and-tech-debt", "wiki/decisions/website-as-separate-hosting-target", "wiki/features/marketing-website/marketing-website", "wiki/decisions/semver-1-0-adoption", "wiki/plans/v1.0.0-beta.1-release"]
 ---
 
 # Release Pipeline
@@ -216,6 +216,35 @@ Non-releasing commit types — `docs`, `test`, `ci`, `refactor`, `chore`,
 `build` — build but do not deploy. This is what makes it safe to merge
 documentation and tooling-only work to `main` without burning a production
 deploy.
+
+### Breaking-change detection (fixed 2026-11-24)
+
+The grep pattern was:
+
+```bash
+'^(feat|fix| BREAK CHANGE)(\(.+\))?:'
+```
+
+`feat!:` and `fix(scope)!:` never matched, so a breaking commit did not trigger
+a release at all — the opposite of what a major bump should do. It is now:
+
+```bash
+'^(feat|fix)(\(.+\))?!?:|^BREAKING CHANGE:'
+```
+
+The workflow still reads subjects (`--format=%s`), so a `BREAKING CHANGE:`
+footer is invisible; breaking changes must carry `!` in the subject. This became
+load-bearing with the SemVer switch
+([[wiki/decisions/semver-1-0-adoption]]), where a missed `!` means a missed
+major bump.
+
+### Pre-release baselines
+
+The baseline is the newest tag **reachable from `HEAD`**, whatever its scheme.
+CalVer tags (`v2026.16.0`) and SemVer tags (`v1.0.0-beta.1`) can coexist:
+ancestry, not string ordering, decides which one is the baseline. A tag placed
+on `development` is not reachable from `main` until the branches are merged, so
+tagging a development checkpoint does **not** trigger a release or a deploy.
 
 ---
 

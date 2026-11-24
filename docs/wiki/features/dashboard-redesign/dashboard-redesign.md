@@ -2,9 +2,9 @@
 type: Feature
 description: "Dashboard split view, account detail dialog, additional charts, and overview stat cards."
 title: "Dashboard Redesign"
-tags: [feature, frontend, planned]
+tags: [feature, frontend, dashboard, implemented]
 created: 2026-06-28
-updated: 2026-06-28
+updated: 2026-11-24
 status: implemented
 sources: ["raw/99-manual-review-2706/99-manual-review-2706.md"]
 related: ["features/sidebar-redesign", "bugs/car-statistics-year", "plans/manual-review-99-implementation"]
@@ -71,6 +71,16 @@ Priority: **high**
 - `RecapCards.tsx` — replace account details toggle with dialog trigger button
 - Reuse existing analytics hooks (`useNetWorth`, `useAccountBreakdown`) and budget components
 - StatCard computes investment return %, budget savings rate, car latest odometer, and monthly utility bills from store data
+
+## Update (2026-10-26) — Stitch rebuild
+
+`DashboardPage.tsx` was rebuilt against the Stitch prototype in PR #195. The
+page is now composed from `components/dashboard/` — `KpiMetricsRow`,
+`BentoWidgetsRow`, `ChartsRow`, `CalendarMasterDetailSection`, `MiniCalendar`
+and `TopBar` — with the metric derivations in
+`hooks/useDashboardMetrics.ts` and the Executive Dark tokens in
+`theme/theme.ts`. The June 2026 split described above is still the structural
+intent; the Stitch pass changed the layout and the visual system.
 
 ## Update (2026-11-23)
 

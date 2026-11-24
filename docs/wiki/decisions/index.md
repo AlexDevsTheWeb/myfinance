@@ -2,7 +2,7 @@
 type: Index
 title: "Decisions — Index"
 description: "Architecture Decision Records (ADRs) and trade-off analyses."
-timestamp: 2026-10-05
+timestamp: 2026-11-24
 ---
 
 # Decisions
@@ -22,3 +22,4 @@ Architecture Decision Records (ADRs) and trade-off analyses.
 | [[wiki/decisions/typescript-7-upgrade|typescript-7-upgrade]] | TypeScript 7.0 Go-rewrite adoption with ESLint linting workaround via @typescript/typescript6. |
 | [[wiki/decisions/website-as-separate-hosting-target|website-as-separate-hosting-target]] | ✅ `apps/website` is a peer workspace with its own Firebase Hosting site; root scripts stay app-only and every deploy names its target. |
 | [[wiki/decisions/wiki-reorganization|wiki-reorganization]] | ✅ Knowledge bundle moved to `docs/{raw,wiki}`; legacy GSD/OpenSpec/Superpowers material archived; agent skills consolidated in `.claude/skills/`. |
+| [[wiki/decisions/semver-1-0-adoption|semver-1-0-adoption]] | ✅ SemVer replaces year-prefixed CalVer from `1.0.0-beta.1`; CalVer tags remain history, breaking-change detection fixed. |
