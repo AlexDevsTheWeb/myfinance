@@ -45,6 +45,9 @@ keyword inference when a field is missing.
 | `pricePerLiter` | `number` | €/L. Derived from amount ÷ litres when absent. |
 | `expenseType` | `'fuel' \| 'maintenance' \| 'tax'` | Stable enum; labels are localised. Absent means infer from category keywords. |
 
+`ICarMileageRecord` also gained an optional `vehicleName`. Records written
+before it existed are untagged and attributed to the primary vehicle.
+
 Why `vehicleName` and not a registry: the schema stays lightweight and additive,
 and the selector is built from the values that actually appear. A vehicle
 becomes visible on the page the moment an expense is tagged with it.
@@ -93,20 +96,24 @@ fuel share = fuel spend ÷ total spend
 
 ### Legacy data fallback
 
-Existing accounts have no `odometerKm` or `liters` on their transactions. Two
-fallbacks keep their numbers visible:
+Existing accounts have no `odometerKm` or `liters` on their transactions, and
+their manual `carMileage` records were written before a vehicle field existed.
 
-- **Distance** — while the untagged/main scope has no transaction-level odometer
-  deltas, distance is derived from the manual `carMileage` log (monthly readings
-  plus `carInitialMileage`). It is a **fallback, never additive**, so the same km
-  cannot be counted twice. An unset initial mileage (`0`) is treated as unknown:
-  the first reading becomes the baseline instead of producing a huge delta.
+- **Distance** — a vehicle uses the manual log only while it has **no
+  transaction-level odometer deltas** in the selected period. It is a fallback,
+  never additive, so the same km cannot be counted twice.
+- **Vehicle attribution** — a mileage record belongs to its `vehicleName` when
+  present. Untagged records (all pre-2026 data) belong to the **primary
+  vehicle**: the most-used car, falling back to the most-used named vehicle.
+  That is why selecting `Peugeot 3008` shows readings recorded before the field
+  existed. New readings can be assigned in the *Vehicle log*.
 - **Litres** — `liters` wins; otherwise the legacy `consumption` field on fuel
   rows is used, because the old drawer stored fuel volume there.
+- **Baseline** — an unset initial mileage (`0`) is unknown, so the first reading
+  is the baseline instead of a huge delta.
 
 The default period is the **latest year with either source**, so a 2025-only
-account does not land on an empty 2026 page. Selecting a named vehicle always
-uses that vehicle's transaction odometers only. While the fallback is active the
+account does not land on an empty 2026 page. While the fallback is active the
 charts show a note that distance comes from the manual log.
 
 ## Page structure
@@ -116,7 +123,7 @@ apps/web/src/
 ├── pages/CarPage.tsx                          # scope, filters, CSV, dialogs
 └── components/car/
     ├── car.utils.ts                           # classification, deltas, totals, series, legacy fallback
-    ├── car.utils.test.ts                      # 26 tests
+    ├── car.utils.test.ts                      # 31 tests
     ├── types.ts                               # colours, sort/expense types
     ├── CarScopeBar.tsx                        # vehicle select + year pills
     ├── CarSummaryCards.tsx                    # 4 KPIs with YoY badge

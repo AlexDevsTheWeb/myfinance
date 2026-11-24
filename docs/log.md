@@ -1061,3 +1061,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Added a **non-additive** legacy fallback for distance and a `consumption` fallback for fuel litres; default period is now the latest year with data; charts show a manual-log note
 - Unset `carInitialMileage` (0) now makes the first reading a baseline instead of a huge delta
 - Tests 326 → **334 / 18 files**; tsc clean, build green, lint at 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (selected vehicle)
+- Selecting a named vehicle still showed 0 km: the manual log was only attached to All/Unassigned
+- Untagged mileage records now belong to the **primary vehicle** (most-used car); tagged records to their own vehicle; the log is added to transaction distance per vehicle, never for a vehicle that already has odometer deltas
+- `ICarMileageRecord` gained an optional `vehicleName`; the Vehicle log can assign readings and shows the effective vehicle
+- Tests 334 → **339 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
