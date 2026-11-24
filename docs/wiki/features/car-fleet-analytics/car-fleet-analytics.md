@@ -91,14 +91,32 @@ avg km/mo  = distance ÷ months with a delta
 fuel share = fuel spend ÷ total spend
 ```
 
+### Legacy data fallback
+
+Existing accounts have no `odometerKm` or `liters` on their transactions. Two
+fallbacks keep their numbers visible:
+
+- **Distance** — while the untagged/main scope has no transaction-level odometer
+  deltas, distance is derived from the manual `carMileage` log (monthly readings
+  plus `carInitialMileage`). It is a **fallback, never additive**, so the same km
+  cannot be counted twice. An unset initial mileage (`0`) is treated as unknown:
+  the first reading becomes the baseline instead of producing a huge delta.
+- **Litres** — `liters` wins; otherwise the legacy `consumption` field on fuel
+  rows is used, because the old drawer stored fuel volume there.
+
+The default period is the **latest year with either source**, so a 2025-only
+account does not land on an empty 2026 page. Selecting a named vehicle always
+uses that vehicle's transaction odometers only. While the fallback is active the
+charts show a note that distance comes from the manual log.
+
 ## Page structure
 
 ```
 apps/web/src/
 ├── pages/CarPage.tsx                          # scope, filters, CSV, dialogs
 └── components/car/
-    ├── car.utils.ts                           # classification, deltas, totals, series
-    ├── car.utils.test.ts                      # 18 tests
+    ├── car.utils.ts                           # classification, deltas, totals, series, legacy fallback
+    ├── car.utils.test.ts                      # 26 tests
     ├── types.ts                               # colours, sort/expense types
     ├── CarScopeBar.tsx                        # vehicle select + year pills
     ├── CarSummaryCards.tsx                    # 4 KPIs with YoY badge
@@ -140,8 +158,9 @@ the single create entry point — no duplicate page CTA.
   reading is added.
 - Utility bills are excluded even if a shared word appears, because
   `utilityType` wins and the utility categories are not vehicle categories.
-- The manual mileage/tire data is untouched and still powers the *Vehicle log*;
-  it is not mixed into the transaction-based KPIs.
+- The manual mileage/tire data is untouched and still powers the *Vehicle log*.
+  It also supplies distance when no transaction odometer exists, as a fallback
+  (not additive).
 
 ## Related
 

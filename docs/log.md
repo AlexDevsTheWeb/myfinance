@@ -1055,3 +1055,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 ## [2026-11-24] report | Feature | Car & Fleet Analytics
 - Created [[wiki/features/car-fleet-analytics/report-2026-11-24]]
 - Deviations recorded: PR number assigned by GitHub (not `#204`), data-driven vehicle labels, enum expense types, dashed line via CSS, "fixed fees" = non-fuel car spend, mileage log kept out of the KPIs
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics
+- Review found empty KPIs on existing data: distance lives in `carMileage` and old fuel litres in `consumption`, not in the new transaction fields
+- Added a **non-additive** legacy fallback for distance and a `consumption` fallback for fuel litres; default period is now the latest year with data; charts show a manual-log note
+- Unset `carInitialMileage` (0) now makes the first reading a baseline instead of a huge delta
+- Tests 326 → **334 / 18 files**; tsc clean, build green, lint at 4E/2W, docs validator clean
