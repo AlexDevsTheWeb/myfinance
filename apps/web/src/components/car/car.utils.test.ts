@@ -7,16 +7,23 @@ import {
   buildDistanceYoY,
   buildMonthlyBuckets,
   classifyCarExpense,
+  applyLegacyDistance,
   computeCarTotals,
+  fuelLitersOf,
   inferCarExpenseType,
   isCarCategory,
   isCarTransaction,
+  legacyDistanceFor,
+  legacyDistanceYoY,
+  latestCarDataYear,
+  legacyMileageSeries,
   listVehicleOptions,
   odometerDeltas,
   percentChange,
   resolveCarPreset,
   selectCarTransactions,
   UNASSIGNED_VEHICLE,
+  withDistance,
 } from './car.utils';
 
 let seq = 0;
@@ -233,5 +240,90 @@ describe('preset', () => {
       category: '',
       subcategory: '',
     });
+  });
+});
+
+describe('legacy fallbacks', () => {
+  it('reads fuel litres from litres, then from the old consumption field', () => {
+    expect(fuelLitersOf(main({ liters: 42 }))).toBe(42);
+    expect(fuelLitersOf(main({ liters: undefined, consumption: 35 }))).toBe(35);
+    expect(fuelLitersOf(main({ description: 'Tagliando', subcategory: 'Tagliando', liters: 10 }))).toBeNull();
+  });
+
+  it('counts legacy consumption as fuel litres in the totals', () => {
+    const oldFuel = main({ id: 'old', consumption: 30, amount: 45, liters: undefined });
+    const totals = computeCarTotals([oldFuel], new Map(), {});
+    expect(totals.liters).toBe(30);
+    expect(totals.spend).toBe(45);
+  });
+
+  it('derives monthly distance from the manual mileage log', () => {
+    const readings = [
+      { year: 2026, month: 1, reading: 9500 },
+      { year: 2025, month: 12, reading: 9000 },
+      { year: 2026, month: 2, reading: 9200 },
+      { year: 2026, month: 3, reading: 9800 },
+    ];
+    const points = legacyMileageSeries(readings, 8500);
+    expect(points).toEqual([
+      { year: 2025, month: 12, distanceKm: 500 },
+      { year: 2026, month: 1, distanceKm: 500 },
+      { year: 2026, month: 3, distanceKm: 600 },
+    ]);
+    expect(legacyDistanceFor(points, 2026)).toEqual({
+      distanceKm: 1100,
+      months: ['2026-01', '2026-03'],
+    });
+    expect(legacyDistanceFor(points, 'all').distanceKm).toBe(1600);
+  });
+
+  it('overlays legacy distance on the monthly buckets without touching spend', () => {
+    const buckets = buildMonthlyBuckets([main({ date: '2026-01-10', amount: 60 })], new Map(), 'all', 2026);
+    const points = legacyMileageSeries([{ year: 2026, month: 1, reading: 600 }], 100);
+    const overlayed = applyLegacyDistance(buckets, points, 2026);
+    expect(overlayed[0]).toMatchObject({ fuelSpend: 60, distanceKm: 500 });
+    expect(overlayed[0].costPerKm).toBeCloseTo(60 / 500, 5);
+    expect(overlayed[1]).toMatchObject({ distanceKm: 0, costPerKm: null });
+  });
+
+  it('builds a YoY series from the legacy log', () => {
+    const points = legacyMileageSeries(
+      [
+        { year: 2025, month: 12, reading: 9000 },
+        { year: 2026, month: 1, reading: 9500 },
+      ],
+      8500,
+    );
+    const yoy = legacyDistanceYoY(points, 2026);
+    expect(yoy[0]).toMatchObject({ month: 1, current: 500, previous: null });
+    expect(yoy[11]).toMatchObject({ month: 12, current: null, previous: 500 });
+  });
+
+  it('recomputes every distance-dependent ratio', () => {
+    const base = computeCarTotals([main({ amount: 110, liters: 10 })], new Map(), {});
+    const next = withDistance(base, 1100, ['2026-01', '2026-03']);
+    expect(next.distanceKm).toBe(1100);
+    expect(next.avgMonthlyKm).toBe(550);
+    expect(next.costPerKm).toBeCloseTo(0.1, 5);
+    expect(next.kmPerLiter).toBeCloseTo(110, 5);
+  });
+});
+
+describe('legacy baseline and default year', () => {
+  it('treats an unset initial mileage as a baseline, not as zero', () => {
+    const points = legacyMileageSeries(
+      [
+        { year: 2026, month: 1, reading: 45000 },
+        { year: 2026, month: 2, reading: 45500 },
+      ],
+      0,
+    );
+    expect(points).toEqual([{ year: 2026, month: 2, distanceKm: 500 }]);
+  });
+
+  it('defaults to the latest year with either transaction or manual data', () => {
+    expect(latestCarDataYear([main({ date: '2025-06-01' })], [{ year: 2024, month: 1, reading: 1 }])).toBe(2025);
+    expect(latestCarDataYear([], [{ year: 2023, month: 1, reading: 1 }])).toBe(2023);
+    expect(latestCarDataYear([], [], dayjs('2026-11-24'))).toBe(2026);
   });
 });

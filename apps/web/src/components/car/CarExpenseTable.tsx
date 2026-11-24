@@ -228,7 +228,7 @@ const CarExpenseTable: React.FC<CarExpenseTableProps> = ({
 
                     <TableCell align="right" sx={bodyCellSx}>
                       <Typography noWrap sx={{ ...mono, fontSize: '0.75rem' }}>
-                        {transaction.liters !== undefined ? `${formatNumber(transaction.liters, 1)} L` : '—'}
+                        {row.liters !== null ? `${formatNumber(row.liters, 1)} L` : '—'}
                       </Typography>
                     </TableCell>
 

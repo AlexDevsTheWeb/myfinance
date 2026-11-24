@@ -150,7 +150,11 @@ const CarSummaryCards: React.FC<CarSummaryCardsProps> = ({ totals, spendDeltaPer
           totals.liters > 0 ? (
             <Caption>{t('car.kpi.efficiency.liters', { liters: formatNumber(totals.liters, 1) })}</Caption>
           ) : (
-            <Caption>{t('car.kpi.efficiency.hint')}</Caption>
+            <Caption>
+              {totals.distanceKm > 0
+                ? t('car.kpi.efficiency.litersHint')
+                : t('car.kpi.efficiency.hint')}
+            </Caption>
           )
         }
       />

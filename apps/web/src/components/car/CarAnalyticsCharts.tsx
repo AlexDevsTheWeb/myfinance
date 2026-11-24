@@ -23,12 +23,21 @@ interface CarAnalyticsChartsProps {
   year: number;
   hasSpend: boolean;
   hasDistance: boolean;
+  /** The distance came from the manual mileage log, not transaction odometers. */
+  legacyDistance?: boolean;
 }
 
 const chartSx = { '&, & *, & svg': { overflow: 'visible !important' } };
 const monthLabel = (month: number): string => dayjs().month(month - 1).format('MMM');
 
-const CarAnalyticsCharts: React.FC<CarAnalyticsChartsProps> = ({ buckets, yoy, year, hasSpend, hasDistance }) => {
+const CarAnalyticsCharts: React.FC<CarAnalyticsChartsProps> = ({
+  buckets,
+  yoy,
+  year,
+  hasSpend,
+  hasDistance,
+  legacyDistance = false,
+}) => {
   const { t } = useTranslation();
   const labels = buckets.map((bucket) => monthLabel(bucket.month));
   const hasYoY = hasDistance && yoy.some((point) => point.current !== null || point.previous !== null);
@@ -42,6 +51,11 @@ const CarAnalyticsCharts: React.FC<CarAnalyticsChartsProps> = ({ buckets, yoy, y
         <Typography variant="caption" sx={{ display: 'block', mb: 2, color: 'colors.subtle' }}>
           {t('car.charts.spendCaption')}
         </Typography>
+        {legacyDistance && (
+          <Typography variant="caption" sx={{ display: 'block', mb: 2, color: 'colors.amber' }}>
+            {t('car.charts.legacyNote')}
+          </Typography>
+        )}
 
         {hasSpend ? (
           <Box sx={{ height: 320, ...chartSx }}>
@@ -124,6 +138,11 @@ const CarAnalyticsCharts: React.FC<CarAnalyticsChartsProps> = ({ buckets, yoy, y
         <Typography variant="caption" sx={{ display: 'block', mb: 2, color: 'colors.subtle' }}>
           {t('car.charts.yoyCaption', { year, previous: year - 1 })}
         </Typography>
+        {legacyDistance && (
+          <Typography variant="caption" sx={{ display: 'block', mb: 2, color: 'colors.amber' }}>
+            {t('car.charts.legacyNote')}
+          </Typography>
+        )}
 
         {hasYoY ? (
           <Box

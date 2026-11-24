@@ -34,6 +34,8 @@ export interface CarRow {
   vehicleType: VehicleType;
   /** km driven since the previous reading of the same vehicle, or null. */
   deltaKm: number | null;
+  /** Litres, from `liters` or the legacy fuel `consumption` field. */
+  liters: number | null;
   /** Real km/L for a fuel row with both a delta and litres, or null. */
   kmPerLiter: number | null;
   pricePerLiter: number | null;
@@ -51,6 +53,8 @@ export interface CarTotals {
   otherCostPerKm: number | null;
   avgMonthlyKm: number | null;
   monthsWithDistance: number;
+  /** `YYYY-MM` keys used for the monthly average. */
+  months: string[];
   entries: number;
 }
 
@@ -68,6 +72,20 @@ export interface CarYoYPoint {
   month: number;
   current: number | null;
   previous: number | null;
+}
+
+/** Shape of the legacy mileage log persisted on the user document. */
+export interface CarMileageReading {
+  year: number;
+  month: number;
+  reading: number;
+}
+
+/** One month of distance derived from the legacy mileage log. */
+export interface LegacyMileagePoint {
+  year: number;
+  month: number;
+  distanceKm: number;
 }
 
 const FUEL_WORDS = ['carburante', 'benzina', 'gasolio', 'diesel', 'fuel', 'rifornimento', 'petrol', 'metano'];
@@ -142,6 +160,24 @@ export function classifyCarExpense(transaction: Transaction): CarExpenseType | n
   return inferCarExpenseType(transaction.category, transaction.subcategory, transaction.description);
 }
 
+/**
+ * Litres on a fuel row.
+ *
+ * `liters` is the new dedicated field. Before it existed, the drawer stored the
+ * fuel volume in `consumption` (unit `L`), so old fuel rows must keep counting.
+ */
+export function fuelLitersOf(transaction: Transaction): number | null {
+  if (classifyCarExpense(transaction) !== 'fuel') return null;
+
+  const explicit = transaction.liters;
+  if (typeof explicit === 'number' && Number.isFinite(explicit) && explicit > 0) return explicit;
+
+  const legacy = transaction.consumption;
+  if (typeof legacy === 'number' && Number.isFinite(legacy) && legacy > 0) return legacy;
+
+  return null;
+}
+
 export function vehicleKeyOf(transaction: Transaction): string {
   const name = transaction.vehicleName?.trim();
   return name ? name : UNASSIGNED_VEHICLE;
@@ -182,8 +218,28 @@ export function availableCarYears(transactions: Transaction[], today: dayjs.Dayj
 
 /** Latest year that actually has car data, falling back to the current year. */
 export function latestCarYear(transactions: Transaction[], today: dayjs.Dayjs = dayjs()): number {
-  const years = availableCarYears(transactions, today);
-  return years[0] ?? today.year();
+  const years = transactions
+    .filter(isCarTransaction)
+    .map((transaction) => dayjs(transaction.date).year());
+  return years.length > 0 ? Math.max(...years) : today.year();
+}
+
+/**
+ * Latest year with either transaction-level or manual-log data.
+ *
+ * This is the default period: a user whose last fuel fill was in 2025 should
+ * not land on an empty 2026 page just because the calendar moved on.
+ */
+export function latestCarDataYear(
+  transactions: Transaction[],
+  mileage: CarMileageReading[],
+  today: dayjs.Dayjs = dayjs(),
+): number {
+  const years = [
+    ...transactions.filter(isCarTransaction).map((transaction) => dayjs(transaction.date).year()),
+    ...mileage.map((record) => record.year),
+  ];
+  return years.length > 0 ? Math.max(...years) : today.year();
 }
 
 export interface CarSelection {
@@ -251,15 +307,13 @@ export function buildCarRows(
     .map((transaction) => {
       const expenseType = classifyCarExpense(transaction);
       const deltaKm = deltas.get(transaction.id) ?? null;
-      const liters = transaction.liters;
+      const liters = fuelLitersOf(transaction);
       const amount = Math.abs(transaction.amount);
       const kmPerLiter =
-        expenseType === 'fuel' && deltaKm !== null && typeof liters === 'number' && liters > 0
-          ? deltaKm / liters
-          : null;
+        expenseType === 'fuel' && deltaKm !== null && liters !== null ? deltaKm / liters : null;
       const pricePerLiter =
         transaction.pricePerLiter ??
-        (typeof liters === 'number' && liters > 0 ? amount / liters : null);
+        (liters !== null ? amount / liters : null);
       return {
         transaction,
         expenseType,
@@ -267,6 +321,7 @@ export function buildCarRows(
         vehicleName: transaction.vehicleName?.trim() || null,
         vehicleType: vehicleTypeOf(transaction),
         deltaKm,
+        liters,
         kmPerLiter,
         pricePerLiter,
       };
@@ -289,11 +344,11 @@ export function computeCarTotals(
   for (const transaction of rows) {
     const amount = Math.abs(transaction.amount);
     spend += amount;
-    if (classifyCarExpense(transaction) === 'fuel') {
+    const isFuel = classifyCarExpense(transaction) === 'fuel';
+    if (isFuel) {
       fuelSpend += amount;
-      if (typeof transaction.liters === 'number' && Number.isFinite(transaction.liters) && transaction.liters > 0) {
-        liters += transaction.liters;
-      }
+      const rowLiters = fuelLitersOf(transaction);
+      if (rowLiters !== null) liters += rowLiters;
     }
     const delta = deltas.get(transaction.id);
     if (delta !== undefined) {
@@ -317,6 +372,7 @@ export function computeCarTotals(
     otherCostPerKm: distanceKm > 0 ? otherSpend / distanceKm : null,
     avgMonthlyKm: monthsWithDistance > 0 ? distanceKm / monthsWithDistance : null,
     monthsWithDistance,
+    months: Array.from(months).sort(),
     entries: rows.length,
   };
 }
@@ -343,9 +399,8 @@ export function buildMonthlyBuckets(
     const amount = Math.abs(transaction.amount);
     if (classifyCarExpense(transaction) === 'fuel') {
       bucket.fuelSpend += amount;
-      if (typeof transaction.liters === 'number' && Number.isFinite(transaction.liters) && transaction.liters > 0) {
-        bucket.liters += transaction.liters;
-      }
+      const rowLiters = fuelLitersOf(transaction);
+      if (rowLiters !== null) bucket.liters += rowLiters;
     } else {
       bucket.otherSpend += amount;
     }
@@ -391,6 +446,113 @@ export function buildDistanceYoY(
   }
 
   return points;
+}
+
+/* ------------------------------------------------------------------ *
+ * Legacy mileage log
+ *
+ * Before the per-transaction odometer fields existed, the app stored one
+ * reading per month in `carMileage` on the user document. That log is the only
+ * distance source for existing accounts, so the page falls back to it when the
+ * selected scope has no transaction-level odometer deltas.
+ * ------------------------------------------------------------------ */
+
+/** Monthly distance derived from the manual mileage log, oldest first. */
+export function legacyMileageSeries(
+  mileage: CarMileageReading[],
+  initialMileage: number,
+): LegacyMileagePoint[] {
+  const sorted = [...mileage].sort(
+    (a, b) => a.year * 12 + a.month - (b.year * 12 + b.month),
+  );
+  // An unset initial mileage (0) is "unknown", not "the car started at zero":
+  // otherwise the first reading would be counted as tens of thousands of km.
+  let previous: number | null = Number.isFinite(initialMileage) && initialMileage > 0 ? initialMileage : null;
+  const points: LegacyMileagePoint[] = [];
+
+  for (const record of sorted) {
+    const reading = Number(record.reading);
+    if (!Number.isFinite(reading)) continue;
+    if (previous !== null) {
+      const delta = reading - previous;
+      if (delta > 0) points.push({ year: record.year, month: record.month, distanceKm: delta });
+    }
+    // A decreasing reading is ignored, but still becomes the next baseline.
+    previous = reading;
+  }
+
+  return points;
+}
+
+const legacyMonthKey = (point: LegacyMileagePoint): string =>
+  `${point.year}-${String(point.month).padStart(2, '0')}`;
+
+/** Distance and distinct months from the legacy log for a period. */
+export function legacyDistanceFor(
+  points: LegacyMileagePoint[],
+  period: CarPeriod,
+): { distanceKm: number; months: string[] } {
+  const selected = period === 'all' ? points : points.filter((point) => point.year === period);
+  return {
+    distanceKm: selected.reduce((sum, point) => sum + point.distanceKm, 0),
+    months: Array.from(new Set(selected.map(legacyMonthKey))).sort(),
+  };
+}
+
+/** Overlay legacy distance on transaction-based buckets, keeping their spend. */
+export function applyLegacyDistance(
+  buckets: CarBucket[],
+  points: LegacyMileagePoint[],
+  year: number,
+): CarBucket[] {
+  const byMonth = new Map<number, number>();
+  for (const point of points) {
+    if (point.year !== year) continue;
+    byMonth.set(point.month, (byMonth.get(point.month) ?? 0) + point.distanceKm);
+  }
+
+  return buckets.map((bucket) => {
+    const distanceKm = byMonth.get(bucket.month) ?? 0;
+    const spend = bucket.fuelSpend + bucket.otherSpend;
+    return {
+      ...bucket,
+      distanceKm,
+      costPerKm: distanceKm > 0 ? spend / distanceKm : null,
+    };
+  });
+}
+
+/** Monthly distance for a year and the one before, from the legacy log. */
+export function legacyDistanceYoY(points: LegacyMileagePoint[], year: number): CarYoYPoint[] {
+  const series: CarYoYPoint[] = Array.from({ length: 12 }, (_, index) => ({
+    month: index + 1,
+    current: null,
+    previous: null,
+  }));
+
+  for (const point of points) {
+    const month = series[point.month - 1];
+    if (!month) continue;
+    if (point.year === year) month.current = (month.current ?? 0) + point.distanceKm;
+    else if (point.year === year - 1) month.previous = (month.previous ?? 0) + point.distanceKm;
+  }
+
+  return series;
+}
+
+/** Replace the distance and recompute every ratio that depends on it. */
+export function withDistance(totals: CarTotals, distanceKm: number, months: string[]): CarTotals {
+  return {
+    ...totals,
+    distanceKm,
+    months,
+    monthsWithDistance: months.length,
+    costPerKm: distanceKm > 0 ? totals.spend / distanceKm : null,
+    fuelCostPerKm: distanceKm > 0 ? totals.fuelSpend / distanceKm : null,
+    otherCostPerKm: distanceKm > 0 ? totals.otherSpend / distanceKm : null,
+    kmPerLiter: distanceKm > 0 && totals.liters > 0 ? distanceKm / totals.liters : null,
+    avgMonthlyKm: months.length > 0 ? distanceKm / months.length : null,
+  };
 }
 
 /** Percentage change, or null when the previous value cannot be a baseline. */

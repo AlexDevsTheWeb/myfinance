@@ -358,7 +358,8 @@
       "efficiency": {
         "title": "Efficienza",
         "liters": "{{liters}} L registrati",
-        "hint": "Servono contachilometri e litri"
+        "hint": "Servono contachilometri e litri",
+        "litersHint": "Aggiungi i litri a una spesa di carburante"
       }
     },
     "charts": {
@@ -370,7 +371,8 @@
       "yoyTitle": "Distanza mensile — anno su anno",
       "yoyCaption": "{{year}} vs {{previous}} dalle letture consecutive del contachilometri.",
       "noData": "Nessuna spesa nel periodo.",
-      "noYoY": "Letture insufficienti per il confronto."
+      "noYoY": "Letture insufficienti per il confronto.",
+      "legacyNote": "Distanza dal registro chilometrico manuale — aggiungi le letture del contachilometri alle spese per il dettaglio per veicolo."
     },
     "table": {
       "date": "Data",

@@ -358,7 +358,8 @@
       "efficiency": {
         "title": "Fuel efficiency",
         "liters": "{{liters}} L recorded",
-        "hint": "Needs odometer and litres"
+        "hint": "Needs odometer and litres",
+        "litersHint": "Add litres to a fuel expense"
       }
     },
     "charts": {
@@ -370,7 +371,8 @@
       "yoyTitle": "Monthly distance — year over year",
       "yoyCaption": "{{year}} vs {{previous}} distance from consecutive odometer readings.",
       "noData": "No spend in this period.",
-      "noYoY": "Not enough odometer readings for a comparison."
+      "noYoY": "Not enough odometer readings for a comparison.",
+      "legacyNote": "Distance from the manual mileage log — add odometer readings to expenses for the per-vehicle view."
     },
     "table": {
       "date": "Date",

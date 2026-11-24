@@ -20,17 +20,22 @@ import CarMileageTiresSection from '../components/car/CarMileageTiresSection';
 import CarScopeBar from '../components/car/CarScopeBar';
 import CarSummaryCards from '../components/car/CarSummaryCards';
 import {
+  applyLegacyDistance,
   availableCarYears,
   buildCarRows,
   buildDistanceYoY,
   buildMonthlyBuckets,
   computeCarTotals,
-  latestCarYear,
+  latestCarDataYear,
+  legacyDistanceFor,
+  legacyDistanceYoY,
+  legacyMileageSeries,
   listVehicleOptions,
   odometerDeltas,
   percentChange,
   selectCarTransactions,
   UNASSIGNED_VEHICLE,
+  withDistance,
   type CarPeriod,
   type CarRow,
   type CarVehicleFilter,
@@ -44,11 +49,12 @@ import { formatCurrency, formatNumber } from '../utils/format.utils';
 
 const CarPage: React.FC = () => {
   const { t } = useTranslation();
-  const { transactions, isLoading, duplicateTransaction, deleteTransaction } = useFinanceStore();
+  const { transactions, carMileage, carInitialMileage, isLoading, duplicateTransaction, deleteTransaction } =
+    useFinanceStore();
   const openTransactionDrawer = useUiStore((state) => state.openTransactionDrawer);
 
   const [vehicle, setVehicle] = useState<CarVehicleFilter>('all');
-  const [period, setPeriod] = useState<CarPeriod>(dayjs().year());
+  const [period, setPeriod] = useState<CarPeriod | null>(null);
   const [search, setSearch] = useState('');
   const [expenseFilter, setExpenseFilter] = useState<CarExpenseFilter>('all');
   const [sort, setSort] = useState<CarSort>({ field: 'date', direction: 'desc' });
@@ -57,7 +63,13 @@ const CarPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<CarRow | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  const years = useMemo(() => availableCarYears(transactions), [transactions]);
+  const years = useMemo(() => {
+    const set = new Set([...availableCarYears(transactions), ...carMileage.map((record) => record.year)]);
+    return Array.from(set).sort((a, b) => b - a);
+  }, [transactions, carMileage]);
+  const latestDataYear = useMemo(() => latestCarDataYear(transactions, carMileage), [transactions, carMileage]);
+  /** `null` means "follow the latest year with data", so a 2025-only account is not empty in 2026. */
+  const effectivePeriod: CarPeriod = period ?? latestDataYear;
   const vehicles = useMemo(() => listVehicleOptions(transactions), [transactions]);
 
   /** All years for the selected vehicle: odometer deltas need the prior reading. */
@@ -68,19 +80,49 @@ const CarPage: React.FC = () => {
   const deltas = useMemo(() => odometerDeltas(scopedTransactions), [scopedTransactions]);
 
   const totals = useMemo(
-    () => computeCarTotals(transactions, deltas, { vehicle, period }),
-    [transactions, deltas, vehicle, period],
+    () => computeCarTotals(transactions, deltas, { vehicle, period: effectivePeriod }),
+    [transactions, deltas, vehicle, effectivePeriod],
   );
   const previousTotals = useMemo(
-    () => (period === 'all' ? null : computeCarTotals(transactions, deltas, { vehicle, period: period - 1 })),
-    [transactions, deltas, vehicle, period],
+    () =>
+      effectivePeriod === 'all'
+        ? null
+        : computeCarTotals(transactions, deltas, { vehicle, period: effectivePeriod - 1 }),
+    [transactions, deltas, vehicle, effectivePeriod],
   );
   const spendDeltaPercent = useMemo(
     () => (previousTotals === null ? null : percentChange(totals.spend, previousTotals.spend)),
     [totals.spend, previousTotals],
   );
 
-  const chartYear = period === 'all' ? latestCarYear(transactions) : period;
+  const legacyPoints = useMemo(
+    () => legacyMileageSeries(carMileage, carInitialMileage),
+    [carMileage, carInitialMileage],
+  );
+
+  /**
+   * The manual log has no vehicle, so it belongs to the untagged/main scope. Use
+   * it only while that scope has no transaction-level distance, otherwise the
+   * same km would be counted twice.
+   */
+  const unassignedTotals = useMemo(
+    () => computeCarTotals(transactions, deltas, { vehicle: UNASSIGNED_VEHICLE, period: effectivePeriod }),
+    [transactions, deltas, effectivePeriod],
+  );
+  const legacyScope = vehicle === 'all' || vehicle === UNASSIGNED_VEHICLE;
+  const useLegacyDistance = legacyScope && unassignedTotals.distanceKm === 0 && legacyPoints.length > 0;
+  const legacyDistance = useMemo(
+    () => legacyDistanceFor(legacyPoints, effectivePeriod),
+    [legacyPoints, effectivePeriod],
+  );
+  const displayTotals = useMemo(() => {
+    if (!useLegacyDistance) return totals;
+    const baseDistance = vehicle === 'all' ? totals.distanceKm : 0;
+    const months = Array.from(new Set([...totals.months, ...legacyDistance.months])).sort();
+    return withDistance(totals, baseDistance + legacyDistance.distanceKm, months);
+  }, [useLegacyDistance, totals, vehicle, legacyDistance]);
+
+  const chartYear = effectivePeriod === 'all' ? latestDataYear : effectivePeriod;
   const buckets = useMemo(
     () => buildMonthlyBuckets(transactions, deltas, vehicle, chartYear),
     [transactions, deltas, vehicle, chartYear],
@@ -89,10 +131,18 @@ const CarPage: React.FC = () => {
     () => buildDistanceYoY(transactions, deltas, vehicle, chartYear),
     [transactions, deltas, vehicle, chartYear],
   );
+  const displayBuckets = useMemo(
+    () => (useLegacyDistance ? applyLegacyDistance(buckets, legacyPoints, chartYear) : buckets),
+    [useLegacyDistance, buckets, legacyPoints, chartYear],
+  );
+  const displayYoY = useMemo(
+    () => (useLegacyDistance ? legacyDistanceYoY(legacyPoints, chartYear) : yoy),
+    [useLegacyDistance, legacyPoints, chartYear, yoy],
+  );
 
   const rows = useMemo(
-    () => buildCarRows(selectCarTransactions(transactions, { vehicle, period }), deltas),
-    [transactions, deltas, vehicle, period],
+    () => buildCarRows(selectCarTransactions(transactions, { vehicle, period: effectivePeriod }), deltas),
+    [transactions, deltas, vehicle, effectivePeriod],
   );
 
   const filteredRows = useMemo(() => {
@@ -126,8 +176,9 @@ const CarPage: React.FC = () => {
     [sortedRows],
   );
 
-  const hasSpend = buckets.some((bucket) => bucket.fuelSpend + bucket.otherSpend > 0);
-  const hasDistance = yoy.some((point) => point.current !== null || point.previous !== null);
+  const hasSpend = displayBuckets.some((bucket) => bucket.fuelSpend + bucket.otherSpend > 0);
+  const hasDistance =
+    displayTotals.distanceKm > 0 || displayYoY.some((point) => point.current !== null || point.previous !== null);
   const onlyUnassigned = vehicles.length > 0 && vehicles.every((option) => option.key === UNASSIGNED_VEHICLE);
 
   const resetPage = () => setPage(0);
@@ -172,7 +223,7 @@ const CarPage: React.FC = () => {
         row.expenseType ? t(`car.expenseTypes.${row.expenseType}`) : '',
         transaction.description,
         transaction.odometerKm !== undefined ? formatNumber(transaction.odometerKm) : '',
-        transaction.liters !== undefined ? formatNumber(transaction.liters, 2) : '',
+        row.liters !== null ? formatNumber(row.liters, 2) : '',
         row.pricePerLiter === null ? '' : formatNumber(row.pricePerLiter, 3),
         formatNumber(Math.abs(transaction.amount), 2),
         row.kmPerLiter === null ? '' : formatNumber(row.kmPerLiter, 2),
@@ -182,7 +233,7 @@ const CarPage: React.FC = () => {
     });
 
     downloadCsv(
-      `auto-${period === 'all' ? 'tutti-gli-anni' : period}-${dayjs().format('YYYY-MM-DD')}.csv`,
+      `auto-${effectivePeriod === 'all' ? 'tutti-gli-anni' : effectivePeriod}-${dayjs().format('YYYY-MM-DD')}.csv`,
       `\uFEFF${[header.map((field) => escapeCsvField(field, separator)).join(separator), ...lines].join('\r\n')}\r\n`,
     );
   };
@@ -205,7 +256,7 @@ const CarPage: React.FC = () => {
           resetPage();
         }}
         years={years}
-        period={period}
+        period={effectivePeriod}
         onPeriodChange={(value) => {
           setPeriod(value);
           resetPage();
@@ -218,9 +269,16 @@ const CarPage: React.FC = () => {
         </Alert>
       )}
 
-      <CarSummaryCards totals={totals} spendDeltaPercent={spendDeltaPercent} />
+      <CarSummaryCards totals={displayTotals} spendDeltaPercent={spendDeltaPercent} />
 
-      <CarAnalyticsCharts buckets={buckets} yoy={yoy} year={chartYear} hasSpend={hasSpend} hasDistance={hasDistance} />
+      <CarAnalyticsCharts
+        buckets={displayBuckets}
+        yoy={displayYoY}
+        year={chartYear}
+        hasSpend={hasSpend}
+        hasDistance={hasDistance}
+        legacyDistance={useLegacyDistance}
+      />
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
@@ -311,7 +369,7 @@ const CarPage: React.FC = () => {
         onDelete={setDeleteTarget}
       />
 
-      <CarMileageTiresSection year={period === 'all' ? chartYear : period} />
+      <CarMileageTiresSection year={effectivePeriod === 'all' ? chartYear : effectivePeriod} />
 
       <ConfirmDialog
         open={Boolean(deleteTarget)}
