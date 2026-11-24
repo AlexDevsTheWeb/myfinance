@@ -141,6 +141,18 @@ The default period is the **latest year with either source**, so a 2025-only
 account does not land on an empty 2026 page. While the fallback is active the
 charts show a note that distance comes from the manual log.
 
+### Recording a monthly reading
+
+The Vehicle log form asks for **Year** and **Month covered**, not just a month.
+The reading is the odometer at the **end of that month**, and the delta is
+attributed to that month. The year select moves the page scope with it, so a
+reading saved for 2025 is immediately visible instead of being filed under the
+year that happened to be on screen. A hint spells out the exact month and year
+being saved.
+
+The converter also accepts numeric strings in `carMileage` (`"2026"`, `"10"`),
+so a legacy or hand-edited Firestore record is not silently dropped.
+
 ## Page structure
 
 ```

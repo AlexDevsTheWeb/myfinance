@@ -1079,3 +1079,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `expenseType` now accepts the persisted value `none` (explicit no type) and suppresses inference; the drawer offers `Auto (inferred)`, `No type` and a reset action
 - A missing `vehicleType` displays as `Not set` instead of the implicit `Car`
 - Tests 345 → **350 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (mileage month/year)
+- A reading entered on 1 November for October's km could be saved as November (the form month default) or under the page's current year
+- The Vehicle log form now has an explicit **Year** select (moves the page year) and a **Month covered** label plus an "Odometer at the end of {{month}} {{year}}" hint; the log row shows the year
+- `readNumber` now coerces numeric strings, so a hand-edited `carMileage` record (`"2026"`, `"10"`) is not dropped
+- Tests 350 → **351 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
