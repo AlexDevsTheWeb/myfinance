@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { type DocumentData, type FirestoreDataConverter, QueryDocumentSnapshot, type SnapshotOptions, Timestamp, doc, collection } from 'firebase/firestore';
 import { db } from './firebase';
-import { type IAccount, type ICard, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget, type UtilityType, type VehicleType, type CarExpenseType } from '../store/types';
+import { type IAccount, type ICard, type IAppModules, type IBrokerConfig, type ICarMileageRecord, type ICategory, type IETFTransaction, type IPortfolioSnapshot, type IRecurringTransaction, type ITireChangeRecord, type ITireSettings, type BrokerAccount, type AssetHolding, type CashAdjustment, type DividendEntry, type BudgetTarget, type UtilityType, type VehicleType, type CarExpenseSetting } from '../store/types';
 
 /**
  * Raw shapes read back from Firestore.
@@ -73,7 +73,7 @@ export interface TransactionDoc {
   odometerKm?: number | null;
   liters?: number | null;
   pricePerLiter?: number | null;
-  expenseType?: CarExpenseType | null;
+  expenseType?: CarExpenseSetting | null;
   createdAt?: ReturnType<typeof Timestamp.now>;
 }
 
@@ -138,7 +138,7 @@ export const transactionConverter: FirestoreDataConverter<TransactionDoc> = {
       liters: typeof data.liters === 'number' && Number.isFinite(data.liters) ? data.liters : undefined,
       pricePerLiter: typeof data.pricePerLiter === 'number' && Number.isFinite(data.pricePerLiter) ? data.pricePerLiter : undefined,
       expenseType:
-        data.expenseType === 'fuel' || data.expenseType === 'maintenance' || data.expenseType === 'tax'
+        data.expenseType === 'none' || data.expenseType === 'fuel' || data.expenseType === 'maintenance' || data.expenseType === 'tax'
           ? data.expenseType
           : undefined,
     };

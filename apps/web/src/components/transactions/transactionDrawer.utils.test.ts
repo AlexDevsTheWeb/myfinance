@@ -452,3 +452,21 @@ describe('car expense mapping', () => {
     expect(back.expenseType).toBe('fuel');
   });
 });
+
+describe('explicit no-type', () => {
+  it('persists none instead of re-inferring fuel', () => {
+    const transaction = draftToTransaction(
+      { ...draft({ category: 'Trasporti', subcategory: 'Carburante' }), expenseType: 'none' },
+      'expense',
+    );
+    expect(transaction.expenseType).toBe('none');
+  });
+
+  it('round-trips the explicit no-type', () => {
+    const transaction = draftToTransaction(
+      { ...draft({ category: 'Trasporti', subcategory: 'Carburante' }), expenseType: 'none' },
+      'expense',
+    );
+    expect(transactionToDraft(transaction).expenseType).toBe('none');
+  });
+});

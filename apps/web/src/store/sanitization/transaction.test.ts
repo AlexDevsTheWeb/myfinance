@@ -114,3 +114,10 @@ describe('sanitizeTransaction — car fields', () => {
     expect(out.pricePerLiter).toBeNull()
   })
 })
+
+describe('sanitizeTransaction — explicit no-type', () => {
+  it('passes none through instead of dropping it', () => {
+    const out = sanitizeTransaction({ ...baseTxn, expenseType: 'none' })
+    expect(out.expenseType).toBe('none')
+  })
+})

@@ -15,6 +15,7 @@ export type {
   UtilityType,
   VehicleType,
   CarExpenseType,
+  CarExpenseSetting,
 } from './finance.types';
 
 export type {

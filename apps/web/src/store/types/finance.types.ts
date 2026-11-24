@@ -35,6 +35,12 @@ export type VehicleType = 'car' | 'scooter' | 'rental' | 'other';
 /** Car expense kind. Absent means "infer from category/subcategory". */
 export type CarExpenseType = 'fuel' | 'maintenance' | 'tax';
 
+/**
+ * Persisted expense-type setting. `none` is an explicit "no type" that
+ * suppresses keyword inference, so a user can clear a wrong classification.
+ */
+export type CarExpenseSetting = CarExpenseType | 'none';
+
 export interface ITransaction {
   id: string;
   date: string;
@@ -77,7 +83,7 @@ export interface ITransaction {
   /** Price paid per litre (EUR/L). Derived from amount ÷ litres when absent. */
   pricePerLiter?: number;
   /** Car expense kind. Absent means the page infers it from category keywords. */
-  expenseType?: CarExpenseType;
+  expenseType?: CarExpenseSetting;
 }
 
 export interface IRecurringTransaction {

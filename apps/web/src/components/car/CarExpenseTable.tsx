@@ -183,7 +183,9 @@ const CarExpenseTable: React.FC<CarExpenseTableProps> = ({
             ) : (
               rows.map((row) => {
                 const { transaction } = row;
-                const vehicleColor = VEHICLE_COLORS[row.vehicleType];
+                const vehicleColor = row.transaction.vehicleType
+                  ? VEHICLE_COLORS[row.transaction.vehicleType]
+                  : '#64748B';
                 const typeColor = row.expenseType ? EXPENSE_COLORS[row.expenseType] : 'colors.muted';
                 return (
                   <TableRow key={transaction.id} hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
@@ -196,7 +198,11 @@ const CarExpenseTable: React.FC<CarExpenseTableProps> = ({
                     <TableCell sx={bodyCellSx}>
                       <Chip
                         label={row.vehicleName ?? t('car.vehicles.unassigned')}
-                        caption={t(`car.vehicles.${row.vehicleType}`)}
+                        caption={
+                          row.transaction.vehicleType
+                            ? t(`car.vehicles.${row.transaction.vehicleType}`)
+                            : t('car.vehicles.notSet')
+                        }
                         color={vehicleColor}
                       />
                     </TableCell>

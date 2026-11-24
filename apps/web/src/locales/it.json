@@ -168,6 +168,9 @@
         "vehiclePlaceholder": "es. Peugeot 208",
         "vehicleType": "Tipo veicolo",
         "expenseType": "Tipo spesa",
+        "autoType": "Automatico (dedotto)",
+        "noneType": "Nessun tipo",
+        "clearTypes": "Cancella tipo e tipo spesa",
         "odometer": "Contachilometri (km)",
         "liters": "Litri",
         "pricePerLiter": "Prezzo al litro (€/L)",
@@ -332,7 +335,8 @@
       "scooter": "Scooter",
       "rental": "Noleggio",
       "other": "Altro",
-      "unassigned": "Non assegnato"
+      "unassigned": "Non assegnato",
+      "notSet": "Non impostato"
     },
     "expenseTypes": {
       "fuel": "Carburante",

@@ -396,11 +396,24 @@ const DrawerBody: React.FC<DrawerBodyProps> = ({ initialType, transaction, prese
                   }
                   sx={formTextFieldSx}
                 >
-                  <MenuItem value="">{t('transactions.drawer.car.none')}</MenuItem>
+                  <MenuItem value="">{t('transactions.drawer.car.autoType')}</MenuItem>
+                  <MenuItem value="none">{t('transactions.drawer.car.noneType')}</MenuItem>
                   <MenuItem value="fuel">{t('car.expenseTypes.fuel')}</MenuItem>
                   <MenuItem value="maintenance">{t('car.expenseTypes.maintenance')}</MenuItem>
                   <MenuItem value="tax">{t('car.expenseTypes.tax')}</MenuItem>
                 </TextField>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1 }}>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    update('vehicleType', '');
+                    update('expenseType', 'none');
+                  }}
+                  sx={{ textTransform: 'none', fontSize: '0.72rem', color: 'colors.subtle', minWidth: 0 }}
+                >
+                  {t('transactions.drawer.car.clearTypes')}
+                </Button>
               </Box>
               <Box sx={{ display: 'flex', gap: 1.5 }}>
                 <TextField

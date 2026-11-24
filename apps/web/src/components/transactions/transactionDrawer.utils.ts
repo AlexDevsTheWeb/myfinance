@@ -7,7 +7,7 @@
  */
 import dayjs from 'dayjs';
 import type { Account, RecurringTransaction, Transaction, UtilityType } from '../../store/useFinanceStore';
-import type { CarExpenseType, VehicleType } from '../../store/types';
+import type { CarExpenseSetting, VehicleType } from '../../store/types';
 import type { TransactionDrawerType } from '../../store/useUiStore';
 import { inferCarExpenseType, isCarCategory } from '../car/car.utils';
 
@@ -33,7 +33,7 @@ export interface TransactionDraft {
   odometerKm: string;
   liters: string;
   pricePerLiter: string;
-  expenseType: '' | CarExpenseType;
+  expenseType: '' | CarExpenseSetting;
 }
 
 export interface RecurringDraft {
@@ -365,7 +365,10 @@ export function draftToTransaction(
     : hasLiters
       ? amount / liters
       : Number.NaN;
-  const inferredExpenseType = draft.expenseType || inferCarExpenseType(draft.category, draft.subcategory, draft.description);
+  const expenseType: CarExpenseSetting | null =
+    draft.expenseType === 'none'
+      ? 'none'
+      : draft.expenseType || inferCarExpenseType(draft.category, draft.subcategory, draft.description);
   const hasCarFields =
     isCarCategory(draft.category, draft.subcategory) ||
     draft.vehicleName.trim() !== '' ||
@@ -394,7 +397,7 @@ export function draftToTransaction(
     ...(draft.meterId.trim() ? { meterId: draft.meterId.trim() } : {}),
     ...(hasCarFields && draft.vehicleName.trim() ? { vehicleName: draft.vehicleName.trim() } : {}),
     ...(hasCarFields && draft.vehicleType ? { vehicleType: draft.vehicleType } : {}),
-    ...(hasCarFields && inferredExpenseType ? { expenseType: inferredExpenseType } : {}),
+    ...(hasCarFields && expenseType ? { expenseType } : {}),
     ...(hasCarFields && hasOdometer ? { odometerKm } : {}),
     ...(hasCarFields && hasLiters ? { liters } : {}),
     ...(hasCarFields && Number.isFinite(pricePerLiter) && pricePerLiter > 0 ? { pricePerLiter } : {}),

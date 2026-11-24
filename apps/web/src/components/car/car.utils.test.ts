@@ -455,3 +455,15 @@ describe('public transport exclusion', () => {
     expect(isCarTransaction(tx({ category: 'Casa', subcategory: 'Manutenzione' }))).toBe(false);
   });
 });
+
+describe('explicit no-type', () => {
+  it('suppresses inference but still counts the car spend', () => {
+    const row = tx({ expenseType: 'none' });
+    expect(isCarTransaction(row)).toBe(true);
+    expect(classifyCarExpense(row)).toBeNull();
+  });
+
+  it('does not make a public transport ticket a car expense', () => {
+    expect(isCarTransaction(tx({ subcategory: 'Treno', expenseType: 'none' }))).toBe(false);
+  });
+});

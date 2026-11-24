@@ -222,7 +222,7 @@ export function isCarTransaction(transaction: Transaction): boolean {
   if (transaction.utilityType) return false;
 
   const strongCarFields =
-    transaction.expenseType !== undefined ||
+    (transaction.expenseType !== undefined && transaction.expenseType !== 'none') ||
     transaction.odometerKm !== undefined ||
     transaction.liters !== undefined ||
     transaction.pricePerLiter !== undefined;
@@ -239,9 +239,10 @@ export function isCarTransaction(transaction: Transaction): boolean {
   );
 }
 
-/** Explicit kind first, then category keywords. */
+/** Explicit kind first, then category keywords. `none` suppresses inference. */
 export function classifyCarExpense(transaction: Transaction): CarExpenseType | null {
   if (!isCarTransaction(transaction)) return null;
+  if (transaction.expenseType === 'none') return null;
   if (transaction.expenseType) return transaction.expenseType;
   return inferCarExpenseType(transaction.category, transaction.subcategory, transaction.description);
 }
