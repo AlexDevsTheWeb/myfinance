@@ -3,6 +3,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Alert,
   Box,
   Button,
   IconButton,
@@ -68,6 +69,8 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year, y
     tireChanges,
     addTireChange,
     updateTireChange,
+    saveError,
+    isSaving,
   } = useFinanceStore();
 
   const [newReading, setNewReading] = useState('');
@@ -238,6 +241,12 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year, y
         {t('car.log.title')}
       </Typography>
 
+      {saveError && (
+        <Alert severity="error" variant="outlined" sx={{ mb: 1.5, borderRadius: 2 }}>
+          {t('car.log.saveError', { message: saveError })}
+        </Alert>
+      )}
+
       <Accordion
         disableGutters
         sx={{ bgcolor: 'transparent', border: '1px solid', borderColor: 'colors.border', borderRadius: 3, '&:before': { display: 'none' }, mb: 1.5 }}
@@ -322,7 +331,7 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year, y
                 {t('car.log.readingHint', { month: monthLabel(selectedMonth), year })}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-                <Button size="small" variant="contained" onClick={saveMileage} sx={{ textTransform: 'none' }}>
+                <Button size="small" variant="contained" onClick={saveMileage} disabled={isSaving} sx={{ textTransform: 'none' }}>
                   {editingId ? t('car.update') : t('car.addMileage')}
                 </Button>
                 {editingId && (
@@ -337,6 +346,11 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year, y
                     {t('common.cancel')}
                   </Button>
                 )}
+                {isSaving && (
+                  <Typography variant="caption" sx={{ color: 'colors.subtle', alignSelf: 'center' }}>
+                    {t('car.log.saving')}
+                  </Typography>
+                )}
               </Box>
 
               <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
@@ -350,6 +364,7 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year, y
                 />
                 <Button
                   size="small"
+                  disabled={isSaving}
                   onClick={() => {
                     const value = Number(initialMileageValue.replace(',', '.'));
                     if (Number.isFinite(value) && value >= 0) setCarInitialMileage(value);
@@ -521,7 +536,7 @@ const CarMileageTiresSection: React.FC<CarMileageTiresSectionProps> = ({ year, y
                 />
               </Box>
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button size="small" variant="contained" onClick={saveTireChange} sx={{ textTransform: 'none' }}>
+                <Button size="small" variant="contained" onClick={saveTireChange} disabled={isSaving} sx={{ textTransform: 'none' }}>
                   {editingTireId ? t('car.update') : t('car.addTire')}
                 </Button>
                 {editingTireId && (

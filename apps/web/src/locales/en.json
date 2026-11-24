@@ -321,6 +321,8 @@
       "vehicle": "Vehicle",
       "title": "Vehicle log",
       "monthCovered": "Month covered",
+      "saveError": "Could not save the mileage reading: {{message}}",
+      "saving": "Saving…",
       "readingHint": "Odometer at the end of {{month}} {{year}}.",
       "noMileage": "No mileage readings for this year.",
       "noTires": "No tire changes yet."

@@ -321,6 +321,8 @@
       "vehicle": "Veicolo",
       "title": "Registro veicolo",
       "monthCovered": "Mese di riferimento",
+      "saveError": "Impossibile salvare la lettura: {{message}}",
+      "saving": "Salvataggio…",
       "readingHint": "Contachilometri alla fine di {{month}} {{year}}.",
       "noMileage": "Nessuna lettura per questo anno.",
       "noTires": "Nessun cambio pneumatici."

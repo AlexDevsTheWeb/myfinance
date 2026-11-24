@@ -370,11 +370,11 @@ export function arrayUnion(...items: unknown[]): unknown[] {
   return items;
 }
 
-export async function runTransaction(
+export async function runTransaction<T>(
   _firestore: FakeFirestore,
-  fn: (transaction: FakeTransaction) => Promise<void>,
-): Promise<void> {
-  await fn(new FakeTransaction());
+  fn: (transaction: FakeTransaction) => Promise<T>,
+): Promise<T> {
+  return fn(new FakeTransaction());
 }
 
 export { FakeWriteBatch };
