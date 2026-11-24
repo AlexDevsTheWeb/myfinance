@@ -1073,3 +1073,9 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - `isPublicTransport()` excludes the common modes (IT/EN) even when the `/car` preset set `vehicleType: 'car'`; the legacy fallback now requires a vehicle category **and** a car keyword
 - Parking, tolls and rentals stay car costs (`maintenance`); no category or subcategory data change is needed
 - Tests 339 → **345 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean
+
+## [2026-11-24] review | Feature | Car & Fleet Analytics (type clearing)
+- The drawer re-inferred `expenseType` on save and the ledger showed a missing `vehicleType` as `Car`, so clearing type fields looked ineffective
+- `expenseType` now accepts the persisted value `none` (explicit no type) and suppresses inference; the drawer offers `Auto (inferred)`, `No type` and a reset action
+- A missing `vehicleType` displays as `Not set` instead of the implicit `Car`
+- Tests 345 → **350 / 18 files**; tsc clean, build green, lint 4E/2W, docs validator clean

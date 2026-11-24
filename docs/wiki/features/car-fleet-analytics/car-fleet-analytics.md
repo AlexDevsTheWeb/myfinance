@@ -69,6 +69,10 @@ Parking, tolls and rentals **are** kept as car costs and classified as
 `maintenance` (the non-fuel running-cost bucket). No category or subcategory data
 needs to change.
 
+Expense type is explicit: `Auto (inferred)` lets the category decide, `No type`
+persists `none` and suppresses inference, and fuel/maintenance/tax override it.
+Vehicle type is optional and shows as *Not set* in the ledger when absent.
+
 Why `vehicleName` and not a registry: the schema stays lightweight and additive,
 and the selector is built from the values that actually appear. A vehicle
 becomes visible on the page the moment an expense is tagged with it.
@@ -144,7 +148,7 @@ apps/web/src/
 ├── pages/CarPage.tsx                          # scope, filters, CSV, dialogs
 └── components/car/
     ├── car.utils.ts                           # classification, deltas, totals, series, legacy fallback
-    ├── car.utils.test.ts                      # 37 tests
+    ├── car.utils.test.ts                      # 39 tests
     ├── types.ts                               # colours, sort/expense types
     ├── CarScopeBar.tsx                        # vehicle select + year pills
     ├── CarSummaryCards.tsx                    # 4 KPIs with YoY badge
