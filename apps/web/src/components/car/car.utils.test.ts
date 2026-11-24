@@ -13,6 +13,7 @@ import {
   inferCarExpenseType,
   isCarCategory,
   isCarTransaction,
+  isPublicTransport,
   latestCarDataYear,
   legacyDistanceFor,
   legacyDistanceYoY,
@@ -410,5 +411,47 @@ describe('primary vehicle with a manual log and no transaction odometers', () =>
     expect(display.distanceKm).toBe(1000);
     expect(display.costPerKm).toBeCloseTo(110 / 1000, 5);
     expect(display.avgMonthlyKm).toBe(500);
+  });
+});
+
+describe('public transport exclusion', () => {
+  it('recognises common public transport names in both languages', () => {
+    expect(isPublicTransport('Trasporti', 'Trasporto pubblico')).toBe(true);
+    expect(isPublicTransport('Trasporti', 'Treno')).toBe(true);
+    expect(isPublicTransport('Transport', 'Metro')).toBe(true);
+    expect(isPublicTransport('Trasporti', 'Autobus')).toBe(true);
+    expect(isPublicTransport('Trasporti', 'Aereo')).toBe(true);
+    expect(isPublicTransport('Trasporti', 'Taxi')).toBe(true);
+    expect(isPublicTransport('Trasporti', 'Carburante')).toBe(false);
+    expect(isPublicTransport('Trasporti', 'Pedaggio')).toBe(false);
+    expect(isPublicTransport('Trasporti', 'Noleggio')).toBe(false);
+    expect(isPublicTransport('Trasporti', 'Carburante', 'Business trip')).toBe(false);
+  });
+
+  it('excludes tickets even when the /car preset set a vehicle type', () => {
+    const ticket = tx({ subcategory: 'Trasporto pubblico', vehicleType: 'car' });
+    expect(isCarTransaction(ticket)).toBe(false);
+    expect(classifyCarExpense(ticket)).toBeNull();
+    expect(isCarTransaction(tx({ subcategory: 'Treno', vehicleName: 'Peugeot 3008' }))).toBe(false);
+  });
+
+  it('still counts a row with a real odometer or litre reading', () => {
+    expect(isCarTransaction(tx({ subcategory: 'Trasporto pubblico', liters: 10 }))).toBe(true);
+  });
+
+  it('does not count generic transport rows without a car keyword', () => {
+    expect(isCarTransaction(tx({ subcategory: 'Bagaglio' }))).toBe(false);
+    expect(isCarTransaction(tx({ subcategory: 'Bagaglio', vehicleName: 'Peugeot 3008' }))).toBe(true);
+  });
+
+  it('keeps parking, toll and rental as vehicle costs', () => {
+    for (const subcategory of ['Parcheggio', 'Pedaggio', 'Noleggio']) {
+      expect(isCarTransaction(tx({ description: subcategory, subcategory }))).toBe(true);
+      expect(classifyCarExpense(tx({ description: subcategory, subcategory }))).toBe('maintenance');
+    }
+  });
+
+  it('does not turn a home maintenance item into a car expense', () => {
+    expect(isCarTransaction(tx({ category: 'Casa', subcategory: 'Manutenzione' }))).toBe(false);
   });
 });

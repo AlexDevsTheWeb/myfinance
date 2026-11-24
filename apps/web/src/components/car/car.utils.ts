@@ -92,7 +92,29 @@ export interface LegacyMileagePoint {
 
 const FUEL_WORDS = ['carburante', 'benzina', 'gasolio', 'diesel', 'fuel', 'rifornimento', 'petrol', 'metano'];
 const TAX_WORDS = ['bollo', 'assicurazione', 'tassa', 'tax', 'insurance'];
-const MAINTENANCE_WORDS = ['tagliando', 'manutenzione', 'riparazione', 'service', 'gomme', 'pneumatici', 'tires', 'tyres', 'revisione', 'meccanico'];
+const MAINTENANCE_WORDS = [
+  'tagliando',
+  'manutenzione',
+  'riparazione',
+  'service',
+  'gomme',
+  'pneumatici',
+  'tires',
+  'tyres',
+  'revisione',
+  'meccanico',
+  'parcheggio',
+  'parking',
+  'pedaggio',
+  'pedaggi',
+  'toll',
+  'lavaggio',
+  'car wash',
+  'multa',
+  'sosta',
+  'noleggio',
+  'rental',
+];
 const VEHICLE_WORDS = [
   'trasporti',
   'transport',
@@ -111,6 +133,46 @@ const VEHICLE_WORDS = [
   'fuel',
   'rifornimento',
 ];
+
+/**
+ * Public transport is travel, not a cost of owning a vehicle. These rows live in
+ * the same "Trasporti" category as fuel, so the category alone cannot decide.
+ */
+const PUBLIC_TRANSPORT_RE = new RegExp(
+  String.raw`\b(?:` +
+    [
+      'trasporto pubblico',
+      'trasporti pubblici',
+      'mezzi pubblici',
+      'treno',
+      'treni',
+      'ferrovia',
+      'metro',
+      'metropolitana',
+      'autobus',
+      'pullman',
+      'tram',
+      'bus',
+      'aereo',
+      'aerei',
+      'volo',
+      'voli',
+      'taxi',
+      'uber',
+      'abbonamento',
+      'abbonamenti',
+      'traghetto',
+      'traghetti',
+      'ferry',
+      'snav',
+      'italo',
+      'trenitalia',
+      'biglietto',
+      'biglietti',
+    ].join('|') +
+    String.raw`)\b`,
+  'i',
+);
 
 const CAR_CATEGORY_NAMES = ['trasporti', 'transport', 'auto', 'car', 'veicolo', 'vehicle', 'moto', 'fleet', 'flotta'];
 
@@ -134,25 +196,47 @@ export function isCarCategory(category: string, subcategory: string): boolean {
   return hasWord(`${category} ${subcategory}`.toLowerCase(), VEHICLE_WORDS);
 }
 
+/** True for a public transport / travel expense (train, metro, bus, flight, taxi…). */
+export function isPublicTransport(category: string, subcategory: string, description = ''): boolean {
+  return PUBLIC_TRANSPORT_RE.test(`${category} ${subcategory} ${description}`);
+}
+
 /**
- * A car expense is any expense that carries a car field, or whose category is
- * a vehicle category. Utility bills are explicitly excluded even when their
- * category happens to contain a shared word.
+ * A car expense needs a car-specific signal.
+ *
+ * `Trasporti` alone is too broad: train and metro tickets live there too. The
+ * order matters:
+ *
+ * 1. income, utility bills and public transport are never vehicle costs;
+ * 2. a strong car field (odometer, litres, €/L, explicit expense type) wins;
+ * 3. an explicit vehicle tag wins;
+ * 4. legacy fallback: a vehicle category **and** a car-expense keyword (fuel,
+ *    maintenance, tax, parking, toll, rental).
+ *
+ * Public transport is excluded even when the `/car` preset auto-set
+ * `vehicleType: 'car'`, because that preset is not a decision to count a ticket
+ * as a vehicle cost. A row with a real odometer/litre reading still wins.
  */
 export function isCarTransaction(transaction: Transaction): boolean {
   if (transaction.type !== 'expense') return false;
   if (transaction.utilityType) return false;
-  if (
-    transaction.vehicleName ||
-    transaction.vehicleType ||
+
+  const strongCarFields =
     transaction.expenseType !== undefined ||
     transaction.odometerKm !== undefined ||
     transaction.liters !== undefined ||
-    transaction.pricePerLiter !== undefined
-  ) {
-    return true;
+    transaction.pricePerLiter !== undefined;
+
+  if (isPublicTransport(transaction.category, transaction.subcategory, transaction.description)) {
+    return strongCarFields;
   }
-  return isCarCategory(transaction.category, transaction.subcategory);
+
+  if (strongCarFields || transaction.vehicleName || transaction.vehicleType) return true;
+
+  return (
+    isCarCategory(transaction.category, transaction.subcategory) &&
+    inferCarExpenseType(transaction.category, transaction.subcategory) !== null
+  );
 }
 
 /** Explicit kind first, then category keywords. */
