@@ -2,13 +2,13 @@
 type: Index
 title: "MyFinance Wiki — Knowledge Bundle Index"
 description: "Master catalog of all knowledge pages for the Balancr / MyFinance project. Entry point for agent traversal."
-timestamp: 2026-11-23
+timestamp: 2026-11-24
 ---
 
 # Wiki Index
 
-*Last updated: 2026-11-23* (bundle moved to `docs/`, legacy planning material archived — see [[wiki/decisions/wiki-reorganization]])
-*Total pages: 102* — implementation reports live beside their concept page and are not listed here.
+*Last updated: 2026-11-24* (SemVer 1.0 adopted; `v1.0.0-beta.1` milestone planned — see [[wiki/decisions/semver-1-0-adoption]])
+*Total pages: 105* — implementation reports live beside their concept page and are not listed here.
 
 ---
 
@@ -61,6 +61,7 @@ timestamp: 2026-11-23
 
 | Page | Summary | Sources |
 |------|---------|---------|
+| [[wiki/plans/v1.0.0-beta.1-release]] | 🚧 First SemVer milestone: scope, release notes, post-merge tag commands | [`raw/2026-11-24-versioning/2026-11-24-versioning.md`](raw/2026-11-24-versioning/2026-11-24-versioning.md) |
 | [[wiki/plans/roadmap]] | Project roadmap with phases, status, and priorities | [`raw/ROADMAP/ROADMAP.md`](raw/ROADMAP/ROADMAP.md) |
 | [[wiki/plans/car-redesign-implementation]] | Step-by-step implementation plan for car management redesign | [`raw/PLANS/PLANS.md`](raw/PLANS/PLANS.md) |
 | [[wiki/plans/transaction-layout-implementation]] | Implementation plan for transaction page layout restructure | [#80](https://github.com/AlexDevsTheWeb/myfinance/issues/80) |
@@ -94,6 +95,7 @@ timestamp: 2026-11-23
 | [[wiki/decisions/balancr-identity-system]] | ✅ Balancr identity: Linked Hexagons logo, dark palette, gradient system | [`raw/balancr-identity-system/balancr-identity-system.md`](raw/balancr-identity-system/balancr-identity-system.md) |
 | [[wiki/decisions/website-as-separate-hosting-target]] | ✅ `apps/website` as a peer workspace with its own Firebase Hosting site — root scripts stay app-only, every deploy pins its target | [`raw/website/website.md`](raw/website/website.md), [`#193`](https://github.com/AlexDevsTheWeb/myfinance/issues/193) |
 | [[wiki/decisions/wiki-reorganization]] | ✅ Knowledge bundle moved to `docs/{raw,wiki}` — legacy GSD/OpenSpec/Superpowers material archived, skills consolidated in `.claude/skills/` | [`raw/2026-10-26-cleaning/2026-10-26-cleaning.md`](raw/2026-10-26-cleaning/2026-10-26-cleaning.md) |
+| [[wiki/decisions/semver-1-0-adoption]] | ✅ SemVer replaces year-prefixed CalVer from `1.0.0-beta.1`; CalVer tags remain history, breaking detection fixed | [`raw/2026-11-24-versioning/2026-11-24-versioning.md`](raw/2026-11-24-versioning/2026-11-24-versioning.md) |
 
 ## Queries
 
@@ -101,6 +103,7 @@ timestamp: 2026-11-23
 |------|---------|---------|
 | [[wiki/queries/app-review]] | 🔴 Comprehensive app audit: strengths, weaknesses, architecture anti-patterns, improvement suggestions | [`raw/app-review/app-review.md`](raw/app-review/app-review.md) |
 | [[wiki/queries/new-user-auth-flow]] | New user registration flow analysis via Google Auth — data isolation, concerns, false alarms | [`raw/new-user-auth-flow/new-user-auth-flow.md`](raw/new-user-auth-flow/new-user-auth-flow.md) |
+| [[wiki/queries/open-issues-inventory-2026-11-24]] | 📋 All 26 open issues with summaries, staleness checks and proposed `v1.0.0` milestones | [`raw/2026-11-24-versioning/2026-11-24-versioning.md`](raw/2026-11-24-versioning/2026-11-24-versioning.md) |
 
 ## Bugs
 

@@ -1026,3 +1026,17 @@ description: "Chronological append-only record of all wiki operations: ingests, 
 - Marked [[wiki/features/quick-actions-fab/quick-actions-fab]] deprecated; flagged the historical FAB claims in the dashboard and sidebar redesign pages
 - Updated [[wiki/features/utilities-consumption-page/utilities-consumption-page]], its report and [[wiki/features/add-transaction-drawer/add-transaction-drawer]]
 - Verification: tsc clean, build green, **301 tests / 17 files**, lint at the 6E/3W baseline, docs validator clean
+
+## [2026-11-24] ingest | Decision + Plan | SemVer 1.0 and v1.0.0-beta.1
+- Source: `raw/2026-11-24-versioning/2026-11-24-versioning.md` (asked to tag `development` as `v1.0.0-beta.1` and inventory the open issues)
+- The tag request conflicted with the CalVer release pipeline and with `main` being 53 commits behind `development`; the user chose to switch to SemVer first
+- Created [[wiki/decisions/semver-1-0-adoption]] and [[wiki/plans/v1.0.0-beta.1-release]]; rewrote the scheme in [[wiki/architecture/versioning]] and added breaking-change + prerelease baselines to [[wiki/architecture/release-pipeline]]
+- `package.json` is now `1.0.0-beta.1`; the release-detection regex now recognises `feat!:` / `fix(scope)!:`, which it previously missed entirely
+- Created [[wiki/queries/open-issues-inventory-2026-11-24]]: 26 open issues, 3 close candidates (#127, #137, #123), proposed `v1.0.0-beta.2` / `-beta.3` / `1.0.0`
+- Tag and GitHub Release are post-merge steps in the plan; nothing is deployed
+- Refreshed [[wiki/features/dashboard-redesign/dashboard-redesign]] with the 2026-10-26 Stitch rebuild (PR #195), stale since June; corrected the Settings rail width to 220px to match `SettingsNav.tsx`
+- Verification: tsc clean, build green, **301 tests / 17 files**, lint at the 6E/3W baseline, docs validator clean
+
+## [2026-11-24] report | Plan | v1.0.0-beta.1 release
+- Created [[wiki/plans/v1.0.0-beta.1-release-report-2026-11-24]] — status `partially-shipped` (switch shipped, tag deferred)
+- Deviations recorded: no tag/Release in the PR, document changelog corrected (Dashboard/marketing/monorepo were missing; `#0B0E14` → `#0B0F17`), regex fix was unrequested but required

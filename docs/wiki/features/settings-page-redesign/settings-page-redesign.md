@@ -1,10 +1,10 @@
 ---
 type: Feature
 title: "Settings Page Redesign"
-description: "SettingsPage (formerly ConfigPage) with a 240px sub-sidebar nav on desktop and scrollable pills on mobile, entity creation via shared right drawers, theme-token surfaces and monospaced figures."
+description: "SettingsPage (formerly ConfigPage) with a 220px sub-sidebar nav on desktop and scrollable pills on mobile, entity creation via shared right drawers, theme-token surfaces and monospaced figures."
 tags: [feature, settings, ui, frontend]
 created: 2026-10-26
-updated: 2026-10-26
+updated: 2026-11-24
 status: implemented
 sources: ["raw/2026-10-UI-refactor/2026-10-26-settings.md", "raw/2026-10-UI-refactor/2026-10-26-settings.html"]
 related: ["wiki/features/add-transaction-drawer/add-transaction-drawer", "wiki/features/card-plafond-tracking/card-plafond-tracking", "wiki/features/user-configurable-rates/user-configurable-rates", "wiki/architecture/system-architecture"]
@@ -28,7 +28,7 @@ redesign, not new functionality.
 apps/web/src/
 ├── pages/SettingsPage.tsx            # state, handlers, tab panels
 └── components/settings/
-    ├── SettingsNav.tsx               # 240px rail (md+) / scrollable pills (xs)
+    ├── SettingsNav.tsx               # 220px rail (md+) / scrollable pills (xs)
     ├── EntityDrawer.tsx              # shared right slide-over
     ├── categoryColor.ts              # deterministic colour from the name
     └── settings.styles.ts            # surfaces + monospaced figures
@@ -41,7 +41,7 @@ Input styling is shared with the transaction drawer through
 
 | Breakpoint | Layout |
 |---|---|
-| `md` and up | Sticky 240px rail, active row highlighted with a cyan left bar and accent text |
+| `md` and up | Sticky 220px rail, active row highlighted with a cyan left bar and accent text |
 | below `md` | Horizontally scrollable `Tabs` |
 
 Both render from one `SettingsSection[]`, so the two layouts cannot drift.
